@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Hard Rock Bet Card Prototype (NOT LIVE - for review only)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #050505;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 60px 20px;
+  }
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .label {
+    color: #d4af37;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .card {
+    position: relative;
+    width: 360px;
+    max-width: 90vw;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 0 0 1px rgba(212,175,55,0.18), 0 25px 70px rgba(0,0,0,0.6);
+    background: #0a0a0a;
+  }
+  .banner {
+    position: relative;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(85% 65% at 30% 22%, #b98bff 0%, #8b52ee 20%, #5c28b8 40%, #24103f 66%, #050208 100%);
+    overflow: hidden;
+  }
+  /* Diagonal light-streak texture, integrated into the same background
+     layer (not a separate pasted asset) so the surface reads as one
+     continuous material behind the logo mark. */
+  .banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.07) 0px, rgba(255,255,255,0.07) 3px, transparent 3px, transparent 22px),
+      repeating-linear-gradient(65deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 2px, transparent 2px, transparent 34px);
+    mix-blend-mode: overlay;
+    opacity: 0.55;
+  }
+  .banner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(55% 50% at 42% 38%, rgba(210,175,255,0.4) 0%, rgba(210,175,255,0) 62%),
+      radial-gradient(130% 110% at 50% 108%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.78) 100%);
+  }
+  .logo-mark {
+    position: relative;
+    z-index: 2;
+    height: 58%;
+    width: auto;
+    filter: drop-shadow(0 10px 26px rgba(0,0,0,0.55)) drop-shadow(0 0 46px rgba(190,145,255,0.55));
+  }
+  .pill {
+    position: absolute;
+    z-index: 3;
+    right: 18px;
+    top: 18px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    border: 1px solid rgba(212,175,55,0.65);
+    background: rgba(10,6,18,0.55);
+    backdrop-filter: blur(6px);
+    color: #e8c766;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+  .body {
+    padding: 24px 26px 28px;
+    background: linear-gradient(180deg, #0d0d0d 0%, #070707 100%);
+  }
+  .title {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 10px;
+  }
+  .desc {
+    color: #b7b7bd;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 20px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    border: 1px solid rgba(212,175,55,0.5);
+    color: #d4af37;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="label">Prototype - Not Live - For Review Only<br>Logo mark integrated directly into the gradient (no pasted rectangle)</p>
+    <div class="card">
+      <div class="banner">
+        <img class="logo-mark" alt="Hard Rock Bet" src="data:image/png;base64,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" />
+        <span class="pill">Sports Betting</span>
+      </div>
+      <div class="body">
+        <h2 class="title">Hard Rock Bet</h2>
+        <p class="desc">Official sportsbook of Hard Rock. Bet on sports with confidence.</p>
+        <span class="btn">View Profile</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

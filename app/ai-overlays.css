@@ -1,0 +1,100 @@
+/* ==========================================================================
+   Gorgona One AI — global overlay styles (Discovery Room).
+
+   Kept in a real stylesheet (imported once from app/layout.js) rather than
+   styled-jsx: the Discovery Room renders child components whose elements a
+   scoped <style jsx> would not reach, and styled-jsx global mode does not accept
+   an external style constant. Every selector is `.dr`-namespaced, so this is
+   collision-safe and touches nothing else on the site. Theme: Light = V1,
+   Dark = V2 — set via the [data-ai-theme] attribute on the `.dr` root.
+   ========================================================================== */
+
+.dr { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+.dr__scrim {
+  position: absolute; inset: 0; background: rgba(8, 6, 3, 0.5);
+  opacity: 0; transition: opacity 0.35s ease; backdrop-filter: blur(2px);
+}
+.dr.is-open { pointer-events: auto; }
+.dr.is-open .dr__scrim { opacity: 1; }
+
+.dr__panel {
+  position: absolute; top: 0; right: 0; height: 100%;
+  width: min(440px, 92vw); display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: -30px 0 80px -30px rgba(0, 0, 0, 0.6);
+}
+.dr.is-open .dr__panel { transform: translateX(0); }
+.dr[data-ai-theme="dark"] .dr__panel {
+  background: linear-gradient(180deg, #211a11 0%, #14100b 100%); color: #ece4d4;
+  border-left: 1px solid rgba(216, 180, 120, 0.2);
+}
+.dr[data-ai-theme="light"] .dr__panel {
+  background: linear-gradient(180deg, #fbf7ee 0%, #f2e9d8 100%); color: #2c281f;
+  border-left: 1px solid rgba(198, 160, 94, 0.28);
+}
+
+.dr__head { display: flex; align-items: flex-start; justify-content: space-between; padding: 22px 22px 14px; }
+.dr__eyebrow { font-family: "Space Mono", ui-monospace, monospace; font-size: 8.5px; letter-spacing: 0.28em; text-transform: uppercase; color: #c6a05e; margin: 0 0 6px; }
+.dr__title { font-family: "Playfair Display", Georgia, serif; font-weight: 500; font-size: 22px; margin: 0; }
+.dr__close { border: none; background: transparent; font-size: 16px; cursor: pointer; color: inherit; opacity: 0.6; padding: 4px 8px; }
+.dr__close:hover { opacity: 1; }
+
+.dr__ask { display: flex; gap: 8px; padding: 0 22px 16px; }
+.dr__input {
+  flex: 1; min-width: 0; border-radius: 999px; padding: 10px 16px; font-size: 14px; font-family: inherit; outline: none;
+}
+.dr[data-ai-theme="dark"] .dr__input { background: rgba(255, 240, 205, 0.06); border: 1px solid rgba(216, 180, 120, 0.3); color: #f3ead7; }
+.dr[data-ai-theme="light"] .dr__input { background: #fff; border: 1px solid rgba(198, 160, 94, 0.4); color: #2c281f; }
+.dr__go {
+  flex: none; border-radius: 999px; padding: 0 18px; font-size: 13px; font-weight: 600; cursor: pointer;
+  background: linear-gradient(180deg, #e7c98f, #c6a05e); color: #2a2013; border: 1px solid #b7893f;
+}
+.dr__go:disabled { opacity: 0.6; cursor: default; }
+
+/* overscroll-behavior: contain stops this list's own scroll from "rubber
+   banding" past its edge into whatever sits behind the (now scroll-locked)
+   page - a purely physical scroll behavior change, no visual difference. */
+.dr__body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 4px 22px 20px; }
+.dr__section { margin-top: 20px; }
+.dr__sectionHead { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.dr__sectionTitle { font-family: "Space Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; margin: 0; opacity: 0.7; }
+.dr__sectionAction { border: none; background: transparent; color: #c6a05e; font-size: 11px; cursor: pointer; }
+.dr__empty { font-size: 12.5px; line-height: 1.6; opacity: 0.55; margin: 0; }
+.dr__list { display: flex; flex-direction: column; gap: 8px; }
+
+.dr__row { display: flex; align-items: stretch; gap: 6px; }
+.dr__rowMain {
+  flex: 1; min-width: 0; text-align: left; cursor: pointer; border-radius: 12px; padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 3px; font-family: inherit;
+}
+.dr[data-ai-theme="dark"] .dr__rowMain { background: rgba(255, 240, 205, 0.05); border: 1px solid rgba(216, 180, 120, 0.18); }
+.dr[data-ai-theme="light"] .dr__rowMain { background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(198, 160, 94, 0.24); }
+.dr__rowMain:hover { border-color: #c6a05e; }
+.dr__rowType { font-family: "Space Mono", ui-monospace, monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: #c6a05e; }
+.dr__rowTitle { font-size: 14px; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dr__rowSub { font-size: 11.5px; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dr__pin { flex: none; width: 40px; border-radius: 12px; cursor: pointer; font-size: 15px; background: transparent; color: #c6a05e; }
+.dr[data-ai-theme="dark"] .dr__pin { border: 1px solid rgba(216, 180, 120, 0.18); }
+.dr[data-ai-theme="light"] .dr__pin { border: 1px solid rgba(198, 160, 94, 0.24); }
+.dr__pin.is-saved { color: #e0b653; }
+
+.dr__hist { display: flex; flex-direction: column; gap: 6px; }
+.dr__histQ { display: flex; align-items: center; gap: 8px; text-align: left; cursor: pointer; background: transparent; border: none; color: inherit; font-size: 13.5px; font-family: inherit; padding: 2px 0; }
+.dr__histIcon { color: #c6a05e; font-size: 12px; }
+.dr__histResults { display: flex; flex-wrap: wrap; gap: 6px; padding-left: 20px; }
+.dr__mini {
+  font-size: 11px; padding: 4px 9px; border-radius: 999px; cursor: pointer; font-family: inherit;
+  max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dr[data-ai-theme="dark"] .dr__mini { background: rgba(216, 180, 120, 0.12); border: 1px solid rgba(216, 180, 120, 0.28); color: #e6d8b8; }
+.dr[data-ai-theme="light"] .dr__mini { background: rgba(255, 253, 248, 0.7); border: 1px solid rgba(198, 160, 94, 0.3); color: #5b544a; }
+
+.dr__foot { padding: 14px 22px 22px; }
+.dr__return {
+  width: 100%; border-radius: 999px; padding: 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+  background: linear-gradient(180deg, #e7c98f, #c6a05e); color: #2a2013; border: 1px solid #b7893f;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dr__panel, .dr__scrim { transition: none; }
+}

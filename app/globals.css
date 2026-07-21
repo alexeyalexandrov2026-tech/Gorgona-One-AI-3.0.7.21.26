@@ -1,0 +1,591 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --brand-gold: #d4af37;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(212, 175, 55, 0.22), transparent 28%),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.08), transparent 18%),
+    #050505;
+  color: #f5f2eb;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  transition: color 180ms ease, border-color 180ms ease, background-color 180ms ease, opacity 180ms ease;
+}
+
+::selection {
+  background: rgba(212, 175, 55, 0.35);
+  color: #f8f4e8;
+}
+
+@layer components {
+  .market-shell {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(10, 10, 10, 0.92);
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.16), 0 18px 55px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(18px);
+  }
+
+  .market-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+    transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+  }
+
+  .market-card:hover {
+    border-color: rgba(212, 175, 55, 0.4);
+    background: rgba(212, 175, 55, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .market-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    background: rgba(212, 175, 55, 0.1);
+    padding: 0.25rem 0.75rem;
+    color: var(--brand-gold);
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .market-title {
+    font-size: clamp(1.9rem, 2.5vw, 3rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: white;
+  }
+
+  .market-subtitle {
+    margin-top: 1rem;
+    max-width: 42rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgb(212 212 216);
+  }
+
+  .market-button {
+    border-radius: 9999px;
+    background: var(--brand-gold);
+    padding: 0.8rem 1.25rem;
+    font-weight: 600;
+    color: #050505;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .market-button:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+
+  .market-button-secondary {
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    padding: 0.8rem 1.25rem;
+    font-weight: 600;
+    color: white;
+    transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
+  }
+
+  .market-button-secondary:hover {
+    border-color: rgba(212, 175, 55, 0.4);
+    color: var(--brand-gold);
+    background: rgba(212, 175, 55, 0.08);
+  }
+
+  /* Sportsbook directory card banner: each brand supplies its own
+     --sb-gradient (the base radial background) and --sb-glow (a soft
+     radial highlight tucked behind the logo mark) as inline custom
+     properties; the diagonal light-streak texture and bottom vignette
+     are shared so every brand reads as the same integrated material
+     instead of a logo image sitting on top of a background. */
+  .sportsbook-banner {
+    position: relative;
+    overflow: hidden;
+    background: var(--sb-gradient);
+  }
+
+  .sportsbook-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.07) 0px, rgba(255, 255, 255, 0.07) 3px, transparent 3px, transparent 22px),
+      repeating-linear-gradient(65deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 2px, transparent 2px, transparent 34px);
+    mix-blend-mode: overlay;
+    opacity: 0.55;
+  }
+
+  .sportsbook-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(55% 50% at 42% 38%, var(--sb-glow), transparent 62%),
+      radial-gradient(130% 110% at 50% 108%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.78) 100%);
+  }
+
+  .sportsbook-banner img {
+    position: relative;
+    z-index: 2;
+    filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 40px var(--sb-glow));
+  }
+
+  .featured-deal-card {
+    border: 1.5px solid var(--fd-accent);
+    background: linear-gradient(120deg, rgba(10, 10, 10, 0.96), rgba(0, 0, 0, 0.88));
+    box-shadow: 0 0 24px var(--fd-glow), 0 18px 40px rgba(0, 0, 0, 0.5);
+    transition: box-shadow 220ms ease, transform 220ms ease, border-color 220ms ease;
+  }
+
+  .featured-deal-card:hover {
+    box-shadow: 0 0 36px var(--fd-glow), 0 22px 50px rgba(0, 0, 0, 0.55);
+    transform: translateY(-2px);
+  }
+}
+
+/* ============================================================
+   GORGONA ONE — unified luxury design system
+   One cinematic dark ecosystem; each section carries its own
+   accent + typographic signature migrated from its reference.
+   ============================================================ */
+
+@layer utilities {
+  /* Break a block out of the centered max-w-7xl shell to full viewport width */
+  .full-bleed {
+    width: 100vw;
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@layer components {
+  /* ---- Shared luxury primitives ---- */
+  .lux-section {
+    --lux-accent: #d4af37;
+    --lux-accent-soft: rgba(212, 175, 55, 0.14);
+  }
+
+  .lux-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 0.62rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.34em;
+    color: var(--lux-accent);
+    /* Keeps the label legible when it sits over bright hero photography. */
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+  }
+
+  .lux-eyebrow::before {
+    content: '';
+    width: 1.75rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.6;
+  }
+
+  .lux-display {
+    font-family: var(--font-display), sans-serif;
+    font-weight: 500;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    color: #fff;
+  }
+
+  .lux-kicker {
+    font-family: var(--font-display), sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+
+  .lux-lede {
+    max-width: 42rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: rgb(212 212 216);
+  }
+
+  .lux-hairline {
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  }
+
+  .lux-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: 9999px;
+    background: var(--lux-accent);
+    padding: 0.85rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #050505;
+    transition: transform 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
+  }
+
+  .lux-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px -12px var(--lux-accent);
+  }
+
+  .lux-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 0.85rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #fff;
+    transition: border-color 200ms ease, color 200ms ease, background-color 200ms ease;
+  }
+
+  .lux-btn-ghost:hover {
+    border-color: var(--lux-accent);
+    color: var(--lux-accent);
+    background: var(--lux-accent-soft);
+  }
+
+  /* Premium experience tile used on the homepage section grid */
+  .lux-tile {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 1.5rem;
+    background: rgba(9, 9, 9, 0.6);
+    transition: border-color 320ms ease, transform 320ms ease;
+  }
+
+  .lux-tile:hover {
+    border-color: color-mix(in srgb, var(--lux-accent) 55%, transparent);
+    transform: translateY(-4px);
+  }
+
+  .lux-tile__media {
+    position: absolute;
+    inset: 0;
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lux-tile:hover .lux-tile__media {
+    transform: scale(1.06);
+  }
+
+  .lux-tile__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.55) 62%, rgba(0, 0, 0, 0.92) 100%);
+  }
+
+  .lux-tile__glow {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: radial-gradient(60% 55% at 30% 20%, var(--lux-accent-soft), transparent 70%);
+    transition: opacity 400ms ease;
+  }
+
+  .lux-tile:hover .lux-tile__glow {
+    opacity: 1;
+  }
+
+  /* ---- Section accent themes ---- */
+  .theme-home {
+    --lux-accent: #e8552b;
+    --lux-accent-soft: rgba(232, 85, 43, 0.16);
+  }
+
+  .theme-travel {
+    --lux-accent: #af50ff;
+    --lux-accent-soft: rgba(175, 80, 255, 0.16);
+  }
+
+  .theme-shopping {
+    --lux-accent: #e7ecea;
+    --lux-accent-soft: rgba(231, 236, 234, 0.12);
+  }
+
+  .theme-villa {
+    --lux-accent: #f9f5f2;
+    --lux-accent-soft: rgba(249, 245, 242, 0.1);
+  }
+
+  .theme-yacht {
+    --lux-accent: #7dd3fc;
+    --lux-accent-soft: rgba(3, 30, 37, 0.55);
+  }
+
+  .theme-car {
+    --lux-accent: #e6e6e6;
+    --lux-accent-soft: rgba(241, 241, 241, 0.1);
+  }
+
+  .theme-ferrari {
+    --lux-accent: #da291c;
+    --lux-accent-soft: rgba(218, 41, 28, 0.16);
+  }
+
+  .theme-sportsbook {
+    --lux-accent: #a855f7;
+    --lux-accent-soft: rgba(168, 85, 247, 0.16);
+  }
+
+  .theme-events {
+    --lux-accent: #d4af37;
+    --lux-accent-soft: rgba(212, 175, 55, 0.14);
+  }
+
+  .theme-concierge {
+    --lux-accent: #d4af37;
+    --lux-accent-soft: rgba(212, 175, 55, 0.14);
+  }
+
+  /* Editorial full-bleed hero shell (used across section landings) */
+  .lux-hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .lux-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    /* Luxurious fallback so the hero is never an empty black box while the
+       photograph streams in (or if it fails). Warm gold spotlight over a
+       deep charcoal stage — reads as intentional cinematography, not a gap. */
+    background:
+      radial-gradient(80% 60% at 22% 8%, color-mix(in srgb, var(--lux-accent) 26%, transparent), transparent 60%),
+      radial-gradient(70% 70% at 85% 30%, rgba(255, 255, 255, 0.06), transparent 55%),
+      linear-gradient(180deg, #0b0b0c 0%, #060606 55%, #050505 100%);
+  }
+
+  .lux-hero__grain {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.5;
+    background:
+      radial-gradient(120% 120% at 50% 0%, transparent 55%, rgba(0, 0, 0, 0.85) 100%),
+      radial-gradient(60% 50% at 20% 15%, var(--lux-accent-soft), transparent 60%);
+  }
+
+  /* Ferrari-style uppercase editorial caption */
+  .lux-caption-upper {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    font-size: 0.7rem;
+    color: var(--lux-accent);
+  }
+}
+
+/* ============================================================
+   Cinematic motion primitives
+   "Living frame" behaviour used to make static photography feel
+   like a slow film still — the way Ferrari / BMW landing pages
+   breathe without any 3D or video asset. Fully self-contained
+   (no external requests) and disabled under reduced-motion.
+   ============================================================ */
+
+@keyframes lux-kenburns {
+  0% {
+    transform: scale(1.08) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.18) translate3d(-1.6%, -1.4%, 0);
+  }
+}
+
+@keyframes lux-grain-shift {
+  0%   { transform: translate3d(0, 0, 0); }
+  20%  { transform: translate3d(-6%, 4%, 0); }
+  40%  { transform: translate3d(4%, -5%, 0); }
+  60%  { transform: translate3d(-3%, 6%, 0); }
+  80%  { transform: translate3d(5%, 3%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes lux-sheen {
+  0%   { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+  12%  { opacity: 0.5; }
+  30%  { transform: translateX(220%) skewX(-18deg); opacity: 0; }
+  100% { transform: translateX(220%) skewX(-18deg); opacity: 0; }
+}
+
+@layer components {
+  /* Slow cinematic zoom+pan for hero photography ("living frame"). */
+  .lux-kenburns {
+    animation: lux-kenburns 26s ease-in-out infinite alternate;
+    will-change: transform;
+    transform-origin: 55% 45%;
+  }
+
+  /* True film grain — a self-contained SVG noise tile that drifts
+     slowly so the frame feels alive. Overlaid at low opacity. */
+  .lux-grain {
+    position: absolute;
+    inset: -120%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.10;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+    animation: lux-grain-shift 8s steps(6) infinite;
+  }
+
+  /* One-shot light sweep across a surface (premium "polish" accent). */
+  .lux-sheen {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lux-sheen::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 45%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--lux-accent) 22%, rgba(255, 255, 255, 0.35)),
+      transparent
+    );
+    transform: translateX(-120%) skewX(-18deg);
+    animation: lux-sheen 7s ease-in-out 1.2s infinite;
+    pointer-events: none;
+  }
+}
+
+/* Fashion-zine ticker — black chrome announcement strip (Shopping). */
+@keyframes zine-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@layer components {
+  .zine-marquee {
+    display: flex;
+    width: max-content;
+    animation: zine-marquee 30s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lux-kenburns,
+  .lux-grain,
+  .lux-sheen::after,
+  .zine-marquee {
+    animation: none !important;
+  }
+  .lux-kenburns {
+    transform: scale(1.06);
+  }
+}
+
+/* ============================================================
+   AI Sphere — the GORGONA ONE concierge trigger, everywhere.
+   Every layer below animates only `transform`/`opacity`, so it
+   runs on the compositor thread (no canvas, no WebGL, no JS
+   animation loop) and stays smooth regardless of page weight.
+   ============================================================ */
+
+@keyframes ai-sphere-rotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ai-sphere-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.92); }
+  50% { opacity: 0.65; transform: scale(1.08); }
+}
+
+@keyframes ai-sphere-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@layer components {
+  .ai-sphere {
+    position: relative;
+    display: block;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 34% 28%, #fff8e2 0%, #f3d477 18%, #d4af37 42%, #8a681e 68%, #1a1305 100%);
+    box-shadow:
+      0 0 0 1px rgba(212, 175, 55, 0.35),
+      0 18px 40px rgba(0, 0, 0, 0.55),
+      inset 0 2px 10px rgba(255, 255, 255, 0.35),
+      inset 0 -12px 24px rgba(0, 0, 0, 0.45);
+    animation: ai-sphere-float 6s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .ai-sphere::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.55) 8%,
+      transparent 20%,
+      transparent 55%,
+      rgba(212, 175, 55, 0.6) 65%,
+      transparent 78%
+    );
+    opacity: 0.65;
+    mix-blend-mode: overlay;
+    animation: ai-sphere-rotate 9s linear infinite;
+    will-change: transform;
+  }
+
+  .ai-sphere__glow {
+    position: absolute;
+    inset: -30%;
+    z-index: -1;
+    display: block;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.55), transparent 70%);
+    filter: blur(14px);
+    animation: ai-sphere-pulse 4s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-sphere,
+  .ai-sphere::before,
+  .ai-sphere__glow {
+    animation: none !important;
+  }
+}
