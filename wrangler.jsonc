@@ -8,6 +8,23 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // `wrangler deploy` treats this file as the source of truth and overwrites the
+  // Worker's remote settings, so the custom domain and the Supabase vars have to
+  // live here - configuring them only in the dashboard means the next deploy
+  // silently strips them.
+  "routes": [
+    {
+      "pattern": "gorgona-one.com",
+      "zone_name": "gorgona-one.com",
+      "custom_domain": true
+    }
+  ],
+  // Publishable Supabase credentials: they are compiled into the browser bundle
+  // by Next.js anyway, and row level security is what actually restricts access.
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://ctszqhhvalyqxhbfqifx.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_28pvo_pKoHuCt7aCpIGvVA_WUScZcOw"
+  },
   "observability": {
     "enabled": true
   }
