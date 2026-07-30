@@ -5,9 +5,15 @@ import Link from 'next/link';
 import { useAiDock } from './AiDockProvider';
 import { AiConversation } from './AiConversation';
 import { useBodyScrollLock } from '../useBodyScrollLock';
+import { useLocale } from '../LocaleProvider';
+import { getTranslation } from '../../../lib/i18n';
 
 export function AiDock() {
   const { isOpen, close } = useAiDock();
+  // The dock chrome follows the global switcher too - the transcript inside
+  // it was already localized, so an English header was the odd one out.
+  const locale = useLocale();
+  const t = getTranslation(locale);
 
   // Prevents the mobile scroll-jump this dialog's own text input used to
   // trigger - see useBodyScrollLock for the root cause.
@@ -35,6 +41,14 @@ export function AiDock() {
         role="dialog"
         aria-modal="true"
         aria-label="GORGONA ONE AI Dock"
+        // The dock stays mounted when closed (it slides out on a transform,
+        // and unmounting would throw away the scroll position). Closed, it is
+        // only visually gone, so without `inert` its text input and buttons
+        // stay tabbable and visible to screen readers - and on /discovery,
+        // which renders its own copy of this conversation, that surfaced as
+        // two identical "Ask the concierge" inputs on one page.
+        inert={isOpen ? undefined : ''}
+        aria-hidden={!isOpen}
         className={`fixed bottom-0 right-0 z-50 flex h-[min(640px,88vh)] w-full flex-col border-t border-white/10 bg-[#0a0a0a]/[0.97] p-5 shadow-premium backdrop-blur-xl transition-transform duration-300 sm:bottom-6 sm:right-6 sm:h-[560px] sm:w-[400px] sm:rounded-[1.75rem] sm:border ${
           isOpen ? 'translate-y-0' : 'translate-y-[110%]'
         }`}
@@ -50,12 +64,12 @@ export function AiDock() {
               onClick={close}
               className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold"
             >
-              Discovery Room
+              {t.ai?.discoveryRoom || 'Discovery Room'}
             </Link>
             <button
               type="button"
               onClick={close}
-              aria-label="Close AI Dock"
+              aria-label={t.ai?.closeAI || 'Close AI Dock'}
               className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold"
             >
               ✕
@@ -63,7 +77,10 @@ export function AiDock() {
           </div>
         </div>
         <div className="min-h-0 flex-1">
-          <AiConversation variant="dock" />
+          {/* Following a card navigates the page underneath, so the dock gets
+              out of the way. The thread lives in ChatProvider and is waiting
+              when the guest reopens it. */}
+          <AiConversation variant="dock" onNavigate={close} />
         </div>
       </aside>
     </>

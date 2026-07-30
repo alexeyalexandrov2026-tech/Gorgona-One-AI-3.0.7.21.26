@@ -13,6 +13,8 @@ import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { useAI } from './AIProvider';
 import { useVoice } from './useVoice';
+import { useConciergeChat } from './ChatProvider';
+import { useAiDock } from './AiDockProvider';
 
 // The ecosystem provider (dynamic index + intent + language) is imported lazily
 // on first interaction so the data-heavy index never weighs down initial load.
@@ -68,6 +70,10 @@ export default function GorgonaOneAI() {
   const locale = useLocale();
   const t = getTranslation(locale);
   const ai = useAI();
+  // The homepage bar is the third view of the shared concierge thread: what
+  // is asked here continues in the sphere dock and on /discovery.
+  const { send: askConcierge } = useConciergeChat();
+  const { open: openDock } = useAiDock();
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const engineRef = useRef(null);
@@ -165,14 +171,28 @@ export default function GorgonaOneAI() {
     }
   }
 
+  // Submitting asks the AI brain rather than teleporting the guest to the
+  // first constellation hit. The concierge answers with navigation cards, so
+  // the destination is one tap away AND explained - and the constellation
+  // below keeps reacting exactly as before.
   async function onSubmit(e) {
     e.preventDefault();
-    if (!query.trim()) return;
+    const value = query.trim();
+    if (!value) return;
+
+    // Open first so the guest immediately sees their message and the typing
+    // indicator; the reply lands in the same thread the dock is showing.
+    openDock();
+    askConcierge(value);
+
+    // Keep the constellation and the Discovery Room's history in step with
+    // the query - this is the homepage's own visual language, not the chat.
     const { askEcosystem } = await loadProvider();
-    const res = await askEcosystem({ query, locale });
+    const res = await askEcosystem({ query: value, locale });
     if (res.results.length) {
-      ai.recordQuery({ query, world: res.world, lang: res.lang, results: res.results, selected: res.results[0] });
-      router.push(res.results[0].href);
+      ai.recordQuery({ query: value, world: res.world, lang: res.lang, results: res.results });
+      setMatches(res.results);
+      setPhase('intent');
     }
   }
 

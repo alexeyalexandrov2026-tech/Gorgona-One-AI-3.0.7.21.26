@@ -41,8 +41,13 @@ export default function AIDock() {
       <DiscoveryRoom />
 
       <style jsx>{`
+        /* Sits ABOVE the AiSphere, which owns the bottom-right corner
+           (bottom-6 right-5, 60px, z-50). Both were pinned to the same spot,
+           and because this pill carries the higher z-index it swallowed
+           clicks aimed at the lower half of the sphere - the concierge
+           button simply would not open from there. */
         .aidock {
-          position: fixed; right: 20px; bottom: 20px; z-index: 55;
+          position: fixed; right: 20px; bottom: 96px; z-index: 55;
           display: inline-flex; align-items: center; gap: 9px;
           padding: 10px 16px 10px 11px; border-radius: 999px; cursor: pointer;
           font-family: "Space Mono", ui-monospace, monospace; font-size: 11px;
@@ -61,6 +66,8 @@ export default function AIDock() {
         .aidock:hover { transform: translateY(-2px); }
         .aidock:focus-visible { outline: 2px solid #c6a05e; outline-offset: 3px; }
         .aidock.is-open { opacity: 0.85; }
+        /* The sphere moves to bottom-8 right-8 at the sm breakpoint. */
+        @media (min-width: 640px) { .aidock { right: 32px; bottom: 108px; } }
 
         .aidock__orb {
           position: relative; width: 22px; height: 22px; border-radius: 50%;
