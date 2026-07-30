@@ -1,0 +1,206 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1250" width="2000" height="1250">
+  <title>Concerts and live shows</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1d0f33"/>
+      <stop offset="42%" stop-color="#120a22"/>
+      <stop offset="100%" stop-color="#070410"/>
+    </linearGradient>
+    <linearGradient id="beam-gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffd275" stop-opacity="0.62"/>
+      <stop offset="58%" stop-color="#ffc860" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ffc860" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="beam-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c48bff" stop-opacity="0.55"/>
+      <stop offset="58%" stop-color="#a86dff" stop-opacity="0.11"/>
+      <stop offset="100%" stop-color="#a86dff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="beam-magenta" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff7fc4" stop-opacity="0.5"/>
+      <stop offset="58%" stop-color="#ff5fae" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#ff5fae" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="footlight" cx="0.5" cy="1" r="0.72">
+      <stop offset="0%" stop-color="#ffcb6e" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#ffcb6e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="vignette" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.42"/>
+      <stop offset="34%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="2000" height="1250" fill="url(#sky)"/>
+
+  <!-- beams -->
+  <g>
+    <polygon points="232,268 0,1075 464,1075" fill="url(#beam-gold)"/>
+    <polygon points="520,268 288,1075 752,1075" fill="url(#beam-violet)"/>
+    <polygon points="806,268 574,1075 1038,1075" fill="url(#beam-gold)"/>
+    <polygon points="1094,268 862,1075 1326,1075" fill="url(#beam-magenta)"/>
+    <polygon points="1382,268 1150,1075 1614,1075" fill="url(#beam-violet)"/>
+    <polygon points="1668,268 1436,1075 1900,1075" fill="url(#beam-gold)"/>
+  </g>
+
+  <!-- atmospheric haze across the beams -->
+  <ellipse cx="1000" cy="720" rx="1120" ry="230" fill="#b98cff" opacity="0.07"/>
+  <ellipse cx="760" cy="560" rx="720" ry="170" fill="#ffd48a" opacity="0.05"/>
+
+  <!-- specks of light in the air -->
+  <g fill="#ffe6b4">
+    <circle cx="58" cy="845" r="2.2" opacity="0.37"/>
+    <circle cx="974" cy="932" r="1.1" opacity="0.62"/>
+    <circle cx="1097" cy="343" r="1.5" opacity="0.33"/>
+    <circle cx="442" cy="460" r="3.0" opacity="0.35"/>
+    <circle cx="273" cy="721" r="3.6" opacity="0.53"/>
+    <circle cx="1570" cy="363" r="1.9" opacity="0.67"/>
+    <circle cx="280" cy="483" r="1.8" opacity="0.18"/>
+    <circle cx="1117" cy="935" r="0.7" opacity="0.60"/>
+    <circle cx="1295" cy="730" r="1.3" opacity="0.35"/>
+    <circle cx="1271" cy="429" r="1.3" opacity="0.64"/>
+    <circle cx="701" cy="428" r="2.9" opacity="0.32"/>
+    <circle cx="147" cy="365" r="2.3" opacity="0.67"/>
+    <circle cx="792" cy="741" r="1.6" opacity="0.27"/>
+    <circle cx="1609" cy="762" r="2.6" opacity="0.53"/>
+    <circle cx="1293" cy="897" r="1.4" opacity="0.53"/>
+    <circle cx="44" cy="462" r="3.8" opacity="0.61"/>
+    <circle cx="1512" cy="366" r="2.2" opacity="0.42"/>
+    <circle cx="733" cy="332" r="0.7" opacity="0.42"/>
+    <circle cx="1795" cy="516" r="3.3" opacity="0.27"/>
+    <circle cx="1628" cy="403" r="2.6" opacity="0.40"/>
+    <circle cx="1332" cy="893" r="0.8" opacity="0.64"/>
+    <circle cx="142" cy="421" r="2.4" opacity="0.19"/>
+    <circle cx="140" cy="735" r="2.7" opacity="0.50"/>
+    <circle cx="1615" cy="645" r="1.6" opacity="0.27"/>
+    <circle cx="147" cy="588" r="2.3" opacity="0.63"/>
+    <circle cx="718" cy="764" r="3.6" opacity="0.61"/>
+    <circle cx="1620" cy="749" r="0.9" opacity="0.53"/>
+    <circle cx="406" cy="631" r="2.8" opacity="0.45"/>
+    <circle cx="904" cy="919" r="2.1" opacity="0.32"/>
+    <circle cx="1268" cy="376" r="2.2" opacity="0.22"/>
+    <circle cx="319" cy="539" r="1.5" opacity="0.52"/>
+    <circle cx="1912" cy="650" r="2.4" opacity="0.50"/>
+    <circle cx="766" cy="679" r="1.6" opacity="0.28"/>
+    <circle cx="1966" cy="348" r="1.1" opacity="0.23"/>
+    <circle cx="422" cy="809" r="0.6" opacity="0.44"/>
+    <circle cx="1021" cy="531" r="3.8" opacity="0.63"/>
+    <circle cx="1946" cy="435" r="3.4" opacity="0.46"/>
+    <circle cx="606" cy="639" r="0.8" opacity="0.61"/>
+    <circle cx="383" cy="597" r="3.6" opacity="0.59"/>
+    <circle cx="937" cy="892" r="2.3" opacity="0.31"/>
+    <circle cx="516" cy="618" r="1.4" opacity="0.54"/>
+    <circle cx="915" cy="925" r="1.5" opacity="0.43"/>
+    <circle cx="1633" cy="653" r="2.2" opacity="0.66"/>
+    <circle cx="8" cy="916" r="3.8" opacity="0.59"/>
+    <circle cx="223" cy="547" r="4.0" opacity="0.51"/>
+    <circle cx="1149" cy="555" r="1.5" opacity="0.41"/>
+  </g>
+
+  <!-- lighting truss -->
+  <rect x="0" y="226" width="2000" height="11" fill="#ffffff" opacity="0.16"/>
+  <rect x="0" y="237" width="2000" height="4" fill="#000000" opacity="0.35"/>
+  <g>
+    <path d="M212 241h40l-9 26h-22z" fill="#15101f"/>
+    <circle cx="232" cy="268" r="34" fill="#ffcf6b" opacity="0.2"/>
+    <circle cx="232" cy="268" r="13" fill="#fff0cd"/>
+    <path d="M500 241h40l-9 26h-22z" fill="#15101f"/>
+    <circle cx="520" cy="268" r="34" fill="#ffcf6b" opacity="0.2"/>
+    <circle cx="520" cy="268" r="13" fill="#fff0cd"/>
+    <path d="M786 241h40l-9 26h-22z" fill="#15101f"/>
+    <circle cx="806" cy="268" r="34" fill="#ffcf6b" opacity="0.2"/>
+    <circle cx="806" cy="268" r="13" fill="#fff0cd"/>
+    <path d="M1074 241h40l-9 26h-22z" fill="#15101f"/>
+    <circle cx="1094" cy="268" r="34" fill="#ffcf6b" opacity="0.2"/>
+    <circle cx="1094" cy="268" r="13" fill="#fff0cd"/>
+    <path d="M1362 241h40l-9 26h-22z" fill="#15101f"/>
+    <circle cx="1382" cy="268" r="34" fill="#ffcf6b" opacity="0.2"/>
+    <circle cx="1382" cy="268" r="13" fill="#fff0cd"/>
+    <path d="M1648 241h40l-9 26h-22z" fill="#15101f"/>
+    <circle cx="1668" cy="268" r="34" fill="#ffcf6b" opacity="0.2"/>
+    <circle cx="1668" cy="268" r="13" fill="#fff0cd"/>
+  </g>
+
+  <!-- footlight wash off the stage -->
+  <ellipse cx="1000" cy="1130" rx="1080" ry="300" fill="url(#footlight)"/>
+
+  <!-- crowd -->
+  <g fill="#050209">
+    <rect x="83" y="850" width="18" height="200" rx="9" transform="rotate(-3 92 1090)"/>
+    <rect x="245" y="850" width="18" height="200" rx="9" transform="rotate(-11 254 1090)"/>
+    <rect x="404" y="850" width="18" height="200" rx="9" transform="rotate(4 413 1090)"/>
+    <rect x="571" y="850" width="18" height="200" rx="9" transform="rotate(-11 580 1090)"/>
+    <rect x="757" y="850" width="18" height="200" rx="9" transform="rotate(-1 766 1090)"/>
+    <rect x="910" y="850" width="18" height="200" rx="9" transform="rotate(6 919 1090)"/>
+    <rect x="1116" y="850" width="18" height="200" rx="9" transform="rotate(4 1125 1090)"/>
+    <rect x="1244" y="850" width="18" height="200" rx="9" transform="rotate(12 1253 1090)"/>
+    <rect x="1434" y="850" width="18" height="200" rx="9" transform="rotate(3 1443 1090)"/>
+    <rect x="1599" y="850" width="18" height="200" rx="9" transform="rotate(7 1608 1090)"/>
+    <rect x="1784" y="850" width="18" height="200" rx="9" transform="rotate(1 1793 1090)"/>
+    <rect x="1919" y="850" width="18" height="200" rx="9" transform="rotate(4 1928 1090)"/>
+    <circle cx="21" cy="1061" r="29"/>
+    <circle cx="70" cy="1058" r="32"/>
+    <circle cx="134" cy="1061" r="29"/>
+    <circle cx="201" cy="1057" r="33"/>
+    <circle cx="259" cy="1057" r="33"/>
+    <circle cx="323" cy="1066" r="24"/>
+    <circle cx="392" cy="1064" r="26"/>
+    <circle cx="447" cy="1063" r="27"/>
+    <circle cx="514" cy="1054" r="36"/>
+    <circle cx="572" cy="1060" r="30"/>
+    <circle cx="631" cy="1062" r="28"/>
+    <circle cx="703" cy="1055" r="35"/>
+    <circle cx="764" cy="1061" r="29"/>
+    <circle cx="814" cy="1056" r="34"/>
+    <circle cx="878" cy="1060" r="30"/>
+    <circle cx="947" cy="1056" r="34"/>
+    <circle cx="999" cy="1058" r="32"/>
+    <circle cx="1068" cy="1061" r="29"/>
+    <circle cx="1137" cy="1058" r="32"/>
+    <circle cx="1196" cy="1064" r="26"/>
+    <circle cx="1251" cy="1059" r="31"/>
+    <circle cx="1324" cy="1059" r="31"/>
+    <circle cx="1384" cy="1065" r="25"/>
+    <circle cx="1446" cy="1060" r="30"/>
+    <circle cx="1501" cy="1062" r="28"/>
+    <circle cx="1565" cy="1058" r="32"/>
+    <circle cx="1624" cy="1062" r="28"/>
+    <circle cx="1694" cy="1055" r="35"/>
+    <circle cx="1743" cy="1059" r="31"/>
+    <circle cx="1815" cy="1056" r="34"/>
+    <circle cx="1879" cy="1054" r="36"/>
+    <circle cx="1939" cy="1055" r="35"/>
+    <circle cx="1995" cy="1065" r="25"/>
+    <circle cx="49" cy="1078" r="38"/>
+    <circle cx="121" cy="1078" r="38"/>
+    <circle cx="191" cy="1076" r="40"/>
+    <circle cx="269" cy="1079" r="37"/>
+    <circle cx="340" cy="1075" r="41"/>
+    <circle cx="423" cy="1081" r="35"/>
+    <circle cx="494" cy="1073" r="43"/>
+    <circle cx="560" cy="1083" r="33"/>
+    <circle cx="643" cy="1073" r="43"/>
+    <circle cx="713" cy="1079" r="37"/>
+    <circle cx="784" cy="1082" r="34"/>
+    <circle cx="863" cy="1084" r="32"/>
+    <circle cx="928" cy="1079" r="37"/>
+    <circle cx="1009" cy="1073" r="43"/>
+    <circle cx="1074" cy="1075" r="41"/>
+    <circle cx="1164" cy="1084" r="32"/>
+    <circle cx="1223" cy="1083" r="33"/>
+    <circle cx="1304" cy="1078" r="38"/>
+    <circle cx="1377" cy="1072" r="44"/>
+    <circle cx="1450" cy="1077" r="39"/>
+    <circle cx="1528" cy="1074" r="42"/>
+    <circle cx="1600" cy="1083" r="33"/>
+    <circle cx="1675" cy="1084" r="32"/>
+    <circle cx="1743" cy="1080" r="36"/>
+    <circle cx="1824" cy="1074" r="42"/>
+    <circle cx="1900" cy="1076" r="40"/>
+    <circle cx="1971" cy="1083" r="33"/>
+    <rect x="0" y="1090" width="2000" height="160"/>
+  </g>
+
+  <rect width="2000" height="1250" fill="url(#vignette)"/>
+</svg>

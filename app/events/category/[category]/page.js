@@ -49,7 +49,7 @@ export default function EventsCategoryPage({ params }) {
           <Parallax distance={50} className="h-full">
             <img
               src={currentGroupSlug === 'concerts'
-                ? 'https://images.unsplash.com/photo-1540039155732-d68832a8a101?auto=format&fit=crop&w=2400&q=80'
+                ? '/images/events/concerts-hero.svg'
                 : 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=2400&q=80'
               }
               alt=""
