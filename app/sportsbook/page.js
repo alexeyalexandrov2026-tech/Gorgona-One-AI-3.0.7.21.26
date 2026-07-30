@@ -1,4 +1,17 @@
 import React from 'react';
+import Link from 'next/link';
+
+// Per-brand CSS corrections for source artwork that doesn't read well on the
+// dark gradient cards. Applied only to the named brands; every other logo
+// renders untouched.
+const LOGO_FIXES = {
+  // Navy "CAESARS" wordmark is near-invisible on the dark card.
+  caesars: 'brightness-200 contrast-125',
+  // Compression artifacts in the "RIVERS" lettering.
+  betrivers: 'brightness-110 drop-shadow-md',
+  // Source mark is much smaller than the others.
+  'bally-bet': 'scale-150'
+};
 
 // Transparent-cutout brand marks already shipped in public/images/brands/,
 // derived from the source *-betting.svg logos for use on gradient cards.
@@ -6,7 +19,7 @@ const BrandLogo = ({ slug, name }) => (
   <img
     src={`/images/brands/${slug}-integrated.png`}
     alt={name}
-    className="h-24 w-auto max-w-[75%] object-contain"
+    className={`h-24 w-auto max-w-[75%] object-contain ${LOGO_FIXES[slug] || ''}`}
   />
 );
 
@@ -150,9 +163,9 @@ export default function SportsbookDirectoryFinal() {
                   {book.description}
                 </p>
                 <div>
-                  <button className="border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg">
+                  <Link href={`/sportsbook/${book.slug}`} className="inline-block border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg">
                     View Profile
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -181,9 +194,9 @@ export default function SportsbookDirectoryFinal() {
                   {sportsbooks[9].description}
                 </p>
                 <div className="text-center">
-                  <button className="border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg">
+                  <Link href={`/sportsbook/${sportsbooks[9].slug}`} className="inline-block border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg">
                     View Profile
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
