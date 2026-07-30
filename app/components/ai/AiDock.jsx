@@ -35,6 +35,14 @@ export function AiDock() {
         role="dialog"
         aria-modal="true"
         aria-label="GORGONA ONE AI Dock"
+        // The dock stays mounted when closed (it slides out on a transform,
+        // and unmounting would throw away the scroll position). Closed, it is
+        // only visually gone, so without `inert` its text input and buttons
+        // stay tabbable and visible to screen readers - and on /discovery,
+        // which renders its own copy of this conversation, that surfaced as
+        // two identical "Ask the concierge" inputs on one page.
+        inert={isOpen ? undefined : ''}
+        aria-hidden={!isOpen}
         className={`fixed bottom-0 right-0 z-50 flex h-[min(640px,88vh)] w-full flex-col border-t border-white/10 bg-[#0a0a0a]/[0.97] p-5 shadow-premium backdrop-blur-xl transition-transform duration-300 sm:bottom-6 sm:right-6 sm:h-[560px] sm:w-[400px] sm:rounded-[1.75rem] sm:border ${
           isOpen ? 'translate-y-0' : 'translate-y-[110%]'
         }`}
@@ -63,7 +71,10 @@ export function AiDock() {
           </div>
         </div>
         <div className="min-h-0 flex-1">
-          <AiConversation variant="dock" />
+          {/* Following a card navigates the page underneath, so the dock gets
+              out of the way. The thread lives in ChatProvider and is waiting
+              when the guest reopens it. */}
+          <AiConversation variant="dock" onNavigate={close} />
         </div>
       </aside>
     </>

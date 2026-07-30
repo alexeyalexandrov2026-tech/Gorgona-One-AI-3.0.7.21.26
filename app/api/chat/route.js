@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { SYSTEM_PROMPT, matchSuggestions } from '../../../lib/aiEcosystemContext';
+import { SYSTEM_PROMPT, matchSuggestions, matchActionCards } from '../../../lib/aiEcosystemContext';
 import { askLocalBrain, getLocalBrainStatus } from '../../../lib/ai/localBrain';
 
 // ===========================================================================
@@ -49,9 +49,12 @@ function logRouterIssue(...args) {
 function reply(text, { latestUserMessage = '', source = null, sessionId = null, error = false } = {}) {
   return NextResponse.json({
     reply: text,
-    // Suggestions are computed locally from keywords, so the guest still gets
-    // useful navigation even when no model answered.
-    suggestions: matchSuggestions(`${latestUserMessage} ${error ? '' : text}`),
+    // Navigation is computed locally from keywords, so the guest still gets
+    // somewhere to go even when no model answered. The guest's own words
+    // lead; the reply only reinforces - and on the degraded path it is a
+    // canned line, so it is excluded entirely.
+    suggestions: matchSuggestions(latestUserMessage, { reply: error ? '' : text }),
+    cards: matchActionCards(latestUserMessage, { reply: error ? '' : text }),
     configured: true,
     ...(source ? { source } : {}),
     // Handle for the local brain's server-side conversation memory. The

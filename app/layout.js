@@ -9,7 +9,8 @@ import { AuthProvider } from './components/AuthProvider';
 import { ThemeProvider } from './components/ThemeProvider';    
 import { AIProvider } from './components/ai/AIProvider';      
 import DiscoveryDock from './components/ai/DiscoveryDock';    
-import { AiDockProvider } from './components/ai/AiDockProvider'; 
+import { AiDockProvider } from './components/ai/AiDockProvider';
+import { ChatProvider } from './components/ai/ChatProvider';
 import { AiSphere } from './components/ai/AiSphere';         
 import { AiDock } from './components/ai/AiDock';             
 import { InstallPrompt } from './components/InstallPrompt';   
@@ -82,15 +83,21 @@ export default function RootLayout({ children }) {
             <ThemeProvider>
               <AIProvider>
                 <AiDockProvider>
-                  <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
-                    <Header />
-                    {children}
-                    <Footer />
-                    <DiscoveryDock />
-                    <AiSphere />
-                    <AiDock />
-                    <InstallPrompt />
-                  </div>
+                  {/* One concierge thread for every surface (homepage bar,
+                      sphere dock, Discovery Room). Mounted above the router
+                      so the conversation survives client-side navigation -
+                      including a tap on one of the concierge's own cards. */}
+                  <ChatProvider>
+                    <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
+                      <Header />
+                      {children}
+                      <Footer />
+                      <DiscoveryDock />
+                      <AiSphere />
+                      <AiDock />
+                      <InstallPrompt />
+                    </div>
+                  </ChatProvider>
                 </AiDockProvider>
               </AIProvider>
             </ThemeProvider>

@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useVoice } from './useVoice';
+import { useConciergeChat } from './ChatProvider';
+import { AiActionCards } from './AiActionCard';
 
 const STARTER_PROMPTS = [
   'Plan a weekend in Miami',
@@ -10,12 +12,6 @@ const STARTER_PROMPTS = [
   'Book a table for a birthday dinner',
   'Best sportsbook offers right now'
 ];
-
-// Ceiling for a single reply. Above the server's own budget so the server's
-// graceful answer wins the race in the normal case, and this only fires when
-// the request never comes back at all.
-const CLIENT_TIMEOUT_MS = 60_000;
-const FALLBACK_REPLY = 'The concierge is temporarily unavailable. Please try again shortly.';
 
 function MicIcon({ className }) {
   return (
@@ -50,80 +46,34 @@ function Message({ role, content }) {
   );
 }
 
-export function AiConversation({ variant = 'dock' }) {
-  const [messages, setMessages] = useState([]);
+export function AiConversation({ variant = 'dock', onNavigate }) {
+  // The transcript, cards and backend session live in ChatProvider (mounted
+  // in the layout), so this component is a VIEW of the conversation rather
+  // than an owner of it - the homepage bar, the sphere dock and the Discovery
+  // Room all render the same thread.
+  const { messages, cards, suggestions, isLoading, send } = useConciergeChat();
   const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState([]);
   const [autoSpeak, setAutoSpeak] = useState(false);
   const listRef = useRef(null);
   const voice = useVoice();
-  // Handle for the AI backend's server-side conversation memory, echoed back
-  // on each turn so the concierge remembers the thread. A ref, not state:
-  // it is transport bookkeeping and must never trigger a re-render.
-  const sessionIdRef = useRef(null);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, isLoading]);
+  }, [messages, isLoading, cards]);
 
-  // The transport is deliberately silent about failure. /api/chat always
-  // answers 200 with a well-formed body, so anything landing in a catch here
-  // is a genuine network/browser-level fault - and even then the guest gets a
-  // concierge-voiced line rather than a broken bubble or a console error.
-  // Nothing in this function logs; an offline AI backend is an expected state.
-  async function send(rawText) {
-    const content = rawText.trim();
+  // send() never throws and never logs - an offline AI backend is an expected
+  // state, and the guest still gets a concierge-voiced line plus working
+  // navigation cards. All this wrapper adds is the input reset and speech.
+  async function submit(rawText) {
+    const content = String(rawText || '').trim();
     if (!content || isLoading) return;
-    const nextMessages = [...messages, { role: 'user', content }];
-    setMessages(nextMessages);
     setInput('');
-    setIsLoading(true);
-    setSuggestions([]);
 
-    // A stalled request must never leave the typing indicator spinning
-    // forever. Local models are slow, so the budget is generous.
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
-
-    let answer = FALLBACK_REPLY;
-    let nextSuggestions = [];
-
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: nextMessages,
-          ...(sessionIdRef.current ? { sessionId: sessionIdRef.current } : {})
-        }),
-        signal: controller.signal
-      });
-
-      // A non-JSON body (proxy error page, truncated response) resolves to
-      // null instead of throwing, so one code path covers every outcome.
-      const data = await response.json().catch(() => null);
-
-      if (typeof data?.reply === 'string' && data.reply.trim()) {
-        answer = data.reply.trim();
-        if (Array.isArray(data.suggestions)) nextSuggestions = data.suggestions;
-      }
-      if (typeof data?.sessionId === 'string' && data.sessionId) {
-        sessionIdRef.current = data.sessionId;
-      }
-    } catch {
-      /* aborted, offline, or blocked - answer stays the graceful fallback */
-    } finally {
-      clearTimeout(timeout);
-    }
-
-    setMessages((prev) => [...prev, { role: 'assistant', content: answer }]);
-    setSuggestions(nextSuggestions);
-    setIsLoading(false);
+    const answer = await send(content);
 
     // Speech synthesis is a best-effort flourish: a failure here must not
     // affect the transcript the guest already sees.
-    if (autoSpeak) {
+    if (autoSpeak && answer) {
       try {
         voice.speak(answer);
       } catch {
@@ -132,13 +82,18 @@ export function AiConversation({ variant = 'dock' }) {
     }
   }
 
+  // Chips cover any additional section beyond the two rendered as full cards,
+  // so a third relevant match is still one tap away without a third frame
+  // crowding the transcript.
+  const extraChips = suggestions.filter((s) => !cards.some((c) => c.href === s.href));
+
   function handleMicClick() {
     if (voice.isListening) {
       voice.stopListening();
       return;
     }
     setAutoSpeak(true);
-    voice.startListening((text) => send(text));
+    voice.startListening((text) => submit(text));
   }
 
   return (
@@ -155,7 +110,7 @@ export function AiConversation({ variant = 'dock' }) {
                 <button
                   key={prompt}
                   type="button"
-                  onClick={() => send(prompt)}
+                  onClick={() => submit(prompt)}
                   className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-300 transition hover:border-brand-gold/40 hover:text-white"
                 >
                   {prompt}
@@ -179,12 +134,17 @@ export function AiConversation({ variant = 'dock' }) {
           </div>
         )}
 
-        {suggestions.length > 0 && (
+        {/* Rich frames for the strongest intents... */}
+        <AiActionCards cards={cards} onNavigate={onNavigate} />
+
+        {/* ...and compact chips for any further section they did not cover. */}
+        {extraChips.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
-            {suggestions.map((s) => (
+            {extraChips.map((s) => (
               <Link
                 key={s.href}
                 href={s.href}
+                onClick={onNavigate}
                 className="rounded-full border border-brand-gold/40 bg-brand-gold/10 px-3 py-1.5 text-xs text-brand-gold transition hover:bg-brand-gold hover:text-black"
               >
                 Open {s.label} &rarr;
@@ -197,7 +157,7 @@ export function AiConversation({ variant = 'dock' }) {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          send(input);
+          submit(input);
         }}
         className="mt-3 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] p-1.5 pl-4"
       >
