@@ -1,117 +1,216 @@
+import React from 'react';
 import Link from 'next/link';
-import { getSportsbooks } from '../../lib/sportsbooksData';
-import { sportsbookDescriptions, getContentText } from '../../lib/contentTranslations';
-import { getServerTranslation } from '../../lib/serverLocale';
-import { SectionHero } from '../components/SectionHero';
 
-export const dynamic = 'force-dynamic';
-
-// Integrated marks for the sportsbook directory cards only: each source
-// logo (public/images/brands/*-betting.svg, still used unchanged by
-// Coupons/Stores/search/profile pages) had its own baked-in flat or
-// textured backing color, which read as a pasted rectangle once dropped
-// onto a branded gradient. These derived cutouts keep only the logo's
-// actual mark/wordmark with a transparent background (built from the
-// approved Hard Rock Bet prototype's technique), so the logo can sit
-// directly in the gradient instead of floating on top of it.
-const SPORTSBOOK_LOGOS = {
-  'hard-rock-bet': '/images/brands/hard-rock-bet-integrated.png',
-  draftkings: '/images/brands/draftkings-integrated.png',
-  fanduel: '/images/brands/fanduel-integrated.png',
-  betmgm: '/images/brands/betmgm-integrated.png',
-  caesars: '/images/brands/caesars-integrated.png',
-  fanatics: '/images/brands/fanatics-integrated.png',
-  bet365: '/images/brands/bet365-integrated.png',
-  betrivers: '/images/brands/betrivers-integrated.png',
-  'espn-bet': '/images/brands/espn-bet-integrated.png',
-  'bally-bet': '/images/brands/bally-bet-integrated.png'
+// Per-brand CSS corrections for source artwork that doesn't read well on the
+// dark gradient cards. Applied only to the named brands; every other logo
+// renders untouched.
+const LOGO_FIXES = {
+  // Navy "CAESARS" wordmark is near-invisible on the dark card.
+  caesars: 'brightness-200 contrast-125',
+  // Source mark is much smaller than the others.
+  'bally-bet': 'scale-150'
 };
 
-// Each brand gets its own radial gradient (bright accent fading through
-// the brand's mid-tone into near-black) plus a matching soft glow color
-// that sits behind the logo and echoes in its drop-shadow - the same
-// two-layer treatment approved on the Hard Rock Bet prototype, tuned per
-// brand instead of reusing one purple palette everywhere.
-const SPORTSBOOK_BANNER_STYLES = {
-  'hard-rock-bet': {
-    gradient: 'radial-gradient(85% 65% at 30% 22%, #b98bff 0%, #8b52ee 20%, #5c28b8 40%, #24103f 66%, #050208 100%)',
-    glow: 'rgba(210,175,255,0.4)'
-  },
-  draftkings: {
-    gradient: 'radial-gradient(85% 65% at 30% 22%, #63c26a 0%, #3f9a46 20%, #235c29 42%, #122e15 68%, #030803 100%)',
-    glow: 'rgba(150,225,140,0.38)'
-  },
-  fanduel: {
-    gradient: 'radial-gradient(85% 65% at 30% 22%, #5aa8ff 0%, #2c78e8 20%, #164a9c 42%, #0b2a56 68%, #030c1e 100%)',
-    glow: 'rgba(140,190,255,0.4)'
-  },
-  betmgm: {
-    gradient: 'radial-gradient(85% 65% at 30% 22%, #4a3d1c 0%, #2e2510 20%, #191408 42%, #0c0a05 68%, #030202 100%)',
-    glow: 'rgba(224,192,130,0.32)'
-  },
-  caesars: {
-    gradient: 'radial-gradient(85% 65% at 30% 22%, #4f8f63 0%, #326241 20%, #1e3f28 42%, #102015 68%, #030a05 100%)',
-    glow: 'rgba(216,190,130,0.3)'
-  },
-  fanatics: {
-    gradient: 'radial-gradient(85% 65% at 30% 22%, #b1382f 0%, #7c211c 20%, #481210 42%, #200807 68%, #050202 100%)',
-    glow: 'rgba(255,120,110,0.3)'
-  },
-  bet365: {
-    gradient: 'radial-gradient(85% 65% at 30% 22%, #2fbf83 0%, #17925f 20%, #0c5e3d 42%, #073924 68%, #020e08 100%)',
-    glow: 'rgba(150,235,190,0.35)'
-  },
-  betrivers: {
-    gradient: 'radial-gradient(85% 65% at 30% 22%, #4f8fdb 0%, #2e63ab 20%, #1c3f70 42%, #10233f 68%, #030a16 100%)',
-    glow: 'rgba(230,190,110,0.28)'
-  },
-  'espn-bet': {
-    gradient: 'radial-gradient(85% 65% at 30% 22%, #3f66b0 0%, #274680 20%, #172c53 42%, #0c182e 68%, #02060f 100%)',
-    glow: 'rgba(140,225,205,0.32)'
-  },
-  'bally-bet': {
-    gradient: 'radial-gradient(85% 65% at 30% 22%, #d066e0 0%, #a13cb8 20%, #6a2380 42%, #38134a 68%, #0c0413 100%)',
-    glow: 'rgba(235,150,225,0.35)'
-  }
-};
+// Transparent-cutout brand marks already shipped in public/images/brands/,
+// derived from the source *-betting.svg logos for use on gradient cards.
+const BrandLogo = ({ slug, name }) => (
+  <img
+    src={`/images/brands/${slug}-integrated.png`}
+    alt={name}
+    className={`h-24 w-auto max-w-[75%] object-contain ${LOGO_FIXES[slug] || ''}`}
+  />
+);
 
-export default async function SportsbookPage() {
-  const sportsbooks = await getSportsbooks();
-  const { t, locale } = getServerTranslation();
+export default function SportsbookDirectoryFinal() {
+  const sportsbooks = [
+    {
+      name: "Hard Rock Bet",
+      slug: "hard-rock-bet",
+      description: "Official sportsbook of Hard Rock. Bet on sports with confidence.",
+      gradient: "bg-gradient-to-br from-[#2a0845] via-black/80 to-black",
+      logo: "HARD ROCK BET"
+    },
+    {
+      name: "DraftKings Sportsbook",
+      slug: "draftkings",
+      description: "The leader in daily fantasy and sports betting.",
+      gradient: "bg-gradient-to-br from-[#0f3b21] via-black/80 to-black",
+      logo: "DRAFT KINGS"
+    },
+    {
+      name: "FanDuel Sportsbook",
+      slug: "fanduel",
+      description: "America's #1 sportsbook and trusted betting experience.",
+      gradient: "bg-gradient-to-br from-[#0f2027] via-[#111928] to-black",
+      logo: "FANDUEL"
+    },
+    {
+      name: "BetMGM Sportsbook",
+      slug: "betmgm",
+      description: "Established sportsbook combining casino and sports promotions.",
+      gradient: "bg-gradient-to-br from-[#1c1c1c] via-black/90 to-black",
+      logo: "BETMGM"
+    },
+    {
+      name: "Caesars Sportsbook",
+      slug: "caesars",
+      description: "Premium sportsbook with strong brand integration and loyalty benefits.",
+      gradient: "bg-gradient-to-br from-[#141814] via-[#101010] to-black",
+      logo: "CAESARS"
+    },
+    {
+      name: "Fanatics Sportsbook",
+      slug: "fanatics",
+      description: "Sportsbook focused on fan engagement and live event experiences.",
+      gradient: "bg-gradient-to-br from-[#2a0a0a] via-black/90 to-black",
+      logo: "FANATICS"
+    },
+    {
+      name: "bet365 Sportsbook",
+      slug: "bet365",
+      description: "Global sportsbook known for extensive betting markets and live odds.",
+      gradient: "bg-gradient-to-br from-[#002f24] via-[#0a0a0a] to-black",
+      logo: "BET365"
+    },
+    {
+      name: "BetRivers Sportsbook",
+      slug: "betrivers",
+      description: "User-friendly sportsbook with a broad range of sports coverage.",
+      gradient: "bg-gradient-to-b from-[#d3d9e0] via-[#4a5568] to-[#050505]",
+      logo: "BETRIVERS"
+    },
+    {
+      name: "ESPN BET",
+      slug: "espn-bet",
+      description: "Sports media-led sportsbook experience with modern betting tools.",
+      gradient: "bg-gradient-to-br from-[#0f172a] via-black/90 to-black",
+      logo: "ESPN BET"
+    },
+    {
+      name: "Bally Bet",
+      slug: "bally-bet",
+      description: "A streamlined sportsbook tailored to simple, mobile-first wagering.",
+      gradient: "bg-gradient-to-br from-[#4a0e17] via-black to-black",
+      logo: "BALLY BET"
+    }
+  ];
 
   return (
-    <main className="flex-1 theme-sportsbook">
-      <SectionHero
-        eyebrow={t.sportsbookPage.pill}
-        title={t.sportsbookPage.title}
-        subtitle={t.sportsbookPage.subtitle}
-        image="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=2400&q=80"
-      />
-      <div className="grid gap-6 py-8 md:grid-cols-2 xl:grid-cols-3">
-        {sportsbooks.map((book) => {
-          const style = SPORTSBOOK_BANNER_STYLES[book.slug];
-          return (
-            <article key={book.id} className="market-card overflow-hidden rounded-3xl">
-              <div
-                className="sportsbook-banner flex h-48 items-center justify-center"
-                style={style ? { '--sb-gradient': style.gradient, '--sb-glow': style.glow } : { background: 'rgba(255,255,255,0.05)' }}
-              >
-                {SPORTSBOOK_LOGOS[book.slug] ? (
-                  <img src={SPORTSBOOK_LOGOS[book.slug]} alt={book.name} className="h-24 w-auto max-w-[75%] object-contain" />
-                ) : (
-                  <span className="relative z-[2] text-sm font-semibold text-brand-gold">{book.logo}</span>
-                )}
-                <span className="absolute right-4 top-4 z-[3] rounded-full bg-brand-gold px-3 py-1 text-xs font-semibold text-black/80 shadow-sm">{t.sportsbookPage.pill}</span>
+    <div className="min-h-screen bg-[#030303] text-white font-sans p-6 md:p-10">
+      <div className="max-w-[1400px] mx-auto">
+
+        {/* Header Section */}
+        <div className="mb-10">
+          <p className="text-[#d4af37] text-xs md:text-sm font-extrabold tracking-[0.25em] uppercase mb-4">
+            Sports Betting
+          </p>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 tracking-tight">
+            Premium sportsbook directory
+          </h1>
+          <p className="text-gray-400 max-w-3xl text-sm md:text-base leading-relaxed">
+            Explore the major sportsbook companies with dedicated profile pages, state availability, and future-ready promo code sections.
+          </p>
+        </div>
+
+        {/* Navigation Bar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between border border-[#d4af37]/20 rounded-xl px-6 py-5 mb-10 bg-[#0a0a0a] shadow-inner">
+          <div className="text-[#d4af37] font-bold tracking-[0.3em] text-xl mb-4 md:mb-0 uppercase">
+            GORGONA ONE
+          </div>
+
+          <nav className="flex flex-wrap gap-4 md:gap-7 text-sm text-gray-400">
+            {['Home', 'Stores', 'Coupons', 'Rentals', 'Sportsbook', 'Events', 'Admin'].map(link => (
+              <a href="#" key={link} className={`hover:text-white transition-colors ${link === 'Sportsbook' ? 'text-white font-semibold' : ''}`}>{link}</a>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-5 mt-4 md:mt-0">
+            <div className="flex items-center gap-2 text-gray-300 text-sm cursor-pointer">
+              <span>us English (US)</span>
+              <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+            </div>
+            <button className="border border-[#d4af37] text-[#d4af37] px-6 py-2 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors">
+              Sign In
+            </button>
+          </div>
+        </div>
+
+        {/* Grid Container */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sportsbooks.slice(0, 9).map((book, index) => (
+            <div
+              key={index}
+              className={`relative border border-[#d4af37]/30 rounded-3xl p-7 flex flex-col justify-between overflow-hidden shadow-2xl transition-all duration-300 hover:border-[#d4af37]/60 group ${book.gradient}`}
+            >
+              {/* Badge */}
+              <div className="absolute top-5 right-5 border border-[#d4af37]/50 text-[#d4af37] text-xs font-bold px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-sm z-10 tracking-wide">
+                Sports Betting
               </div>
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-white">{book.name}</h2>
-                <p className="mt-3 text-sm text-zinc-400">{getContentText(sportsbookDescriptions, locale, book.slug, book.description)}</p>
-                <Link href={`/sportsbook/${book.slug}`} className="mt-6 inline-flex rounded-full border border-brand-gold/40 px-4 py-2 text-sm font-medium text-brand-gold transition hover:bg-brand-gold hover:text-black">{t.sportsbookPage.viewProfile}</Link>
+
+              {/* Logo Area */}
+              <div className="h-28 md:h-36 w-full flex items-center justify-center mb-8 relative z-10">
+                <BrandLogo slug={book.slug} name={book.name} />
               </div>
-            </article>
-          );
-        })}
+
+              {/* Card Content */}
+              <div className="relative z-10 flex-grow flex flex-col justify-end">
+                <h3 className="text-2xl font-bold mb-3 text-white tracking-tight">
+                  {book.name}
+                </h3>
+                <p className="text-gray-300 text-sm leading-relaxed mb-7 flex-grow">
+                  {book.description}
+                </p>
+                <div>
+                  <Link href={`/sportsbook/${book.slug}`} className="inline-block border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg">
+                    View Profile
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Single Centered Bottom Card */}
+        <div className="mt-6 flex justify-center">
+            <div className={`relative border border-[#d4af37]/30 rounded-3xl p-7 flex flex-col justify-between overflow-hidden shadow-2xl group w-full md:max-w-md ${sportsbooks[9].gradient}`}>
+              {/* Badge */}
+              <div className="absolute top-5 right-5 border border-[#d4af37]/50 text-[#d4af37] text-xs font-bold px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-sm z-10 tracking-wide">
+                Sports Betting
+              </div>
+
+              {/* Logo Area */}
+              <div className="h-28 md:h-36 w-full flex items-center justify-center mb-8 relative z-10">
+                <BrandLogo slug={sportsbooks[9].slug} name={sportsbooks[9].name} />
+              </div>
+
+              {/* Card Content */}
+              <div className="relative z-10">
+                <h3 className="text-2xl font-bold mb-3 text-white tracking-tight">
+                  {sportsbooks[9].name}
+                </h3>
+                <p className="text-gray-300 text-sm leading-relaxed mb-7">
+                  {sportsbooks[9].description}
+                </p>
+                <div className="text-center">
+                  <Link href={`/sportsbook/${sportsbooks[9].slug}`} className="inline-block border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg">
+                    View Profile
+                  </Link>
+                </div>
+              </div>
+            </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-20 pt-10 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600 gap-4">
+          <p>© 2026 GORGONA ONE. Premium deals, verified offers, and affiliate-ready monetization.</p>
+          <div className="flex flex-wrap gap-5 justify-center">
+            {['Privacy', 'Terms', 'Disclosure', 'Cookies', 'Partner Agreement', 'Admin'].map(link => (
+                <a href="#" key={link} className="hover:text-gray-300 transition-colors">{link}</a>
+            ))}
+          </div>
+        </footer>
+
       </div>
-    </main>
+    </div>
   );
 }

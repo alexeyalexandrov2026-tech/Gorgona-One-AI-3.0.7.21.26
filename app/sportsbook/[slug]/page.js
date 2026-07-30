@@ -15,7 +15,10 @@ const SPORTSBOOK_LOGOS = {
   'caesars': '/images/brands/caesars-sportsbook-betting.svg',
   'fanatics': '/images/brands/fanatics-sportsbook-betting.svg',
   bet365: '/images/brands/bet365-betting.svg',
-  betrivers: '/images/brands/betrivers-betting.svg',
+  // Replaced with the high-resolution transparent cutout: the source
+  // betrivers-betting.svg carries compression artifacts in the "RIVERS"
+  // lettering that the new asset does not.
+  betrivers: '/images/brands/betrivers-integrated.png',
   'espn-bet': '/images/brands/espn-bet-betting.svg',
   'bally-bet': '/images/brands/bally-bet-betting.svg'
 };
