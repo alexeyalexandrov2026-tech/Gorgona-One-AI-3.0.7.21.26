@@ -1,14 +1,17 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getServerTranslation } from '../../../../lib/serverLocale';
-import { EVENT_CATEGORY_GROUPS } from '../../../../lib/mockEventsData';
 import {
-  getEventCategories,
+  EVENT_CATEGORY_GROUPS,
+  getEventCategoriesByGroup,
   getEventCategoryBySlug,
-  getAllEvents,
-  getEventsByCategory
-} from '../../../../lib/eventsData';
+  getEventsByCategory,
+  getEventsByCategoryGroup
+} from '../../../../lib/mockEventsData';
 import { Reveal, Parallax } from '../../../components/Motion';
+import { SubcategoryGrid } from '../../SubcategoryGrid';
+import { LiveShowsBanner } from '../../LiveShowsBanner';
+import { TicketProviders } from '../../TicketProviders';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,17 +29,12 @@ export default function EventsCategoryPage({ params }) {
 
   // Get subcategories to display (either all in the group, or siblings of the specific category)
   const currentGroupSlug = group ? group.slug : specificCategory.group;
-  const subcategories = getEventCategories().filter(c => c.group === currentGroupSlug);
+  const subcategories = getEventCategoriesByGroup(currentGroupSlug);
 
-  // Get events
-  let displayedEvents = [];
-  if (group) {
-    // Show all events for all subcategories in this group
-    const validCategorySlugs = new Set(subcategories.map(c => c.slug));
-    displayedEvents = getAllEvents().filter(e => validCategorySlugs.has(e.category));
-  } else {
-    displayedEvents = getEventsByCategory(categoryParam);
-  }
+  // Get events — everything in the pillar, or just this one subcategory
+  const displayedEvents = group
+    ? getEventsByCategoryGroup(currentGroupSlug)
+    : getEventsByCategory(categoryParam);
 
   const pageTitle = group ? group.label : specificCategory.label;
   const titleParts = pageTitle.split(' ');
@@ -50,7 +48,7 @@ export default function EventsCategoryPage({ params }) {
         <div className="lux-hero__bg">
           <Parallax distance={50} className="h-full">
             <img
-              src={group && group.slug === 'concerts'
+              src={currentGroupSlug === 'concerts'
                 ? 'https://images.unsplash.com/photo-1540039155732-d68832a8a101?auto=format&fit=crop&w=2400&q=80'
                 : 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=2400&q=80'
               }
@@ -97,29 +95,21 @@ export default function EventsCategoryPage({ params }) {
             </p>
           </div>
 
-          {/* Glossy Subcategories - Smaller version of Sportsbooks style but integrated */}
-          <div className="mt-12 flex flex-wrap gap-4">
-            {subcategories.map((cat) => {
-              const isActive = specificCategory && specificCategory.slug === cat.slug;
-              return (
-                <Link
-                  key={cat.slug}
-                  href={`/events/category/${cat.slug}`}
-                  className={`
-                    group relative flex items-center justify-center gap-2 rounded-xl border px-5 py-3
-                    transition-all duration-500 ease-out hover:-translate-y-1
-                    ${isActive 
-                      ? 'border-brand-gold bg-gradient-to-br from-black to-zinc-900 shadow-[0_4px_20px_rgba(212,175,55,0.2)]' 
-                      : 'border-villa-obsidian/20 bg-white/40 shadow-sm hover:border-brand-gold hover:bg-black hover:shadow-[0_8px_30px_rgba(212,175,55,0.15)]'}
-                  `}
-                >
-                  <span className="text-xl drop-shadow-md">{cat.icon}</span>
-                  <span className={`font-serif text-sm font-medium tracking-wide transition-colors ${isActive ? 'text-brand-gold' : 'text-villa-obsidian group-hover:text-brand-gold'}`}>
-                    {cat.label}
-                  </span>
-                </Link>
-              );
-            })}
+          {/* Live Shows masthead — gives the Concerts pillar its own identity
+              inside this same container, without resizing it. */}
+          {currentGroupSlug === 'concerts' && (
+            <div className="mt-12">
+              <LiveShowsBanner />
+            </div>
+          )}
+
+          {/* Subcategory directory — sits exactly where the chip row used to */}
+          <div className="mt-12">
+            <SubcategoryGrid
+              categories={subcategories}
+              activeSlug={specificCategory ? specificCategory.slug : null}
+              columns={currentGroupSlug === 'concerts' ? 5 : 6}
+            />
           </div>
 
           {/* ===== Event cards — image-first, no chrome (Villas style) ===== */}
@@ -169,6 +159,9 @@ export default function EventsCategoryPage({ params }) {
               <p className="font-serif text-xl italic text-villa-graphite">No events found for this category.</p>
             </div>
           )}
+
+          {/* Where to buy — only on a single subcategory page */}
+          {specificCategory && <TicketProviders categoryLabel={specificCategory.label} />}
         </div>
       </section>
     </main>
