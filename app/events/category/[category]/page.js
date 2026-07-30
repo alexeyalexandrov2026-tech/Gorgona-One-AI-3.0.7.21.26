@@ -10,6 +10,7 @@ import {
 } from '../../../../lib/mockEventsData';
 import { Reveal, Parallax } from '../../../components/Motion';
 import { SubcategoryGrid } from '../../SubcategoryGrid';
+import { EventsEmptyState } from '../../EventsEmptyState';
 import { LiveShowsBanner } from '../../LiveShowsBanner';
 import { TicketProviders } from '../../TicketProviders';
 
@@ -155,9 +156,10 @@ export default function EventsCategoryPage({ params }) {
               ))}
             </div>
           ) : (
-            <div className="mt-16 py-20 text-center">
-              <p className="font-serif text-xl italic text-villa-graphite">No events found for this category.</p>
-            </div>
+            <EventsEmptyState
+              label={specificCategory ? specificCategory.label : null}
+              hasProviders={Boolean(specificCategory)}
+            />
           )}
 
           {/* Where to buy — only on a single subcategory page */}
