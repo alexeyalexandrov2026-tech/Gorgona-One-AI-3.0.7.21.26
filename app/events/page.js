@@ -28,7 +28,9 @@ export default function EventsMarketplacePage() {
       title: 'Concert and Events Tickets',
       copy: 'Premium VIP access to sold-out concerts, festivals, and cultural events.',
       href: '/events/category/concerts',
-      image: 'https://images.unsplash.com/photo-1540039155732-d68832a8a101?auto=format&fit=crop&w=1400&q=80',
+      // Ships with the build. The Unsplash photo this used to point at stopped
+      // resolving, which left the Concerts tile blank while Sports kept its art.
+      image: '/images/events/concerts-hero.svg',
       tag: 'Concerts'
     }
   ];

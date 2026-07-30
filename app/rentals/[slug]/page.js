@@ -44,6 +44,25 @@ export default function RentalDetailPage({ params }) {
               </div>
             </div>
           </div>
+
+          {/* Gallery for cars that ship their own photography. The tiles use the
+              source 3:2 ratio, so nothing is cropped. */}
+          {rental.gallery?.length > 0 && (
+            <section className="mt-8">
+              <h2 className="text-xl font-semibold text-white">Gallery</h2>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {rental.gallery.map((src, index) => (
+                  <img
+                    key={src}
+                    src={src}
+                    alt={`${rental.title} — ${index + 1}`}
+                    loading="lazy"
+                    className="aspect-[3/2] w-full rounded-[1.25rem] object-cover"
+                  />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </main>
