@@ -51,7 +51,7 @@ function reply(text, { latestUserMessage = '', source = null, sessionId = null, 
     // somewhere to go even when no model answered. The guest's own words
     // lead; the reply only reinforces - and on the degraded path it is a
     // canned line, so it is excluded entirely.
-    suggestions: matchSuggestions(latestUserMessage, { reply: error ? '' : text }),
+    suggestions: matchSuggestions(latestUserMessage, { reply: error ? '' : text, locale }),
     cards: matchActionCards(latestUserMessage, { reply: error ? '' : text, locale }),
     configured: true,
     ...(source ? { source } : {}),

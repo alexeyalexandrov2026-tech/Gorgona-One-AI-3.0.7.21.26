@@ -120,7 +120,7 @@ export function ChatProvider({ children }) {
     // reaches the server, these are the cards the guest still gets. The
     // matcher is multilingual, so this holds for any of the 16 UI languages.
     let nextCards = matchActionCards(content, { locale });
-    let nextSuggestions = matchSuggestions(content);
+    let nextSuggestions = matchSuggestions(content, { locale });
 
     try {
       const response = await fetch('/api/chat', {
