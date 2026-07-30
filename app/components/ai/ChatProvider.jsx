@@ -2,6 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { matchActionCards, matchSuggestions } from '../../../lib/aiSuggestions';
+import { useLocale } from '../LocaleProvider';
+import { unavailableReply } from '../../../lib/ai/locale';
 
 // ===========================================================================
 // Gorgona One — the concierge conversation (one thread, every surface).
@@ -37,7 +39,6 @@ const MAX_MESSAGES = 40;
 // Above the server's own budget so the server's graceful answer wins the race
 // in the normal case; this only fires if the request never comes back at all.
 const CLIENT_TIMEOUT_MS = 60_000;
-const FALLBACK_REPLY = 'The concierge is temporarily unavailable. Please try again shortly.';
 
 // Used before the provider mounts (or if a surface is ever rendered outside
 // it): inert, but shaped like the real thing so no consumer needs a guard.
@@ -52,6 +53,10 @@ const NOOP = {
 };
 
 export function ChatProvider({ children }) {
+  // The active UI language. Sent with every turn so the model answers in it,
+  // and used for the offline fallback line - a guest browsing in Japanese
+  // must not be told in English that the concierge is unavailable.
+  const locale = useLocale();
   const [messages, setMessages] = useState([]);
   const [cards, setCards] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -110,10 +115,11 @@ export function ChatProvider({ children }) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
 
-    let answer = FALLBACK_REPLY;
+    let answer = unavailableReply(locale);
     // Computed up front from the guest's own words: if the request never
-    // reaches the server, these are the cards the guest still gets.
-    let nextCards = matchActionCards(content);
+    // reaches the server, these are the cards the guest still gets. The
+    // matcher is multilingual, so this holds for any of the 16 UI languages.
+    let nextCards = matchActionCards(content, { locale });
     let nextSuggestions = matchSuggestions(content);
 
     try {
@@ -122,6 +128,7 @@ export function ChatProvider({ children }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: nextMessages,
+          locale,
           ...(sessionIdRef.current ? { sessionId: sessionIdRef.current } : {})
         }),
         signal: controller.signal
@@ -153,7 +160,7 @@ export function ChatProvider({ children }) {
     inFlightRef.current = false;
 
     return answer;
-  }, [messages]);
+  }, [messages, locale]);
 
   const reset = useCallback(() => {
     setMessages([]);

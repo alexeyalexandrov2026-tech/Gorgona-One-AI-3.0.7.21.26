@@ -5,28 +5,20 @@ import Link from 'next/link';
 import { useVoice } from './useVoice';
 import { useConciergeChat } from './ChatProvider';
 import { AiActionCards } from './AiActionCard';
+import { useLocale } from '../LocaleProvider';
+import { getTranslation } from '../../../lib/i18n';
+import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
 
-const STARTER_PROMPTS = [
-  'Plan a weekend in Miami',
-  'Find a yacht for 8 guests',
-  'Book a table for a birthday dinner',
-  'Best sportsbook offers right now'
-];
+// i18n carries per-locale AI copy; this is the English original, used when a
+// locale has not translated the key yet.
+const DEFAULT_INTRO =
+  'Ask for anything across the GORGONA ONE ecosystem — travel, dining, yachts, villas, events — and receive elegant, personal recommendations.';
 
 function MicIcon({ className }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
       <rect x="9" y="2" width="6" height="12" rx="3" />
       <path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v3" />
-    </svg>
-  );
-}
-
-function SpeakerIcon({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M4 9v6h4l5 5V4L8 9H4Z" />
-      <path d="M16.5 8.5a5 5 0 0 1 0 7" />
     </svg>
   );
 }
@@ -53,33 +45,26 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
   // Room all render the same thread.
   const { messages, cards, suggestions, isLoading, send } = useConciergeChat();
   const [input, setInput] = useState('');
-  const [autoSpeak, setAutoSpeak] = useState(false);
   const listRef = useRef(null);
   const voice = useVoice();
+  // Every visible string follows the global switcher, so the surface a guest
+  // is reading and the language the concierge answers in never disagree.
+  const locale = useLocale();
+  const t = getTranslation(locale);
+  const starters = STARTER_PROMPTS[locale] || STARTER_PROMPTS.en;
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, isLoading, cards]);
 
   // send() never throws and never logs - an offline AI backend is an expected
-  // state, and the guest still gets a concierge-voiced line plus working
-  // navigation cards. All this wrapper adds is the input reset and speech.
+  // state, and the guest still gets a concierge line plus working navigation
+  // cards. The concierge answers in text only; nothing here plays audio.
   async function submit(rawText) {
     const content = String(rawText || '').trim();
     if (!content || isLoading) return;
     setInput('');
-
-    const answer = await send(content);
-
-    // Speech synthesis is a best-effort flourish: a failure here must not
-    // affect the transcript the guest already sees.
-    if (autoSpeak && answer) {
-      try {
-        voice.speak(answer);
-      } catch {
-        /* unsupported or interrupted - non-fatal */
-      }
-    }
+    await send(content);
   }
 
   // Chips cover any additional section beyond the two rendered as full cards,
@@ -92,7 +77,8 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
       voice.stopListening();
       return;
     }
-    setAutoSpeak(true);
+    // Dictation is transcribed in the language selected in the global
+    // switcher - see useVoice.
     voice.startListening((text) => submit(text));
   }
 
@@ -101,12 +87,9 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
       <div ref={listRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
         {messages.length === 0 && (
           <div className="space-y-3">
-            <p className="text-sm text-zinc-400">
-              Ask for anything across the GORGONA ONE ecosystem — travel, dining, yachts, villas, events — and
-              receive elegant, personal recommendations.
-            </p>
+            <p className="text-sm text-zinc-400">{t.ai?.conciergeIntro || DEFAULT_INTRO}</p>
             <div className="flex flex-wrap gap-2">
-              {STARTER_PROMPTS.map((prompt) => (
+              {starters.map((prompt) => (
                 <button
                   key={prompt}
                   type="button"
@@ -147,7 +130,7 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
                 onClick={onNavigate}
                 className="rounded-full border border-brand-gold/40 bg-brand-gold/10 px-3 py-1.5 text-xs text-brand-gold transition hover:bg-brand-gold hover:text-black"
               >
-                Open {s.label} &rarr;
+                {t.ai?.open || 'Open'} {s.label} &rarr;
               </Link>
             ))}
           </div>
@@ -164,14 +147,14 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
         <input
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          placeholder={voice.isListening ? 'Listening…' : 'Ask the concierge anything…'}
+          placeholder={voice.isListening ? `${t.ai?.listening || 'Listening'}…` : (t.ai?.askPlaceholder || 'Ask the concierge anything…')}
           className="min-w-0 flex-1 bg-transparent py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none"
         />
         {voice.recognitionSupported && (
           <button
             type="button"
             onClick={handleMicClick}
-            aria-label={voice.isListening ? 'Stop voice input' : 'Start voice input'}
+            aria-label={voice.isListening ? (t.ai?.stopListening || 'Stop listening') : (t.ai?.speakRequest || 'Speak your request')}
             aria-pressed={voice.isListening}
             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition ${
               voice.isListening
@@ -182,54 +165,16 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
             <MicIcon className="h-4 w-4" />
           </button>
         )}
-        {voice.synthesisSupported && (
-          <button
-            type="button"
-            onClick={() => setAutoSpeak((v) => !v)}
-            aria-label={autoSpeak ? 'Turn off spoken replies' : 'Turn on spoken replies'}
-            aria-pressed={autoSpeak}
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition ${
-              autoSpeak
-                ? 'border-brand-gold bg-brand-gold text-black'
-                : 'border-white/10 text-zinc-300 hover:border-brand-gold hover:text-brand-gold'
-            }`}
-          >
-            <SpeakerIcon className="h-4 w-4" />
-          </button>
-        )}
+        {/* No speaker toggle: the concierge is text-only. The spoken-reply
+            button and the male/female voice picker that used to sit here are
+            gone along with the speechSynthesis code behind them. */}
         <button
           type="submit"
           className="shrink-0 rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold uppercase tracking-wide text-black transition hover:brightness-110"
         >
-          Ask
+          {t.ai?.ask || 'Ask'}
         </button>
       </form>
-
-      {voice.isStandalone && voice.synthesisSupported && (
-        <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] px-3 py-2 text-xs text-zinc-400">
-          <span>Concierge voice</span>
-          <div className="flex gap-1">
-            {['female', 'male'].map((gender) => (
-              <button
-                key={gender}
-                type="button"
-                onClick={() => voice.setVoiceGender(gender)}
-                className={`rounded-full px-3 py-1 capitalize transition ${
-                  voice.voiceGender === gender ? 'bg-brand-gold text-black' : 'text-zinc-400 hover:text-white'
-                }`}
-              >
-                {gender}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {variant === 'room' && !voice.isStandalone && (
-        <p className="mt-2 text-center text-[0.65rem] uppercase tracking-[0.2em] text-zinc-600">
-          Add GORGONA ONE to your home screen to choose a male or female concierge voice
-        </p>
-      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { SYSTEM_PROMPT, matchSuggestions, matchActionCards } from '../../../lib/aiEcosystemContext';
 import { askLocalBrain, getLocalBrainStatus } from '../../../lib/ai/localBrain';
+import { languageDirective, normalizeLocale, unavailableReply } from '../../../lib/ai/locale';
 
 // ===========================================================================
 // Concierge chat adapter.
@@ -29,9 +30,6 @@ const ROUTER_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 // client's own request to resolve. 20s comfortably covers normal latency.
 const ROUTER_TIMEOUT_MS = 20_000;
 
-// Used when every engine is unavailable. Deliberately in the concierge's
-// voice: a guest should read a graceful line, not a diagnostic.
-const UNAVAILABLE_REPLY = 'The concierge is temporarily unavailable. Please try again shortly.';
 
 // A router that is simply not running is an expected state (it is a separate
 // process), not a per-request incident. Collapse repeats so the server log
@@ -46,7 +44,7 @@ function logRouterIssue(...args) {
   console.error('AI router:', ...args);
 }
 
-function reply(text, { latestUserMessage = '', source = null, sessionId = null, error = false } = {}) {
+function reply(text, { latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false } = {}) {
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
@@ -54,7 +52,7 @@ function reply(text, { latestUserMessage = '', source = null, sessionId = null, 
     // lead; the reply only reinforces - and on the degraded path it is a
     // canned line, so it is excluded entirely.
     suggestions: matchSuggestions(latestUserMessage, { reply: error ? '' : text }),
-    cards: matchActionCards(latestUserMessage, { reply: error ? '' : text }),
+    cards: matchActionCards(latestUserMessage, { reply: error ? '' : text, locale }),
     configured: true,
     ...(source ? { source } : {}),
     // Handle for the local brain's server-side conversation memory. The
@@ -68,9 +66,11 @@ function reply(text, { latestUserMessage = '', source = null, sessionId = null, 
 // --- Link 2: the hosted ai-router -----------------------------------------
 
 // Returns the reply text, or null when the router cannot answer. Never throws.
-async function askRouter(messages) {
+async function askRouter(messages, locale) {
   const openaiMessages = [
-    { role: 'system', content: SYSTEM_PROMPT },
+    // The router path owns its system prompt, so the language instruction
+    // goes where it belongs: appended to the persona.
+    { role: 'system', content: `${SYSTEM_PROMPT}${languageDirective(locale)}` },
     ...messages
       .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
       .map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) }))
@@ -139,23 +139,26 @@ export async function POST(request) {
   const latestUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   // Opaque to us: minted by the local brain, echoed back by the client.
   const sessionId = typeof body?.sessionId === 'string' ? body.sessionId.slice(0, 120) : undefined;
+  // The language showing in the global switcher. Every engine below is told
+  // to answer in it, and the degraded path speaks it too.
+  const locale = normalizeLocale(body?.locale);
 
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
-  const local = await askLocalBrain({ messages, systemPrompt: SYSTEM_PROMPT, sessionId });
+  const local = await askLocalBrain({ messages, systemPrompt: SYSTEM_PROMPT, sessionId, locale });
   if (local.ok) {
-    return reply(local.reply, { latestUserMessage, source: 'local', sessionId: local.sessionId });
+    return reply(local.reply, { latestUserMessage, source: 'local', sessionId: local.sessionId, locale });
   }
 
   // Link 2 - the hosted router.
-  const routed = await askRouter(messages);
+  const routed = await askRouter(messages, locale);
   if (routed) {
-    return reply(routed, { latestUserMessage, source: 'router' });
+    return reply(routed, { latestUserMessage, source: 'router', locale });
   }
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the
   // widget renders this like any other answer instead of hitting an error path.
-  return reply(UNAVAILABLE_REPLY, { latestUserMessage, error: true });
+  return reply(unavailableReply(locale), { latestUserMessage, locale, error: true });
 }
 
 // Non-LLM diagnostics: confirms which engines are wired up without spending a

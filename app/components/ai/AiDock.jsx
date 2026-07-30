@@ -5,9 +5,15 @@ import Link from 'next/link';
 import { useAiDock } from './AiDockProvider';
 import { AiConversation } from './AiConversation';
 import { useBodyScrollLock } from '../useBodyScrollLock';
+import { useLocale } from '../LocaleProvider';
+import { getTranslation } from '../../../lib/i18n';
 
 export function AiDock() {
   const { isOpen, close } = useAiDock();
+  // The dock chrome follows the global switcher too - the transcript inside
+  // it was already localized, so an English header was the odd one out.
+  const locale = useLocale();
+  const t = getTranslation(locale);
 
   // Prevents the mobile scroll-jump this dialog's own text input used to
   // trigger - see useBodyScrollLock for the root cause.
@@ -58,12 +64,12 @@ export function AiDock() {
               onClick={close}
               className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold"
             >
-              Discovery Room
+              {t.ai?.discoveryRoom || 'Discovery Room'}
             </Link>
             <button
               type="button"
               onClick={close}
-              aria-label="Close AI Dock"
+              aria-label={t.ai?.closeAI || 'Close AI Dock'}
               className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold"
             >
               ✕

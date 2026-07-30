@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { AiConversation } from './AiConversation';
 import { useConciergeChat } from './ChatProvider';
 import { SECTIONS } from '../../../lib/aiSuggestions';
+import { useLocale } from '../LocaleProvider';
+import { getTranslation } from '../../../lib/i18n';
 
 // ===========================================================================
 // The Discovery Room — the concierge as a full page.
@@ -18,17 +20,23 @@ import { SECTIONS } from '../../../lib/aiSuggestions';
 export function ConciergeRoom() {
   const { messages, reset } = useConciergeChat();
   const hasThread = messages.length > 0;
+  // Same source of truth as the dock and the homepage bar: the global
+  // language switcher drives the page chrome and the concierge alike.
+  const locale = useLocale();
+  const t = getTranslation(locale);
 
   return (
     <main className="flex flex-1 flex-col py-10 sm:py-14">
       <header className="text-center">
-        <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-brand-gold">Discovery Room</p>
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-brand-gold">
+          {t.ai?.discoveryRoom || 'Discovery Room'}
+        </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-          Your private concierge
+          {t.ai?.conciergeTitle || 'Your private concierge'}
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-zinc-400">
-          Ask for anything across the GORGONA ONE ecosystem — travel, dining, yachts, villas, cars, events and
-          verified offers — and get there in one tap.
+          {t.ai?.conciergeSubtitle ||
+            'Ask for anything across the GORGONA ONE ecosystem — travel, dining, yachts, villas, cars, events and verified offers — and get there in one tap.'}
         </p>
         <div className="mx-auto mt-8 h-px w-24 bg-gradient-to-r from-transparent via-brand-gold/50 to-transparent" />
       </header>
@@ -45,7 +53,7 @@ export function ConciergeRoom() {
               onClick={reset}
               className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-zinc-400 transition hover:border-brand-gold hover:text-brand-gold"
             >
-              New conversation
+              {t.ai?.newConversation || 'New conversation'}
             </button>
           )}
         </div>
@@ -57,7 +65,7 @@ export function ConciergeRoom() {
 
       <nav aria-label="Ecosystem sections" className="mx-auto mt-10 w-full max-w-3xl">
         <p className="text-center font-mono text-[0.6rem] uppercase tracking-[0.28em] text-zinc-500">
-          Or jump straight in
+          {t.ai?.jumpIn || 'Or jump straight in'}
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           {SECTIONS.map((section) => (
