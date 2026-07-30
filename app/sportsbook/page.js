@@ -112,29 +112,6 @@ export default function SportsbookDirectoryFinal() {
           </p>
         </div>
 
-        {/* Navigation Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between border border-[#d4af37]/20 rounded-xl px-6 py-5 mb-10 bg-[#0a0a0a] shadow-inner">
-          <div className="text-[#d4af37] font-bold tracking-[0.3em] text-xl mb-4 md:mb-0 uppercase">
-            GORGONA ONE
-          </div>
-
-          <nav className="flex flex-wrap gap-4 md:gap-7 text-sm text-gray-400">
-            {['Home', 'Stores', 'Coupons', 'Rentals', 'Sportsbook', 'Events', 'Admin'].map(link => (
-              <a href="#" key={link} className={`hover:text-white transition-colors ${link === 'Sportsbook' ? 'text-white font-semibold' : ''}`}>{link}</a>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-5 mt-4 md:mt-0">
-            <div className="flex items-center gap-2 text-gray-300 text-sm cursor-pointer">
-              <span>us English (US)</span>
-              <svg className="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-            </div>
-            <button className="border border-[#d4af37] text-[#d4af37] px-6 py-2 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors">
-              Sign In
-            </button>
-          </div>
-        </div>
-
         {/* Grid Container */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sportsbooks.slice(0, 9).map((book, index) => (
