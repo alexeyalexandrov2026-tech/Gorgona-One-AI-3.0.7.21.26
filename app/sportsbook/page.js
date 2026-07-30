@@ -177,16 +177,6 @@ export default function SportsbookDirectoryFinal() {
             </div>
         </div>
 
-        {/* Footer */}
-        <footer className="mt-20 pt-10 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-xs text-gray-600 gap-4">
-          <p>© 2026 GORGONA ONE. Premium deals, verified offers, and affiliate-ready monetization.</p>
-          <div className="flex flex-wrap gap-5 justify-center">
-            {['Privacy', 'Terms', 'Disclosure', 'Cookies', 'Partner Agreement', 'Admin'].map(link => (
-                <a href="#" key={link} className="hover:text-gray-300 transition-colors">{link}</a>
-            ))}
-          </div>
-        </footer>
-
       </div>
     </div>
   );
