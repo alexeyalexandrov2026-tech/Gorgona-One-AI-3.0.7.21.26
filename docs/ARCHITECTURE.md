@@ -17,6 +17,29 @@ only the discovery assistant feature and must never displace the brand.
   (sessionStorage), voice in/out, 16 locales, ecosystem-grounded replies
   via `lib/aiEcosystemDigest.js` (server-only inventory digest).
 - Track B dock (AiSphere/AiDock/AiConversation) sharing the same backend.
+- Local AI backend: `lib/ai/localBrain.js` — an optional, self-contained
+  adapter for the self-hosted Gorgona AI Brain microservice (FastAPI +
+  Ollama, `POST /api/v1/chat/completions`). `/api/chat` runs a fallback
+  chain (local brain → ai-router → canned concierge reply) and always
+  answers `200` with the same JSON contract, so the chat widget has no
+  failure branch and an offline backend is a non-event.
+  - Detection: `GET /api/health` identifies the service and reports whether
+    Ollama itself is connected, so "engine down" is caught without spending
+    a completion. If the service moves, the adapter falls back to reading
+    `/openapi.json`, then to probing conventional paths.
+  - Sessions: the service owns conversation memory and its own system
+    prompt — it reads only the newest turn (`ChatRequest.get_user_input()`)
+    and rebuilds context from `session_id`. So `/api/chat` echoes
+    `sessionId` back to the client and the client returns it on the next
+    turn; dropping it would start a fresh, amnesiac session per message.
+    Corollary: on this path the site's `SYSTEM_PROMPT` is not in play (the
+    service injects `GORGONA_SYSTEM_PROMPT`), while the internal-link
+    suggestions still come from `matchSuggestions` client-side.
+  - A circuit breaker keeps a switched-off backend from costing latency
+    (measured: ~15-30ms per message with everything down).
+  - `GET /api/chat` reports engine status without spending a completion.
+  - Config: `GORGONA_AI_*` in `.env.example`; nothing is required for the
+    site to run, build, or deploy.
 - Client intent index (`lib/ai/provider.js`) — non-LLM constellation
   highlighting; intentionally client-side, do not "upgrade" it to LLM calls.
 - Deploy: push to `main` → Cloudflare Workers Builds (OpenNext).

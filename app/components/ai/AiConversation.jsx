@@ -11,6 +11,12 @@ const STARTER_PROMPTS = [
   'Best sportsbook offers right now'
 ];
 
+// Ceiling for a single reply. Above the server's own budget so the server's
+// graceful answer wins the race in the normal case, and this only fires when
+// the request never comes back at all.
+const CLIENT_TIMEOUT_MS = 60_000;
+const FALLBACK_REPLY = 'The concierge is temporarily unavailable. Please try again shortly.';
+
 function MicIcon({ className }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -52,11 +58,20 @@ export function AiConversation({ variant = 'dock' }) {
   const [autoSpeak, setAutoSpeak] = useState(false);
   const listRef = useRef(null);
   const voice = useVoice();
+  // Handle for the AI backend's server-side conversation memory, echoed back
+  // on each turn so the concierge remembers the thread. A ref, not state:
+  // it is transport bookkeeping and must never trigger a re-render.
+  const sessionIdRef = useRef(null);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, isLoading]);
 
+  // The transport is deliberately silent about failure. /api/chat always
+  // answers 200 with a well-formed body, so anything landing in a catch here
+  // is a genuine network/browser-level fault - and even then the guest gets a
+  // concierge-voiced line rather than a broken bubble or a console error.
+  // Nothing in this function logs; an offline AI backend is an expected state.
   async function send(rawText) {
     const content = rawText.trim();
     if (!content || isLoading) return;
@@ -66,24 +81,54 @@ export function AiConversation({ variant = 'dock' }) {
     setIsLoading(true);
     setSuggestions([]);
 
+    // A stalled request must never leave the typing indicator spinning
+    // forever. Local models are slow, so the budget is generous.
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
+
+    let answer = FALLBACK_REPLY;
+    let nextSuggestions = [];
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: nextMessages })
+        body: JSON.stringify({
+          messages: nextMessages,
+          ...(sessionIdRef.current ? { sessionId: sessionIdRef.current } : {})
+        }),
+        signal: controller.signal
       });
-      const data = await response.json();
-      const reply = data.reply || "I couldn't reach the concierge just now - please try again.";
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
-      setSuggestions(data.suggestions || []);
-      if (autoSpeak) voice.speak(reply);
+
+      // A non-JSON body (proxy error page, truncated response) resolves to
+      // null instead of throwing, so one code path covers every outcome.
+      const data = await response.json().catch(() => null);
+
+      if (typeof data?.reply === 'string' && data.reply.trim()) {
+        answer = data.reply.trim();
+        if (Array.isArray(data.suggestions)) nextSuggestions = data.suggestions;
+      }
+      if (typeof data?.sessionId === 'string' && data.sessionId) {
+        sessionIdRef.current = data.sessionId;
+      }
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: 'The concierge is temporarily unavailable. Please try again shortly.' }
-      ]);
+      /* aborted, offline, or blocked - answer stays the graceful fallback */
     } finally {
-      setIsLoading(false);
+      clearTimeout(timeout);
+    }
+
+    setMessages((prev) => [...prev, { role: 'assistant', content: answer }]);
+    setSuggestions(nextSuggestions);
+    setIsLoading(false);
+
+    // Speech synthesis is a best-effort flourish: a failure here must not
+    // affect the transcript the guest already sees.
+    if (autoSpeak) {
+      try {
+        voice.speak(answer);
+      } catch {
+        /* unsupported or interrupted - non-fatal */
+      }
     }
   }
 
