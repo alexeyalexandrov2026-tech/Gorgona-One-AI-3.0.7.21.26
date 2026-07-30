@@ -7,8 +7,6 @@ import Link from 'next/link';
 const LOGO_FIXES = {
   // Navy "CAESARS" wordmark is near-invisible on the dark card.
   caesars: 'brightness-200 contrast-125',
-  // Compression artifacts in the "RIVERS" lettering.
-  betrivers: 'brightness-110 drop-shadow-md',
   // Source mark is much smaller than the others.
   'bally-bet': 'scale-150'
 };
