@@ -138,7 +138,7 @@ export default function RentalsPage() {
                             <ArrowIcon className="h-3.5 w-3.5 transition-transform duration-300 group-hover/link:translate-x-1" />
                           </Link>
                           <Link
-                            href="/partner"
+                            href={`/rentals/${item.slug}`}
                             className="font-mono text-[0.68rem] uppercase tracking-[0.2em] text-car-concrete transition-colors hover:text-ferrari-rosso"
                           >
                             {t.rentals.reserve}
@@ -172,7 +172,7 @@ export default function RentalsPage() {
           <Reveal delay={0.24}>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Link
-                href="/partner"
+                href="/rentals"
                 className="border border-white px-8 py-3.5 font-mono text-[0.7rem] uppercase tracking-[0.22em] text-white transition-colors hover:border-ferrari-rosso hover:text-ferrari-rosso"
               >
                 {t.rentals.reserve}

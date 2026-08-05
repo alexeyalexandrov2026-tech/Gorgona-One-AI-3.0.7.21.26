@@ -36,7 +36,7 @@ export default function ExperiencesPage() {
               </div>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link href={`/experiences/${item.slug}`} className="market-button">{t.common.viewDetails}</Link>
-                <Link href="/partner" className="market-button-secondary">{t.experiences.book}</Link>
+                <Link href={`/experiences/${item.slug}`} className="market-button-secondary">{t.experiences.book}</Link>
               </div>
             </div>
           </article>

@@ -124,7 +124,7 @@ export default function YachtsPage() {
                       {t.common.viewDetails}
                     </Link>
                     <Link
-                      href="/partner"
+                      href={`/yachts/${item.slug}`}
                       className="rounded-[5px] border border-yacht-charcoal/25 px-6 py-3 text-sm font-medium text-yacht-charcoal/70 transition-colors duration-150 hover:border-yacht-charcoal hover:text-yacht-charcoal"
                     >
                       {t.yachts.reserve}
@@ -161,7 +161,7 @@ export default function YachtsPage() {
           </div>
           <div className="mt-14 flex flex-wrap gap-3">
             <Link
-              href="/partner"
+              href="/yachts"
               className="rounded-[5px] border border-white px-7 py-3 text-sm font-medium text-white transition-colors duration-150 hover:bg-white hover:text-yacht-current"
             >
               {t.yachts.reserve}

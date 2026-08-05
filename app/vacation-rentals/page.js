@@ -117,7 +117,7 @@ export default function VacationRentalsPage() {
                     {t.common.viewDetails}
                   </Link>
                   <Link
-                    href="/partner"
+                    href={`/vacation-rentals/${item.slug}`}
                     className="font-fira text-[0.66rem] font-medium uppercase tracking-[0.18em] text-villa-ash transition-colors hover:text-villa-obsidian"
                   >
                     {t.vacationRentals.reserve}

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getVacationRentalBySlug } from '../../../lib/vacationRentalsData';
 import { getServerTranslation } from '../../../lib/serverLocale';
+import BookingForm from '../../components/BookingForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,13 +33,7 @@ export default function VacationRentalDetailPage({ params }) {
             </div>
             <div className="market-card rounded-[1.5rem] p-6">
               <h2 className="text-xl font-semibold text-white">{t.vacationRentals.reserve}</h2>
-              <div className="mt-4 space-y-3">
-                <input className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none" placeholder="Name" />
-                <input className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none" placeholder="Phone number" />
-                <input className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none" placeholder="Email" />
-                <input className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none" placeholder="Preferred dates" />
-                <button className="market-button w-full">Submit reservation request</button>
-              </div>
+              <BookingForm rentalSlug={property.slug} rentalTitle={property.title} />
             </div>
           </div>
         </div>

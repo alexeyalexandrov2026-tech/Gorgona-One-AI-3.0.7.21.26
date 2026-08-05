@@ -146,7 +146,7 @@ export default function EventsCategoryPage({ params }) {
 
                   <div className="mt-5 flex items-center gap-6">
                     <Link
-                      href="/partner"
+                      href={`/events/${item.slug || item.id}`}
                       className="border-b border-villa-obsidian pb-0.5 font-fira text-[0.66rem] font-medium uppercase tracking-[0.18em] text-villa-obsidian transition-opacity hover:opacity-60"
                     >
                       Book Tickets
