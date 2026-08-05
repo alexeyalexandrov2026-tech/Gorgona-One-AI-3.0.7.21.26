@@ -27,11 +27,6 @@ export default function RentalsPage() {
 
   const featured = rentals.find((item) => item.featured) || rentals[0];
   const categories = [...new Set(rentals.map((item) => item.category))];
-  const byCategory = categories.map((category) => ({
-    category,
-    anchor: slugify(category),
-    items: rentals.filter((item) => item.category === category)
-  }));
 
   return (
     <main className="flex-1 theme-ferrari">
@@ -65,21 +60,7 @@ export default function RentalsPage() {
             </p>
           </Reveal>
 
-          {/* Ferrari section labels — text-only, underline on hover, zero radius */}
-          <Reveal delay={0.24}>
-            <nav className="mt-10 flex flex-wrap gap-x-8 gap-y-3">
-              {byCategory.map(({ category, anchor, items }) => (
-                <a
-                  key={anchor}
-                  href={`#${anchor}`}
-                  className="group border-b border-transparent pb-1 font-mono text-[0.7rem] uppercase tracking-[0.24em] text-white/80 transition-colors hover:border-ferrari-rosso hover:text-white"
-                >
-                  {category}
-                  <span className="ml-2 text-ferrari-rosso">{String(items.length).padStart(2, '0')}</span>
-                </a>
-              ))}
-            </nav>
-          </Reveal>
+          {/* Ferrari section labels removed for unified list */}
         </div>
       </section>
 
@@ -109,17 +90,16 @@ export default function RentalsPage() {
             </h2>
           </Reveal>
 
-          {byCategory.map(({ category, anchor, items }) => (
-            <div key={anchor} id={anchor} className="mt-16 scroll-mt-24 first-of-type:mt-14">
+            <div className="mt-16 scroll-mt-24 first-of-type:mt-14">
               <div className="flex items-baseline justify-between border-b border-car-concrete/60 pb-3">
-                <h3 className="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-car-carbon">{category}</h3>
+                <h3 className="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-car-carbon">{t.rentals.fleet || 'Fleet'}</h3>
                 <span className="font-mono text-[0.62rem] uppercase tracking-[0.22em] text-car-concrete">
-                  {String(items.length).padStart(2, '0')}
+                  {String(rentals.length).padStart(2, '0')}
                 </span>
               </div>
 
               <Stagger className="mt-8 grid gap-10 md:grid-cols-2 xl:grid-cols-3" gap={0.06}>
-                {items.map((item) => (
+                {rentals.map((item) => (
                   <StaggerItem key={item.id}>
                     <article className="group flex h-full flex-col bg-white">
                       <Link href={`/rentals/${item.slug}`} className="relative block overflow-hidden">
@@ -170,7 +150,6 @@ export default function RentalsPage() {
                 ))}
               </Stagger>
             </div>
-          ))}
         </div>
       </section>
 
