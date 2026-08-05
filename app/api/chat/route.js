@@ -23,7 +23,7 @@ import { languageDirective, normalizeLocale, unavailableReply } from '../../../l
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const ROUTER_URL = process.env.AI_ROUTER_URL || 'http://localhost:20128/v1/chat/completions';
+const ROUTER_URL = 'http://localhost:20128/v1/chat/completions';
 const ROUTER_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 // Upstream calls must never hang the request indefinitely - a stalled fetch
 // previously left the concierge "thinking" forever with no way for the
@@ -121,65 +121,6 @@ async function askRouter(messages, locale) {
   }
 }
 
-// --- Link 3: direct Gemini API --------------------------------------------
-
-// Fallback for Cloudflare deployments where the ai-router is not reachable.
-async function askGemini(messages, locale) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return null;
-
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-  const contents = messages
-    .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
-    .map((m) => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: String(m.content).slice(0, 4000) }]
-    }));
-
-  const systemInstruction = {
-    parts: [{ text: `${SYSTEM_PROMPT}${languageDirective(locale)}` }]
-  };
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), ROUTER_TIMEOUT_MS);
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction,
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          topP: 0.9,
-          maxOutputTokens: 480
-        }
-      }),
-      signal: controller.signal
-    });
-
-    if (!response.ok) {
-      logRouterIssue('Gemini Direct:', response.status, (await response.text()).slice(0, 500));
-      return null;
-    }
-
-    const data = await response.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
-  } catch (error) {
-    if (error?.name === 'AbortError') {
-      logRouterIssue('Gemini direct request timed out');
-    } else {
-      logRouterIssue('Gemini direct unreachable —', error?.message || error);
-    }
-    return null;
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
 // --- Route handlers --------------------------------------------------------
 
 export async function POST(request) {
@@ -215,13 +156,7 @@ export async function POST(request) {
     return reply(routed, { latestUserMessage, source: 'router', locale });
   }
 
-  // Link 3 - direct Gemini API.
-  const gemini = await askGemini(messages, locale);
-  if (gemini) {
-    return reply(gemini, { latestUserMessage, source: 'gemini', locale });
-  }
-
-  // Link 4 - graceful degradation. Still a 200 with a well-formed body: the
+  // Link 3 - graceful degradation. Still a 200 with a well-formed body: the
   // widget renders this like any other answer instead of hitting an error path.
   return reply(unavailableReply(locale), { latestUserMessage, locale, error: true });
 }
