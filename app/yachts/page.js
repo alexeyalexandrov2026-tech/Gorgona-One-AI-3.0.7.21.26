@@ -14,7 +14,11 @@ export default function YachtsPage() {
   const yachts = getYachts();
   const { t } = getServerTranslation();
 
-  const totalGuests = yachts.reduce((sum, y) => sum + (y.capacity || 0), 0);
+  const totalGuests = yachts.reduce((sum, y) => {
+    const cap = parseInt(y.capacity, 10);
+    return sum + (isNaN(cap) ? 0 : cap);
+  }, 0);
+  const displayTotalGuests = totalGuests > 0 ? String(totalGuests) : '-';
   const marinas = [...new Set(yachts.map((y) => y.location))];
 
   return (
@@ -101,7 +105,7 @@ export default function YachtsPage() {
                     {[
                       [t.yachts.company, item.company],
                       [t.yachts.location, item.location],
-                      [t.yachts.capacity, `${item.capacity} ${t.yachts.guests}`],
+                      [t.yachts.capacity, typeof item.capacity === 'number' ? `${item.capacity} ${t.yachts.guests}` : item.capacity],
                       [t.yachts.length, item.length],
                       [t.yachts.price, item.price]
                     ].map(([label, value]) => (
@@ -145,7 +149,7 @@ export default function YachtsPage() {
             <div className="grid grid-cols-3 gap-6 lg:grid-cols-1">
               {[
                 [String(yachts.length).padStart(2, '0'), 'Vessels'],
-                [String(totalGuests), 'Guest capacity'],
+                [displayTotalGuests, 'Guest capacity'],
                 [String(marinas.length).padStart(2, '0'), 'Home marinas']
               ].map(([value, label]) => (
                 <div key={label}>
