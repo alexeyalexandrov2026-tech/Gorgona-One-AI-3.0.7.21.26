@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { supabase } from '../../../lib/supabase';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder');
-
 export async function POST(req) {
   try {
     const data = await req.json();
@@ -42,22 +40,30 @@ export async function POST(req) {
       console.warn("Supabase insert failed (table might not exist yet). Proceeding to email.");
     }
 
-    // 3. Send email notification to Admin
-    if (process.env.RESEND_API_KEY) {
-      await resend.emails.send({
-        from: 'Gorgona Booking <onboarding@resend.dev>', // Update this to a verified domain in production
-        to: process.env.ADMIN_EMAIL || email, // Sending to the client as fallback for testing
-        subject: `New Reservation Request: ${itemTitle}`,
-        html: `
-          <h2>New Booking Request</h2>
-          <p><strong>Item:</strong> ${itemTitle} (${itemSlug})</p>
-          <p><strong>Client Name:</strong> ${name}</p>
-          <p><strong>Client Email:</strong> ${email}</p>
-          <p><strong>Client Phone:</strong> ${phone}</p>
-          <p><strong>Requested Dates:</strong> ${dates}</p>
-          <p><strong>Database ID:</strong> ${bookingId || 'N/A'}</p>
-        `
-      });
+const apiKey = process.env.RESEND_API_KEY;
+    if (apiKey) {
+      try {
+        const resend = new Resend(apiKey);
+        await resend.emails.send({
+          from: 'Gorgona Booking <onboarding@resend.dev>', // Update this to a verified domain in production
+          to: process.env.ADMIN_EMAIL || email, // Sending to the client as fallback for testing
+          subject: `New Reservation Request: ${itemTitle}`,
+          html: `
+            <h2>New Booking Request</h2>
+            <p><strong>Item:</strong> ${itemTitle} (${itemSlug})</p>
+            <p><strong>Client Name:</strong> ${name}</p>
+            <p><strong>Client Email:</strong> ${email}</p>
+            <p><strong>Client Phone:</strong> ${phone}</p>
+            <p><strong>Requested Dates:</strong> ${dates}</p>
+            <p><strong>Database ID:</strong> ${bookingId || 'N/A'}</p>
+          `
+        });
+        console.log(`[BOOKING NOTIFICATION] Email sent to admin for ${itemSlug}`);
+      } catch (emailErr) {
+        console.error('[BOOKING NOTIFICATION] Failed to send email:', emailErr);
+      }
+    } else {
+      console.warn('[BOOKING NOTIFICATION] RESEND_API_KEY is not set. Skipping email dispatch.');
     }
 
     return NextResponse.json({ success: true, bookingId });
