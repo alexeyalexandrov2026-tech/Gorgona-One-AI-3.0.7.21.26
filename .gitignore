@@ -2,6 +2,10 @@ node_modules/
 .next/
 .open-next/
 
+# Local secrets: never commit these.
 .env
-.env.local
+.env.*
+!.env.example
+.dev.vars
+*.pem
 .wrangler/

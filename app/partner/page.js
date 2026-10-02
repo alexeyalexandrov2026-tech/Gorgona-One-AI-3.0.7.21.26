@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../components/AuthProvider';
 import { supabase } from '../../lib/supabase';
+import { authHeaders } from '../../lib/auth';
 
 function PartnerListingCard({ listing, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -28,7 +29,7 @@ function PartnerListingCard({ listing, onUpdate }) {
       // Notify admin about the change
       await fetch('/api/notify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
         body: JSON.stringify({ 
           event: 'listing_updated', 
           partner: listing.partner_id,
@@ -179,7 +180,7 @@ export default function PartnerDashboard() {
       // 3. Notify Admin via API route
       await fetch('/api/notify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
         body: JSON.stringify({ 
           event: 'new_listing', 
           partner: auth.session.name || auth.session.email,

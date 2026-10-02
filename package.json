@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "concurrently \"next dev\" \"cd ai-router && npm install && set PORT=20128&& npm run dev\"",
     "build": "NEXT_PRIVATE_STANDALONE=true next build && opennextjs-cloudflare build --skipNextBuild --openNextConfigPath open-next.config.mjs && cd ai-router && npm install && npm run build",
-    "start": "concurrently \"next start\" \"cd ai-router && set PORT=20128&& npm run start\""
+    "start": "concurrently \"next start\" \"cd ai-router && set PORT=20128&& npm run start\"",
+    "test:security": "node --test --experimental-test-module-mocks --import ./tests/security/helpers/register.mjs \"tests/security/*.test.mjs\""
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.1",
@@ -19,6 +20,7 @@
     "tailwindcss": "^3.4.13"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@opennextjs/cloudflare": "1.15.1",
     "@playwright/test": "^1.61.1",
     "concurrently": "^10.0.3",

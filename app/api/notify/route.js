@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { escapeHtml } from '../../../lib/security/input';
+import { getRequestUser } from '../../../lib/security/requestUser';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -16,18 +18,16 @@ export const dynamic = 'force-dynamic';
 // wrapper) and keeps the key read on the request path, where it exists.
 // ===========================================================================
 
-// The admin address and the partner-supplied name land in an HTML email body,
-// so anything interpolated has to be escaped rather than trusted.
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+// Only signed-in partners and admins can trigger these emails. The partner
+// shown in the email is the verified account, not a value from the request.
+const EVENTS = new Set(['new_listing', 'listing_updated']);
 
 export async function POST(request) {
+  const user = await getRequestUser(request);
+  if (!user || (user.role !== 'partner' && user.role !== 'admin')) {
+    return NextResponse.json({ success: false, error: 'Sign in with a partner account to send notifications.' }, { status: 401 });
+  }
+
   let body;
   try {
     body = await request.json();
@@ -35,12 +35,12 @@ export async function POST(request) {
     return NextResponse.json({ success: false, error: 'Invalid request body.' }, { status: 400 });
   }
 
-  const event = String(body?.event || '').slice(0, 120);
-  const partner = String(body?.partner || 'unknown').slice(0, 200);
-  const filesCount = Number.isFinite(Number(body?.filesCount)) ? Number(body.filesCount) : 0;
+  const event = String(body?.event || '');
+  const partner = user.email || user.id;
+  const filesCount = Math.min(Math.max(Number.parseInt(body?.filesCount, 10) || 0, 0), 50);
 
-  if (!event) {
-    return NextResponse.json({ success: false, error: 'No event provided.' }, { status: 400 });
+  if (!EVENTS.has(event)) {
+    return NextResponse.json({ success: false, error: 'Unknown event.' }, { status: 400 });
   }
 
   console.log(`[NOTIFICATION SYSTEM] Received event: ${event}`);
