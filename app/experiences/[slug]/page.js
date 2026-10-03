@@ -32,7 +32,7 @@ export default function ExperienceDetailPage({ params }) {
             </div>
             <div className="market-card rounded-[1.5rem] p-6">
               <h2 className="text-xl font-semibold text-white">{t.experiences.book}</h2>
-              <BookingForm rentalSlug={experience.slug} rentalTitle={experience.title} />
+              <BookingForm rentalSlug={experience.slug} rentalTitle={experience.title} kind="experience" />
             </div>
           </div>
         </div>

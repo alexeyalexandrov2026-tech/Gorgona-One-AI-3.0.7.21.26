@@ -17,7 +17,7 @@ const isoDay = (offset) => {
   return day.toISOString().slice(0, 10);
 };
 
-// Request form for a car, a charter or a stay. Nothing is charged: the
+// Request form for a car, a charter, a stay or an experience. Nothing is charged: the
 // request goes to the team, who confirm rate, deposit and requirements.
 export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
   const locale = useLocale();
@@ -52,7 +52,7 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
   async function handleSubmit(event) {
     event.preventDefault();
     setError('');
-    if (kind !== 'yacht' && trip.to <= trip.from) {
+    if ((kind === 'car' || kind === 'stay') && trip.to <= trip.from) {
       setError(copy.badDates);
       return;
     }
@@ -90,7 +90,18 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
     <form onSubmit={handleSubmit} className={card} aria-label={copy.title[kind]}>
       <p className="font-g1sans text-[0.74rem] font-medium uppercase tracking-[0.2em] text-g1-soft">{copy.title[kind]}</p>
 
-      {kind === 'yacht' ? (
+      {kind === 'experience' ? (
+        <div className="grid grid-cols-2 gap-3">
+          <label className={labelClass}>
+            {copy.date}
+            <input className={inputClass} type="date" required min={today} value={trip.from} onChange={setT('from')} />
+          </label>
+          <label className={labelClass}>
+            {copy.guests}
+            <input className={inputClass} type="number" inputMode="numeric" min="1" max="99" required value={trip.guests} onChange={setT('guests', true)} />
+          </label>
+        </div>
+      ) : kind === 'yacht' ? (
         <div className="grid grid-cols-2 gap-3">
           <label className={`${labelClass} col-span-2 sm:col-span-1`}>
             {copy.date}
