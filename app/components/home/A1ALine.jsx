@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { COUNTIES, HOME_STOPS, getStop, stopCode } from '../../../lib/a1aLine';
 import { fill, pickLang } from '../../../lib/homeCopy';
-import { useAskConcierge, btn } from './shared';
-import Icon from './icons';
+import { useAskConcierge } from './shared';
+import { btn } from '../g1/ui';
+import Icon from '../g1/icons';
 
 const HOME = HOME_STOPS.map(getStop);
 

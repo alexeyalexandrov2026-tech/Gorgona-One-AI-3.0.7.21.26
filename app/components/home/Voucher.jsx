@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { dealUrl } from '../../../lib/homeData';
 import { fill } from '../../../lib/homeCopy';
-import Icon from './icons';
+import Icon from '../g1/icons';
 
 const camel = (slug) => slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 const monogram = (name) =>

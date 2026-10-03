@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { BRAND_COUNT, FLEET, YACHTS, STAYS, HERO_DEAL, HERO_CAR, carThumb } from '../../../lib/homeData';
 import { SUPPORTED_LANGUAGES } from '../../../lib/languages';
 import { fill } from '../../../lib/homeCopy';
-import { useAskConcierge, btn, chipClass } from './shared';
+import { useAskConcierge } from './shared';
+import { btn, chipClass } from '../g1/ui';
 import Voucher from './Voucher';
-import Icon from './icons';
+import Icon from '../g1/icons';
 
 // Valet tag for a car from our own fleet, hanging off the hero photo.
 function ValetTag({ copy }) {

@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 import { SEASON, upcomingSeason, daysUntil, formatSeasonRange, seasonStub } from '../../../lib/seasonData';
 import { fill, intlLocale, pickLang } from '../../../lib/homeCopy';
-import { useAskConcierge, btn } from './shared';
-import Icon from './icons';
+import { useAskConcierge } from './shared';
+import { btn } from '../g1/ui';
+import Icon from '../g1/icons';
 
 function statusLabel(days, copy) {
   if (days <= 0) return copy.onNow;

@@ -10,8 +10,8 @@ import Voucher from './components/home/Voucher';
 import SeasonShelf from './components/home/SeasonShelf';
 import A1ALine from './components/home/A1ALine';
 import ConciergeBand from './components/home/ConciergeBand';
-import { SectionHead, btn } from './components/home/shared';
-import Icon from './components/home/icons';
+import { SectionHead, ListingCard, btn } from './components/g1/ui';
+import Icon from './components/g1/icons';
 import GamblingNotice from './components/GamblingNotice';
 
 const CODES = getHomeCodes();
@@ -27,24 +27,6 @@ const WORLDS = [
   { id: 'concierge', href: '/discovery', img: 'deco-street', count: (c) => c.ai }
 ];
 const worldImage = (world) => (world.img ? `/images/home/worlds/${world.img}.jpg` : carThumb(FLEET[0]));
-
-function ListingCard({ href, img, title, meta, note, rate }) {
-  return (
-    <article className="group grid min-w-0 content-start gap-3">
-      <Link href={href} tabIndex={-1} aria-hidden="true" className="block aspect-[3/2] overflow-hidden rounded-2xl bg-g1-rule">
-        <img src={img} alt="" loading="lazy" width="720" height="480" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]" />
-      </Link>
-      <div className="grid gap-1.5">
-        <p className="text-[0.8rem] tracking-[0.02em] text-g1-soft">{meta}</p>
-        <h3 className="font-g1display text-[1.28rem] font-medium leading-[1.15] text-g1-ink">
-          <Link href={href} className="hover:text-g1-accent">{title}</Link>
-        </h3>
-        {note && <p className="line-clamp-2 text-[0.92rem] leading-normal text-g1-soft">{note}</p>}
-        <p className="mt-1 text-[0.88rem] font-medium text-g1-ink">{rate}</p>
-      </div>
-    </article>
-  );
-}
 
 export default function HomePage() {
   const locale = useLocale();

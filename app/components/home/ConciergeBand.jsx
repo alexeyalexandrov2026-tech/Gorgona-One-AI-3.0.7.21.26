@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useAskConcierge, btn } from './shared';
-import Icon from './icons';
+import { useAskConcierge } from './shared';
+import { btn } from '../g1/ui';
+import Icon from '../g1/icons';
 
 // Sample conversations in the five core languages. Every car, yacht and
 // venue named here is in the site's listings.
