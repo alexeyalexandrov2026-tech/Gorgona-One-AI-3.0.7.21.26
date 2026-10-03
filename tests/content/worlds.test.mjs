@@ -42,6 +42,7 @@ test('request summaries fit the booking API and stay in English', () => {
   assert.equal(car, `2026-12-02 → 2026-12-06 · Delivery: ${longest}`);
   assert.equal(summarizeRequest('yacht', { from: '2026-12-31', duration: 3, guests: 10 }), '2026-12-31 · Full day · 10 guests');
   assert.equal(summarizeRequest('stay', { from: '2027-02-10', to: '2027-02-14', guests: 6 }), '2027-02-10 → 2027-02-14 · 6 guests');
+  assert.equal(summarizeRequest('experience', { from: '2026-12-05', guests: 4 }), '2026-12-05 · 4 guests');
   for (const text of [car, summarizeRequest('yacht', { from: '2026-12-31', duration: 0, guests: 99 })]) {
     assert.ok(text.length <= 120, text);
   }
