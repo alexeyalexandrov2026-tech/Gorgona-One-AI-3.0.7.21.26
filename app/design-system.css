@@ -20,7 +20,16 @@
   --g1-ok-wash: #E1F1EC;
   --g1-band: #0F1D26;
   --g1-on-band: #EEF3F4;
+  --g1-band-soft: #A9B9C0;
+  --g1-band-card: #1A2B36;
+  --g1-band-rule: #2A3B46;
+  --g1-plate: #FFFFFF;
   --g1-drop: rgba(15, 29, 38, 0.13);
+  /* A1A line colors by county; Miami-Dade uses the accent. */
+  --g1-c-pb: #A8781C;
+  --g1-c-bw: #2B67A6;
+  --g1-c-mk: #0F7A63;
+  --g1-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 :root[data-theme="dark"] {
@@ -36,7 +45,14 @@
   --g1-ok-wash: #0F2A24;
   --g1-band: #16252F;
   --g1-on-band: #EEF3F4;
+  --g1-band-soft: #A9B9C0;
+  --g1-band-card: #1F313C;
+  --g1-band-rule: #30434F;
+  --g1-plate: #F4F6F5;
   --g1-drop: rgba(0, 0, 0, 0.55);
+  --g1-c-pb: #E2B860;
+  --g1-c-bw: #73A9E6;
+  --g1-c-mk: #4CC9A6;
   color-scheme: dark;
 }
 
@@ -83,6 +99,161 @@
   font: 500 0.74rem/1 var(--font-g1-sans), system-ui, sans-serif;
 }
 
+/* ---------- Homepage pieces ---------- */
+
+/* A horizontal shelf of tickets or cards that snaps while scrolling. */
+.g1-shelf {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(min(84vw, 330px), 340px);
+  gap: 18px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding: 6px 4px 22px;
+  margin-inline: -4px;
+  scrollbar-width: thin;
+}
+.g1-shelf > * { scroll-snap-align: start; }
+
+/* Voucher: logo stub on the left of the tear line, offer on the right. */
+.g1-voucher { display: grid; grid-template-columns: var(--x) minmax(0, 1fr); min-height: 184px; }
+.g1-stub {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; padding: 16px 10px; text-align: center;
+}
+.g1-plate {
+  display: grid; place-items: center; width: 72px; height: 72px; padding: 9px;
+  overflow: hidden; border-radius: 14px; background: var(--g1-plate);
+  border: 1px solid rgba(15, 29, 38, 0.08);
+}
+.g1-plate img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.g1-monogram { font: 600 1.3rem/1 var(--font-g1-display), Georgia, serif; color: #0F1D26; }
+.g1-cat {
+  font: 500 0.64rem/1.2 var(--font-g1-sans), system-ui, sans-serif;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--g1-ink-soft);
+}
+.g1-vbody { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 18px 18px 16px 20px; }
+
+/* Code button: dashed edge, masked code, accent call to action. */
+.g1-code-btn {
+  display: inline-flex; align-items: stretch; max-width: 100%; min-height: 42px; padding: 0;
+  overflow: hidden; border: 1.5px dashed var(--g1-accent); border-radius: 999px;
+  background: transparent; color: var(--g1-ink); cursor: pointer; text-decoration: none;
+  font: 500 0.9rem/1 var(--font-g1-sans), system-ui, sans-serif;
+}
+.g1-code-btn .g1-code {
+  display: flex; align-items: center; padding: 0 11px; white-space: nowrap;
+  font: 500 0.9rem/1 var(--font-g1-mono), ui-monospace, monospace; letter-spacing: 0.08em;
+}
+.g1-code-btn .g1-cta {
+  display: flex; align-items: center; gap: 6px; padding: 0 13px; white-space: nowrap;
+  background: var(--g1-accent); color: var(--g1-on-accent);
+}
+.g1-code-btn[data-revealed="true"] { border-style: solid; }
+.g1-code-btn[data-revealed="true"] .g1-cta { background: var(--g1-ok-wash); color: var(--g1-ok); }
+.g1-code-btn.g1-deal {
+  align-items: center; gap: 6px; padding: 0 16px; border-style: solid; border-color: var(--g1-ink);
+}
+.g1-code-btn.g1-deal:hover { background: var(--g1-ink); color: var(--g1-paper); }
+
+/* Season ticket: the date is the stub. */
+.g1-season { display: grid; grid-template-columns: var(--x) minmax(0, 1fr); min-height: 212px; }
+.g1-date {
+  display: grid; align-content: center; justify-items: center; gap: 6px; padding: 14px 6px; text-align: center;
+}
+.g1-date .mo { font: 600 0.74rem/1 var(--font-g1-mono), monospace; letter-spacing: 0.16em; color: var(--g1-accent); }
+.g1-date .dd { font: 300 2.4rem/1 var(--font-g1-sans), system-ui, sans-serif; letter-spacing: -0.03em; }
+.g1-date .yr { font: 400 0.7rem/1 var(--font-g1-mono), monospace; color: var(--g1-ink-soft); }
+
+/* Valet tag hanging over the hero photo. */
+.g1-valet {
+  display: grid; gap: 8px; width: 188px; padding: 30px 14px 14px;
+  background: var(--g1-card); border-radius: 16px 16px 22px 22px;
+  -webkit-mask: radial-gradient(circle at 50% 15px, #0000 6px, #000 6.5px);
+  mask: radial-gradient(circle at 50% 15px, #0000 6px, #000 6.5px);
+}
+.g1-valet img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 9px; }
+.g1-valet dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 0.78rem; }
+.g1-valet dt { color: var(--g1-ink-soft); }
+.g1-valet .ready {
+  padding-top: 9px; border-top: 2px dashed var(--g1-rule); color: var(--g1-accent);
+  font: 500 0.78rem/1.2 var(--font-g1-sans), system-ui, sans-serif;
+}
+.g1-hero-voucher { rotate: -2.5deg; }
+.g1-hero-tag { rotate: 4deg; }
+@media (prefers-reduced-motion: no-preference) {
+  .g1-hero-voucher { animation: g1-settle 0.9s 0.15s var(--g1-ease) both; }
+  .g1-hero-tag { animation: g1-settle-r 0.9s 0.3s var(--g1-ease) both; }
+}
+@keyframes g1-settle { from { translate: 0 22px; rotate: -6deg; } to { translate: 0 0; rotate: -2.5deg; } }
+@keyframes g1-settle-r { from { translate: 0 -18px; rotate: 9deg; } to { translate: 0 0; rotate: 4deg; } }
+
+/* The A1A Line strip: one colored rail with a dot per stop. */
+.g1-c-pb { --cc: var(--g1-c-pb); }
+.g1-c-bw { --cc: var(--g1-c-bw); }
+.g1-c-md { --cc: var(--g1-accent); }
+.g1-c-mk { --cc: var(--g1-c-mk); }
+.g1-line {
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(112px, 1fr);
+  overflow-x: auto; overscroll-behavior-x: contain; padding: 4px 2px 12px; scrollbar-width: thin;
+}
+.g1-stop {
+  position: relative; display: grid; justify-items: center; align-content: start; gap: 7px;
+  min-width: 0; padding: 42px 6px 6px; border: 0; background: none; color: var(--g1-ink);
+  text-align: center; cursor: pointer; font: inherit;
+}
+.g1-stop::before { content: ""; position: absolute; top: 15px; inset-inline: 0; height: 6px; background: var(--cc); }
+.g1-stop:first-child::before { inset-inline-start: 50%; }
+.g1-stop:last-child::before { inset-inline-end: 50%; }
+.g1-stop .dot {
+  position: absolute; top: 8px; inset-inline-start: calc(50% - 10px); width: 20px; height: 20px;
+  border-radius: 50%; background: var(--g1-paper); border: 4px solid var(--cc);
+  transition: background-color 0.2s, scale 0.25s var(--g1-ease);
+}
+.g1-stop .nm { font: 500 1.05rem/1.12 var(--font-g1-display), Georgia, serif; text-wrap: balance; }
+.g1-stop .cd { font: 500 0.66rem/1 var(--font-g1-mono), monospace; letter-spacing: 0.1em; color: var(--g1-ink-soft); }
+.g1-stop:hover .nm, .g1-stop:focus-visible .nm, .g1-stop[aria-pressed="true"] .nm { color: var(--g1-accent); }
+.g1-stop:hover .dot, .g1-stop:focus-visible .dot, .g1-stop[aria-pressed="true"] .dot { background: var(--cc); scale: 1.15; }
+.g1-pass { position: relative; overflow: hidden; }
+.g1-pass::before { content: ""; position: absolute; inset-block: 0; inset-inline-start: 0; width: 8px; background: var(--cc); }
+.g1-road {
+  display: inline-block; padding: 0.07em 0.13em 0.03em; border: 0.07em solid currentColor; border-radius: 0.13em;
+  font: 500 0.8em/1 var(--font-g1-sans), system-ui, sans-serif; letter-spacing: -0.01em; vertical-align: 0.07em;
+}
+
+/* Worlds directory: big type rows with a hairline between them. */
+.g1-dir-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) auto 28px; align-items: center;
+  gap: 8px 24px; padding-block: clamp(14px, 1.6vw, 22px); text-decoration: none; color: var(--g1-ink);
+  transition: padding 0.35s var(--g1-ease), color 0.2s;
+}
+.g1-dir-thumb { display: none; }
+.g1-dir-name { font: 500 clamp(1.9rem, 2.6vw + 1rem, 3.6rem)/1 var(--font-g1-display), Georgia, serif; letter-spacing: -0.015em; }
+.g1-dir-row:hover, .g1-dir-row:focus-visible { padding-inline-start: 18px; color: var(--g1-accent); }
+.g1-dir-row:hover .g1-dir-name { font-style: italic; }
+@media (max-width: 760px) {
+  .g1-dir-row { grid-template-columns: 56px minmax(0, 1fr) auto; gap: 4px 14px; }
+  .g1-dir-thumb { display: block; grid-row: span 2; width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
+  .g1-dir-name { min-width: 0; font-size: 1.6rem; overflow-wrap: anywhere; }
+  .g1-dir-desc { grid-column: 2; font-size: 0.86rem; }
+  .g1-dir-count { grid-column: 3; grid-row: 1; }
+  .g1-dir-arrow { display: none; }
+}
+
+/* Concierge band and its sample conversation. */
+/* Paints the band's color out to both screen edges without widening the
+   page: border-image outset is drawn, but never scrolls, in LTR and RTL. */
+.g1-bleed { border-image: linear-gradient(var(--g1-band), var(--g1-band)) fill 0 / / 0 100vw; }
+.g1-bubble { max-width: 88%; padding: 13px 16px; border-radius: 18px; line-height: 1.5; font-size: 0.98rem; }
+.g1-bubble.me { justify-self: end; background: var(--g1-accent); color: var(--g1-on-accent); border-end-end-radius: 6px; }
+.g1-bubble.them { background: var(--g1-band-card); border-end-start-radius: 6px; }
+
+[dir="rtl"] .g1-flip { transform: scaleX(-1); }
+.g1-display em { font-style: italic; color: var(--g1-accent); }
+:root[lang="he"] .g1-display em { font-style: normal; }
+
 @media (prefers-reduced-motion: reduce) {
   .g1-motion { transition: none !important; animation: none !important; }
+  .g1-hero-voucher, .g1-hero-tag { animation: none !important; }
 }
