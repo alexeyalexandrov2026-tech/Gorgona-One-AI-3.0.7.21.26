@@ -6,7 +6,7 @@ import { SUPPORTED_LANGUAGES } from '../../../lib/languages';
 import { fill } from '../../../lib/homeCopy';
 import { useAskConcierge } from './shared';
 import { btn, chipClass } from '../g1/ui';
-import Voucher from './Voucher';
+import DealTicket from '../g1/DealTicket';
 import Icon from '../g1/icons';
 
 // Valet tag for a car from our own fleet, hanging off the hero photo.
@@ -104,7 +104,7 @@ export default function HomeHero({ copy, categories, endsLabel }) {
             <ValetTag copy={copy} />
           </div>
           <div className="g1-hero-voucher absolute bottom-[7%] start-0 z-[2] w-[min(92%,380px)]">
-            <Voucher deal={HERO_DEAL} copy={copy} categories={categories} endsLabel={endsLabel(HERO_DEAL)} />
+            <DealTicket deal={HERO_DEAL} copy={copy} categories={categories} endsLabel={endsLabel(HERO_DEAL)} />
           </div>
         </div>
       </div>

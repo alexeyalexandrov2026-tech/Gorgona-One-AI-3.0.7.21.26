@@ -6,7 +6,7 @@ import { useLocale } from './components/LocaleProvider';
 import { getHomeCopy, fill, intlLocale } from '../lib/homeCopy';
 import { BRAND_COUNT, FLEET, YACHTS, STAYS, HOME_YACHTS, HOME_STAYS, HOME_BOOKS, carThumb, getHomeCodes } from '../lib/homeData';
 import HomeHero from './components/home/HomeHero';
-import Voucher from './components/home/Voucher';
+import DealTicket from './components/g1/DealTicket';
 import SeasonShelf from './components/home/SeasonShelf';
 import A1ALine from './components/home/A1ALine';
 import ConciergeBand from './components/home/ConciergeBand';
@@ -44,7 +44,7 @@ export default function HomePage() {
         <SectionHead title={copy.codes} sub={copy.codesSub} href="/coupons" cta={copy.seeAll} />
         <div className="g1-shelf" tabIndex={0} aria-label={copy.codes}>
           {CODES.map((deal) => (
-            <Voucher key={deal.id} deal={deal} copy={copy} categories={t.categories} endsLabel={endsLabel(deal)} />
+            <DealTicket key={deal.id} deal={deal} copy={copy} categories={t.categories} endsLabel={endsLabel(deal)} />
           ))}
         </div>
       </section>
