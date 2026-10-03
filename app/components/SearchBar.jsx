@@ -113,7 +113,6 @@ const SEARCH_RESULT_LOGOS = {
   'Caesars Sportsbook': '/images/brands/caesars-sportsbook-betting.svg',
   'Fanatics Sportsbook': '/images/brands/fanatics-sportsbook-betting.svg',
   Betrivers: '/images/brands/betrivers-betting.svg',
-  'ESPN BET': '/images/brands/espn-bet-betting.svg',
   'Bally Bet': '/images/brands/bally-bet-betting.svg'
 };
 
@@ -130,7 +129,7 @@ const SPORTSBOOK_PROFILE_SLUGS = {
   'Caesars Sportsbook': 'caesars',
   'Fanatics Sportsbook': 'fanatics',
   Betrivers: 'betrivers',
-  'ESPN BET': 'espn-bet',
+  'theScore Bet': 'thescore-bet',
   'Bally Bet': 'bally-bet'
 };
 
