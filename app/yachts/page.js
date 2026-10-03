@@ -23,23 +23,15 @@ export default function YachtsPage() {
 
   return (
     <main className="flex-1 theme-yacht">
-      {/* ===== Aerial marine hero — the boats are the only thing that
-           moves. Real footage (public/videos/yachts-hero.mp4, H.264 21s
-           loop); the still photograph doubles as poster while it streams. ===== */}
+      {/* ===== Aerial marine hero ===== */}
       <section className="lux-hero full-bleed -mt-[60px] flex min-h-[92svh] items-end bg-yacht-current">
         <div className="lux-hero__bg">
           <Parallax distance={60} className="h-full">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              poster="https://images.unsplash.com/photo-1605281317010-fe5ffe798166?auto=format&fit=crop&w=2400&q=80"
+            <img
+              src="https://images.unsplash.com/photo-1605281317010-fe5ffe798166?auto=format&fit=crop&w=2400&q=80"
+              alt=""
               className="h-[115%] w-full object-cover"
-            >
-              <source src="/videos/yachts-hero.mp4" type="video/mp4" />
-            </video>
+            />
           </Parallax>
         </div>
         <div className="absolute inset-0 z-[-1] bg-[linear-gradient(180deg,rgba(3,30,37,0.6)_0%,rgba(3,30,37,0.15)_32%,rgba(0,0,0,0.25)_64%,rgba(3,30,37,0.92)_100%)]" />
