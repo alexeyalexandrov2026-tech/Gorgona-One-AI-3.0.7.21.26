@@ -1,3 +1,6 @@
+import GamblingNotice from '../components/GamblingNotice';
+import { getServerLocale } from '../../lib/serverLocale';
+
 export default function SportsBettingPromosPage() {
   return (
     <main className="flex-1 py-10">
@@ -6,6 +9,7 @@ export default function SportsBettingPromosPage() {
         <h1 className="mt-2 text-3xl font-semibold text-white">Sports betting promos and sportsbook offers</h1>
         <p className="mt-4 text-zinc-400">Discover premium sportsbook-related content, state availability, and responsible-gambling guidance.</p>
       </div>
+      <GamblingNotice locale={getServerLocale()} className="mt-6" />
     </main>
   );
 }

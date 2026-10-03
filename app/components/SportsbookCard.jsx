@@ -15,7 +15,7 @@ const SPORTSBOOK_LOGOS = {
   fanatics: '/images/brands/fanatics-sportsbook-betting.svg',
   bet365: '/images/brands/bet365-betting.svg',
   betrivers: '/images/brands/betrivers-betting.svg',
-  'espn-bet': '/images/brands/espn-bet-betting.svg',
+
   'bally-bet': '/images/brands/bally-bet-betting.svg'
 };
 
@@ -28,7 +28,7 @@ const SPORTSBOOK_BANNER_COLORS = {
   fanatics: '#080303',
   bet365: '#035d48',
   betrivers: '#f9f9f9',
-  'espn-bet': '#05122e',
+  'thescore-bet': '#05122e',
   'bally-bet': '#fcfbfc'
 };
 

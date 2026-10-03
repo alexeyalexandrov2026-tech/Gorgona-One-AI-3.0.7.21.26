@@ -1,3 +1,6 @@
+import GamblingNotice from '../components/GamblingNotice';
+import { getServerLocale } from '../../lib/serverLocale';
+
 export default function FanDuelPromosPage() {
   return (
     <main className="flex-1 py-10">
@@ -6,6 +9,7 @@ export default function FanDuelPromosPage() {
         <h1 className="mt-2 text-3xl font-semibold text-white">FanDuel promos and betting updates</h1>
         <p className="mt-4 text-zinc-400">A dedicated page for FanDuel sportsbook promotions and operator details.</p>
       </div>
+      <GamblingNotice locale={getServerLocale()} className="mt-6" />
     </main>
   );
 }
