@@ -61,18 +61,18 @@ export function LanguageSwitcher() {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="flex items-center gap-2 rounded-full border border-white/10 bg-black/50 px-3 py-2 text-sm text-white outline-none transition hover:border-brand-gold"
+        className="flex min-h-[40px] items-center gap-2 rounded-full border border-g1-rule bg-g1-card px-3 text-sm text-g1-ink outline-none transition hover:border-g1-ink focus-visible:ring-2 focus-visible:ring-g1-accent"
       >
         <span aria-hidden="true">{active.flag}</span>
         <span className="hidden sm:inline">{active.nativeLabel}</span>
-        <span aria-hidden="true" className="text-xs text-zinc-400">▾</span>
+        <span aria-hidden="true" className="text-xs text-g1-soft">▾</span>
       </button>
       {open && menuStyle && (
         <div
           ref={menuRef}
           role="listbox"
           style={menuStyle}
-          className="z-50 max-h-80 overflow-y-auto rounded-2xl border border-white/10 bg-[#050505] p-2 shadow-premium"
+          className="z-50 max-h-80 overflow-y-auto rounded-2xl border border-g1-rule bg-g1-card p-2 shadow-2xl"
         >
           {SUPPORTED_LANGUAGES.map((language) => (
             <button
@@ -82,13 +82,13 @@ export function LanguageSwitcher() {
               aria-selected={language.code === locale}
               onClick={() => handleSelect(language.code)}
               className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition ${
-                language.code === locale ? 'bg-brand-gold/10 text-brand-gold' : 'text-zinc-300 hover:bg-white/5 hover:text-brand-gold'
+                language.code === locale ? 'bg-g1-accent-wash text-g1-accent' : 'text-g1-ink hover:bg-g1-paper hover:text-g1-accent'
               }`}
             >
               <span aria-hidden="true" className="text-base">{language.flag}</span>
               <span className="flex flex-col">
                 <span className="font-medium">{language.nativeLabel}</span>
-                <span className="text-xs text-zinc-500">{language.label}</span>
+                <span className="text-xs text-g1-soft">{language.label}</span>
               </span>
             </button>
           ))}

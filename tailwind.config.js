@@ -8,6 +8,22 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // New design system (app/design-system.css). Values come from CSS
+        // variables so the light and dark palettes switch in one place.
+        g1: {
+          paper: 'var(--g1-paper)',
+          card: 'var(--g1-card)',
+          ink: 'var(--g1-ink)',
+          soft: 'var(--g1-ink-soft)',
+          rule: 'var(--g1-rule)',
+          accent: 'var(--g1-accent)',
+          'on-accent': 'var(--g1-on-accent)',
+          'accent-wash': 'var(--g1-accent-wash)',
+          ok: 'var(--g1-ok)',
+          'ok-wash': 'var(--g1-ok-wash)',
+          band: 'var(--g1-band)',
+          'on-band': 'var(--g1-on-band)'
+        },
         // Core GORGONA ONE identity (kept for existing components)
         brand: {
           gold: '#d4af37',
@@ -75,7 +91,11 @@ module.exports = {
         display: ['var(--font-display)', 'var(--font-inter)', 'sans-serif'],
         serif: ['var(--font-serif)', 'Georgia', 'serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-        fira: ['var(--font-fira)', 'ui-monospace', 'monospace']
+        fira: ['var(--font-fira)', 'ui-monospace', 'monospace'],
+        // New design system. Playfair covers Cyrillic where Bodoni has no glyphs.
+        g1display: ['var(--font-g1-display)', 'var(--font-serif)', 'Georgia', 'serif'],
+        g1sans: ['var(--font-g1-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        g1mono: ['var(--font-g1-mono)', 'ui-monospace', 'monospace']
       },
       letterSpacing: {
         stamp: '0.18em',

@@ -1,0 +1,88 @@
+/* Gorgona One design system ("Daylight & ticket").
+   Tokens first, then the few shared pieces Tailwind cannot express well:
+   the ticket shape with notches and a perforation, and the stamp.
+
+   During the migration the site runs in the dark palette (data-theme="dark"
+   on <html>), so redesigned parts sit comfortably next to pages that still
+   use the old dark styling. When every page is migrated, the light palette
+   becomes the default. */
+
+:root {
+  --g1-paper: #F3F5F4;
+  --g1-card: #FFFFFF;
+  --g1-ink: #0F1D26;
+  --g1-ink-soft: #52626B;
+  --g1-rule: #D8E0E2;
+  --g1-accent: #C42F5A;
+  --g1-on-accent: #FFFFFF;
+  --g1-accent-wash: #F8E3EA;
+  --g1-ok: #11745F;
+  --g1-ok-wash: #E1F1EC;
+  --g1-band: #0F1D26;
+  --g1-on-band: #EEF3F4;
+  --g1-drop: rgba(15, 29, 38, 0.13);
+}
+
+:root[data-theme="dark"] {
+  --g1-paper: #0A1218;
+  --g1-card: #111D25;
+  --g1-ink: #EDF2F3;
+  --g1-ink-soft: #9AAAB2;
+  --g1-rule: #22323C;
+  --g1-accent: #FF6E93;
+  --g1-on-accent: #0A1218;
+  --g1-accent-wash: #3A1623;
+  --g1-ok: #4CC9A6;
+  --g1-ok-wash: #0F2A24;
+  --g1-band: #16252F;
+  --g1-on-band: #EEF3F4;
+  --g1-drop: rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+
+/* A ticket: a card with two notches and a dashed tear line at --x.
+   Wrap it in .g1-ticket-wrap so the drop shadow follows the notches. */
+.g1-ticket-wrap {
+  display: grid;
+  min-width: 0;
+  filter: drop-shadow(0 1px 1px var(--g1-drop)) drop-shadow(0 12px 18px var(--g1-drop));
+}
+.g1-ticket {
+  --x: 112px;
+  --n: 10px;
+  --pos: var(--x);
+  position: relative;
+  background: var(--g1-card);
+  border-radius: 16px;
+  -webkit-mask:
+    radial-gradient(circle at var(--pos) 0, #0000 var(--n), #000 calc(var(--n) + 0.5px)),
+    radial-gradient(circle at var(--pos) 100%, #0000 var(--n), #000 calc(var(--n) + 0.5px));
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle at var(--pos) 0, #0000 var(--n), #000 calc(var(--n) + 0.5px)),
+    radial-gradient(circle at var(--pos) 100%, #0000 var(--n), #000 calc(var(--n) + 0.5px));
+  mask-composite: intersect;
+}
+[dir="rtl"] .g1-ticket { --pos: calc(100% - var(--x)); }
+.g1-ticket::before {
+  content: "";
+  position: absolute;
+  inset-block: calc(var(--n) + 8px);
+  inset-inline-start: calc(var(--x) - 1px);
+  border-inline-start: 2px dashed var(--g1-rule);
+}
+
+.g1-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--g1-ok-wash);
+  color: var(--g1-ok);
+  font: 500 0.74rem/1 var(--font-g1-sans), system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .g1-motion { transition: none !important; animation: none !important; }
+}
