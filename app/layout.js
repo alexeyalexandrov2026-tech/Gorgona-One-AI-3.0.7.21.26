@@ -13,7 +13,8 @@ import { AiDockProvider } from './components/ai/AiDockProvider';
 import { ChatProvider } from './components/ai/ChatProvider';
 import { AiSphere } from './components/ai/AiSphere';         
 import { AiDock } from './components/ai/AiDock';             
-import { InstallPrompt } from './components/InstallPrompt';   
+import { InstallPrompt } from './components/InstallPrompt';
+import { ServiceWorkerRegistrar } from './components/ServiceWorkerRegistrar';   
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const interTight = Inter_Tight({
@@ -107,6 +108,7 @@ export default function RootLayout({ children }) {
                       <AiSphere />
                       <AiDock />
                       <InstallPrompt />
+                      <ServiceWorkerRegistrar />
                     </div>
                   </ChatProvider>
                 </AiDockProvider>

@@ -26,9 +26,20 @@ function applyDocumentLocale(code) {
   document.documentElement.dir = getLanguageDir(code);
 }
 
+// localStorage throws in some privacy modes (Safari with all cookies blocked,
+// sandboxed iframes). This provider wraps the whole app, so a throw here would
+// take every page down - fall back to the cookie, then to the default.
+function readStoredLocale() {
+  try {
+    return window.localStorage.getItem(LOCALE_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
 function readSavedLocale() {
   if (typeof window === 'undefined') return null;
-  const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY) || readCookie(LOCALE_COOKIE_KEY);
+  const saved = readStoredLocale() || readCookie(LOCALE_COOKIE_KEY);
   return saved && isSupportedLanguage(saved) ? saved : null;
 }
 
@@ -46,7 +57,11 @@ export function LocaleProvider({ children }) {
   const setLocale = (code) => {
     const next = isSupportedLanguage(code) ? code : DEFAULT_LANGUAGE;
     setLocaleState(next);
-    window.localStorage.setItem(LOCALE_STORAGE_KEY, next);
+    try {
+      window.localStorage.setItem(LOCALE_STORAGE_KEY, next);
+    } catch {
+      /* storage blocked - the cookie below still remembers the choice */
+    }
     writeCookie(LOCALE_COOKIE_KEY, next);
     applyDocumentLocale(next);
   };
