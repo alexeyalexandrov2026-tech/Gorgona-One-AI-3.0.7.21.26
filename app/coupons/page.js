@@ -1,34 +1,33 @@
-import { allDeals } from '../../lib/dealsData';
-import { SearchBar } from '../components/SearchBar';
-import { DealCard } from '../components/DealCard';
+import { getCouponDeals } from '../../lib/storeDirectory';
+import { getDealsCopy } from '../../lib/dealsCopy';
 import { getServerTranslation } from '../../lib/serverLocale';
+import { SearchBar } from '../components/SearchBar';
+import { eyebrowClass, sectionY } from '../components/g1/ui';
+import { DealGrid } from '../components/g1/DealsParts';
 
 export const dynamic = 'force-dynamic';
 
-// Stores is the primary directory now, so every brand there is a
-// duplicate here and is left out - except these three, which are kept
-// visible in Coupons on purpose even though they're no longer in Stores.
-const COUPONS_VISIBLE = ['Disney+', 'DoorDash', 'Uber Eats'];
-
+// Stores is the main directory, so Coupons lists only the three brands that
+// are not there (lib/storeDirectory.js), plus search across everything.
 export default function CouponsPage() {
-  const { t } = getServerTranslation();
+  const { t, locale } = getServerTranslation();
+  const copy = getDealsCopy(locale);
 
   return (
-    <main className="flex-1 py-10">
-      <div className="market-shell mb-8 rounded-[2rem] p-8">
-        <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.category.couponSystem}</p>
-        <h1 className="mt-2 text-3xl font-semibold text-white">{t.category.verifiedDeals}</h1>
-      </div>
+    <main className="flex-1 font-g1sans text-g1-ink">
+      <header className="grid gap-4 pb-8 pt-[clamp(24px,4vw,56px)]">
+        <p className={eyebrowClass}>{copy.couponsEyebrow}</p>
+        <h1 className="g1-display font-g1display text-[clamp(2.1rem,3vw+1rem,4rem)] font-medium leading-none tracking-[-0.015em] text-g1-ink [text-wrap:balance]">
+          {copy.couponsTitle}
+        </h1>
+        <p className="max-w-[60ch] text-[1.08rem] text-g1-soft">{copy.couponsLede}</p>
+      </header>
 
-      <div className="mb-8">
-        <SearchBar />
-      </div>
+      <SearchBar />
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {allDeals.filter((deal) => COUPONS_VISIBLE.includes(deal.name)).map((deal) => (
-          <DealCard key={deal.id} deal={deal} t={t} />
-        ))}
-      </div>
+      <section className={sectionY}>
+        <DealGrid deals={getCouponDeals()} t={t} locale={locale} />
+      </section>
     </main>
   );
 }

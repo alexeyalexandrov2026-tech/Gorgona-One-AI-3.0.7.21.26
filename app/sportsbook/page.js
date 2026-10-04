@@ -1,5 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
+import GamblingNotice, { SportsbookAvailability } from '../components/GamblingNotice';
+import { SPORTSBOOK_DIRECTORY } from '../../lib/sportsbookDirectory';
+import { getServerLocale } from '../../lib/serverLocale';
 
 // Per-brand CSS corrections for source artwork that doesn't read well on the
 // dark gradient cards. Applied only to the named brands; every other logo
@@ -13,7 +16,13 @@ const LOGO_FIXES = {
 
 // Transparent-cutout brand marks already shipped in public/images/brands/,
 // derived from the source *-betting.svg logos for use on gradient cards.
-const BrandLogo = ({ slug, name }) => (
+// theScore Bet has no licensed artwork in the repo yet, so its name is set
+// in type rather than borrowing another brand's mark.
+const NO_ARTWORK = new Set(['thescore-bet']);
+
+const BrandLogo = ({ slug, name }) => NO_ARTWORK.has(slug) ? (
+  <span className="text-4xl font-extrabold tracking-tight text-white">{name}</span>
+) : (
   <img
     src={`/images/brands/${slug}-integrated.png`}
     alt={name}
@@ -22,78 +31,8 @@ const BrandLogo = ({ slug, name }) => (
 );
 
 export default function SportsbookDirectoryFinal() {
-  const sportsbooks = [
-    {
-      name: "Hard Rock Bet",
-      slug: "hard-rock-bet",
-      description: "Official sportsbook of Hard Rock. Bet on sports with confidence.",
-      gradient: "bg-gradient-to-br from-[#2a0845] via-black/80 to-black",
-      logo: "HARD ROCK BET"
-    },
-    {
-      name: "DraftKings Sportsbook",
-      slug: "draftkings",
-      description: "The leader in daily fantasy and sports betting.",
-      gradient: "bg-gradient-to-br from-[#0f3b21] via-black/80 to-black",
-      logo: "DRAFT KINGS"
-    },
-    {
-      name: "FanDuel Sportsbook",
-      slug: "fanduel",
-      description: "America's #1 sportsbook and trusted betting experience.",
-      gradient: "bg-gradient-to-br from-[#0f2027] via-[#111928] to-black",
-      logo: "FANDUEL"
-    },
-    {
-      name: "BetMGM Sportsbook",
-      slug: "betmgm",
-      description: "Established sportsbook combining casino and sports promotions.",
-      gradient: "bg-gradient-to-br from-[#1c1c1c] via-black/90 to-black",
-      logo: "BETMGM"
-    },
-    {
-      name: "Caesars Sportsbook",
-      slug: "caesars",
-      description: "Premium sportsbook with strong brand integration and loyalty benefits.",
-      gradient: "bg-gradient-to-br from-[#141814] via-[#101010] to-black",
-      logo: "CAESARS"
-    },
-    {
-      name: "Fanatics Sportsbook",
-      slug: "fanatics",
-      description: "Sportsbook focused on fan engagement and live event experiences.",
-      gradient: "bg-gradient-to-br from-[#2a0a0a] via-black/90 to-black",
-      logo: "FANATICS"
-    },
-    {
-      name: "bet365 Sportsbook",
-      slug: "bet365",
-      description: "Global sportsbook known for extensive betting markets and live odds.",
-      gradient: "bg-gradient-to-br from-[#002f24] via-[#0a0a0a] to-black",
-      logo: "BET365"
-    },
-    {
-      name: "BetRivers Sportsbook",
-      slug: "betrivers",
-      description: "User-friendly sportsbook with a broad range of sports coverage.",
-      gradient: "bg-gradient-to-b from-[#d3d9e0] via-[#4a5568] to-[#050505]",
-      logo: "BETRIVERS"
-    },
-    {
-      name: "ESPN BET",
-      slug: "espn-bet",
-      description: "Sports media-led sportsbook experience with modern betting tools.",
-      gradient: "bg-gradient-to-br from-[#0f172a] via-black/90 to-black",
-      logo: "ESPN BET"
-    },
-    {
-      name: "Bally Bet",
-      slug: "bally-bet",
-      description: "A streamlined sportsbook tailored to simple, mobile-first wagering.",
-      gradient: "bg-gradient-to-br from-[#4a0e17] via-black to-black",
-      logo: "BALLY BET"
-    }
-  ];
+  const sportsbooks = SPORTSBOOK_DIRECTORY;
+  const locale = getServerLocale();
 
   return (
     <div className="min-h-screen bg-[#030303] text-white font-sans p-6 md:p-10">
@@ -108,8 +47,9 @@ export default function SportsbookDirectoryFinal() {
             Premium sportsbook directory
           </h1>
           <p className="text-gray-400 max-w-3xl text-sm md:text-base leading-relaxed">
-            Explore the major sportsbook companies with dedicated profile pages, state availability, and future-ready promo code sections.
+            Explore the major sportsbook companies with dedicated profile pages, where-it-is-legal sources, and future-ready promo code sections.
           </p>
+          <GamblingNotice locale={locale} className="mt-6 max-w-3xl" />
         </div>
 
         {/* Grid Container */}
@@ -137,6 +77,7 @@ export default function SportsbookDirectoryFinal() {
                 <p className="text-gray-300 text-sm leading-relaxed mb-7 flex-grow">
                   {book.description}
                 </p>
+                <SportsbookAvailability slug={book.slug} locale={locale} className="-mt-4 mb-6" />
                 <div>
                   <Link href={`/sportsbook/${book.slug}`} className="inline-block border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg">
                     View Profile
@@ -168,6 +109,7 @@ export default function SportsbookDirectoryFinal() {
                 <p className="text-gray-300 text-sm leading-relaxed mb-7">
                   {sportsbooks[9].description}
                 </p>
+                <SportsbookAvailability slug={sportsbooks[9].slug} locale={locale} className="-mt-4 mb-6" />
                 <div className="text-center">
                   <Link href={`/sportsbook/${sportsbooks[9].slug}`} className="inline-block border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg">
                     View Profile

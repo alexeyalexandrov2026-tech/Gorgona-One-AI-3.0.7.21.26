@@ -1,7 +1,8 @@
 import './globals.css';
+import './design-system.css';
 import './ai-overlays.css';                              
 import Script from 'next/script';
-import { Inter, Inter_Tight, Space_Mono, Fira_Mono, Playfair_Display } from 'next/font/google';
+import { Inter, Inter_Tight, Space_Mono, Fira_Mono, Playfair_Display, Bodoni_Moda, Jost, DM_Mono } from 'next/font/google';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { LocaleProvider } from './components/LocaleProvider';
@@ -32,7 +33,12 @@ const playfair = Playfair_Display({
   display: 'swap'
 });
 
-const fontVariables = [inter, interTight, spaceMono, firaMono, playfair].map((f) => f.variable).join(' ');
+// New design system faces.
+const bodoni = Bodoni_Moda({ subsets: ['latin'], style: ['normal', 'italic'], variable: '--font-g1-display', display: 'swap', adjustFontFallback: false });
+const jost = Jost({ subsets: ['latin', 'cyrillic'], weight: ['300', '400', '500', '600'], variable: '--font-g1-sans', display: 'swap' });
+const dmMono = DM_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-g1-mono', display: 'swap' });
+
+const fontVariables = [inter, interTight, spaceMono, firaMono, playfair, bodoni, jost, dmMono].map((f) => f.variable).join(' ');
 
 const baseUrl = 'https://gorgona-one.com';
 
@@ -76,8 +82,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`scroll-smooth ${fontVariables}`}>
-      <body className="min-h-screen bg-[#050505] font-sans text-zinc-100 antialiased">
+    // Dark palette until every page is on the new design system.
+    <html lang="en" data-theme="dark" className={`scroll-smooth ${fontVariables}`}>
+      <body className="min-h-screen bg-g1-paper font-sans text-zinc-100 antialiased">
         <LocaleProvider>
           <AuthProvider>
             <ThemeProvider>

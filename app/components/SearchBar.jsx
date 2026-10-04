@@ -113,7 +113,6 @@ const SEARCH_RESULT_LOGOS = {
   'Caesars Sportsbook': '/images/brands/caesars-sportsbook-betting.svg',
   'Fanatics Sportsbook': '/images/brands/fanatics-sportsbook-betting.svg',
   Betrivers: '/images/brands/betrivers-betting.svg',
-  'ESPN BET': '/images/brands/espn-bet-betting.svg',
   'Bally Bet': '/images/brands/bally-bet-betting.svg'
 };
 
@@ -130,7 +129,7 @@ const SPORTSBOOK_PROFILE_SLUGS = {
   'Caesars Sportsbook': 'caesars',
   'Fanatics Sportsbook': 'fanatics',
   Betrivers: 'betrivers',
-  'ESPN BET': 'espn-bet',
+  'theScore Bet': 'thescore-bet',
   'Bally Bet': 'bally-bet'
 };
 
@@ -236,55 +235,64 @@ export function SearchBar() {
   const popularSearches = POPULAR_SEARCH_LINKS.map((item) => ({ ...item, label: t.search.popular[item.key] }));
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-premium sm:p-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center">
+    <div className="grid gap-5 rounded-[22px] border border-g1-rule bg-g1-card p-4 sm:p-6">
+      <form role="search" onSubmit={(event) => event.preventDefault()} className="flex flex-col gap-3 md:flex-row md:items-center">
+        <label className="sr-only" htmlFor="g1-deal-search">{t.search.placeholder}</label>
         <input
+          id="g1-deal-search"
+          type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder={t.search.placeholder}
-          className="flex-1 rounded-full border border-white/10 bg-black/50 px-4 py-3 text-sm text-white outline-none"
+          className="min-h-[46px] min-w-0 flex-1 rounded-full border border-g1-rule bg-g1-paper px-5 text-[1rem] text-g1-ink outline-none placeholder:text-g1-soft focus:border-g1-accent"
         />
-        <select value={activeCategory} onChange={(event) => setActiveCategory(event.target.value)} className="rounded-full border border-white/10 bg-black/50 px-4 py-3 text-sm text-white outline-none">
+        <label className="sr-only" htmlFor="g1-deal-category">{t.category.allCategories}</label>
+        <select
+          id="g1-deal-category"
+          value={activeCategory}
+          onChange={(event) => setActiveCategory(event.target.value)}
+          className="min-h-[46px] rounded-full border border-g1-rule bg-g1-paper px-4 text-[0.95rem] text-g1-ink outline-none focus:border-g1-accent"
+        >
           <option value="all">{t.category.allCategories}</option>
           {categories.map((category) => (
             <option key={category.slug} value={category.slug}>{t.categories[camelizeSlug(category.slug)] || category.label}</option>
           ))}
         </select>
-        <button className="rounded-full bg-brand-gold px-4 py-3 text-sm font-medium text-black">{t.buttons.search}</button>
-      </div>
+        <button type="submit" className="inline-flex min-h-[46px] items-center justify-center rounded-full bg-g1-accent px-5 font-medium text-g1-on-accent hover:brightness-110">{t.buttons.search}</button>
+      </form>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         {popularSearches.map((search) => (
-          <Link key={search.key} href={search.href} className="rounded-full border border-white/10 px-3 py-2 text-sm text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold">
+          <Link key={search.key} href={search.href} className="inline-flex min-h-[38px] items-center rounded-full border border-g1-rule px-4 text-[0.9rem] font-medium text-g1-ink transition hover:border-g1-ink">
             {search.label}
           </Link>
         ))}
       </div>
 
-      <div className="mt-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-gold">{t.search.results}</p>
+      <div>
+        <p className="font-g1sans text-[0.74rem] font-medium uppercase tracking-[0.2em] text-g1-soft">{t.search.results}</p>
         {filteredDeals.length === 0 ? (
-          <p className="mt-3 text-sm text-zinc-400">{t.search.noResults}</p>
+          <p className="mt-3 text-[0.95rem] text-g1-soft">{t.search.noResults}</p>
         ) : (
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {filteredDeals.slice(0, 6).map((item) => (
-              <Link key={item.id} href={item.href} className="flex h-full items-stretch gap-4 rounded-2xl border border-white/10 bg-black/40 p-4">
+              <Link key={item.id} href={item.href} className="flex h-full min-w-0 items-stretch gap-4 rounded-2xl border border-g1-rule bg-g1-paper p-4 transition hover:border-g1-ink">
                 {item.logo && (
-                  <div className={`flex w-28 shrink-0 items-center justify-center rounded-xl ${item.logoOnSolid ? 'bg-white p-3' : 'p-1'}`}>
-                    <img src={item.logo} alt={item.name} className="max-h-24 w-full object-contain" />
+                  <div className={`flex w-24 shrink-0 items-center justify-center rounded-xl sm:w-28 ${item.logoOnSolid ? 'bg-white p-3' : 'p-1'}`}>
+                    <img src={item.logo} alt="" className="max-h-24 w-full object-contain" />
                   </div>
                 )}
                 <div className="flex min-w-0 flex-1 flex-col justify-between">
                   <div>
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-semibold text-white">{item.name}</p>
-                      <span className="rounded-full bg-brand-gold/15 px-2 py-1 text-xs text-brand-gold">{item.category}</span>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-medium text-g1-ink">{item.name}</p>
+                      <span className="rounded-full bg-g1-accent-wash px-2 py-0.5 text-xs text-g1-ink">{item.category}</span>
                     </div>
-                    <p className="mt-2 text-sm text-zinc-400">{item.description}</p>
+                    <p className="mt-2 line-clamp-2 text-[0.88rem] text-g1-soft">{item.description}</p>
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-sm text-zinc-500">
-                    <span>{item.promoCode || t.category.noCodeNeeded}</span>
-                    <span>{item.discount}</span>
+                  <div className="mt-3 flex items-center justify-between gap-3 text-[0.86rem] text-g1-soft">
+                    <span className="font-g1mono">{item.promoCode || t.category.noCodeNeeded}</span>
+                    <span className="text-end">{item.discount}</span>
                   </div>
                 </div>
               </Link>

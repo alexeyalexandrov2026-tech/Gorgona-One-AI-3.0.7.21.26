@@ -1,3 +1,6 @@
+import GamblingNotice from '../components/GamblingNotice';
+import { getServerLocale } from '../../lib/serverLocale';
+
 export default function DraftKingsPromosPage() {
   return (
     <main className="flex-1 py-10">
@@ -6,6 +9,7 @@ export default function DraftKingsPromosPage() {
         <h1 className="mt-2 text-3xl font-semibold text-white">DraftKings promos and sportsbook updates</h1>
         <p className="mt-4 text-zinc-400">A dedicated page for DraftKings-related offers and operator information.</p>
       </div>
+      <GamblingNotice locale={getServerLocale()} className="mt-6" />
     </main>
   );
 }
