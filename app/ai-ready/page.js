@@ -1,3 +1,7 @@
+// Placeholder page without content of its own yet: kept out of search
+// results and out of app/sitemap.js until it has some.
+export const metadata = { robots: { index: false, follow: true } };
+
 export default function AIRReadyPage() {
   return (
     <main className="flex-1 py-10">
