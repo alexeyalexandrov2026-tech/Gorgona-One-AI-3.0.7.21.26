@@ -12,7 +12,9 @@ export default function BookingForm({ rentalSlug, rentalTitle }) {
     name: '',
     phone: '',
     email: '',
-    dates: ''
+    dates: '',
+    // Honeypot - hidden from people, filled in by form bots. See lib/booking.js.
+    website: ''
   });
 
   // Auto-fill if user is logged in
@@ -43,7 +45,7 @@ export default function BookingForm({ rentalSlug, rentalTitle }) {
         body: JSON.stringify({ ...form, itemSlug: rentalSlug, itemTitle: rentalTitle })
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Failed to submit request');
       
       setSuccess(true);
@@ -98,9 +100,20 @@ export default function BookingForm({ rentalSlug, rentalTitle }) {
         value={form.dates} 
         onChange={e => setForm({...form, dates: e.target.value})}
         className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" 
-        placeholder="Preferred dates (e.g. Oct 12 - Oct 15)" 
+        placeholder="Preferred dates (e.g. Oct 12 - Oct 15)"
       />
-      
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label>
+          Website
+          <input
+            tabIndex={-1}
+            autoComplete="off"
+            value={form.website}
+            onChange={e => setForm({...form, website: e.target.value})}
+          />
+        </label>
+      </div>
+
       {error && <p className="text-sm text-red-400 bg-red-500/10 p-2 rounded-xl border border-red-500/20">{error}</p>}
       
       <button 

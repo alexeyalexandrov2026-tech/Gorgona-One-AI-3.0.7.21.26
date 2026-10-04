@@ -5,6 +5,26 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../components/AuthProvider';
 import { supabase } from '../../lib/supabase';
 
+// Tells the admin about partner activity. /api/notify only accepts signed-in
+// users, so the request carries the Supabase access token. A failed
+// notification never fails the listing change it reports.
+async function notifyAdmin(event, filesCount = 0) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) return;
+    await fetch('/api/notify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({ event, filesCount })
+    });
+  } catch {
+    /* notification is best-effort */
+  }
+}
+
 function PartnerListingCard({ listing, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -26,16 +46,8 @@ function PartnerListingCard({ listing, onUpdate }) {
       setIsEditing(false);
       
       // Notify admin about the change
-      await fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          event: 'listing_updated', 
-          partner: listing.partner_id,
-          filesCount: 0
-        })
-      });
-      
+      await notifyAdmin('listing_updated');
+
     } catch (e) {
       alert("Failed to update listing: " + e.message);
     }
@@ -177,15 +189,7 @@ export default function PartnerDashboard() {
       if (insertError) throw insertError;
 
       // 3. Notify Admin via API route
-      await fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          event: 'new_listing', 
-          partner: auth.session.name || auth.session.email,
-          filesCount: files.length
-        })
-      });
+      await notifyAdmin('new_listing', files.length);
 
       alert('Listing sent for proof! Admin has been notified.');
       
