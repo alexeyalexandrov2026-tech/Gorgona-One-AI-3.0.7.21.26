@@ -119,7 +119,7 @@ export default function EventsCategoryPage({ params }) {
               {displayedEvents.map((item) => (
                 <article key={item.id} className="group">
                   <div className="relative block overflow-hidden bg-black">
-                    <img loading="lazy" decoding="async"
+                    <img
                       src={item.image || 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=800&q=80'}
                       alt={item.name}
                       className="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"

@@ -7,9 +7,7 @@ const path = require('path');
     viewport: { width: 1280, height: 800 }
   });
   
-  // Output folder; override with SCREENSHOT_DIR. screenshots/ is gitignored.
-  const artifactDir = process.env.SCREENSHOT_DIR || path.join(__dirname, 'screenshots');
-  require('fs').mkdirSync(artifactDir, { recursive: true });
+  const artifactDir = 'C:/Users/alexa/.gemini/antigravity-ide/brain/034e171c-fb33-458f-a4ae-277dc24e973c';
   
   // Wait a bit to ensure the dev server is fully up
   await new Promise(resolve => setTimeout(resolve, 5000));

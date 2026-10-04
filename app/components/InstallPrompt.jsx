@@ -15,15 +15,8 @@ function isIOS() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent) && !window.MSStream;
 }
 
-// localStorage can throw when storage is blocked; the prompt then simply
-// behaves as if it was never dismissed.
 function wasRecentlyDismissed() {
-  let raw = null;
-  try {
-    raw = window.localStorage.getItem(DISMISS_KEY);
-  } catch {
-    return false;
-  }
+  const raw = window.localStorage.getItem(DISMISS_KEY);
   if (!raw) return false;
   const dismissedAt = Number(raw);
   if (Number.isNaN(dismissedAt)) return false;
@@ -64,11 +57,7 @@ export function InstallPrompt() {
   }, []);
 
   function dismiss() {
-    try {
-      window.localStorage.setItem(DISMISS_KEY, String(Date.now()));
-    } catch {
-      /* storage blocked - dismissal lasts for this page view only */
-    }
+    window.localStorage.setItem(DISMISS_KEY, String(Date.now()));
     setDismissed(true);
   }
 

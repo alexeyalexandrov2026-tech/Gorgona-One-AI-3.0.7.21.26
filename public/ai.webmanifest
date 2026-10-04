@@ -1,0 +1,11 @@
+{
+  "name": "Gorgona One AI",
+  "short_name": "Gorgona AI",
+  "description": "The intelligence layer of the Gorgona One ecosystem — ask by intent, discover everything.",
+  "start_url": "/ai",
+  "scope": "/ai",
+  "id": "/ai",
+  "display": "standalone",
+  "background_color": "#100d08",
+  "theme_color": "#c6a05e"
+}

@@ -125,7 +125,7 @@ export default function HomePage() {
             <StaggerItem key={item.id} className={item.theme}>
               <Link href={item.href} className="lux-tile group flex h-[300px] flex-col justify-end p-6">
                 <div className="lux-tile__media">
-                  <img loading="lazy" decoding="async" src={item.image} alt={item.label} className="h-full w-full object-cover" />
+                  <img src={item.image} alt={item.label} className="h-full w-full object-cover" />
                 </div>
                 <div className="lux-tile__scrim" />
                 <div className="lux-tile__glow" />

@@ -13,8 +13,8 @@ import { speechLocale } from '../../../lib/ai/locale';
 // and every reply - including failure lines like "the concierge is
 // temporarily unavailable" - was read aloud in a synthetic voice. All of it
 // is removed rather than merely disabled, so no surface can reintroduce
-// audio by flipping a flag. (The old /api/tts route and its provider module
-// had no caller and have been deleted too.)
+// audio by flipping a flag. (The unused Google Cloud TTS route at
+// /api/tts + lib/ai/voice.js has no caller and stays dormant.)
 //
 // Recognition language follows the global language switcher, so the mic
 // transcribes whatever the guest is browsing in - all three AI surfaces call

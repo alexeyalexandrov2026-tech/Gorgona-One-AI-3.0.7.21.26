@@ -25,7 +25,7 @@ export default function RegisterPartnerPage() {
       await signUpPartner(form, {
         errorRequired: "Please fill out all required fields",
         errorEmail: "Invalid email",
-        errorPasswordLength: "Password must be at least 8 characters",
+        errorPasswordLength: "Password must be at least 6 characters",
         errorPasswordMatch: "Passwords do not match",
       });
       setStep('success');
@@ -136,7 +136,7 @@ export default function RegisterPartnerPage() {
                 onChange={e => setForm({...form, password: e.target.value})} 
                 placeholder="Password" 
                 className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" 
-                required minLength={8} 
+                required minLength={6} 
               />
               <input 
                 type="password" 
