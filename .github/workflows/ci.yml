@@ -21,7 +21,7 @@ jobs:
     steps:
       # The vendored new ia/ and ai-router/ folders are not part of the site
       # build; skipping them saves most of the checkout.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           sparse-checkout: |
             app
@@ -31,7 +31,7 @@ jobs:
             scripts
             tests
             e2e
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -58,7 +58,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           sparse-checkout: |
             database
