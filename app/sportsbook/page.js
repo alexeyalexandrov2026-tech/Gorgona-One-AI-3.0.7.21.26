@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { ResponsibleGamingNotice } from '../components/ResponsibleGamingNotice';
 
 // Per-brand CSS corrections for source artwork that doesn't read well on the
 // dark gradient cards. Applied only to the named brands; every other logo
@@ -14,7 +15,7 @@ const LOGO_FIXES = {
 // Transparent-cutout brand marks already shipped in public/images/brands/,
 // derived from the source *-betting.svg logos for use on gradient cards.
 const BrandLogo = ({ slug, name }) => (
-  <img
+  <img loading="lazy" decoding="async"
     src={`/images/brands/${slug}-integrated.png`}
     alt={name}
     className={`h-24 w-auto max-w-[75%] object-contain ${LOGO_FIXES[slug] || ''}`}
@@ -176,6 +177,8 @@ export default function SportsbookDirectoryFinal() {
               </div>
             </div>
         </div>
+
+        <ResponsibleGamingNotice className="mt-10 text-center" />
 
       </div>
     </div>

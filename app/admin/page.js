@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../components/AuthProvider';
 import { supabase } from '../../lib/supabase';
+import { safeHttpsUrl } from '../../lib/safeUrl';
 
 function AdminListingCard({ listing, onAction }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -14,14 +15,21 @@ function AdminListingCard({ listing, onAction }) {
     currency: listing.currency
   });
 
+  // Partners write `images` themselves, so only https URLs are ever rendered
+  // as links or image sources - a javascript: URL here would run in the
+  // admin's session.
+  const images = (listing.images || []).map(safeHttpsUrl).filter(Boolean);
+
   const handleSave = async () => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('partner_listings')
         .update(editForm)
-        .eq('id', listing.id);
+        .eq('id', listing.id)
+        .select('id');
       if (error) throw error;
-      
+      if (!data?.length) throw new Error('The listing was not updated.');
+
       // Update local listing state (mutating props isn't ideal but fine for this simple use case, better to refresh or let parent handle)
       Object.assign(listing, editForm);
       setIsEditing(false);
@@ -67,11 +75,11 @@ function AdminListingCard({ listing, onAction }) {
         Partner: {listing.profiles?.company_name || listing.profiles?.name} ({listing.profiles?.email})
       </div>
       
-      {listing.images && listing.images.length > 0 && (
+      {images.length > 0 && (
         <div className="flex gap-2 overflow-x-auto mb-6 pb-2">
-          {listing.images.map((img, idx) => (
-            <a key={idx} href={img} target="_blank" rel="noreferrer">
-              <img src={img} alt="listing" className="h-16 w-16 object-cover border border-villa-obsidian/10" />
+          {images.map((img, idx) => (
+            <a key={idx} href={img} target="_blank" rel="noopener noreferrer">
+              <img src={img} alt="listing" loading="lazy" className="h-16 w-16 object-cover border border-villa-obsidian/10" />
             </a>
           ))}
         </div>
@@ -115,17 +123,21 @@ export default function AdminDashboard() {
   const [notifyPhone, setNotifyPhone] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
 
+  const session = auth?.session;
+  const authLoading = auth?.loading ?? true;
+
+  // The role comes from public.profiles (see lib/auth.js). This redirect is
+  // only UX - RLS policies are what keep non-admins out of the data.
   useEffect(() => {
-    if (auth && !auth.loading) {
-      if (!auth.session) {
-        router.push('/login');
-      } else if (auth.session.role !== 'admin') {
-        router.push('/profile');
-      } else {
-        loadData();
-      }
+    if (authLoading) return;
+    if (!session) {
+      router.push('/login');
+    } else if (session.role !== 'admin') {
+      router.push('/profile');
+    } else {
+      loadData();
     }
-  }, [auth, router]);
+  }, [authLoading, session, router]);
 
   async function loadData() {
     try {
@@ -169,12 +181,14 @@ export default function AdminDashboard() {
     if (!confirm(`Are you sure you want to ${action} this listing?`)) return;
     
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('partner_listings')
         .update({ status: action === 'approve' ? 'approved' : 'rejected' })
-        .eq('id', listingId);
-        
+        .eq('id', listingId)
+        .select('id');
+
       if (error) throw error;
+      if (!data?.length) throw new Error('The listing was not updated.');
       
       // Remove from list visually
       setPendingListings(prev => prev.filter(l => l.id !== listingId));
@@ -194,14 +208,16 @@ export default function AdminDashboard() {
         notify_phone: notifyPhone 
       };
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .update({ metadata: newMetadata })
-        .eq('id', auth.session.id);
+        .eq('id', auth.session.id)
+        .select('id');
 
       if (error) throw error;
-      
-      auth.session.metadata = newMetadata;
+      if (!data?.length) throw new Error('Your profile was not updated.');
+
+      await auth.refresh();
       alert('Notification settings saved successfully.');
     } catch (err) {
       alert('Failed to save settings: ' + err.message);
@@ -340,9 +356,9 @@ export default function AdminDashboard() {
             <div className="mt-8 p-4 border border-villa-obsidian/10 bg-villa-obsidian/5">
                <p className="font-fira text-[0.64rem] font-medium tracking-[0.18em] text-villa-ash uppercase mb-2">System Architecture</p>
                <p className="text-xs text-villa-graphite leading-relaxed">
-                 When partners submit a listing, an API request is made to <code>/api/notify</code>. 
-                 This route checks your saved notification settings and simulates sending an email and SMS alert. 
-                 You can easily connect Twilio/SendGrid to this route in production.
+                 When a partner submits or edits a listing, the portal calls <code>/api/notify</code>,
+                 which emails the address set in the server&apos;s <code>ADMIN_EMAIL</code> variable through Resend.
+                 The settings above are saved to your profile but are not used for delivery yet, and no SMS is sent.
                </p>
             </div>
           </div>

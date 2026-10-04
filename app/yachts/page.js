@@ -88,7 +88,7 @@ export default function YachtsPage() {
                   href={`/yachts/${item.slug}`}
                   className="group relative block overflow-hidden rounded-[32px] lg:col-span-3"
                 >
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={item.image}
                     alt={item.title}
                     className="aspect-[16/10] w-full object-cover transition-transform duration-150 group-hover:scale-[1.02]"

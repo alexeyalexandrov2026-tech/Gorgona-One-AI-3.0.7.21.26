@@ -19,7 +19,7 @@ export default function ExperiencesPage() {
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {experiences.map((item) => (
           <article key={item.id} className="market-card overflow-hidden rounded-[1.5rem]">
-            <img src={item.image} alt={item.title} className="h-48 w-full object-cover" />
+            <img loading="lazy" decoding="async" src={item.image} alt={item.title} className="h-48 w-full object-cover" />
             <div className="p-6">
               <div className="flex items-center justify-between gap-3">
                 <div>

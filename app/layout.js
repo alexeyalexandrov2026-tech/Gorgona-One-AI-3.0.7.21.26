@@ -13,7 +13,8 @@ import { AiDockProvider } from './components/ai/AiDockProvider';
 import { ChatProvider } from './components/ai/ChatProvider';
 import { AiSphere } from './components/ai/AiSphere';         
 import { AiDock } from './components/ai/AiDock';             
-import { InstallPrompt } from './components/InstallPrompt';   
+import { InstallPrompt } from './components/InstallPrompt';
+import { ServiceWorkerRegistrar } from './components/ServiceWorkerRegistrar';   
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const interTight = Inter_Tight({
@@ -36,36 +37,47 @@ const fontVariables = [inter, interTight, spaceMono, firaMono, playfair].map((f)
 
 const baseUrl = 'https://gorgona-one.com';
 
-// Site content is served from a single URL per page (language is chosen via
-// cookie/localStorage, not a URL prefix), so every hreflang variant points
-// at the same canonical URL - a valid pattern for search engines when
-// language is determined client-side rather than through distinct routes.
-const HREFLANG_CODES = ['en-US', 'ru', 'es', 'he-IL', 'zh', 'pt', 'uk', 'ja', 'ko', 'de', 'ar', 'tr', 'fa', 'it', 'fr', 'pl'];
+const description =
+  'A luxury AI concierge for travel, dining, shopping, stays, yachts, cars, sportsbooks and events - plus verified promo codes and lifestyle deals.';
 
 export const metadata = {
-  title: 'GORGONA ONE | Global deals, promo codes, and lifestyle offers',
-  description: 'Premium marketplace for shopping, restaurants, entertainment, travel, sports, and betting deals.',
-  keywords: ['coupons', 'deals', 'discounts', 'sportsbook promos', 'travel offers', 'restaurant deals'],
+  title: 'GORGONA ONE | Luxury rentals, concierge and lifestyle deals',
+  description,
+  keywords: [
+    'luxury concierge',
+    'yacht charter',
+    'exotic car rental',
+    'villa rentals',
+    'nightlife',
+    'promo codes',
+    'sportsbook promos',
+    'event tickets'
+  ],
   metadataBase: new URL(baseUrl),
   alternates: {
-    canonical: baseUrl,
-    languages: {
-      ...Object.fromEntries(HREFLANG_CODES.map((code) => [code, baseUrl])),
-      'x-default': baseUrl
-    }
+    // './' resolves against each page's own path, so every page is its own
+    // canonical. A fixed URL here made every page declare the homepage as
+    // its canonical. No hreflang alternates: all 16 languages share one URL
+    // (the language is a cookie), so alternates pointing at the same URL
+    // only confuse crawlers.
+    canonical: './'
   },
+  // og:image comes from app/opengraph-image.png (PNG - Facebook, X and
+  // LinkedIn do not render SVG previews). No og:url: it would resolve to the
+  // homepage for every page.
   openGraph: {
     title: 'GORGONA ONE',
-    description: 'Discover verified promo codes, premium offers, and hidden deals across the globe.',
-    url: 'https://gorgona-one.com',
+    description,
     siteName: 'GORGONA ONE',
-    images: [{ url: '/og-image.svg', width: 1200, height: 630 }],
     type: 'website'
   },
   twitter: {
     card: 'summary_large_image',
     title: 'GORGONA ONE',
-    description: 'Unlock hidden deals with verified coupons and premium offers.'
+    description
+  },
+  icons: {
+    apple: '/apple-touch-icon.png'
   },
   verification: {
     other: {
@@ -96,6 +108,7 @@ export default function RootLayout({ children }) {
                       <AiSphere />
                       <AiDock />
                       <InstallPrompt />
+                      <ServiceWorkerRegistrar />
                     </div>
                   </ChatProvider>
                 </AiDockProvider>

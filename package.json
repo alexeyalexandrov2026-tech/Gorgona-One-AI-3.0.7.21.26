@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"next dev\" \"cd ai-router && npm install && set PORT=20128&& npm run dev\"",
+    "dev": "concurrently \"next dev\" \"cd ai-router && npm install && npm run dev -- -p 20128\"",
     "build": "NEXT_PRIVATE_STANDALONE=true next build && opennextjs-cloudflare build --skipNextBuild --openNextConfigPath open-next.config.mjs && cd ai-router && npm install && npm run build",
-    "start": "concurrently \"next start\" \"cd ai-router && set PORT=20128&& npm run start\""
+    "start": "concurrently \"next start\" \"cd ai-router && npm run start -- -p 20128\"",
+    "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./tests/register.mjs --test \"tests/**/*.test.mjs\"",
+    "test:db": "bash scripts/test-db.sh",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.1",
@@ -22,6 +25,8 @@
     "@opennextjs/cloudflare": "1.15.1",
     "@playwright/test": "^1.61.1",
     "concurrently": "^10.0.3",
-    "playwright": "^1.61.1"
+    "dotenv": "^16.6.1",
+    "playwright": "^1.61.1",
+    "sharp": "^0.34.5"
   }
 }

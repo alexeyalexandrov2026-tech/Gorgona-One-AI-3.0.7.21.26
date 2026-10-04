@@ -94,7 +94,7 @@ export default function OvagoProfilePage() {
             {OVAGO_DEALS.map((deal) => (
               <article key={deal.name} className="market-card flex flex-col overflow-hidden rounded-2xl">
                 <div className="flex items-center justify-center bg-black/40 p-4">
-                  <img src={deal.image} alt={deal.name} className="max-h-40 w-full object-contain" />
+                  <img loading="lazy" decoding="async" src={deal.image} alt={deal.name} className="max-h-40 w-full object-contain" />
                 </div>
                 <div className="flex flex-1 flex-col justify-between p-6">
                   <div>

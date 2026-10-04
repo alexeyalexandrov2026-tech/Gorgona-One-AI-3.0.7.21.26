@@ -5,6 +5,42 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../components/AuthProvider';
 import { supabase } from '../../lib/supabase';
 
+// Tells the admin about partner activity. /api/notify only accepts signed-in
+// users, so the request carries the Supabase access token. A failed
+// notification never fails the listing change it reports.
+async function notifyAdmin(event, filesCount = 0) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) return;
+    await fetch('/api/notify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({ event, filesCount })
+    });
+  } catch {
+    /* notification is best-effort */
+  }
+}
+
+// Mirrors the listings_media bucket settings in Supabase (images only, 10 MB
+// per file), so a rejected upload is explained before it is attempted.
+const ACCEPTED_IMAGE_TYPES = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/avif': 'avif'
+};
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+function uploadProblem(file) {
+  if (!ACCEPTED_IMAGE_TYPES[file.type]) return `${file.name}: only JPG, PNG, WebP or AVIF images can be uploaded.`;
+  if (file.size > MAX_UPLOAD_BYTES) return `${file.name}: each image must be 10 MB or smaller.`;
+  return null;
+}
+
 function PartnerListingCard({ listing, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -16,26 +52,23 @@ function PartnerListingCard({ listing, onUpdate }) {
 
   const handleSave = async () => {
     try {
-      const { error } = await supabase
+      const changes = { ...editForm, price: editForm.price === '' ? null : parseFloat(editForm.price) };
+      const { data, error } = await supabase
         .from('partner_listings')
-        .update(editForm)
-        .eq('id', listing.id);
+        .update(changes)
+        .eq('id', listing.id)
+        .select('id');
       if (error) throw error;
-      
-      Object.assign(listing, editForm);
+      // RLS turns an update the partner may not make into "0 rows changed"
+      // rather than an error, so an empty result means nothing was saved.
+      if (!data?.length) throw new Error('The listing could not be updated.');
+
+      Object.assign(listing, changes);
       setIsEditing(false);
       
       // Notify admin about the change
-      await fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          event: 'listing_updated', 
-          partner: listing.partner_id,
-          filesCount: 0
-        })
-      });
-      
+      await notifyAdmin('listing_updated');
+
     } catch (e) {
       alert("Failed to update listing: " + e.message);
     }
@@ -101,23 +134,30 @@ export default function PartnerDashboard() {
   // Listings State
   const [myListings, setMyListings] = useState([]);
 
+  const session = auth?.session;
+  const authLoading = auth?.loading ?? true;
+
+  // The role comes from public.profiles (see lib/auth.js). This redirect is
+  // only UX - RLS policies are what keep other users' listings private.
   useEffect(() => {
-    if (auth && !auth.loading) {
-      if (!auth.session) {
-        router.push('/login');
-      } else if (auth.session.role !== 'partner' && auth.session.role !== 'admin') {
-        router.push('/profile');
-      } else {
-        loadMyListings();
-      }
+    if (authLoading) return;
+    if (!session) {
+      router.push('/login');
+    } else if (session.role !== 'partner' && session.role !== 'admin') {
+      router.push('/profile');
+    } else {
+      loadMyListings();
     }
-  }, [auth, router]);
+  }, [authLoading, session, router]);
 
   async function loadMyListings() {
     try {
+      // Admins can read every partner's listings, so scope this desk to the
+      // signed-in account explicitly.
       const { data, error } = await supabase
         .from('partner_listings')
         .select('*')
+        .eq('partner_id', session.id)
         .order('created_at', { ascending: false });
         
       if (!error && data) {
@@ -131,9 +171,16 @@ export default function PartnerDashboard() {
   }
 
   const handleFileChange = (e) => {
-    if (e.target.files) {
-      setFiles(Array.from(e.target.files));
+    if (!e.target.files) return;
+    const selected = Array.from(e.target.files);
+    const problem = selected.map(uploadProblem).find(Boolean);
+    if (problem) {
+      alert(problem);
+      e.target.value = '';
+      setFiles([]);
+      return;
     }
+    setFiles(selected);
   };
 
   const handleSubmit = async (e) => {
@@ -145,9 +192,9 @@ export default function PartnerDashboard() {
       
       // 1. Upload files to Supabase Storage
       for (const file of files) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${auth.session.id}/${fileName}`;
+        // The bucket only accepts uploads under the partner's own folder.
+        const fileName = `${crypto.randomUUID()}.${ACCEPTED_IMAGE_TYPES[file.type]}`;
+        const filePath = `${session.id}/${fileName}`;
         
         const { error: uploadError } = await supabase.storage
           .from('listings_media')
@@ -166,7 +213,7 @@ export default function PartnerDashboard() {
       const { error: insertError } = await supabase
         .from('partner_listings')
         .insert([{
-          partner_id: auth.session.id,
+          partner_id: session.id,
           title,
           description,
           price: parseFloat(price),
@@ -177,15 +224,7 @@ export default function PartnerDashboard() {
       if (insertError) throw insertError;
 
       // 3. Notify Admin via API route
-      await fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          event: 'new_listing', 
-          partner: auth.session.name || auth.session.email,
-          filesCount: files.length
-        })
-      });
+      await notifyAdmin('new_listing', files.length);
 
       alert('Listing sent for proof! Admin has been notified.');
       
@@ -284,7 +323,7 @@ export default function PartnerDashboard() {
               </div>
               
               <div>
-                <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">Upload Files & Pictures (Unlimited)</label>
+                <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">Upload Pictures</label>
                 <div 
                   onClick={() => fileInputRef.current?.click()}
                   className="flex flex-col items-center justify-center border border-dashed border-villa-obsidian/30 p-8 hover:border-villa-obsidian transition cursor-pointer bg-villa-obsidian/5"
@@ -292,13 +331,14 @@ export default function PartnerDashboard() {
                   <span className="font-fira text-[0.7rem] uppercase tracking-[0.1em] text-villa-obsidian">
                     Click to select files
                   </span>
-                  <p className="mt-2 text-xs text-villa-graphite">Supports all file types (JPG, PDF, DOC, etc.)</p>
+                  <p className="mt-2 text-xs text-villa-graphite">JPG, PNG, WebP or AVIF images, up to 10 MB each</p>
                   {files.length > 0 && (
                     <p className="mt-4 font-medium text-villa-charcoal">{files.length} file(s) selected</p>
                   )}
                 </div>
                 <input 
                   type="file" 
+                  accept="image/jpeg,image/png,image/webp,image/avif"
                   multiple 
                   className="hidden" 
                   ref={fileInputRef}

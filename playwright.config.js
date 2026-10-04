@@ -14,12 +14,20 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // Point at a preinstalled Chromium when Playwright's own download is
+        // unavailable, e.g. PLAYWRIGHT_CHROMIUM_EXECUTABLE=/opt/pw-browsers/chromium
+        launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined },
+      },
     },
   ],
   webServer: {
-    command: 'npm run dev',
+    // Only the site itself: `npm run dev` also installs and starts the
+    // ai-router, which these tests do not need.
+    command: 'npx next dev -p 3000',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
+    timeout: 180_000,
   },
 });

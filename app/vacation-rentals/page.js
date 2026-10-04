@@ -82,7 +82,7 @@ export default function VacationRentalsPage() {
             {properties.map((item, index) => (
               <article key={item.id} className="group">
                 <Link href={`/vacation-rentals/${item.slug}`} className="relative block overflow-hidden">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={item.image}
                     alt={item.title}
                     className="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"

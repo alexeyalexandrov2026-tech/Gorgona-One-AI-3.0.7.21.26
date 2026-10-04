@@ -125,7 +125,7 @@ export default function TravelLandingPage() {
             <StaggerItem key={item.title}>
               <Link href={item.href} className="lux-tile group flex h-[360px] flex-col justify-end p-7">
                 <div className="lux-tile__media">
-                  <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                  <img loading="lazy" decoding="async" src={item.image} alt={item.title} className="h-full w-full object-cover" />
                 </div>
                 <div className="lux-tile__scrim" />
                 <div className="lux-tile__glow" />

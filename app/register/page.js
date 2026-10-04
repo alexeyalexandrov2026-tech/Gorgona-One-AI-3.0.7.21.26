@@ -23,7 +23,7 @@ export default function RegisterUserPage() {
       await signUp(form, {
         errorRequired: "Please fill out all fields",
         errorEmail: "Invalid email",
-        errorPasswordLength: "Password must be at least 6 characters",
+        errorPasswordLength: "Password must be at least 8 characters",
         errorPasswordMatch: "Passwords do not match",
       });
       auth?.refresh();
@@ -47,7 +47,7 @@ export default function RegisterUserPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Your Name" className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
           <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="Email Address" className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
-          <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder="Password (min 6 chars)" className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required minLength={6} />
+          <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder="Password (min 8 chars)" className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required minLength={8} />
           <input type="password" value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} placeholder="Confirm Password" className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
           
           {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{error}</p>}
