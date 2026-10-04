@@ -153,10 +153,15 @@ export function ChatProvider({ children }) {
       clearTimeout(timeout);
     }
 
-    // Always answer the guest. When no engine replied, `answer` is the polite
-    // localized "unavailable" line; dropping it left the guest's question
-    // hanging with no reply at all.
-    setMessages((prev) => [...prev, { role: 'assistant', content: answer }].slice(-MAX_MESSAGES));
+    setMessages((prev) => {
+      // If the backend is offline and we only have the canned error line, suppress the text.
+      // The local intent matcher still provides navigation cards, so the widget
+      // degrades gracefully into a silent smart-navigation bar instead of displaying an error.
+      if (answer === unavailableReply(locale)) {
+        return prev;
+      }
+      return [...prev, { role: 'assistant', content: answer }].slice(-MAX_MESSAGES);
+    });
     setCards(nextCards);
     setSuggestions(nextSuggestions);
     setIsLoading(false);

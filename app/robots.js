@@ -3,8 +3,7 @@ export default function robots() {
     rules: {
       userAgent: '*',
       allow: '/',
-      // Account pages, portals, drafts and the API have nothing to index.
-      disallow: ['/admin', '/partner$', '/profile', '/login', '/register', '/draft/', '/api/']
+      disallow: ['/admin']
     },
     sitemap: 'https://gorgona-one.com/sitemap.xml'
   };

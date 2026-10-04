@@ -7,7 +7,7 @@ import Link from 'next/link';
 export function VenueCard({ venue, t }) {
   return (
     <article className="market-card overflow-hidden rounded-[1.5rem]">
-      <img loading="lazy" decoding="async" src={venue.image} alt={venue.name} className="h-48 w-full object-cover" />
+      <img src={venue.image} alt={venue.name} className="h-48 w-full object-cover" />
       <div className="p-6">
         <div className="flex items-center justify-between gap-3">
           <div>

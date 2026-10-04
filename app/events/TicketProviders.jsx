@@ -33,7 +33,7 @@ export function TicketProviders({ categoryLabel }) {
             aria-label={provider.name}
             className="group flex h-28 items-center justify-center rounded-2xl border border-villa-obsidian/10 bg-white px-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-500 ease-out hover:-translate-y-1 hover:border-brand-gold hover:shadow-[0_14px_34px_rgba(0,0,0,0.12)]"
           >
-            <img loading="lazy" decoding="async"
+            <img
               src={provider.logo}
               alt={provider.name}
               className={`w-auto max-w-full object-contain grayscale opacity-60 transition-all duration-500 ease-out group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0 ${provider.logoClass || 'max-h-8'}`}

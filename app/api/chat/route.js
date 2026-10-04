@@ -9,7 +9,7 @@ import { languageDirective, normalizeLocale, unavailableReply } from '../../../l
 // A thin adapter over a fallback chain, in order of preference:
 //
 //   1. the local Gorgona AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
-//   2. the ai-router (OpenAI-compatible) at AI_ROUTER_URL, default :20128
+//   2. the hosted ai-router on :20128 (OpenAI-compatible)
 //   3. a polite canned reply
 //
 // The contract this route returns NEVER changes shape and the status is
@@ -23,50 +23,12 @@ import { languageDirective, normalizeLocale, unavailableReply } from '../../../l
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// The default only works where the router runs on the same machine (local
-// dev). A Cloudflare Worker cannot reach localhost, so production needs
-// AI_ROUTER_URL pointing at a reachable router - otherwise every message
-// falls through to the canned reply.
-const DEFAULT_ROUTER_URL = 'http://localhost:20128/v1/chat/completions';
-const routerUrl = () => process.env.AI_ROUTER_URL || DEFAULT_ROUTER_URL;
-const routerModel = () => process.env.GEMINI_MODEL || 'gemini-2.0-flash';
-// The ai-router owns provider keys and model routing. Its own key check is off
-// by default (REQUIRE_API_KEY=false), so the placeholder satisfies it; set
-// AI_ROUTER_API_KEY when the router requires a real key.
-const routerApiKey = () => process.env.AI_ROUTER_API_KEY || 'sk-local';
+const ROUTER_URL = 'http://localhost:20128/v1/chat/completions';
+const ROUTER_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 // Upstream calls must never hang the request indefinitely - a stalled fetch
 // previously left the concierge "thinking" forever with no way for the
 // client's own request to resolve. 20s comfortably covers normal latency.
 const ROUTER_TIMEOUT_MS = 20_000;
-
-const MAX_MESSAGES = 12;
-const MAX_MESSAGE_CHARS = 4000;
-
-// Keeps only well-formed user/assistant turns. Anything else in the body
-// (nulls, objects as content, unknown roles) is dropped before it can reach
-// an engine or the suggestion matcher.
-function sanitizeMessages(raw) {
-  if (!Array.isArray(raw)) return [];
-  return raw
-    .filter(
-      (m) =>
-        m &&
-        typeof m === 'object' &&
-        (m.role === 'user' || m.role === 'assistant') &&
-        typeof m.content === 'string' &&
-        m.content.trim()
-    )
-    .slice(-MAX_MESSAGES)
-    .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_MESSAGE_CHARS) }));
-}
-
-// GET /api/chat reports engine URLs and service details. That is useful while
-// wiring things up and an information leak on the public site, so production
-// answers with the bare status unless GORGONA_AI_DIAGNOSTICS is switched on.
-function diagnosticsEnabled() {
-  if (process.env.NODE_ENV !== 'production') return true;
-  return ['on', '1', 'true', 'yes'].includes(String(process.env.GORGONA_AI_DIAGNOSTICS || '').trim().toLowerCase());
-}
 
 
 // A router that is simply not running is an expected state (it is a separate
@@ -110,20 +72,24 @@ async function askRouter(messages, locale) {
     // goes where it belongs: appended to the persona.
     { role: 'system', content: `${SYSTEM_PROMPT}${languageDirective(locale)}` },
     ...messages
+      .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
+      .map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) }))
   ];
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), ROUTER_TIMEOUT_MS);
 
   try {
-    const response = await fetch(routerUrl(), {
+    const response = await fetch(ROUTER_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${routerApiKey()}`
+        // The ai-router owns API keys and model routing; the placeholder just
+        // satisfies its auth header check.
+        Authorization: 'Bearer sk-local'
       },
       body: JSON.stringify({
-        model: routerModel(),
+        model: ROUTER_MODEL,
         messages: openaiMessages,
         temperature: 0.7,
         top_p: 0.9,
@@ -165,12 +131,12 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
   }
 
-  const messages = sanitizeMessages(body?.messages);
-  const latestUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
-  if (!latestUserMessage) {
+  const messages = Array.isArray(body?.messages) ? body.messages.slice(-12) : [];
+  if (!messages.length) {
     return NextResponse.json({ error: 'No message provided.' }, { status: 400 });
   }
 
+  const latestUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   // Opaque to us: minted by the local brain, echoed back by the client.
   const sessionId = typeof body?.sessionId === 'string' ? body.sessionId.slice(0, 120) : undefined;
   // The language showing in the global switcher. Every engine below is told
@@ -198,12 +164,9 @@ export async function POST(request) {
 // Non-LLM diagnostics: confirms which engines are wired up without spending a
 // completion. Handy for checking the local backend from a browser tab.
 export async function GET() {
-  if (!diagnosticsEnabled()) {
-    return NextResponse.json({ ok: true });
-  }
   return NextResponse.json({
     ok: true,
     local: await getLocalBrainStatus(),
-    router: { url: routerUrl(), model: routerModel() }
+    router: { url: ROUTER_URL, model: ROUTER_MODEL }
   });
 }

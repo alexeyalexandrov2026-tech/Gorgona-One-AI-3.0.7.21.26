@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ResponsibleGamingNotice } from '../../components/ResponsibleGamingNotice';
 import { getSportsbookBySlug } from '../../../lib/sportsbooksData';
 import { sportsbookDescriptions, getContentText } from '../../../lib/contentTranslations';
 import { getServerTranslation } from '../../../lib/serverLocale';
@@ -164,7 +163,6 @@ export default async function SportsbookProfilePage({ params }) {
             <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
               <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Responsible Gambling</p>
               <p className="mt-4 text-sm text-zinc-400">Play responsibly. Review terms and conditions before placing any wager. Promotional promises and bonus details should be verified directly with the operator.</p>
-              <ResponsibleGamingNotice className="mt-3" />
               <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
                 <p className="font-semibold text-white">Terms & Conditions</p>
                 <p className="mt-2 text-sm text-zinc-400">All offers are subject to regional availability and official operator terms.</p>
@@ -223,7 +221,6 @@ export default async function SportsbookProfilePage({ params }) {
           <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
             <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Responsible Gambling</p>
             <p className="mt-4 text-sm text-zinc-400">Play responsibly. Review terms and conditions before placing any wager. Promotional promises and bonus details should be verified directly with the operator.</p>
-            <ResponsibleGamingNotice className="mt-3" />
             <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
               <p className="font-semibold text-white">Terms & Conditions</p>
               <p className="mt-2 text-sm text-zinc-400">All offers are subject to regional availability and official operator terms.</p>

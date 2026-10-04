@@ -2,7 +2,7 @@
 
 export function BrandImage({ src, alt, className }) {
   return (
-    <img loading="lazy" decoding="async"
+    <img
       src={src}
       alt={alt}
       className={className}
