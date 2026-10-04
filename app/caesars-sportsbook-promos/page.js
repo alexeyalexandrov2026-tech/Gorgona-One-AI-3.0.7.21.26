@@ -1,3 +1,5 @@
+import { ResponsibleGamingNotice } from '../components/ResponsibleGamingNotice';
+
 // Placeholder page without content of its own yet: kept out of search
 // results and out of app/sitemap.js until it has some.
 export const metadata = { robots: { index: false, follow: true } };
@@ -9,6 +11,7 @@ export default function CaesarsSportsbookPromosPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Sportsbook promos</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">Caesars Sportsbook promos and operator details</h1>
         <p className="mt-4 text-zinc-400">A dedicated page for Caesars Sportsbook offers and future-ready promo code information.</p>
+        <ResponsibleGamingNotice className="mt-6" />
       </div>
     </main>
   );

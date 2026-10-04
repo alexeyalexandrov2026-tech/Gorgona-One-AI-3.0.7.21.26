@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { ResponsibleGamingNotice } from '../components/ResponsibleGamingNotice';
 
 // Per-brand CSS corrections for source artwork that doesn't read well on the
 // dark gradient cards. Applied only to the named brands; every other logo
@@ -176,6 +177,8 @@ export default function SportsbookDirectoryFinal() {
               </div>
             </div>
         </div>
+
+        <ResponsibleGamingNotice className="mt-10 text-center" />
 
       </div>
     </div>
