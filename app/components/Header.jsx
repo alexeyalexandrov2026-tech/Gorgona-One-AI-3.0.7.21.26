@@ -60,14 +60,12 @@ export function Header() {
   return (
     <header
       dir="ltr"
-      className={`sticky top-0 z-40 border-b transition-colors duration-300 ${
-        scrolled
-          ? 'border-white/10 bg-[#050505]/85 backdrop-blur-xl'
-          : 'border-transparent bg-gradient-to-b from-black/70 via-black/30 to-transparent'
+      className={`sticky top-0 z-40 border-b font-g1sans backdrop-blur-xl transition-colors duration-300 ${
+        scrolled ? 'border-g1-rule bg-g1-paper/90' : 'border-transparent bg-g1-paper/60'
       }`}
     >
-      <div className="flex items-center justify-between gap-4 py-4">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4">
+        <div className="flex min-w-0 items-center gap-2">
           {/* Universal back navigation. Available on both mobile and desktop.
               Hidden on the homepage (nothing to go "back" from) and when 
               this tab has no history to return to. */}
@@ -76,18 +74,16 @@ export function Header() {
               type="button"
               onClick={goBack}
               aria-label="Go back"
-              className="flex items-center justify-center rounded-full border border-white/10 p-2 text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink sm:h-10 sm:w-10"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
             </button>
           )}
-          <Link href="/" className="group flex items-baseline gap-2">
-            <span className="font-display text-lg font-semibold tracking-[0.34em] text-white transition-colors group-hover:text-brand-gold">
-              GORGONA
-            </span>
-            <span className="font-mono text-[0.6rem] uppercase tracking-[0.4em] text-brand-gold">One</span>
+          <Link href="/" aria-label="Gorgona One, home" className="group flex items-baseline gap-2">
+            <span className="font-g1display text-xl font-medium tracking-tight text-g1-ink sm:text-2xl">Gorgona</span>
+            <span className="font-g1mono text-[0.62rem] uppercase tracking-[0.3em] text-g1-accent">One</span>
           </Link>
         </div>
 
@@ -96,11 +92,12 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="group relative whitespace-nowrap py-1 text-[0.78rem] font-medium text-zinc-100 drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)] transition-colors hover:text-white xl:text-[0.82rem]"
+              aria-current={isActive(item.href) ? 'page' : undefined}
+              className="group relative whitespace-nowrap py-1 text-[0.9rem] font-medium text-g1-ink transition-colors hover:text-g1-accent"
             >
               {labelFor(item)}
               <span
-                className={`absolute -bottom-0.5 left-0 h-px bg-brand-gold transition-all duration-300 ${
+                className={`absolute -bottom-0.5 left-0 h-0.5 rounded-full bg-g1-accent transition-all duration-300 ${
                   isActive(item.href) ? 'w-full' : 'w-0 group-hover:w-full'
                 }`}
               />
@@ -108,20 +105,20 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
           {auth?.session ? (
             <button
               type="button"
               onClick={() => auth.signOut()}
-              className="hidden rounded-full border border-brand-gold/50 px-4 py-2 text-sm font-medium text-brand-gold transition hover:bg-brand-gold hover:text-black sm:inline-flex"
+              className="hidden min-h-[40px] items-center rounded-full border border-g1-rule px-4 text-sm font-medium text-g1-ink transition hover:border-g1-ink sm:inline-flex"
             >
               {t.auth.signOut}
             </button>
           ) : (
             <Link
               href="/login"
-              className="hidden rounded-full border border-brand-gold/50 px-4 py-2 text-sm font-medium text-brand-gold transition hover:bg-brand-gold hover:text-black sm:inline-flex"
+              className="hidden min-h-[40px] items-center rounded-full bg-g1-accent px-4 text-sm font-medium text-g1-on-accent transition hover:brightness-110 sm:inline-flex"
             >
               {t.auth.signInTab}
             </Link>
@@ -131,7 +128,7 @@ export function Header() {
             onClick={() => setMobileNavOpen((value) => !value)}
             aria-expanded={mobileNavOpen}
             aria-label="Menu"
-            className="flex items-center justify-center rounded-full border border-white/10 p-2 text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold lg:hidden"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink sm:h-10 sm:w-10 lg:hidden"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               {mobileNavOpen ? (
@@ -158,7 +155,7 @@ export function Header() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-white/10 lg:hidden"
+            className="overflow-hidden border-t border-g1-rule lg:hidden"
           >
             <div className="grid grid-cols-2 gap-1 py-3">
               {navItems.map((item) => (
@@ -166,7 +163,7 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileNavOpen(false)}
-                  className="rounded-xl px-3 py-2.5 text-sm text-zinc-300 transition hover:bg-white/5 hover:text-brand-gold"
+                  className="rounded-xl px-3 py-2.5 text-base text-g1-ink transition hover:bg-g1-card hover:text-g1-accent"
                 >
                   {labelFor(item)}
                 </Link>

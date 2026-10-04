@@ -1,65 +1,67 @@
 import { notFound } from 'next/navigation';
-import { getRentalBySlug } from '../../../lib/rentalsData';
+import { getRentals, getRentalBySlug } from '../../../lib/rentalsData';
 import { rentalDescriptions, getContentText } from '../../../lib/contentTranslations';
 import { getServerTranslation } from '../../../lib/serverLocale';
+import { getWorldsCopy, displayValue } from '../../../lib/worldsCopy';
+import { fill } from '../../../lib/homeCopy';
+import { carThumb } from '../../../lib/homeData';
 import BookingForm from '../../components/BookingForm';
+import Gallery from '../../components/g1/Gallery';
+import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
 
 export const dynamic = 'force-dynamic';
 
 export default function RentalDetailPage({ params }) {
   const rental = getRentalBySlug(params.slug);
-
-  if (!rental) {
-    notFound();
-  }
+  if (!rental) notFound();
 
   const { t, locale } = getServerTranslation();
+  const copy = getWorldsCopy(locale);
+  const category = copy.categories[rental.category] || rental.category;
+  const photos = [rental.image, ...(rental.gallery || []).filter((src) => src !== rental.image)];
+  const more = getRentals().filter((car) => car.slug !== rental.slug && car.category === rental.category).slice(0, 3);
 
   return (
-    <main className="flex-1 py-10">
-      <div className="market-shell overflow-hidden rounded-[2rem]">
-        <img src={rental.image} alt={rental.title} className="h-72 w-full object-cover" />
-        <div className="p-8">
-          <p className="market-pill">{rental.category}</p>
-          <h1 className="market-title mt-4">{rental.title}</h1>
-          <p className="market-subtitle">{getContentText(rentalDescriptions, locale, rental.id, rental.description)}</p>
-          <div className="mt-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="market-card rounded-[1.5rem] p-6">
-              <div className="grid gap-4 text-sm text-zinc-300 sm:grid-cols-2">
-                <div><p className="text-zinc-500">{t.rentals.company}</p><p className="mt-1 text-white">{rental.company}</p></div>
-                <div><p className="text-zinc-500">{t.rentals.location}</p><p className="mt-1 text-white">{rental.location}</p></div>
-                <div><p className="text-zinc-500">{t.rentals.daily}</p><p className="mt-1 text-brand-gold">{rental.dailyPrice}</p></div>
-                <div><p className="text-zinc-500">{t.rentals.weekly}</p><p className="mt-1 text-white">{rental.weeklyPrice}</p></div>
-                <div><p className="text-zinc-500">Monthly Price</p><p className="mt-1 text-white">{rental.monthlyPrice}</p></div>
-                <div><p className="text-zinc-500">Security Deposit</p><p className="mt-1 text-white">{rental.securityDeposit}</p></div>
-              </div>
-            </div>
-            <div className="market-card rounded-[1.5rem] p-6">
-              <h2 className="text-xl font-semibold text-white">Reserve request</h2>
-              <BookingForm rentalSlug={rental.slug} rentalTitle={rental.title} />
-            </div>
-          </div>
+    <main className="flex-1 font-g1sans text-g1-ink">
+      <Crumbs items={[[t.nav.cars, '/rentals'], [rental.title]]} />
 
-          {/* Gallery for cars that ship their own photography. The tiles use the
-              source 3:2 ratio, so nothing is cropped. */}
-          {rental.gallery?.length > 0 && (
-            <section className="mt-8">
-              <h2 className="text-xl font-semibold text-white">Gallery</h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {rental.gallery.map((src, index) => (
-                  <img
-                    key={src}
-                    src={src}
-                    alt={`${rental.title} — ${index + 1}`}
-                    loading="lazy"
-                    className="aspect-[3/2] w-full rounded-[1.25rem] object-cover"
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+      <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+        <Gallery images={photos} title={rental.title} copy={copy} />
+
+        <div className="grid min-w-0 gap-5 lg:sticky lg:top-24">
+          <p className={eyebrowClass}>{fill(copy.cars.ourFleet, { place: rental.location })}</p>
+          <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{rental.title}</h1>
+          <p className="text-[1.05rem] text-g1-soft">{getContentText(rentalDescriptions, locale, rental.id, rental.description)}</p>
+          <Specs
+            items={[
+              [t.rentals.location, rental.location],
+              [copy.cars.filterLabel, category],
+              [t.rentals.daily, displayValue(rental.dailyPrice, copy)],
+              [t.rentals.weekly, displayValue(rental.weeklyPrice, copy)]
+            ]}
+          />
+          <BookingForm rentalSlug={rental.slug} rentalTitle={rental.title} kind="car" />
         </div>
       </div>
+
+      {more.length > 0 && (
+        <section className={`border-t border-g1-rule ${sectionY}`}>
+          <SectionHead title={copy.cars.more} href="/rentals" cta={copy.seeAll} />
+          <div className="grid gap-x-5 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
+            {more.map((car) => (
+              <ListingCard
+                key={car.slug}
+                href={`/rentals/${car.slug}`}
+                img={carThumb(car)}
+                alt={car.title}
+                title={car.title}
+                meta={`${category} · ${car.location}`}
+                rate={`${t.rentals.daily}: ${displayValue(car.dailyPrice, copy)}`}
+              />
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

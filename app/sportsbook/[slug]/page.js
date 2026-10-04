@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getSportsbookBySlug } from '../../../lib/sportsbooksData';
 import { sportsbookDescriptions, getContentText } from '../../../lib/contentTranslations';
 import { getServerTranslation } from '../../../lib/serverLocale';
+import GamblingNotice, { SportsbookAvailability } from '../../components/GamblingNotice';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +20,6 @@ const SPORTSBOOK_LOGOS = {
   // betrivers-betting.svg carries compression artifacts in the "RIVERS"
   // lettering that the new asset does not.
   betrivers: '/images/brands/betrivers-integrated.png',
-  'espn-bet': '/images/brands/espn-bet-betting.svg',
   'bally-bet': '/images/brands/bally-bet-betting.svg'
 };
 
@@ -37,7 +37,6 @@ const PROFILE_HERO_LOGOS = {
   fanatics: '/images/brands/fanatics-integrated.png',
   bet365: '/images/brands/bet365-integrated.png',
   betrivers: '/images/brands/betrivers-integrated.png',
-  'espn-bet': '/images/brands/espn-bet-integrated.png',
   'bally-bet': '/images/brands/bally-bet-integrated.png'
 };
 
@@ -74,7 +73,7 @@ const PROFILE_HERO_STYLES = {
     gradient: 'radial-gradient(70% 90% at 18% 32%, #4f8fdb 0%, #2e63ab 22%, #1c3f70 42%, #10233f 68%, #030a16 100%)',
     glow: 'rgba(230,190,110,0.3)'
   },
-  'espn-bet': {
+  'thescore-bet': {
     gradient: 'radial-gradient(70% 90% at 18% 32%, #3f66b0 0%, #274680 22%, #172c53 42%, #0c182e 68%, #02060f 100%)',
     glow: 'rgba(140,225,205,0.34)'
   },
@@ -155,14 +154,14 @@ export default async function SportsbookProfilePage({ params }) {
               <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Offer overview</p>
               <div className="mt-4 space-y-4 text-sm text-zinc-400">
                 <p><span className="text-white">Website:</span> {sportsbook.website}</p>
-                <p><span className="text-white">State availability:</span> {sportsbook.state_availability}</p>
+                <SportsbookAvailability slug={sportsbook.slug} locale={locale} className="text-sm" />
                 <p><span className="text-white">{t.kosher.promoCode}:</span> {sportsbook.promo_code || 'Empty and ready for future updates'}</p>
                 <p><span className="text-white">Bonus offer:</span> {sportsbook.bonus_offer}</p>
               </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
               <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Responsible Gambling</p>
-              <p className="mt-4 text-sm text-zinc-400">Play responsibly. Review terms and conditions before placing any wager. Promotional promises and bonus details should be verified directly with the operator.</p>
+              <GamblingNotice locale={locale} className="mt-4" />
               <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
                 <p className="font-semibold text-white">Terms & Conditions</p>
                 <p className="mt-2 text-sm text-zinc-400">All offers are subject to regional availability and official operator terms.</p>
@@ -207,7 +206,7 @@ export default async function SportsbookProfilePage({ params }) {
             <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Offer overview</p>
             <div className="mt-4 space-y-4 text-sm text-zinc-400">
               <p><span className="text-white">Website:</span> {sportsbook.website}</p>
-              <p><span className="text-white">State availability:</span> {sportsbook.state_availability}</p>
+              <SportsbookAvailability slug={sportsbook.slug} locale={locale} className="text-sm" />
               <p><span className="text-white">{t.kosher.promoCode}:</span> {sportsbook.promo_code || 'Empty and ready for future updates'}</p>
               <p><span className="text-white">Bonus offer:</span> {sportsbook.bonus_offer}</p>
             </div>
@@ -220,7 +219,7 @@ export default async function SportsbookProfilePage({ params }) {
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
             <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Responsible Gambling</p>
-            <p className="mt-4 text-sm text-zinc-400">Play responsibly. Review terms and conditions before placing any wager. Promotional promises and bonus details should be verified directly with the operator.</p>
+            <GamblingNotice locale={locale} className="mt-4" />
             <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
               <p className="font-semibold text-white">Terms & Conditions</p>
               <p className="mt-2 text-sm text-zinc-400">All offers are subject to regional availability and official operator terms.</p>
