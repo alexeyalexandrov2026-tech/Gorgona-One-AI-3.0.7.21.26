@@ -1,3 +1,8 @@
+> **Archived on 2026-10-04.** Historical report from 2026-07-20. Some details
+> are out of date: the Worker is `gorgonaoneai3072126` (see `wrangler.jsonc`)
+> and partner media lives in the `listings_media` bucket. For the current
+> state see `docs/AUDIT.md`.
+
 # Deployment & Code Modification Report
 
 **Date:** July 20, 2026

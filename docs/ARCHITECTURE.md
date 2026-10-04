@@ -5,50 +5,63 @@ order; each phase must ship complete (no half-built systems on `main`).
 Branding rule: the brand is **Gorgona One**. "Da'at by Gorgona One" names
 only the discovery assistant feature and must never displace the brand.
 
-## Current state (2026-07-17, commit d898ac4)
+## Current state (2026-10-04)
 
-**Live in production (protect — do not regress):**
-- Unified AI brain: `lib/ai/brain.js` — every LLM call goes through
-  `askBrain()`; `/api/chat` is a thin adapter. Model policy is env-driven
-  (default `openrouter/free`; paid chain = 3 env vars, no code change).
-  Free-pool hardening: provider ignore list (novita, poolside PII-redact
-  prompts), degenerate-completion detection + retry.
-- Homepage concierge chat (GorgonaOneAI): conversation context
-  (sessionStorage), voice in/out, 16 locales, ecosystem-grounded replies
-  via `lib/aiEcosystemDigest.js` (server-only inventory digest).
-- Track B dock (AiSphere/AiDock/AiConversation) sharing the same backend.
-- Local AI backend: `lib/ai/localBrain.js` — an optional, self-contained
-  adapter for the self-hosted Gorgona AI Brain microservice (FastAPI +
-  Ollama, `POST /api/v1/chat/completions`). `/api/chat` runs a fallback
-  chain (local brain → ai-router → canned concierge reply) and always
-  answers `200` with the same JSON contract, so the chat widget has no
-  failure branch and an offline backend is a non-event.
-  - Detection: `GET /api/health` identifies the service and reports whether
-    Ollama itself is connected, so "engine down" is caught without spending
-    a completion. If the service moves, the adapter falls back to reading
-    `/openapi.json`, then to probing conventional paths.
+See `docs/AUDIT.md` for the full audit behind this snapshot.
+
+**Live in production:**
+- Concierge chat: `/api/chat` runs a fallback chain and always answers
+  `200` with the same JSON contract:
+  1. the self-hosted Gorgona AI Brain (FastAPI + Ollama) via
+     `lib/ai/localBrain.js`, at `GORGONA_AI_URL`;
+  2. the ai-router (OpenAI-compatible) at `AI_ROUTER_URL`, default
+     `http://localhost:20128`;
+  3. a localized "temporarily unavailable" line.
+  A Cloudflare Worker cannot reach either default (localhost), so
+  production answers with the line in step 3 unless those variables point
+  at hosted services. Navigation suggestions and action cards are matched
+  locally (`lib/aiSuggestions.js`), so guests still get somewhere to go.
+  - Detection: `GET /api/health` identifies the brain service and reports
+    whether Ollama itself is connected, so "engine down" is caught without
+    spending a completion. If the service moves, the adapter falls back to
+    reading `/openapi.json`, then to probing conventional paths.
   - Sessions: the service owns conversation memory and its own system
-    prompt — it reads only the newest turn (`ChatRequest.get_user_input()`)
-    and rebuilds context from `session_id`. So `/api/chat` echoes
-    `sessionId` back to the client and the client returns it on the next
-    turn; dropping it would start a fresh, amnesiac session per message.
-    Corollary: on this path the site's `SYSTEM_PROMPT` is not in play (the
-    service injects `GORGONA_SYSTEM_PROMPT`), while the internal-link
-    suggestions still come from `matchSuggestions` client-side.
-  - A circuit breaker keeps a switched-off backend from costing latency
-    (measured: ~15-30ms per message with everything down).
-  - `GET /api/chat` reports engine status without spending a completion.
-  - Config: `GORGONA_AI_*` in `.env.example`; nothing is required for the
-    site to run, build, or deploy.
-- Client intent index (`lib/ai/provider.js`) — non-LLM constellation
+    prompt - it reads only the newest turn and rebuilds context from
+    `session_id`, so `/api/chat` echoes `sessionId` back and the client
+    returns it on the next turn. On this path the site's `SYSTEM_PROMPT` is
+    not in play.
+  - A circuit breaker keeps a switched-off backend from costing latency.
+  - `GET /api/chat` reports engine status only outside production or with
+    `GORGONA_AI_DIAGNOSTICS=on`.
+- One conversation, three surfaces (homepage `GorgonaOneAI`, sphere dock
+  `AiSphere`/`AiDock`, `/discovery` `ConciergeRoom`), held by
+  `ChatProvider` in the root layout. Voice is input only (Web Speech API in
+  `useVoice.js`); there is no text-to-speech anywhere.
+- Client intent index (`lib/ai/provider.js`) - non-LLM constellation
   highlighting; intentionally client-side, do not "upgrade" it to LLM calls.
+- Data: world pages import `lib/*Data.js` directly. `/api/search` goes
+  through `lib/data/listings.js`, which falls back to the same modules
+  because `public.listings` does not exist yet. Sportsbook profiles read
+  `public.sportsbooks` and fall back to the list in `lib/mockData.js`.
+- Accounts and roles: Supabase Auth, roles in `public.profiles`
+  (`database/README.md`). Reservations: `/api/book` stores a row in
+  `public.bookings` and emails `ADMIN_EMAIL`; partner activity emails come
+  from `/api/notify` (signed-in users only).
+- PWA: `public/sw.js`, registered by `ServiceWorkerRegistrar`, enables the
+  install prompt.
+- Tests: `npm test` (node:test), `npm run test:e2e` (Playwright),
+  `npm run test:db` (Postgres policy tests); `.github/workflows/ci.yml`.
 - Deploy: push to `main` → Cloudflare Workers Builds (OpenNext).
 
-**Known debt (scheduled below, do not hotfix ad hoc):**
-- Inventory lives in static JS files (`lib/*Data.js`).
-- No global search surface. Ovago/RentCars integrations are stubs.
-- No streaming AI replies; system TTS only. PWA install implementation
-  exists in a git stash ("prev-session: sphere blend fix + sw.js ...").
+**Known debt:**
+- Next.js 14 is end-of-life with open advisories; upgrade to 15.5+/16
+  (React 19) on its own branch.
+- Every page ships all 16 locales (`lib/i18n.js`, ~240 KB) through the
+  root providers; load the active locale only.
+- No hosted AI engine for production (see the chain above).
+- Inventory lives in static JS files (`lib/*Data.js`); `public.listings`
+  is not created yet.
+- Ovago/RentCars integrations are stubs.
 - Legacy i18n keys named `gemini*` hold provider-specific wording.
 
 ## Phase 1 — Canonical data layer (foundation for everything)
@@ -60,12 +73,12 @@ path:
   jsonb, price_text, image_url, href, status), `worlds`, `venues` folded
   into `listings.world`. Multilingual display stays in app i18n; data
   fields remain English (matches current behavior).
-- Access via `lib/data/listings.js` (server-only repository module —
-  the data twin of `lib/ai/brain.js`). Pages keep their current props by
+- Access via `lib/data/listings.js` (server-only repository module).
+  Pages keep their current props by
   reading through it; static `lib/*Data.js` files become seed scripts
   (`scripts/seed/*.mjs`) and are deleted from runtime imports.
-- `lib/aiEcosystemDigest.js` switches to the repository (cached, per-worker)
-  so the AI brain automatically speaks from live inventory.
+- A server-side inventory digest for the concierge prompt reads the
+  repository (cached, per-worker) so the AI speaks from live inventory.
 - RLS: public read on published rows only; writes via service key (admin
   tooling later). Never expose the service key to the client.
 
@@ -86,14 +99,12 @@ reproducible; zero visual change.
 
 ## Phase 3 — AI system completion
 
-- Streaming replies (SSE from `/api/chat`, incremental render in both
-  surfaces). Implement in `brain.js` as `askBrainStream()` alongside
-  `askBrain()` — adapters choose.
+- Streaming replies (SSE from `/api/chat`, incremental render in every
+  surface), implemented in the `/api/chat` engine chain.
 - Tool use: expose `search_listings` (Phase 2) to paid models via
   OpenRouter tool-calling; free pool keeps digest grounding.
-- Premium TTS behind an interface (`lib/ai/voice.js`) with system
-  speechSynthesis as default and ElevenLabs/OpenAI voice as env-gated
-  upgrade. i18n hygiene: rename `gemini*` keys to provider-neutral
+- Voice output was removed by product decision (the concierge is
+  text-only). i18n hygiene: rename `gemini*` keys to provider-neutral
   (`aiSnag`, `aiRateLimited`, …) across all 16 locales in one commit.
 
 ## Phase 4 — Integrations & PWA
@@ -101,25 +112,24 @@ reproducible; zero visual change.
 - Ovago / RentCars: keep the existing integration seam
   (`lib/ai/integrations/`), implement server-side adapters with the same
   repository read-path; a stub must never block or corrupt discovery.
-- PWA install: rebase the stashed implementation (public/sw.js +
-  ServiceWorkerRegistrar + manifest start_url `view=concierge` +
-  AiDockProvider auto-open) onto current main — re-verify against Track A
-  surfaces before merging.
+- PWA install: done - `public/sw.js` is registered by
+  `ServiceWorkerRegistrar` in the root layout.
 
 ## Phase 5 — Reliability & operations
 
 - Observability: structured logs in brain/adapters (already emit model +
   provider), Cloudflare Workers analytics dashboards, uptime check on
   `/api/chat` (non-LLM ping mode to avoid burning quota).
-- E2E smoke suite (Playwright): homepage chat round-trip, locale switch,
-  each world page renders, search round-trip.
+- E2E smoke suite (Playwright): started in `e2e/smoke.spec.js` (core pages,
+  concierge reply, booking failure path); add locale switch and search.
 - Ops runbook: OpenRouter quota (free tier ≈ 50 req/day; $10 lifetime
   top-up → 1000/day; paid chain via env), Cloudflare env var inventory.
 
 ## Operating rules
 
-1. One authoritative module per concern: brain (LLM), repository (data),
-   search route (queries). New features consume these; they never bypass.
+1. One authoritative module per concern: `/api/chat` (LLM), repository
+   (data), search route (queries). New features consume these; they never
+   bypass.
 2. Env-driven policy, no hardcoded providers/models/keys at call sites.
 3. Every phase ships with its verification (build + live E2E) before merge.
 4. Protect the premium UX: no visual regressions; both AI themes stay

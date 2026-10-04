@@ -1,3 +1,9 @@
+> **Archived on 2026-10-04 - do not follow.** Written for another repository
+> and branch (`Gorgona-one-claude`, `claude/safe-site-cloning-uw0tlv`) during
+> a July 2026 rebuild that has since finished. It tells agents to run
+> destructive git commands such as `git reset --hard`. For the current state
+> see `README.md`, `docs/ARCHITECTURE.md` and `docs/AUDIT.md`.
+
 # Gorgona One — Reconstruction Task Instructions
 
 ## Агент, начни отсюда!
