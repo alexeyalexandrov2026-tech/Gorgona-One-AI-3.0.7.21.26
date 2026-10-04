@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 // answers 503, so the form shows an error instead of silently losing the lead.
 //
 // public.bookings is INSERT-only for anon/authenticated (see
-// database/schema.sql). Reading the new row back with `.select()` would need
+// database/02_catalog_schema.sql). Reading the new row back with `.select()` would need
 // a SELECT policy, and without one PostgREST rejects the whole insert - so the
 // id is generated here and the insert asks for no representation.
 //
