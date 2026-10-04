@@ -15,7 +15,7 @@ const LOGO_FIXES = {
 // Transparent-cutout brand marks already shipped in public/images/brands/,
 // derived from the source *-betting.svg logos for use on gradient cards.
 const BrandLogo = ({ slug, name }) => (
-  <img
+  <img loading="lazy" decoding="async"
     src={`/images/brands/${slug}-integrated.png`}
     alt={name}
     className={`h-24 w-auto max-w-[75%] object-contain ${LOGO_FIXES[slug] || ''}`}

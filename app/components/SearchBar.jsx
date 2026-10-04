@@ -271,7 +271,7 @@ export function SearchBar() {
               <Link key={item.id} href={item.href} className="flex h-full items-stretch gap-4 rounded-2xl border border-white/10 bg-black/40 p-4">
                 {item.logo && (
                   <div className={`flex w-28 shrink-0 items-center justify-center rounded-xl ${item.logoOnSolid ? 'bg-white p-3' : 'p-1'}`}>
-                    <img src={item.logo} alt={item.name} className="max-h-24 w-full object-contain" />
+                    <img loading="lazy" decoding="async" src={item.logo} alt={item.name} className="max-h-24 w-full object-contain" />
                   </div>
                 )}
                 <div className="flex min-w-0 flex-1 flex-col justify-between">

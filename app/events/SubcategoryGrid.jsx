@@ -44,7 +44,7 @@ export function SubcategoryGrid({ categories, activeSlug, columns = 6 }) {
           >
             <span className="flex h-12 w-full items-center justify-center">
               {category.logo ? (
-                <img
+                <img loading="lazy" decoding="async"
                   src={category.logo}
                   alt=""
                   aria-hidden="true"

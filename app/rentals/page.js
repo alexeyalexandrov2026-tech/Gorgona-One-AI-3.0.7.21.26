@@ -103,7 +103,7 @@ export default function RentalsPage() {
                   <StaggerItem key={item.id}>
                     <article className="group flex h-full flex-col bg-white">
                       <Link href={`/rentals/${item.slug}`} className="relative block overflow-hidden">
-                        <img
+                        <img loading="lazy" decoding="async"
                           src={item.image}
                           alt={item.title}
                           className="aspect-[16/10] w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
