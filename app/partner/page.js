@@ -5,6 +5,20 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../components/AuthProvider';
 import { supabase } from '../../lib/supabase';
 
+// /api/notify only accepts signed-in callers, so send the session token along.
+async function notifyAdmin(payload) {
+  const { data } = await supabase.auth.getSession();
+  const token = data?.session?.access_token;
+  await fetch('/api/notify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
+    body: JSON.stringify(payload)
+  });
+}
+
 function PartnerListingCard({ listing, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -26,14 +40,10 @@ function PartnerListingCard({ listing, onUpdate }) {
       setIsEditing(false);
       
       // Notify admin about the change
-      await fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          event: 'listing_updated', 
-          partner: listing.partner_id,
-          filesCount: 0
-        })
+      await notifyAdmin({
+        event: 'listing_updated',
+        partner: listing.partner_id,
+        filesCount: 0
       });
       
     } catch (e) {
@@ -177,14 +187,10 @@ export default function PartnerDashboard() {
       if (insertError) throw insertError;
 
       // 3. Notify Admin via API route
-      await fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          event: 'new_listing', 
-          partner: auth.session.name || auth.session.email,
-          filesCount: files.length
-        })
+      await notifyAdmin({
+        event: 'new_listing',
+        partner: auth.session.name || auth.session.email,
+        filesCount: files.length
       });
 
       alert('Listing sent for proof! Admin has been notified.');

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { SYSTEM_PROMPT, matchSuggestions, matchActionCards } from '../../../lib/aiEcosystemContext';
-import { askLocalBrain, getLocalBrainStatus } from '../../../lib/ai/localBrain';
+import { askLocalBrain } from '../../../lib/ai/localBrain';
 import { languageDirective, normalizeLocale, unavailableReply } from '../../../lib/ai/locale';
 
 // ===========================================================================
@@ -163,10 +163,8 @@ export async function POST(request) {
 
 // Non-LLM diagnostics: confirms which engines are wired up without spending a
 // completion. Handy for checking the local backend from a browser tab.
+// Public health check only: the router address, model and local-brain state
+// are internal details and stay off the open internet.
 export async function GET() {
-  return NextResponse.json({
-    ok: true,
-    local: await getLocalBrainStatus(),
-    router: { url: ROUTER_URL, model: ROUTER_MODEL }
-  });
+  return NextResponse.json({ ok: true });
 }
