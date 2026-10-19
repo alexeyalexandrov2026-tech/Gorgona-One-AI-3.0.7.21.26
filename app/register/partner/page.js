@@ -160,7 +160,7 @@ export default function RegisterPartnerPage() {
               />
             </div>
             <label htmlFor="agreement" className="text-sm text-zinc-400">
-              I agree to the <a href="#" className="text-brand-gold hover:underline">Miami Elio Partnership Agreement</a> and confirm that all provided business information is accurate.
+              I agree to the <a href="/partner-agreement" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:underline">Miami Elio Partnership Agreement</a> and confirm that all provided business information is accurate.
             </label>
           </div>
           
