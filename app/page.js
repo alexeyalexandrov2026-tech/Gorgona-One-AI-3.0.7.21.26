@@ -3,10 +3,9 @@
 import Link from 'next/link';
 import { getTranslation } from '../lib/i18n';
 import { useLocale } from './components/LocaleProvider';
-import { getHomeCopy, fill, intlLocale } from '../lib/homeCopy';
-import { BRAND_COUNT, FLEET, YACHTS, STAYS, HOME_YACHTS, HOME_STAYS, HOME_BOOKS, carThumb, getHomeCodes } from '../lib/homeData';
+import { getHomeCopy, fill } from '../lib/homeCopy';
+import { BRAND_COUNT, FLEET, YACHTS, STAYS, HOME_YACHTS, HOME_STAYS, HOME_BOOKS, carThumb } from '../lib/homeData';
 import HomeHero from './components/home/HomeHero';
-import DealTicket from './components/g1/DealTicket';
 import SeasonShelf from './components/home/SeasonShelf';
 import A1ALine from './components/home/A1ALine';
 import ConciergeBand from './components/home/ConciergeBand';
@@ -14,10 +13,8 @@ import { SectionHead, ListingCard, btn } from './components/g1/ui';
 import Icon from './components/g1/icons';
 import GamblingNotice from './components/GamblingNotice';
 
-const CODES = getHomeCodes();
-
 const WORLDS = [
-  { id: 'deals', href: '/coupons', img: 'deals-bags', count: (c) => fill(c.brands, { n: BRAND_COUNT }) },
+  { id: 'deals', href: '/stores', img: 'deals-bags', count: (c) => fill(c.brands, { n: BRAND_COUNT }) },
   { id: 'travel', href: '/travel', img: 'travel-wing', count: (c) => c.flights },
   { id: 'stays', href: '/vacation-rentals', img: 'stay-miami-beach', count: (c) => fill(c.homes, { n: STAYS.length }) },
   { id: 'yachts', href: '/yachts', img: 'yacht-princess', count: (c) => fill(c.charters, { n: YACHTS.length }) },
@@ -32,22 +29,12 @@ export default function HomePage() {
   const locale = useLocale();
   const t = getTranslation(locale);
   const copy = getHomeCopy(locale);
-  const endsFormat = new Intl.DateTimeFormat(intlLocale(locale), { month: 'short', day: 'numeric' });
-  const endsLabel = (deal) => (deal.expirationDate ? endsFormat.format(new Date(`${deal.expirationDate}T12:00:00`)) : '');
   const rule = 'border-t border-g1-rule';
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
-      <HomeHero copy={copy} categories={t.categories} endsLabel={endsLabel} />
+      <HomeHero copy={copy} />
 
-      <section className={`${rule} py-[clamp(36px,5vw,72px)]`}>
-        <SectionHead title={copy.codes} sub={copy.codesSub} href="/coupons" cta={copy.seeAll} />
-        <div className="g1-shelf" tabIndex={0} aria-label={copy.codes}>
-          {CODES.map((deal) => (
-            <DealTicket key={deal.id} deal={deal} copy={copy} categories={t.categories} endsLabel={endsLabel(deal)} />
-          ))}
-        </div>
-      </section>
 
       <section className="py-[clamp(36px,5vw,72px)]">
         <SectionHead title={copy.season} sub={copy.seasonSub} href="/events" cta={t.nav.events} />

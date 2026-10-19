@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { SPORTSBOOK_DIRECTORY } from '../../lib/sportsbookDirectory.js';
-import { HOME_BOOKS, FLEET, carThumb, getHomeCodes, dealUrl, HERO_DEAL, HERO_CAR } from '../../lib/homeData.js';
+import { HOME_BOOKS, FLEET, carThumb, HERO_CAR } from '../../lib/homeData.js';
 import { SEASON, SEASON_CHECKED_AT, upcomingSeason, daysUntil } from '../../lib/seasonData.js';
 import { STOPS, HOME_STOPS, COUNTIES, getStop } from '../../lib/a1aLine.js';
 import { HOME_COPY, getHomeCopy } from '../../lib/homeCopy.js';
@@ -22,14 +22,14 @@ test('the homepage shows the same ten sportsbooks in the same order', () => {
   }
 });
 
-test('homepage codes are brand offers, one per brand, with real links', () => {
-  const codes = getHomeCodes();
-  assert.ok(codes.length >= 6);
-  assert.ok(codes.every((d) => d.category !== 'betting' && !d.category.startsWith('kosher')));
-  assert.equal(new Set(codes.map((d) => d.name)).size, codes.length);
-  for (const deal of [...codes, HERO_DEAL]) {
-    assert.match(dealUrl(deal), /^https:\/\//);
-    assert.doesNotMatch(dealUrl(deal), /example\.com/);
+test('the homepage has no promo-code copy in any core language', () => {
+  const promo = /promo|coupon|code|nike|uber eats|промокод|скидк|código|cupom|קוד|מבצע/i;
+  for (const lang of LANGS) {
+    const copy = HOME_COPY[lang];
+    for (const text of [copy.eyebrow, copy.lede, ...copy.chips, ...copy.stats]) assert.doesNotMatch(text, promo, `${lang}: ${text}`);
+    assert.equal(copy.stats.length, 3, `${lang} stats`);
+    assert.equal(copy.chips.length, 5, `${lang} chips`);
+    assert.doesNotMatch(copy.worldItems.deals.join(' '), /promo|coupon|промокод|código|cupom|קוד/i, `${lang} stores row`);
   }
 });
 
