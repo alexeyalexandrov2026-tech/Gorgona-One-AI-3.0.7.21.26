@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from 'react';
-import { BRAND_COUNT, FLEET, YACHTS, STAYS, HERO_DEAL, HERO_CAR, carThumb } from '../../../lib/homeData';
+import { FLEET, YACHTS, STAYS, HERO_CAR, carThumb } from '../../../lib/homeData';
 import { SUPPORTED_LANGUAGES } from '../../../lib/languages';
-import { fill } from '../../../lib/homeCopy';
 import { useAskConcierge } from './shared';
 import { btn, chipClass } from '../g1/ui';
-import DealTicket from '../g1/DealTicket';
 import Icon from '../g1/icons';
 
 // Valet tag for a car from our own fleet, hanging off the hero photo.
@@ -27,10 +25,10 @@ function ValetTag({ copy }) {
   );
 }
 
-export default function HomeHero({ copy, categories, endsLabel }) {
+export default function HomeHero({ copy }) {
   const ask = useAskConcierge();
   const [query, setQuery] = useState('');
-  const stats = [BRAND_COUNT, FLEET.length, YACHTS.length + STAYS.length, SUPPORTED_LANGUAGES.length];
+  const stats = [FLEET.length, YACHTS.length + STAYS.length, SUPPORTED_LANGUAGES.length];
 
   function submit(event) {
     event.preventDefault();
@@ -48,7 +46,7 @@ export default function HomeHero({ copy, categories, endsLabel }) {
             {copy.titleA}<em>{copy.titleEm}</em>{copy.titleB}
           </h1>
           <p className="max-w-[58ch] text-[clamp(1.06rem,0.35vw+1rem,1.22rem)] text-g1-soft [text-wrap:pretty]">
-            {fill(copy.lede, { n: BRAND_COUNT })}
+            {copy.lede}
           </p>
 
           <form
@@ -79,7 +77,7 @@ export default function HomeHero({ copy, categories, endsLabel }) {
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-x-[22px] gap-y-3.5 border-t border-g1-rule pt-2 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-[22px] gap-y-3.5 border-t border-g1-rule pt-2 sm:grid-cols-3">
             {stats.map((value, i) => (
               <div key={copy.stats[i]} className="grid content-start gap-1 pt-3">
                 <b className="font-g1sans text-[2.3rem] font-light leading-none tracking-[-0.02em] tabular-nums text-g1-ink">{value}</b>
@@ -102,9 +100,6 @@ export default function HomeHero({ copy, categories, endsLabel }) {
           </figure>
           <div className="g1-ticket-wrap g1-hero-tag absolute end-[2%] top-[5%] z-[1] origin-top-right scale-[0.86] sm:end-[3%] sm:scale-100">
             <ValetTag copy={copy} />
-          </div>
-          <div className="g1-hero-voucher absolute bottom-[7%] start-0 z-[2] w-[min(92%,380px)]">
-            <DealTicket deal={HERO_DEAL} copy={copy} categories={categories} endsLabel={endsLabel(HERO_DEAL)} />
           </div>
         </div>
       </div>

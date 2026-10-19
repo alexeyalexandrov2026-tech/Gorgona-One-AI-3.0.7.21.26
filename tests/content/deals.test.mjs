@@ -3,8 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { allDeals, featuredDeals, categories, getDealsByCategory } from '../../lib/dealsData.js';
 import {
-  HIDDEN_FROM_STORES, COUPONS_VISIBLE, ROWE_AND_TAYLOR_DEAL,
-  getStoreDeals, getCategoryDeals, getCouponDeals, dealUrl
+  HIDDEN_FROM_STORES, ROWE_AND_TAYLOR_DEAL,
+  getStoreDeals, getCategoryDeals, dealUrl
 } from '../../lib/storeDirectory.js';
 import { DEALS_COPY, getDealsCopy } from '../../lib/dealsCopy.js';
 
@@ -28,12 +28,16 @@ test('category pages hide the same brands and never list betting', () => {
   }
 });
 
-test('Coupons lists exactly Disney+, DoorDash and Uber Eats', () => {
-  assert.deepEqual(getCouponDeals().map((d) => d.name).sort(), [...COUPONS_VISIBLE].sort());
+test('Stores now lists Disney+, DoorDash and Uber Eats, which used to live on Coupons', () => {
+  const names = getStoreDeals().map((d) => d.name);
+  for (const name of ['Disney+', 'DoorDash', 'Uber Eats']) {
+    assert.ok(names.includes(name), `${name} is missing from Stores`);
+    assert.ok(!HIDDEN_FROM_STORES.includes(name), `${name} is still hidden`);
+  }
 });
 
 test('every listed offer links to a partner, the brand or one of our pages', () => {
-  const listed = [...getStoreDeals(), ...getCouponDeals(), ...categories.flatMap((c) => getCategoryDeals(c.slug))];
+  const listed = [...getStoreDeals(), ...categories.flatMap((c) => getCategoryDeals(c.slug))];
   for (const deal of listed) {
     assert.match(dealUrl(deal), /^(https:\/\/|\/[a-z])/, deal.id);
     assert.doesNotMatch(dealUrl(deal), /example\.com/, deal.id);

@@ -11,7 +11,6 @@ export default async function sitemap() {
   const routes = [
     '',
     '/stores',
-    '/coupons',
     '/sportsbook',
     '/events',
     '/best-shopping-deals',
