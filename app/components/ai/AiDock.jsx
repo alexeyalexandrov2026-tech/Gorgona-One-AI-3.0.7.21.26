@@ -40,7 +40,7 @@ export function AiDock() {
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label="GORGONA ONE AI Dock"
+        aria-label="MIAMI ELIO AI Dock"
         // The dock stays mounted when closed (it slides out on a transform,
         // and unmounting would throw away the scroll position). Closed, it is
         // only visually gone, so without `inert` its text input and buttons
@@ -56,7 +56,7 @@ export function AiDock() {
         <div className="mb-3 flex items-center justify-between">
           <div>
             <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-brand-gold">AI Dock</p>
-            <p className="mt-1 text-sm font-semibold text-white">GORGONA ONE Concierge</p>
+            <p className="mt-1 text-sm font-semibold text-white">MIAMI ELIO Concierge</p>
           </div>
           <div className="flex items-center gap-2">
             <Link

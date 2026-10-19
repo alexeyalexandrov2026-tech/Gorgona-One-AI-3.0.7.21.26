@@ -50,7 +50,7 @@ const OVAGO_DEALS = [
 ];
 
 export const metadata = {
-  title: 'Ovago Flight Deals | GORGONA ONE',
+  title: 'Ovago Flight Deals | MIAMI ELIO',
   description: 'Ovago flight deals - last minute flights, cheap flights, and business class fares.'
 };
 

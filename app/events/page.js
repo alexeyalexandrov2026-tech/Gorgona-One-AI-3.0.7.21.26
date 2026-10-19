@@ -3,7 +3,7 @@ import { getServerTranslation } from '../../lib/serverLocale';
 import { Reveal, Stagger, StaggerItem, Parallax } from '../components/Motion';
 
 export const metadata = {
-  title: 'Tickets & Events | GORGONA ONE',
+  title: 'Tickets & Events | MIAMI ELIO',
   description: 'Sports tickets and concert tickets from trusted providers, all in one place.'
 };
 

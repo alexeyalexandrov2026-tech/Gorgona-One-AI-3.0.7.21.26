@@ -8,7 +8,7 @@ import DiscoveryRoom from './DiscoveryRoom';
 // Persistent AI dock (Phase 3).
 //
 // A floating entry point rendered on EVERY route (mounted in the layout). The
-// user is always one tap from returning to Gorgona One AI and their Discovery
+// user is always one tap from returning to Miami Elio AI and their Discovery
 // Room — the AI travels with them through the ecosystem and never disappears.
 // Lightweight by design: just a luminous button (the heavy particle sphere only
 // renders on the home / AI surfaces), plus the Discovery Room drawer it opens.
@@ -28,7 +28,7 @@ export default function AIDock() {
         className={`aidock ${roomOpen ? 'is-open' : ''}`}
         data-ai-theme={theme}
         onClick={toggleRoom}
-        aria-label={roomOpen ? 'Close Gorgona One AI' : 'Open Gorgona One AI'}
+        aria-label={roomOpen ? 'Close Miami Elio AI' : 'Open Miami Elio AI'}
         aria-expanded={roomOpen}
       >
         <span className="aidock__orb" aria-hidden="true">

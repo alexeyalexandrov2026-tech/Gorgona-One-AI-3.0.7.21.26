@@ -1,6 +1,6 @@
-# GORGONA ONE
+# MIAMI ELIO
 
-GORGONA ONE is a premium, mobile-first coupon, deals, and offers marketplace built with Next.js, Tailwind CSS, and a Supabase-ready data model. The MVP includes:
+MIAMI ELIO is a premium, mobile-first coupon, deals, and offers marketplace built with Next.js, Tailwind CSS, and a Supabase-ready data model. The MVP includes:
 
 - Home page with hero, trending deals, popular stores, categories, featured coupons, sportsbook highlights, and newsletter signup
 - Stores directory and individual store profile pages

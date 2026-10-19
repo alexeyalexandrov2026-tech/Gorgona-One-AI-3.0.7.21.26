@@ -3,10 +3,10 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 // ===========================================================================
-// Theme layer for the Gorgona One AI ecosystem.
+// Theme layer for the Miami Elio AI ecosystem.
 //
 // Phase 1 scope: this provider is mounted app-wide (so the architecture is ready
-// for full-site theming later) but is currently CONSUMED ONLY by the Gorgona One
+// for full-site theming later) but is currently CONSUMED ONLY by the Miami Elio
 // AI surfaces (the sphere + the future Discovery Room). The rest of the website
 // keeps its existing dark styling untouched — nothing outside the AI components
 // reads this context yet.

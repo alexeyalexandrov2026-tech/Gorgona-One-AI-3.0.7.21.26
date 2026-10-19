@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Reveal, Stagger, StaggerItem, Parallax } from '../components/Motion';
 
 export const metadata = {
-  title: 'Travel | GORGONA ONE',
+  title: 'Travel | MIAMI ELIO',
   description: 'Curated luxury travel — exclusive destinations, hotels, flights, and travel guides.'
 };
 

@@ -5,7 +5,7 @@ import { useLocale } from '../LocaleProvider';
 import { speechLocale } from '../../../lib/ai/locale';
 
 // ===========================================================================
-// Gorgona One — voice INPUT for the AI concierge.
+// Miami Elio — voice INPUT for the AI concierge.
 //
 // Speech-to-text only. There is deliberately NO text-to-speech here: the
 // concierge is strictly text and UI. The hook previously exposed speak() /

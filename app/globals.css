@@ -163,7 +163,7 @@ a {
 }
 
 /* ============================================================
-   GORGONA ONE — unified luxury design system
+   MIAMI ELIO — unified luxury design system
    One cinematic dark ecosystem; each section carries its own
    accent + typographic signature migrated from its reference.
    ============================================================ */
@@ -512,7 +512,7 @@ a {
 }
 
 /* ============================================================
-   AI Sphere — the GORGONA ONE concierge trigger, everywhere.
+   AI Sphere — the MIAMI ELIO concierge trigger, everywhere.
    Every layer below animates only `transform`/`opacity`, so it
    runs on the compositor thread (no canvas, no WebGL, no JS
    animation loop) and stays smooth regardless of page weight.

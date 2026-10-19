@@ -6,7 +6,7 @@ import { useLocale } from '../LocaleProvider';
 import { unavailableReply } from '../../../lib/ai/locale';
 
 // ===========================================================================
-// Gorgona One — the concierge conversation (one thread, every surface).
+// Miami Elio — the concierge conversation (one thread, every surface).
 //
 // Mounted once in the layout, so the homepage bar, the floating sphere dock
 // and the Discovery Room page are three VIEWS OF ONE CONVERSATION rather than

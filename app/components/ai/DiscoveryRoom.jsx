@@ -75,7 +75,7 @@ export default function DiscoveryRoom() {
       <aside className="dr__panel" role="dialog" aria-modal="true" aria-label="Discovery Room">
         <header className="dr__head">
           <div>
-            <p className="dr__eyebrow">Gorgona One AI</p>
+            <p className="dr__eyebrow">Miami Elio AI</p>
             <h2 className="dr__title">{t.ai?.discoveryRoom || 'Discovery Room'}</h2>
           </div>
           <button type="button" className="dr__close" onClick={closeRoom} aria-label={t.ai?.closeAI || "Close Discovery Room"}>✕</button>
@@ -87,7 +87,7 @@ export default function DiscoveryRoom() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={t.ai?.askAnywhere || "Ask from anywhere…"}
-            aria-label={t.ai?.askPlaceholder || "Ask Gorgona One AI"}
+            aria-label={t.ai?.askPlaceholder || "Ask Miami Elio AI"}
           />
           <button type="submit" className="dr__go" disabled={busy}>{busy ? '…' : (t.ai?.ask || 'Ask')}</button>
         </form>
@@ -136,7 +136,7 @@ export default function DiscoveryRoom() {
         </div>
 
         <footer className="dr__foot">
-          <button type="button" className="dr__return" onClick={returnToAI}>{t.ai?.returnToAI || 'Return to Gorgona One AI'}</button>
+          <button type="button" className="dr__return" onClick={returnToAI}>{t.ai?.returnToAI || 'Return to Miami Elio AI'}</button>
         </footer>
       </aside>
 

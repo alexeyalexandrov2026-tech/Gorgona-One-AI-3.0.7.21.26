@@ -79,7 +79,7 @@ export function InstallPrompt() {
           <span className="ai-sphere h-full w-full" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-white">Add GORGONA ONE to your Home Screen</p>
+          <p className="text-sm font-semibold text-white">Add MIAMI ELIO to your Home Screen</p>
           {deferredPrompt ? (
             <>
               <p className="mt-1 text-xs leading-relaxed text-zinc-400">

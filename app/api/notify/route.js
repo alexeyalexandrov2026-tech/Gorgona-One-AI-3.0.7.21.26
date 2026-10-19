@@ -50,7 +50,7 @@ export async function POST(request) {
   const adminEmail = process.env.ADMIN_EMAIL;
   const fromAddress =
     process.env.NOTIFICATIONS_FROM_EMAIL ||
-    'Gorgona Notifications <notifications@gorgona-one.com>';
+    'Miami Elio Notifications <notifications@gorgona-one.com>';
 
   // Email delivery is optional configuration, not a prerequisite: with either
   // value missing the portal still succeeds and the event is logged only, so a
@@ -77,12 +77,12 @@ export async function POST(request) {
       subject: `New Partner Activity: ${event}`,
       html: `
         <div style="font-family: sans-serif; padding: 20px; color: #333;">
-          <h2>New Notification from Gorgona One</h2>
+          <h2>New Notification from Miami Elio</h2>
           <p><strong>Event:</strong> ${escapeHtml(event)}</p>
           <p><strong>Partner:</strong> ${escapeHtml(partner)}</p>
           <p><strong>Files Attached:</strong> ${filesCount}</p>
           <hr style="border: 1px solid #eee; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #999;">This is an automated message from the Gorgona One Partner Portal.</p>
+          <p style="font-size: 12px; color: #999;">This is an automated message from the Miami Elio Partner Portal.</p>
         </div>
       `
     });

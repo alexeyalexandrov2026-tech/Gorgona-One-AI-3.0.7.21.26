@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 // ===========================================================================
 // Text-to-speech: PERMANENTLY DISABLED.
 //
-// The Gorgona One concierge is strictly text and UI. Browser speechSynthesis
+// The Miami Elio concierge is strictly text and UI. Browser speechSynthesis
 // has been removed from app/components/ai/useVoice.js, and this route - the
 // only other way audio could ever be produced - is closed here rather than
 // left dormant behind an env flag, so no configuration change can bring a

@@ -40,7 +40,7 @@ export default function RegisterUserPage() {
     <main className="flex flex-1 items-center justify-center py-16">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium backdrop-blur-md">
         <h1 className="text-3xl font-semibold text-white">Create Account</h1>
-        <p className="mt-2 text-zinc-400">Join Gorgona for exclusive access</p>
+        <p className="mt-2 text-zinc-400">Join Miami Elio for exclusive access</p>
         
 
 
