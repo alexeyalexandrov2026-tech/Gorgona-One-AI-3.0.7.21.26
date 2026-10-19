@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export function generateMetadata() {
   const { t } = getServerTranslation();
   return {
-    title: `${t.categories.restaurants} | GORGONA ONE`,
+    title: `${t.categories.restaurants} | MIAMI ELIO`,
     description: t.categoryDescriptions.restaurants
   };
 }

@@ -1,4 +1,4 @@
-/* Minimal service worker for GORGONA ONE.
+/* Minimal service worker for MIAMI ELIO.
  *
  * Primary purpose: make the app installable to the Home Screen. Chrome / Android
  * only fire `beforeinstallprompt` (the one-tap install path in InstallPrompt.jsx)

@@ -24,7 +24,7 @@ module.exports = {
           band: 'var(--g1-band)',
           'on-band': 'var(--g1-on-band)'
         },
-        // Core GORGONA ONE identity (kept for existing components)
+        // Core MIAMI ELIO identity (kept for existing components)
         brand: {
           gold: '#d4af37',
           dark: '#050505',

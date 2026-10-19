@@ -45,7 +45,7 @@ const apiKey = process.env.RESEND_API_KEY;
       try {
         const resend = new Resend(apiKey);
         await resend.emails.send({
-          from: 'Gorgona Booking <onboarding@resend.dev>', // Update this to a verified domain in production
+          from: 'Miami Elio Booking <onboarding@resend.dev>', // Update this to a verified domain in production
           to: process.env.ADMIN_EMAIL || email, // Sending to the client as fallback for testing
           subject: `New Reservation Request: ${itemTitle}`,
           html: `

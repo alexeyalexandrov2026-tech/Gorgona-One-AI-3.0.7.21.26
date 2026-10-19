@@ -13,7 +13,7 @@ import {
 // AI Discovery Sphere — the signature "Popular Categories" centerpiece.
 //
 // A living Canvas-2D particle field (no WebGL / no new dependencies) with the
-// GORGONA AI Concierge at its core. The 19 categories are organized into the
+// MIAMI ELIO AI Concierge at its core. The 19 categories are organized into the
 // constellations from lib/discoveryCategories and surface from the field rather
 // than sitting in a grid.
 //
@@ -168,7 +168,7 @@ export default function CategoryOrb() {
 
       {/* Concierge core */}
       <div className={`orb-core ${phase === 'listening' ? 'is-listening' : ''}`}>
-        <p className="orb-core__eyebrow">Gorgona AI Concierge</p>
+        <p className="orb-core__eyebrow">Miami Elio AI Concierge</p>
         <form className="orb-core__bar" onSubmit={onSubmit} role="search">
           <input
             className="orb-core__input"
@@ -176,7 +176,7 @@ export default function CategoryOrb() {
             value={query}
             onChange={onChange}
             placeholder={placeholder}
-            aria-label="Ask the Gorgona AI Concierge"
+            aria-label="Ask the Miami Elio AI Concierge"
             autoComplete="off"
           />
           <button

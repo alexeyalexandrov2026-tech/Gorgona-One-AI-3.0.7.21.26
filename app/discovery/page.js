@@ -1,9 +1,9 @@
 import { ConciergeRoom } from '../components/ai/ConciergeRoom';
 
 export const metadata = {
-  title: 'Discovery Room | GORGONA ONE',
+  title: 'Discovery Room | MIAMI ELIO',
   description:
-    'The Discovery Room — an AI concierge for travel, dining, yachts, villas, cars, events and verified offers across the GORGONA ONE ecosystem.'
+    'The Discovery Room — an AI concierge for travel, dining, yachts, villas, cars, events and verified offers across the MIAMI ELIO ecosystem.'
 };
 
 // The full-page concierge. The Header, Footer, AiDock and ecosystem

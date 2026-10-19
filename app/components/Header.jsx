@@ -9,7 +9,7 @@ import { getTranslation } from '../../lib/i18n';
 import { useLocale } from './LocaleProvider';
 import { useAuth } from './AuthProvider';
 
-// Unified GORGONA ONE ecosystem navigation. `key` maps to an existing
+// Unified MIAMI ELIO ecosystem navigation. `key` maps to an existing
 // translation in lib/i18n when available; `label` is the fallback for the
 // new luxury sections that are not yet translated.
 const navItems = [
@@ -81,9 +81,9 @@ export function Header() {
               </svg>
             </button>
           )}
-          <Link href="/" aria-label="Gorgona One, home" className="group flex items-baseline gap-2">
-            <span className="font-g1display text-xl font-medium tracking-tight text-g1-ink sm:text-2xl">Gorgona</span>
-            <span className="font-g1mono text-[0.62rem] uppercase tracking-[0.3em] text-g1-accent">One</span>
+          <Link href="/" aria-label="Miami Elio, home" className="group flex items-baseline gap-2">
+            <span className="font-g1mono text-[0.72rem] uppercase tracking-[0.3em] text-g1-accent">Miami</span>
+            <span className="font-g1display text-2xl font-medium tracking-tight text-g1-ink sm:text-3xl">Elio</span>
           </Link>
         </div>
 

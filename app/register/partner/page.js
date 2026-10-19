@@ -16,7 +16,7 @@ export default function RegisterPartnerPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!form.agreement) {
-      setError("You must agree to the Gorgona Partnership Agreement.");
+      setError("You must agree to the Miami Elio Partnership Agreement.");
       return;
     }
     setError('');
@@ -160,7 +160,7 @@ export default function RegisterPartnerPage() {
               />
             </div>
             <label htmlFor="agreement" className="text-sm text-zinc-400">
-              I agree to the <a href="#" className="text-brand-gold hover:underline">Gorgona Partnership Agreement</a> and confirm that all provided business information is accurate.
+              I agree to the <a href="#" className="text-brand-gold hover:underline">Miami Elio Partnership Agreement</a> and confirm that all provided business information is accurate.
             </label>
           </div>
           

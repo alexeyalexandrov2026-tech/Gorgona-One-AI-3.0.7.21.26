@@ -1,8 +1,8 @@
 export default function manifest() {
   return {
     id: '/',
-    name: 'GORGONA ONE',
-    short_name: 'GORGONA',
+    name: 'MIAMI ELIO',
+    short_name: 'Miami Elio',
     description: 'A luxury AI concierge for travel, dining, shopping, stays, yachts, cars, sportsbooks and events.',
     start_url: '/?source=pwa',
     scope: '/',

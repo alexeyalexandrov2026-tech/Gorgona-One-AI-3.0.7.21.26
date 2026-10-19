@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 // ===========================================================================
-// Gorgona One AI — session state (Phase 3).
+// Miami Elio AI — session state (Phase 3).
 //
 // Holds the user's live AI session: recent searches, saved results, and the
 // Discovery Room open/closed state. Mounted once in the app layout, so the state

@@ -25,10 +25,10 @@ function loadProvider() {
 }
 
 // ===========================================================================
-// GORGONA ONE AI — the ecosystem intelligence surface (V2 foundation).
+// MIAMI ELIO AI — the ecosystem intelligence surface (V2 foundation).
 //
 // A volumetric Canvas-2D particle field (three depth shells, glow sprites, a
-// pulsing "thinking core", intent filaments) with the Gorgona One AI console at
+// pulsing "thinking core", intent filaments) with the Miami Elio AI console at
 // its heart. V2 technology is identical in both themes — only palette, lighting
 // and blend mode change:
 //   Dark  -> warm-graphite ground, additive gold glow (V2 language)
@@ -265,7 +265,7 @@ export default function GorgonaOneAI() {
 
       {/* Console core */}
       <div className={`gai__core ${phase === 'listening' ? 'is-listening' : ''} ${phase === 'intent' ? 'is-intent' : ''}`}>
-        <p className="gai__eyebrow">Gorgona One AI</p>
+        <p className="gai__eyebrow">Miami Elio AI</p>
         <form className="gai__bar" onSubmit={onSubmit} role="search">
           <input
             className="gai__input"
@@ -273,7 +273,7 @@ export default function GorgonaOneAI() {
             value={query}
             onChange={onChange}
             placeholder={placeholder}
-            aria-label={t.ai?.askPlaceholder || "Ask Gorgona One AI"}
+            aria-label={t.ai?.askPlaceholder || "Ask Miami Elio AI"}
             autoComplete="off"
           />
           <button

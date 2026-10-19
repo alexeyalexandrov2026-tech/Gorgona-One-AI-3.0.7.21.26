@@ -12,11 +12,11 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }) {
   const event = getEventBySlug(params.slug);
   if (!event) {
-    return { title: 'Event not found | GORGONA ONE' };
+    return { title: 'Event not found | MIAMI ELIO' };
   }
   const locale = getServerLocale();
   return {
-    title: `${event.name} Tickets | ${event.venue}, ${event.city} | GORGONA ONE`,
+    title: `${event.name} Tickets | ${event.venue}, ${event.city} | MIAMI ELIO`,
     description: getContentText(eventDescriptions, locale, event.id, event.description)
   };
 }

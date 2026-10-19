@@ -1,8 +1,8 @@
-# Gorgona One — Platform Architecture & Build Sequence
+# Miami Elio — Platform Architecture & Build Sequence
 
 Authoritative blueprint for completing the ecosystem. Execute phases in
 order; each phase must ship complete (no half-built systems on `main`).
-Branding rule: the brand is **Gorgona One**. "Da'at by Gorgona One" names
+Branding rule: the brand is **Miami Elio**. "Da'at by Miami Elio" names
 only the discovery assistant feature and must never displace the brand.
 
 ## Current state (2026-07-17, commit d898ac4)
@@ -18,7 +18,7 @@ only the discovery assistant feature and must never displace the brand.
   via `lib/aiEcosystemDigest.js` (server-only inventory digest).
 - Track B dock (AiSphere/AiDock/AiConversation) sharing the same backend.
 - Local AI backend: `lib/ai/localBrain.js` — an optional, self-contained
-  adapter for the self-hosted Gorgona AI Brain microservice (FastAPI +
+  adapter for the self-hosted Miami Elio AI Brain microservice (FastAPI +
   Ollama, `POST /api/v1/chat/completions`). `/api/chat` runs a fallback
   chain (local brain → ai-router → canned concierge reply) and always
   answers `200` with the same JSON contract, so the chat widget has no

@@ -8,7 +8,7 @@ import { languageDirective, normalizeLocale, unavailableReply } from '../../../l
 //
 // A thin adapter over a fallback chain, in order of preference:
 //
-//   1. the local Gorgona AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
+//   1. the local Miami Elio AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
 //   2. the hosted ai-router on :20128 (OpenAI-compatible)
 //   3. a polite canned reply
 //

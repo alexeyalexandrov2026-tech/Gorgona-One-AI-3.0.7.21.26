@@ -35,7 +35,7 @@ async function test() {
     const data = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: adminEmail,
-      subject: 'Test Email from Gorgona AI',
+      subject: 'Test Email from Miami Elio AI',
       html: '<p>If you receive this, Resend is working perfectly!</p>'
     });
     console.log("Resend Success:", data);

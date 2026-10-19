@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-// Registers the service worker that makes GORGONA ONE installable to the Home
+// Registers the service worker that makes MIAMI ELIO installable to the Home
 // Screen. Chrome / Android only fire `beforeinstallprompt` (the one-tap install
 // path used by InstallPrompt) once a service worker with a fetch handler is
 // controlling the page, so this registration is what unlocks installability on

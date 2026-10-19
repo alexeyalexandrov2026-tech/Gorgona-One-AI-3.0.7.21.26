@@ -46,7 +46,7 @@ const ADRENALINE_DEALS = [
 ];
 
 export const metadata = {
-  title: 'Adrenaline 365 Deals | GORGONA ONE',
+  title: 'Adrenaline 365 Deals | MIAMI ELIO',
   description: 'Adrenaline 365 adventure deals - skydiving, indoor skydiving, helicopter tours, and hot air balloon rides.'
 };
 

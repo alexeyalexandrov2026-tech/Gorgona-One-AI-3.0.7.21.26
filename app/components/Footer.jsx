@@ -37,8 +37,8 @@ export function Footer() {
       <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <div className="flex items-baseline gap-2">
-            <span className="font-g1display text-3xl font-medium tracking-tight text-g1-ink">Gorgona</span>
-            <span className="font-g1mono text-[0.65rem] uppercase tracking-[0.3em] text-g1-accent">One</span>
+            <span className="font-g1mono text-[0.75rem] uppercase tracking-[0.3em] text-g1-accent">Miami</span>
+            <span className="font-g1display text-4xl font-medium tracking-tight text-g1-ink">Elio</span>
           </div>
           <p className="mt-4 max-w-sm leading-relaxed">
             {t.footer?.desc || 'A luxury ecosystem for travel, shopping, stays, yachts, cars, sportsbooks, events and an AI concierge — verified offers and premium experiences in one destination.'}
@@ -86,7 +86,7 @@ export function Footer() {
       </div>
 
       <div className="mt-14 flex flex-col gap-3 border-t border-g1-rule pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p>{t.footer?.copyright || '© 2026 GORGONA ONE. Premium deals, verified offers, and affiliate-ready monetization.'}</p>
+        <p>{t.footer?.copyright || '© 2026 MIAMI ELIO. Premium deals, verified offers, and affiliate-ready monetization.'}</p>
         <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em]">{t.footer?.tagline || 'A unified luxury ecosystem'}</p>
       </div>
     </footer>

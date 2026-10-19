@@ -12,7 +12,7 @@ import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
 // i18n carries per-locale AI copy; this is the English original, used when a
 // locale has not translated the key yet.
 const DEFAULT_INTRO =
-  'Ask for anything across the GORGONA ONE ecosystem — travel, dining, yachts, villas, events — and receive elegant, personal recommendations.';
+  'Ask for anything across the MIAMI ELIO ecosystem — travel, dining, yachts, villas, events — and receive elegant, personal recommendations.';
 
 function MicIcon({ className }) {
   return (

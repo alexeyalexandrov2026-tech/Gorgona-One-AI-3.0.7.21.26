@@ -13,11 +13,11 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }) {
   const category = categories.find((entry) => entry.slug === params.category);
   if (!category) {
-    return { title: 'Category not found | GORGONA ONE' };
+    return { title: 'Category not found | MIAMI ELIO' };
   }
   const { t } = getServerTranslation();
   return {
-    title: `${categoryLabel(t, category)} ${t.category.dealsAndPromoCodes} | GORGONA ONE`,
+    title: `${categoryLabel(t, category)} ${t.category.dealsAndPromoCodes} | MIAMI ELIO`,
     description: t.categoryDescriptions[camelize(category.slug)] || category.description
   };
 }
