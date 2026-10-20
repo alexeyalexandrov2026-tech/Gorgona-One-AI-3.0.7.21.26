@@ -9,28 +9,28 @@ import Stay22Browse from './Stay22Browse';
 const STAY22_COPY = {
   en: {
     title: 'Explore more places to stay in Miami',
-    description: 'Browse live partner listings on the map. Search starts in Miami, Florida.',
-    disclosure: 'Affiliate disclosure: Gorgona One may earn a commission from bookings made through this map. Reservations and payments are handled by third-party booking providers.'
+    description: 'Explore Miami accommodation on the map, then browse photo listings below.',
+    disclosure: 'Affiliate disclosure: Gorgona One may earn a commission from bookings made through the map or photo listings. Reservations and payments are handled by third-party booking providers.'
   },
   ru: {
     title: 'Больше вариантов жилья в Майами',
-    description: 'Найдите жильё на карте партнёров. Поиск начинается с Майами, Флорида.',
-    disclosure: 'Партнёрская информация: Gorgona One может получить комиссию за бронирование через эту карту. Оформление брони и оплата происходят на стороне партнёрских сервисов.'
+    description: 'Сначала изучите жильё на карте Майами, затем посмотрите список объектов с фотографиями ниже.',
+    disclosure: 'Партнёрская информация: Gorgona One может получить комиссию за бронирование через карту или список с фотографиями. Оформление брони и оплата происходят на стороне партнёрских сервисов.'
   },
   es: {
     title: 'Descubre más alojamientos en Miami',
-    description: 'Explora alojamientos de nuestros socios en el mapa. La búsqueda comienza en Miami, Florida.',
-    disclosure: 'Aviso de afiliación: Gorgona One puede recibir una comisión por reservas realizadas mediante este mapa. Los proveedores externos gestionan las reservas y los pagos.'
+    description: 'Explora alojamientos en el mapa de Miami y después consulta la lista con fotos más abajo.',
+    disclosure: 'Aviso de afiliación: Gorgona One puede recibir una comisión por reservas realizadas mediante el mapa o la lista con fotos. Los proveedores externos gestionan las reservas y los pagos.'
   },
   pt: {
     title: 'Explore mais hospedagens em Miami',
-    description: 'Encontre hospedagens de parceiros no mapa. A pesquisa começa em Miami, Flórida.',
-    disclosure: 'Aviso de afiliado: Gorgona One pode receber uma comissão por reservas feitas neste mapa. As reservas e os pagamentos são processados pelos fornecedores parceiros.'
+    description: 'Explore hospedagens no mapa de Miami e depois veja a lista com fotos abaixo.',
+    disclosure: 'Aviso de afiliado: Gorgona One pode receber uma comissão por reservas feitas pelo mapa ou pela lista com fotos. As reservas e os pagamentos são processados pelos fornecedores parceiros.'
   },
   he: {
     title: 'עוד מקומות אירוח במיאמי',
-    description: 'גלו מקומות אירוח של שותפים במפה. החיפוש מתחיל במיאמי, פלורידה.',
-    disclosure: 'גילוי נאות: Gorgona One עשויה לקבל עמלה על הזמנות דרך המפה. ההזמנות והתשלומים מתבצעים אצל ספקי הזמנות חיצוניים.'
+    description: 'גלו מקומות אירוח במפה של מיאמי, ולאחר מכן עיינו ברשימה עם תמונות בהמשך הדף.',
+    disclosure: 'גילוי נאות: Gorgona One עשויה לקבל עמלה על הזמנות דרך המפה או הרשימה עם התמונות. ההזמנות והתשלומים מתבצעים אצל ספקי הזמנות חיצוניים.'
   }
 };
 
