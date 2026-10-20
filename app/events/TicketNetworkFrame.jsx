@@ -5,13 +5,20 @@ import { useEffect, useRef, useState } from 'react';
 export function TicketNetworkFrame({ category, document }) {
   const frame = useRef(null);
   const [height, setHeight] = useState(220);
+  const [revision, setRevision] = useState(0);
 
   useEffect(() => {
     function receive(event) {
       const data = event.data;
       // Sandboxed srcDoc has an opaque origin; authenticate the sender by its
       // window instead of trusting an arbitrary message with a matching type.
-      if (event.source !== frame.current?.contentWindow || data?.type !== 'gorgona-ticketnetwork' || data.category !== category) return;
+      if (event.source !== frame.current?.contentWindow || data?.category !== category) return;
+      if (data.type === 'gorgona-ticketnetwork-retry') {
+        setHeight(220);
+        setRevision(value => value + 1);
+        return;
+      }
+      if (data.type !== 'gorgona-ticketnetwork') return;
       if (Number.isFinite(data.height) && data.height >= 100 && data.height <= 30000) setHeight(Math.ceil(data.height));
     }
     window.addEventListener('message', receive);
@@ -21,6 +28,7 @@ export function TicketNetworkFrame({ category, document }) {
 
   return (
     <iframe
+      key={`${category}:${revision}`}
       ref={frame}
       title={`TicketNetwork ${category} events`}
       srcDoc={document}
