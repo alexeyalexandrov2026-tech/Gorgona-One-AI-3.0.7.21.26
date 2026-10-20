@@ -9,28 +9,28 @@ import Stay22Browse from './Stay22Browse';
 const STAY22_COPY = {
   en: {
     title: 'Explore more places to stay in Miami',
-    description: 'Browse live partner listings on the map. Search starts in Miami, Florida.',
-    disclosure: 'Affiliate disclosure: Gorgona One may earn a commission from bookings made through this map. Reservations and payments are handled by third-party booking providers.'
+    description: 'Explore Miami on the map, then scroll down to browse partner listings with photos.',
+    disclosure: 'Affiliate disclosure: Gorgona One may earn a commission from bookings through these partner widgets. Booking and payment are handled by third-party providers.'
   },
   ru: {
     title: 'Больше вариантов жилья в Майами',
-    description: 'Найдите жильё на карте партнёров. Поиск начинается с Майами, Флорида.',
-    disclosure: 'Партнёрская информация: Gorgona One может получить комиссию за бронирование через эту карту. Оформление брони и оплата происходят на стороне партнёрских сервисов.'
+    description: 'Сначала изучите жильё на карте Майами, затем пролистайте вниз до списка предложений с фотографиями.',
+    disclosure: 'Партнёрская информация: Gorgona One может получить комиссию за бронирование через эти виджеты. Оформление и оплата происходят на стороне партнёрских сервисов.'
   },
   es: {
     title: 'Descubre más alojamientos en Miami',
-    description: 'Explora alojamientos de nuestros socios en el mapa. La búsqueda comienza en Miami, Florida.',
-    disclosure: 'Aviso de afiliación: Gorgona One puede recibir una comisión por reservas realizadas mediante este mapa. Los proveedores externos gestionan las reservas y los pagos.'
+    description: 'Explora primero el mapa de Miami y después desplázate hacia abajo para ver los alojamientos con fotos.',
+    disclosure: 'Aviso de afiliación: Gorgona One puede recibir comisiones por reservas a través de estos widgets. Los proveedores externos gestionan las reservas y los pagos.'
   },
   pt: {
     title: 'Explore mais hospedagens em Miami',
-    description: 'Encontre hospedagens de parceiros no mapa. A pesquisa começa em Miami, Flórida.',
-    disclosure: 'Aviso de afiliado: Gorgona One pode receber uma comissão por reservas feitas neste mapa. As reservas e os pagamentos são processados pelos fornecedores parceiros.'
+    description: 'Explore primeiro o mapa de Miami e depois role para baixo para ver as hospedagens com fotos.',
+    disclosure: 'Aviso de afiliado: Gorgona One pode receber comissões por reservas feitas por estes widgets. Os fornecedores parceiros processam reservas e pagamentos.'
   },
   he: {
     title: 'עוד מקומות אירוח במיאמי',
-    description: 'גלו מקומות אירוח של שותפים במפה. החיפוש מתחיל במיאמי, פלורידה.',
-    disclosure: 'גילוי נאות: Gorgona One עשויה לקבל עמלה על הזמנות דרך המפה. ההזמנות והתשלומים מתבצעים אצל ספקי הזמנות חיצוניים.'
+    description: 'חפשו קודם במפה של מיאמי, ואז גללו למטה לרשימת מקומות אירוח עם תמונות.',
+    disclosure: 'גילוי נאות: Gorgona One עשויה לקבל עמלה על הזמנות דרך רכיבי השותפים. ההזמנות והתשלומים מתבצעים אצל ספקים חיצוניים.'
   }
 };
 
@@ -38,7 +38,6 @@ const STAY22_COPY = {
 const STAY22_UI = {
   en: {
     location: 'Miami, Florida · Partner stays',
-    modeLabel: 'Browse accommodation',
     listTab: 'List with photos',
     mapTab: 'Map',
     listTitle: 'Miami accommodation with photos and booking links',
@@ -47,7 +46,6 @@ const STAY22_UI = {
   },
   ru: {
     location: 'Майами, Флорида · Жильё партнёров',
-    modeLabel: 'Просмотр вариантов жилья',
     listTab: 'Список с фото',
     mapTab: 'Карта',
     listTitle: 'Жильё Майами с фотографиями и ссылками для бронирования',
@@ -56,7 +54,6 @@ const STAY22_UI = {
   },
   es: {
     location: 'Miami, Florida · Alojamientos asociados',
-    modeLabel: 'Explorar alojamientos',
     listTab: 'Lista con fotos',
     mapTab: 'Mapa',
     listTitle: 'Alojamientos en Miami con fotos y enlaces de reserva',
@@ -65,7 +62,6 @@ const STAY22_UI = {
   },
   pt: {
     location: 'Miami, Flórida · Hospedagens parceiras',
-    modeLabel: 'Explorar hospedagens',
     listTab: 'Lista com fotos',
     mapTab: 'Mapa',
     listTitle: 'Hospedagens em Miami com fotos e links para reservas',
@@ -74,7 +70,6 @@ const STAY22_UI = {
   },
   he: {
     location: 'מיאמי, פלורידה · אירוח שותפים',
-    modeLabel: 'עיון במקומות אירוח',
     listTab: 'רשימה עם תמונות',
     mapTab: 'מפה',
     listTitle: 'אירוח במיאמי עם תמונות וקישורי הזמנה',
