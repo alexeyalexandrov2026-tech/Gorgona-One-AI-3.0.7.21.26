@@ -35,11 +35,22 @@ export function SectionHead({ title, sub, href, cta, id }) {
   );
 }
 
+// Bold centered notice over a property image; deliberately opt-in only.
+export function ReservedOverlay({ label = 'Reserved' }) {
+  return (
+    <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black/55">
+      <span className="mx-3 max-w-[calc(100%-1.5rem)] rounded-xl border-2 border-red-500 bg-black/85 px-4 py-3 text-center font-g1sans text-[clamp(1.1rem,2vw,1.55rem)] font-bold uppercase leading-tight tracking-[0.08em] text-red-400 shadow-2xl">
+        {label}
+      </span>
+    </span>
+  );
+}
+
 // Photo, meta line, title, short note and rate: one listing in a grid or shelf.
-export function ListingCard({ href, img, alt = '', title, meta, note, rate, priority = false }) {
+export function ListingCard({ href, img, alt = '', title, meta, note, rate, priority = false, availabilityStatus = null, reservedLabel = 'Reserved' }) {
   return (
     <article className="group grid min-w-0 content-start gap-3">
-      <Link href={href} tabIndex={-1} aria-hidden="true" className="block aspect-[3/2] overflow-hidden rounded-2xl bg-g1-rule">
+      <Link href={href} tabIndex={-1} aria-hidden="true" className="relative block aspect-[3/2] overflow-hidden rounded-2xl bg-g1-rule">
         <img
           src={img}
           alt={alt}
@@ -48,6 +59,7 @@ export function ListingCard({ href, img, alt = '', title, meta, note, rate, prio
           height="480"
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
         />
+        {availabilityStatus === 'reserved' && <ReservedOverlay label={reservedLabel} />}
       </Link>
       <div className="grid gap-1.5">
         <p className="text-[0.8rem] tracking-[0.02em] text-g1-soft">{meta}</p>
