@@ -114,6 +114,7 @@ export default function HomePage() {
                 meta={stay.location}
                 note={stay.description}
                 rate={copy.ratesOnRequest}
+                booked={stay.availability === 'booked'}
               />
             ))}
           </div>
