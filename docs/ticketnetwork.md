@@ -158,3 +158,8 @@ that simulated test.
 
 Recovery fix validation: Next.js production and OpenNext Cloudflare Worker
 builds passed. This fix does not manufacture events or bypass the supplier.
+
+Production verification found one final pagination edge case: the supplier's
+default Load More link was visible after an initial failure. The error state
+now hides Load More until the failed page succeeds, so a visitor cannot skip
+page 1 (or a failed later page). Existing successfully loaded rows are retained.
