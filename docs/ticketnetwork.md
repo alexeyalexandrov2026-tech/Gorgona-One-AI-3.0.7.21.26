@@ -76,7 +76,17 @@ data center and may be evicted; they are not a guaranteed offline archive.
 Concurrent identical requests are coalesced. At most 20 distinct supplier
 requests run per server instance. Source discovery has an eight-second budget;
 searches have a ten-second budget and a three-MiB response limit. No error body
-or key is returned to the browser. Server warnings record only error type/code.
+or key is returned to the browser. Failures include only an application-owned
+stage code and, when available, the upstream HTTP status. These safe details
+also appear in server warnings, so discovery failures can be distinguished from
+search failures in production without disclosing supplier URLs or credentials.
+
+Workers rejects `redirect: 'error'` before sending a request, unlike Node.js.
+Source requests use `redirect: 'manual'` and reject non-success responses,
+including redirects, without following the `Location` header. This keeps both
+discovery and search requests on their validated supplier origins. This runtime
+difference caused the first production release to return `TN_CONFIG_PAGE_FETCH`
+despite successful direct Node.js queries and application builds.
 
 The React client aborts superseded requests and ignores late responses. A failed
 first page shows Try again without Load More. A failed later page retains
@@ -89,6 +99,11 @@ successful response, with ID-based duplicate suppression.
 Miami defaults, date handling, invalid/injected parameters, response validation,
 cache isolation by query/page/area, stale/expired results, concurrent request
 coalescing, public key rediscovery and cache failures.
+
+The Worker regression tests run the actual source module inside workerd through
+Miniflare, with synthetic outbound responses. They verify the complete
+discovery/search flow and reject redirects at the page, script and search
+stages without forwarding a request to the redirect destination.
 
 Independent live service checks passed for all 25 catalogue configurations on
 2026-10-20. Examples: NBA returned 41 Miami games, NHL 39 Sunrise games, NFL six

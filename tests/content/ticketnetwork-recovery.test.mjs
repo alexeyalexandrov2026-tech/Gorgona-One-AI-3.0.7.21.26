@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createTicketNetworkSource, readPublicTicketNetworkConfig } from '../../lib/ticketnetworkSource.js';
+import { createTicketNetworkSource, readPublicTicketNetworkConfig, ticketNetworkFailureDetails } from '../../lib/ticketnetworkSource.js';
 import { parseTicketNetworkQuery } from '../../lib/ticketnetworkSearch.js';
 
 const epoch = Date.parse('2026-10-20T12:00:00Z');
@@ -14,7 +14,7 @@ const inventory = { found: 12, hits: [{ document: {
   venue_name: 'TEST venue', venue_city: 'Miami', venue_state_province_short: 'FL'
 } }], facet_counts: [] };
 
-function setup({ cache } = {}) {
+function setup({ cache, configStatus, scriptStatus } = {}) {
   let time = epoch;
   let failure = false;
   let payload = inventory;
@@ -24,8 +24,8 @@ function setup({ cache } = {}) {
     fetcher: async (url, options) => {
       calls.push(url);
       assert.ok(options.signal instanceof AbortSignal);
-      if (url === 'https://www.ticketnetwork.com/en/affiliate-plugin') return new Response('<script src="/_next/static/chunks/current-search.js"></script><script src="https://untrusted.test/evil.js"></script>');
-      if (url === 'https://www.ticketnetwork.com/_next/static/chunks/current-search.js') return new Response(configScript);
+      if (url === 'https://www.ticketnetwork.com/en/affiliate-plugin') return configStatus ? new Response(fakeKey, { status: configStatus }) : new Response('<script src="/_next/static/chunks/current-search.js"></script><script src="https://untrusted.test/evil.js"></script>');
+      if (url === 'https://www.ticketnetwork.com/_next/static/chunks/current-search.js') return scriptStatus ? new Response(fakeKey, { status: scriptStatus }) : new Response(configScript);
       assert.equal(new URL(url).origin, `https://${host}`);
       assert.equal(options.headers['X-TYPESENSE-API-KEY'], fakeKey);
       return failure ? new Response('unavailable', { status: failure }) : Response.json(payload);
@@ -93,4 +93,27 @@ test('a rotated public search key triggers discovery again on manual retry', asy
   await assert.rejects(() => s.source.get(query({})));
   s.fail(false); await s.source.get(query({}));
   assert.equal(s.calls.filter(url => url.endsWith('/en/affiliate-plugin')).length, 2);
+});
+
+test('public failure details distinguish discovery and search errors without exposing supplier bodies or keys', async () => {
+  const cases = [
+    [setup({ configStatus: 302 }), { code: 'TN_CONFIG_PAGE_HTTP', upstreamStatus: 302 }],
+    [setup({ configStatus: 403 }), { code: 'TN_CONFIG_PAGE_HTTP', upstreamStatus: 403 }],
+    [setup({ scriptStatus: 502 }), { code: 'TN_CONFIG_SCRIPT_HTTP', upstreamStatus: 502 }],
+    [setup(), { code: 'TN_SEARCH_HTTP', upstreamStatus: 503 }]
+  ];
+  cases.at(-1)[0].fail(503);
+  for (const [s, details] of cases) {
+    await assert.rejects(() => s.source.get(query({})), error => {
+      assert.deepEqual(ticketNetworkFailureDetails(error), details);
+      assert.ok(!JSON.stringify(ticketNetworkFailureDetails(error)).includes(fakeKey));
+      return true;
+    });
+  }
+  const malformed = setup(); malformed.payload({ leaked: fakeKey });
+  await assert.rejects(() => malformed.source.get(query({})), error => {
+    assert.deepEqual(ticketNetworkFailureDetails(error), { code: 'TN_SEARCH_FORMAT' });
+    return true;
+  });
+  assert.deepEqual(ticketNetworkFailureDetails(new Error(`fetch failed: ${fakeKey}`)), { code: 'TN_SOURCE_UNAVAILABLE' });
 });
