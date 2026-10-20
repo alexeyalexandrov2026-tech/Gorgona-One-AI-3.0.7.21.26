@@ -3,7 +3,8 @@ import { getVacationRentals, getVacationRentalBySlug } from '../../../lib/vacati
 import { getServerTranslation } from '../../../lib/serverLocale';
 import { getWorldsCopy, displayValue, largeImage } from '../../../lib/worldsCopy';
 import BookingForm from '../../components/BookingForm';
-import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
+import { Crumbs, ListingCard, ReservedOverlay, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
+import { reservedLabel } from '../../../lib/vacationRentalsStatus';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,8 +21,9 @@ export default function VacationRentalDetailPage({ params }) {
       <Crumbs items={[[t.nav.villas, '/vacation-rentals'], [stay.title]]} />
 
       <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
-        <figure className="aspect-[3/2] overflow-hidden rounded-[26px] bg-g1-rule">
+        <figure className="relative aspect-[3/2] overflow-hidden rounded-[26px] bg-g1-rule">
           <img src={largeImage(stay.image)} alt={stay.title} width="1600" height="1067" fetchPriority="high" className="h-full w-full object-cover" />
+          {stay.availabilityStatus === 'reserved' && <ReservedOverlay label={reservedLabel(locale)} />}
         </figure>
 
         <div className="grid min-w-0 gap-5 lg:sticky lg:top-24">
@@ -53,6 +55,8 @@ export default function VacationRentalDetailPage({ params }) {
                 title={s.title}
                 meta={`${s.location} · ${t.vacationRentals.bedrooms}: ${s.bedrooms}`}
                 rate={`${t.vacationRentals.nightlyRate}: ${displayValue(s.nightlyRate, copy)}`}
+                availabilityStatus={s.availabilityStatus}
+                reservedLabel={reservedLabel(locale)}
               />
             ))}
           </div>
