@@ -1,129 +1,96 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { Script, createContext } from 'node:vm';
-import { buildTicketNetworkDocument } from '../../lib/ticketnetworkWidget.js';
+import { createTicketNetworkSource, readPublicTicketNetworkConfig } from '../../lib/ticketnetworkSource.js';
+import { parseTicketNetworkQuery } from '../../lib/ticketnetworkSearch.js';
 
-async function widget() {
-  const timers = new Map();
-  let timerId = 0;
-  let prefilter;
-  let started;
-  const ready = new Promise(resolve => { started = resolve; });
-  function element() {
-    const classes = new Set();
-    return {
-      hidden: false, value: '', textContent: '',
-      classList: { add: x => classes.add(x), remove: x => classes.delete(x), contains: x => classes.has(x) },
-      querySelectorAll: () => [], querySelector: () => null,
-      addEventListener: function (name, callback) { this[name] = callback; }
-    };
-  }
-  const status = element(), retry = element(), container = element(), results = element(), area = element(), list = element();
-  const rows = [];
-  results.querySelector = selector => selector === '.tner-list' && rows.length ? list : null;
-  const elements = new Map([
-    ['widget-status', status], ['widget-retry', retry], ['widget-area', area],
-    ['tner-container_gorgona', container], ['tner-results_gorgona', results]
-  ]);
-  const requests = [];
-  const $ = Object.assign(() => ({}), {
-    ajaxPrefilter: callback => { prefilter = callback; },
-    ajax(original) {
-      const done = [], fail = [];
-      const options = { ...original };
-      const xhr = {
-        done: callback => { done.push(callback); return xhr; },
-        fail: callback => { fail.push(callback); return xhr; },
-        abort: () => { xhr.reject(0, 'abort'); },
-        reject(statusCode, reason = 'error') { fail.forEach(callback => callback({ status: statusCode }, reason)); },
-        resolve() { done.forEach(callback => callback()); options.success?.(); }
-      };
-      prefilter(options, original, xhr);
-      requests.push({ original, options, xhr });
-      return xhr;
+const epoch = Date.parse('2026-10-20T12:00:00Z');
+const query = params => parseTicketNetworkQuery(new URLSearchParams({ category: 'nba', ...params }), new Date(epoch));
+const host = 'example-1.a1.typesense.net';
+const fakeKey = 'public_test_configuration_only_1234';
+const configScript = `x-typesense-api-key /collections/ dev:{host:"${host}",apiKey:"${fakeKey}"}`;
+const empty = { found: 0, hits: [], facet_counts: [] };
+const inventory = { found: 12, hits: [{ document: {
+  event_id: 123, event_name: 'SYNTHETIC TEST fixture', event_local_timestamp: Date.parse('2026-11-01T19:00:00Z') / 1000,
+  venue_name: 'TEST venue', venue_city: 'Miami', venue_state_province_short: 'FL'
+} }], facet_counts: [] };
+
+function setup({ cache } = {}) {
+  let time = epoch;
+  let failure = false;
+  let payload = inventory;
+  const calls = [];
+  const source = createTicketNetworkSource({
+    cache, now: () => time,
+    fetcher: async (url, options) => {
+      calls.push(url);
+      assert.ok(options.signal instanceof AbortSignal);
+      if (url === 'https://www.ticketnetwork.com/en/affiliate-plugin') return new Response('<script src="/_next/static/chunks/current-search.js"></script><script src="https://untrusted.test/evil.js"></script>');
+      if (url === 'https://www.ticketnetwork.com/_next/static/chunks/current-search.js') return new Response(configScript);
+      assert.equal(new URL(url).origin, `https://${host}`);
+      assert.equal(options.headers['X-TYPESENSE-API-KEY'], fakeKey);
+      return failure ? new Response('unavailable', { status: failure }) : Response.json(payload);
     }
   });
-  const context = createContext({
-    URL, console: { warn() {} },
-    document: {
-      getElementById: id => elements.get(id) || element(),
-      body: { getBoundingClientRect: () => ({ height: 200 }) },
-      createElement: () => ({}), head: { appendChild: script => queueMicrotask(() => script.onload()) }
-    },
-    window: {
-      addEventListener() {}, tnerLoaded: true, initializeDatepickers() {}, jQuery: $,
-      csctnCall() {
-        $.ajax({ url: 'https://www.tn-apis.com/catalog/v2/events/search?q=*&filter=Miami&page=1', success: () => rows.push('page1') });
-        started();
-      }
-    },
-    parent: { postMessage() {} },
-    MutationObserver: class { observe() {} }, ResizeObserver: class { observe() {} },
-    setTimeout: (callback, ms) => { const id = ++timerId; timers.set(id, { callback, ms }); return id; },
-    clearTimeout: id => timers.delete(id), clearInterval() {},
-    setInterval: callback => { queueMicrotask(callback); return 1; }, Promise
-  });
-  new Script(buildTicketNetworkDocument('sports').match(/<script>([\s\S]*?)<\/script>/)[1]).runInContext(context);
-  await ready;
-  return {
-    $, requests, status, retry, container, results, list, rows, area, timers,
-    runRetry(ms) {
-      const [id, timer] = [...timers].find(([, timer]) => timer.ms === ms) || [];
-      assert.ok(timer, `Expected ${ms}ms retry`); timers.delete(id); timer.callback();
-    }
-  };
+  return { source, calls, advance: ms => { time += ms; }, fail: code => { failure = code; }, payload: value => { payload = value; } };
 }
 
-test('catalogue 503 retries are bounded and preserve the exact query, then manual retry can recover', async () => {
-  const w = await widget();
-  assert.equal(w.requests[0].options.timeout, 30000);
-  assert.equal(w.timers.size, 0, 'Script deadline must end when the catalogue request starts');
-  w.requests[0].xhr.reject(503);
-  assert.match(w.status.textContent, /Retrying/);
-  w.runRetry(2000);
-  w.requests[1].xhr.reject(503);
-  w.runRetry(4000);
-  w.requests[2].xhr.reject(503);
-  assert.equal(w.requests.length, 3);
-  assert.equal(w.timers.size, 0);
-  assert.equal(w.container.hidden, false);
-  assert.equal(w.retry.hidden, false);
-  assert.equal(w.container.classList.contains('widget-error'), true, 'Pagination stays unavailable until the failed page succeeds');
-  assert.match(w.status.textContent, /not responding/);
-  assert.ok(w.requests.every(request => request.original.url === w.requests[0].original.url));
-  w.retry.click();
-  assert.equal(w.requests[3].original.gorgonaRetry, 0);
-  w.requests[3].xhr.resolve();
-  assert.equal(w.status.hidden, true);
-  assert.equal(w.retry.hidden, true);
-  assert.equal(w.container.classList.contains('widget-error'), false);
-  assert.deepEqual(w.rows, ['page1']);
+test('only the current public storefront search configuration is accepted; arbitrary hosts fail closed', () => {
+  assert.deepEqual(readPublicTicketNetworkConfig(configScript), { host, key: fakeKey });
+  for (const source of [configScript.replace(host, 'internal.local'), configScript.replace(host, 'example.a1.typesense.net.evil.test'), configScript.replace('/collections/', 'unrelated'), '{}']) assert.equal(readPublicTicketNetworkConfig(source), null);
 });
 
-test('a failed Load More preserves loaded rows and retries page 2 once without duplicates', async () => {
-  const w = await widget();
-  w.requests[0].xhr.resolve();
-  w.results.classList.remove('loaded');
-  w.$.ajax({ url: w.requests[0].original.url.replace('page=1', 'page=2'), success: () => w.rows.push('page2') });
-  assert.equal(w.list.hidden, false);
-  assert.equal(w.results.classList.contains('loaded'), true);
-  w.requests[1].xhr.reject(503); w.runRetry(2000);
-  w.requests[2].xhr.reject(503); w.runRetry(4000);
-  w.requests[3].xhr.reject(503);
-  assert.deepEqual(w.rows, ['page1']);
-  assert.equal(w.list.hidden, false);
-  assert.equal(w.container.classList.contains('widget-error'), true);
-  w.retry.click(); w.requests[4].xhr.resolve();
-  assert.deepEqual(w.rows, ['page1', 'page2']);
-  assert.ok(w.requests.slice(1).every(request => request.original.url.endsWith('page=2')));
+test('concurrent identical searches are coalesced, fresh results reused, and no vendor key reaches the response', async () => {
+  const s = setup();
+  const results = await Promise.all([s.source.get(query({})), s.source.get(query({}))]);
+  assert.deepEqual(results[0], results[1]);
+  assert.equal(s.calls.length, 3);
+  assert.equal(results[0].events[0].name, 'SYNTHETIC TEST fixture');
+  assert.ok(!JSON.stringify(results[0]).includes(fakeKey));
+  await s.source.get(query({})); assert.equal(s.calls.length, 3);
 });
 
-test('an unrelated vendor AJAX failure never replaces a loaded calendar with an error', async () => {
-  const w = await widget();
-  w.requests[0].xhr.resolve();
-  w.$.ajax({ url: 'https://www.ticketnetwork.com/optional-diagnostic' }).reject(500);
-  assert.equal(w.status.hidden, true);
-  assert.equal(w.container.hidden, false);
-  assert.equal(w.timers.size, 0);
-  assert.deepEqual(w.rows, ['page1']);
+test('an upstream outage serves an explicitly stale matching list, and expired saved inventory is never used', async () => {
+  const s = setup();
+  const live = await s.source.get(query({}));
+  s.advance(300001); s.fail(503);
+  const saved = await s.source.get(query({}));
+  assert.equal(saved.stale, true); assert.equal(saved.updatedAt, live.updatedAt);
+  assert.deepEqual(saved.events, live.events);
+  s.advance(86400001);
+  await assert.rejects(() => s.source.get(query({})), /unavailable/);
+});
+
+test('page 1 cache never substitutes for a failed page 2 or for another area', async () => {
+  const s = setup(); await s.source.get(query({})); s.fail(503);
+  await assert.rejects(() => s.source.get(query({ page: '2' })), /unavailable/);
+  await assert.rejects(() => s.source.get(query({ area: 'all' })), /unavailable/);
+  s.fail(false); s.payload(empty);
+  const next = await s.source.get(query({ page: '2' }));
+  assert.equal(next.page, 2); assert.equal(next.hasMore, false); assert.deepEqual(next.events, []);
+});
+
+test('malformed JSON and supplier errors produce a failure, never an empty successful catalogue', async () => {
+  const s = setup(); s.payload({ message: 'wrong schema' });
+  await assert.rejects(() => s.source.get(query({})), /unavailable/);
+  s.fail(503);
+  await assert.rejects(() => s.source.get(query({})), /unavailable/);
+  s.fail(false); s.payload(empty);
+  assert.equal((await s.source.get(query({}))).total, 0);
+});
+
+test('edge cache preserves valid inventory across service instances and cache failures do not break live results', async () => {
+  const entries = new Map();
+  const cache = { match: async key => entries.get(key)?.clone(), put: async (key, response) => { entries.set(key, response.clone()); } };
+  await setup({ cache }).source.get(query({}));
+  const other = setup({ cache }); other.fail(503);
+  assert.equal((await other.source.get(query({}))).events.length, 1); assert.equal(other.calls.length, 0);
+  const brokenCache = { match: async () => { throw new Error('cache unavailable'); }, put: async () => { throw new Error('cache full'); } };
+  assert.equal((await setup({ cache: brokenCache }).source.get(query({}))).events.length, 1);
+});
+
+test('a rotated public search key triggers discovery again on manual retry', async () => {
+  const s = setup(); s.fail(401);
+  await assert.rejects(() => s.source.get(query({})));
+  s.fail(false); await s.source.get(query({}));
+  assert.equal(s.calls.filter(url => url.endsWith('/en/affiliate-plugin')).length, 2);
 });
