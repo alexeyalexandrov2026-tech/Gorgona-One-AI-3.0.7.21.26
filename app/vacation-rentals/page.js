@@ -121,6 +121,7 @@ export default function VacationRentalsPage() {
               note={stay.description}
               rate={`${t.vacationRentals.nightlyRate}: ${displayValue(stay.nightlyRate, copy)}`}
               priority={i < 3}
+              booked={stay.availability === 'booked'}
             />
           ))}
         </div>
