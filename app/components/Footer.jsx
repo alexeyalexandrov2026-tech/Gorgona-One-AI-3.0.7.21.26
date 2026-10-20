@@ -17,7 +17,6 @@ const sections = [
 const company = [
   { key: 'partnerPortal', href: '/partner', fallback: 'Partner Portal' },
   { key: 'becomePartner', href: '/partner-agreement', fallback: 'Become a Partner' },
-  { key: 'admin', href: '/admin', fallback: 'Admin' },
   { key: 'signIn', href: '/login', fallback: 'Sign In' }
 ];
 

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { supabase } from '../../../lib/supabase';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -27,7 +28,25 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
+// Only a signed-in account may trigger admin email: the partner portal sends
+// its Supabase access token, and anonymous callers are turned away so the
+// endpoint cannot be used to flood ADMIN_EMAIL.
+async function signedInUser(request) {
+  const token = (request.headers.get('authorization') || '').replace(/^Bearer\s+/i, '').trim();
+  if (!token) return null;
+  try {
+    const { data, error } = await supabase.auth.getUser(token);
+    return error ? null : data?.user || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request) {
+  if (!(await signedInUser(request))) {
+    return NextResponse.json({ success: false, error: 'Sign in required.' }, { status: 401 });
+  }
+
   let body;
   try {
     body = await request.json();
