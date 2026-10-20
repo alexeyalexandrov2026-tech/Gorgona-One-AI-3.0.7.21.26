@@ -4,6 +4,7 @@ import { getWorldsCopy, displayValue, largeImage } from '../../lib/worldsCopy';
 import { fill } from '../../lib/homeCopy';
 import { WorldHero, ListingCard, SectionHead, Steps } from '../components/g1/ui';
 import Stay22Browse from './Stay22Browse';
+import { reservedLabel } from '../../lib/vacationRentalsStatus';
 
 
 const STAY22_COPY = {
@@ -121,6 +122,8 @@ export default function VacationRentalsPage() {
               note={stay.description}
               rate={`${t.vacationRentals.nightlyRate}: ${displayValue(stay.nightlyRate, copy)}`}
               priority={i < 3}
+              availabilityStatus={stay.availabilityStatus}
+              reservedLabel={reservedLabel(locale)}
             />
           ))}
         </div>
