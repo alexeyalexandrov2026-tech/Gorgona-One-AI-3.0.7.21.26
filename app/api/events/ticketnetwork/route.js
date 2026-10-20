@@ -1,5 +1,5 @@
 import { parseTicketNetworkQuery } from '../../../../lib/ticketnetworkSearch.js';
-import { createTicketNetworkSource } from '../../../../lib/ticketnetworkSource.js';
+import { createTicketNetworkSource, ticketNetworkFailureDetails } from '../../../../lib/ticketnetworkSource.js';
 
 export const dynamic = 'force-dynamic';
 let source;
@@ -12,8 +12,9 @@ export async function GET(request) {
   try {
     return Response.json(await source.get(query), { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
-    console.warn('TicketNetwork search unavailable', { reason: error.cause?.name, code: error.cause?.cause?.code });
-    return Response.json({ error: 'Events could not be refreshed. Please try again.' }, {
+    const details = ticketNetworkFailureDetails(error);
+    console.warn('TicketNetwork search unavailable', details);
+    return Response.json({ error: 'Events could not be refreshed. Please try again.', ...details }, {
       status: 503, headers: { 'Cache-Control': 'no-store', 'Retry-After': '30' }
     });
   }

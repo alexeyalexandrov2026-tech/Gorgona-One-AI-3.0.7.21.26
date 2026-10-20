@@ -76,7 +76,10 @@ data center and may be evicted; they are not a guaranteed offline archive.
 Concurrent identical requests are coalesced. At most 20 distinct supplier
 requests run per server instance. Source discovery has an eight-second budget;
 searches have a ten-second budget and a three-MiB response limit. No error body
-or key is returned to the browser. Server warnings record only error type/code.
+or key is returned to the browser. Failures include only an application-owned
+stage code and, when available, the upstream HTTP status. These safe details
+also appear in server warnings, so discovery failures can be distinguished from
+search failures in production without disclosing supplier URLs or credentials.
 
 The React client aborts superseded requests and ignores late responses. A failed
 first page shows Try again without Load More. A failed later page retains
