@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { Script, createContext } from 'node:vm';
 import { buildTicketNetworkUrl, getTicketNetworkCatalogue, getTicketNetworkFallback, TICKETNETWORK_PID } from '../../lib/ticketnetwork.js';
 import { buildTicketNetworkDocument } from '../../lib/ticketnetworkWidget.js';
+import { EVENT_CATEGORIES, EVENT_CATEGORY_GROUPS } from '../../lib/mockEventsData.js';
 
 test('CJ links preserve the verified website PID and encode the complete destination', () => {
   const destination = 'https://www.ticketnetwork.com/category/sports?query=Miami&sort=date';
@@ -31,10 +32,54 @@ test('sports and concerts have separate destinations and reporting SIDs', () => 
     assert.equal(link.searchParams.get('url'), `https://www.ticketnetwork.com/category/${category}`);
     assert.equal(link.searchParams.get('sid'), sid);
   }
-  for (const category of ['constructor', '__proto__', 'nba', '<script>']) {
+  for (const category of ['constructor', '__proto__', 'not-a-category', '<script>']) {
     assert.equal(getTicketNetworkCatalogue(category), null);
     assert.throws(() => buildTicketNetworkDocument(category));
   }
+});
+
+test('every visible genre and sports league has a live catalogue and a distinct reporting SID', () => {
+  const sids = new Set();
+  for (const category of [...EVENT_CATEGORY_GROUPS, ...EVENT_CATEGORIES]) {
+    const catalogue = getTicketNetworkCatalogue(category.slug);
+    assert.ok(catalogue, category.slug);
+    assert.equal(catalogue.group, category.group || category.slug);
+    assert.match(catalogue.sid, /^[A-Za-z0-9]{1,100}$/);
+    assert.ok(!sids.has(catalogue.sid), `duplicate SID: ${catalogue.sid}`);
+    sids.add(catalogue.sid);
+    for (const path of catalogue.paths) assert.match(path, /^\.(?:\d+\.)+$/);
+    const html = buildTicketNetworkDocument(category.slug);
+    new Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);
+  }
+});
+
+test('subcategories request their own inventory rather than the entire parent catalogue', () => {
+  const expected = {
+    'pop-rock': '.1859.1986.1903.',
+    nba: '.1859.1988.1865.1971.',
+    nfl: '.1859.1988.1879.1959.',
+    ufc: '.1859.1988.2027.2056.',
+    'theater-broadway': '.1859.1989.'
+  };
+  for (const [category, path] of Object.entries(expected)) {
+    const html = buildTicketNetworkDocument(category);
+    const params = JSON.parse(html.match(/window\.csctnCall\((\{[^\n]+\})\);/)[1]);
+    assert.equal(params.specialFilters, `&categoryFilter=startswith(path,'${path}')&includeFacets=true`);
+    assert.equal(new URL(params.url).searchParams.get('sid'), getTicketNetworkCatalogue(category).sid);
+  }
+  const rock = buildTicketNetworkDocument('pop-rock');
+  assert.match(rock, /<title>Pop &amp; Rock/);
+});
+
+test('mixed genres include both taxonomies, while Formula 1 narrows the auto-racing category', () => {
+  for (const category of ['hip-hop-rnb', 'classical-opera', 'festivals', 'other-live']) {
+    const params = JSON.parse(buildTicketNetworkDocument(category).match(/window\.csctnCall\((\{[^\n]+\})\);/)[1]);
+    assert.equal((params.specialFilters.match(/startswith/g) || []).length, 2);
+    assert.match(params.specialFilters, / or /);
+  }
+  const params = JSON.parse(buildTicketNetworkDocument('formula-1').match(/window\.csctnCall\((\{[^\n]+\})\);/)[1]);
+  assert.match(params.filters, /^q=Formula%201&filter=/);
+  assert.match(params.specialFilters, /\.1859\.1988\.1905\.1925\./);
 });
 
 test('the supplier receives current, category-specific params with no unreliable price claims', () => {

@@ -10,8 +10,8 @@ export function TicketNetworkCatalogue({ category }) {
     <section id="live-tickets" aria-labelledby="live-tickets-title" className="mt-16 min-w-0 scroll-mt-24 border-t border-villa-obsidian/20 pt-10">
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p className="font-fira text-[0.64rem] uppercase tracking-[0.18em] text-villa-ash">Live calendar · TicketNetwork</p>
-          <h3 id="live-tickets-title" className="mt-3 font-display text-3xl font-light tracking-tight text-villa-obsidian sm:text-4xl">Find your next {category === 'sports' ? 'game' : 'show'}.</h3>
+          <p className="font-fira text-[0.64rem] uppercase tracking-[0.18em] text-villa-ash">Live calendar · {catalogue.label} · TicketNetwork</p>
+          <h3 id="live-tickets-title" className="mt-3 font-display text-3xl font-light tracking-tight text-villa-obsidian sm:text-4xl">Find your next {catalogue.group === 'sports' ? 'game' : 'show'}.</h3>
         </div>
         <a href={getTicketNetworkFallback(category)} target="_blank" rel="noopener noreferrer sponsored" className="border-b border-villa-obsidian pb-1 font-fira text-xs uppercase tracking-[0.12em] text-villa-obsidian transition-opacity hover:opacity-60">
           Browse on TicketNetwork ↗

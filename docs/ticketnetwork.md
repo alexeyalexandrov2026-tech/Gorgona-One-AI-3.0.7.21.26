@@ -14,10 +14,23 @@ Verified 2026-10-20 for the existing GORGONA ONE / MIAMI ELIO portal.
 
 ## Surfaces and behavior
 
-`/events/category/sports` and `/events/category/concerts` embed the official
-supplier catalogue. Existing subcategory pages also offer a tracked
-TicketNetwork link to their parent catalogue. Curated local event data remains
-empty until independently verified listings are available.
+`/events/category/sports`, `/events/category/concerts` and all 22 visible genre
+and sports-league pages embed the official supplier catalogue. Subcategories
+filter the supplier's taxonomy rather than showing the entire parent list.
+Each has its own alphanumeric reporting SID; the two pillar SIDs stay unchanged.
+Curated local event data remains empty until independently verified listings
+are available, independently of the live supplier feed.
+
+The taxonomy paths come from the Sports, Concerts and Theater dropdowns in the
+official builder. Hip-Hop & R&B, Classical & Opera and Festivals combine their
+corresponding taxonomy paths. Formula 1 applies the supplier's keyword search
+within Auto Racing. Theater & Broadway uses the Theater taxonomy. The two
+catch-all categories use the broader Sports and Concerts/Theater taxonomies.
+
+TicketNetwork is the only marketplace with commission tracking in this UI.
+Vivid Seats, Eventbrite, Ticket Tailor and Online Ticket Seller remain ordinary
+external links, explicitly identified as such. Their logos do not indicate a
+confirmed affiliate account or an activated commission integration.
 
 The vendor scripts execute inside a sandboxed iframe without `allow-same-origin`.
 They cannot read the portal's DOM, cookies or local storage. Only that iframe's
@@ -66,7 +79,14 @@ A HEAD redirect check of the Sports CJ link reached TicketNetwork with
 `utm_campaign=101825540`. Content tests also exercise script-load failure and
 confirm the visible fallback instead of a permanent loading state.
 
-Final checks against `main` at `2724cc7`: all 33 content tests passed, the
+Subcategory QA also covered Pop & Rock, NBA, Formula 1, Hip-Hop & R&B,
+Classical & Opera and Theater & Broadway; each loaded 10 relevant results.
+Pop & Rock's Albany filter returned 10 events in Albany. Its 390 px mobile
+viewport retained readable purchase buttons and no internal overflow. The old
+"No dated Pop & Rock listings" placeholder is absent when the live feed is used.
+All 22 directory categories have a configured supplier filter and distinct SID.
+
+Final checks against `main` at `2724cc7`: all 36 content tests passed, the
 Next.js production build passed, and OpenNext generated the Cloudflare Worker
 successfully with the project's standalone build setting. The unchanged
 `ai-router` application was outside this ticket-catalogue check.
