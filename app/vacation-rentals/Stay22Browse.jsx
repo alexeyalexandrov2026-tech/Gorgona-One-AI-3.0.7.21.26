@@ -1,55 +1,53 @@
-'use client';
-
-import { useState } from 'react';
-
-// Only this page mounts a Stay22 iframe. Do not load Let Me Allez globally:
-// that could rewrite existing direct-CJ partner links elsewhere.
+// These two embeds are deliberately confined to the Vacation Rentals page.
+// Never load the global Stay22 Let Me Allez converter: direct CJ referral
+// links elsewhere on the site must keep their own attribution.
 const MAP_URL = 'https://www.stay22.com/embed/6ad7137bf9e9fcb545c96a7f';
 const LIST_URL = 'https://www.stay22.com/embed/gm?aid=gorgonaone&address=Miami%2C+FL%2C+USA&viewmode=listview&showhotels=false&rentalsapi=vrbo&campaign=gorgona_miami_rentals_list';
 
 export default function Stay22Browse({ labels }) {
-  const [view, setView] = useState('list');
-  const isList = view === 'list';
-
   return (
-    <div className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[0.85rem] text-g1-soft">{labels.location}</p>
-        <div role="group" aria-label={labels.modeLabel} className="inline-flex gap-1 rounded-full border border-g1-rule bg-g1-card p-1">
-          <button
-            type="button"
-            aria-pressed={isList}
-            onClick={() => setView('list')}
-            className={`min-h-[42px] rounded-full px-5 text-[0.9rem] font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-g1-accent ${isList ? 'bg-g1-ink text-g1-paper' : 'text-g1-ink hover:bg-g1-rule'}`}
-          >
-            {labels.listTab}
-          </button>
-          <button
-            type="button"
-            aria-pressed={!isList}
-            onClick={() => setView('map')}
-            className={`min-h-[42px] rounded-full px-5 text-[0.9rem] font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-g1-accent ${!isList ? 'bg-g1-ink text-g1-paper' : 'text-g1-ink hover:bg-g1-rule'}`}
-          >
+    <div className="grid gap-8 sm:gap-12">
+      <section aria-label={labels.mapTitle} className="grid gap-3">
+        <div className="grid gap-1">
+          <h3 className="font-g1display text-[clamp(1.45rem,1.4vw+1rem,2rem)] font-medium text-g1-ink">
             {labels.mapTab}
-          </button>
+          </h3>
+          <p className="text-[0.85rem] text-g1-soft">{labels.location}</p>
         </div>
-      </div>
-      <div className="overflow-hidden rounded-[26px] border border-g1-rule bg-g1-card">
-        <iframe
-          key={view}
-          id="stay22-widget"
-          title={isList ? labels.listTitle : labels.mapTitle}
-          src={isList ? LIST_URL : MAP_URL}
-          width="100%"
-          height={isList ? 740 : 560}
-          loading="lazy"
-          referrerPolicy="strict-origin-when-cross-origin"
-          className={`block w-full border-0 ${isList ? 'h-[700px] sm:h-[740px]' : 'h-[500px] sm:h-[560px]'}`}
-        />
-      </div>
-      <p className="max-w-[75ch] text-[0.8rem] leading-relaxed text-g1-soft">
-        {labels.scopeNotice}
-      </p>
+        <div className="overflow-hidden rounded-[26px] border border-g1-rule bg-g1-card">
+          <iframe
+            id="stay22-map"
+            title={labels.mapTitle}
+            src={MAP_URL}
+            width="100%"
+            height="540"
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+            className="block h-[440px] w-full border-0 sm:h-[540px]"
+          />
+        </div>
+      </section>
+
+      <section aria-label={labels.listTitle} className="grid gap-3 border-t border-g1-rule pt-8 sm:pt-10">
+        <h3 className="font-g1display text-[clamp(1.45rem,1.4vw+1rem,2rem)] font-medium text-g1-ink">
+          {labels.listTab}
+        </h3>
+        <div className="overflow-hidden rounded-[26px] border border-g1-rule bg-g1-card">
+          <iframe
+            id="stay22-list"
+            title={labels.listTitle}
+            src={LIST_URL}
+            width="100%"
+            height="900"
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+            className="block h-[760px] w-full border-0 sm:h-[900px]"
+          />
+        </div>
+        <p className="max-w-[75ch] text-[0.8rem] leading-relaxed text-g1-soft">
+          {labels.scopeNotice}
+        </p>
+      </section>
     </div>
   );
 }
