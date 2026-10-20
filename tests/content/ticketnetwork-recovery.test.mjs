@@ -88,6 +88,7 @@ test('catalogue 503 retries are bounded and preserve the exact query, then manua
   assert.equal(w.timers.size, 0);
   assert.equal(w.container.hidden, false);
   assert.equal(w.retry.hidden, false);
+  assert.equal(w.container.classList.contains('widget-error'), true, 'Pagination stays unavailable until the failed page succeeds');
   assert.match(w.status.textContent, /not responding/);
   assert.ok(w.requests.every(request => request.original.url === w.requests[0].original.url));
   w.retry.click();
@@ -95,6 +96,7 @@ test('catalogue 503 retries are bounded and preserve the exact query, then manua
   w.requests[3].xhr.resolve();
   assert.equal(w.status.hidden, true);
   assert.equal(w.retry.hidden, true);
+  assert.equal(w.container.classList.contains('widget-error'), false);
   assert.deepEqual(w.rows, ['page1']);
 });
 
@@ -110,6 +112,7 @@ test('a failed Load More preserves loaded rows and retries page 2 once without d
   w.requests[3].xhr.reject(503);
   assert.deepEqual(w.rows, ['page1']);
   assert.equal(w.list.hidden, false);
+  assert.equal(w.container.classList.contains('widget-error'), true);
   w.retry.click(); w.requests[4].xhr.resolve();
   assert.deepEqual(w.rows, ['page1', 'page2']);
   assert.ok(w.requests.slice(1).every(request => request.original.url.endsWith('page=2')));
