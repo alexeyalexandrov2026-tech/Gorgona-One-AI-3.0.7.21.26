@@ -13,6 +13,8 @@ import { SubcategoryGrid } from '../../SubcategoryGrid';
 import { EventsEmptyState } from '../../EventsEmptyState';
 import { LiveShowsBanner } from '../../LiveShowsBanner';
 import { TicketProviders } from '../../TicketProviders';
+import { TicketNetworkCatalogue } from '../../TicketNetworkCatalogue';
+import { getTicketNetworkCatalogue } from '../../../../lib/ticketnetwork';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +33,7 @@ export default function EventsCategoryPage({ params }) {
   // Get subcategories to display (either all in the group, or siblings of the specific category)
   const currentGroupSlug = group ? group.slug : specificCategory.group;
   const subcategories = getEventCategoriesByGroup(currentGroupSlug);
+  const hasLiveCatalogue = Boolean(getTicketNetworkCatalogue(categoryParam));
 
   // Get events — everything in the pillar, or just this one subcategory
   const displayedEvents = group
@@ -81,7 +84,7 @@ export default function EventsCategoryPage({ params }) {
           {/* Museum tag row */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-villa-obsidian/20 pb-4 font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash">
             <span>Vol. 02 — Premium Experiences</span>
-            <span>{String(displayedEvents.length).padStart(2, '0')} events</span>
+            <span>{hasLiveCatalogue ? 'Live ticket catalogue' : `${String(displayedEvents.length).padStart(2, '0')} curated events`}</span>
           </div>
 
           {/* Monumental wordmark */}
@@ -155,15 +158,17 @@ export default function EventsCategoryPage({ params }) {
                 </article>
               ))}
             </div>
-          ) : (
+          ) : !hasLiveCatalogue ? (
             <EventsEmptyState
               label={specificCategory ? specificCategory.label : null}
               hasProviders={Boolean(specificCategory)}
             />
-          )}
+          ) : null}
+
+          {hasLiveCatalogue && <TicketNetworkCatalogue category={categoryParam} />}
 
           {/* Where to buy — only on a single subcategory page */}
-          {specificCategory && <TicketProviders categoryLabel={specificCategory.label} />}
+          {specificCategory && <TicketProviders categoryLabel={specificCategory.label} category={categoryParam} />}
         </div>
       </section>
     </main>
