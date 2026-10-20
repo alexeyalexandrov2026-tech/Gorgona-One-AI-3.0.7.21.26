@@ -51,4 +51,4 @@ The staging policy is in `lib/sportsbookAffiliateRegistry.mjs` and intentionally
 
 ## Verification
 
-Run `node --test tests/sportsbookAffiliateRegistry.test.mjs` before merging a policy change. The tests verify that all ten operators are disabled by default, unknown/insecure tracking hosts are rejected, all approval conditions are mandatory, and non-Hard Rock Florida offers are denied.
+Run `node --test tests/content/sportsbookAffiliateRegistry.test.mjs` before merging a policy change. The tests verify that all ten operators are disabled by default, unknown/insecure tracking hosts are rejected, all approval conditions are mandatory, and non-Hard Rock Florida offers are denied.
