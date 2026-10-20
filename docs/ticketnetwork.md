@@ -18,6 +18,17 @@ Verified 2026-10-20 for the existing GORGONA ONE / MIAMI ELIO portal.
 and sports-league pages embed the official supplier catalogue. Subcategories
 filter the supplier's taxonomy rather than showing the entire parent list.
 Each has its own alphanumeric reporting SID; the two pillar SIDs stay unchanged.
+Every catalogue starts with Miami and nearby South Florida venue cities,
+including Sunrise, Miami Gardens and Fort Lauderdale. The supplier query
+requires Florida as well as the explicit city list in `ticketnetworkLocation.js`;
+it does not request the visitor's device location. Area can be changed to
+All Florida or All cities. Dates, Teams/Artists and Cities stay visible, even
+when the supplier returns only one city. Changing area resets pagination and
+clears the previous city selection while preserving dates and performers.
+Load More and the supplier filters retain the chosen area. Empty local results
+stay empty with guidance to change filters or area; there is no silent global
+fallback.
+
 Curated local event data remains empty until independently verified listings
 are available, independently of the live supplier feed.
 
@@ -28,9 +39,9 @@ within Auto Racing. Theater & Broadway uses the Theater taxonomy. The two
 catch-all categories use the broader Sports and Concerts/Theater taxonomies.
 
 TicketNetwork is the only marketplace with commission tracking in this UI.
-Vivid Seats, Eventbrite, Ticket Tailor and Online Ticket Seller remain ordinary
-external links, explicitly identified as such. Their logos do not indicate a
-confirmed affiliate account or an activated commission integration.
+Only TicketNetwork is displayed in the public provider section. Vivid Seats,
+Eventbrite, Ticket Tailor and Online Ticket Seller are hidden; their data and
+artwork remain available for future verified integrations.
 
 The vendor scripts execute inside a sandboxed iframe without `allow-same-origin`.
 They cannot read the portal's DOM, cookies or local storage. Only that iframe's
@@ -86,7 +97,7 @@ viewport retained readable purchase buttons and no internal overflow. The old
 "No dated Pop & Rock listings" placeholder is absent when the live feed is used.
 All 22 directory categories have a configured supplier filter and distinct SID.
 
-Final checks against `main` at `2724cc7`: all 36 content tests passed, the
+Previous integration checks against `main` at `2724cc7`: all 36 content tests passed, the
 Next.js production build passed, and OpenNext generated the Cloudflare Worker
 successfully with the project's standalone build setting. The unchanged
 `ai-router` application was outside this ticket-catalogue check.
@@ -94,3 +105,24 @@ successfully with the project's standalone build setting. The unchanged
 Publish according to `CLAUDE.md`: start from current `main`, use a task branch,
 and merge through a user-created or user-approved PR. Never push this change
 directly to `main`.
+
+## Miami defaults and provider cleanup
+
+Follow-up browser QA on 2026-10-20 verified NHL defaults to Sunrise home games,
+NBA to Miami Heat home games, and Sports, Concerts and Pop & Rock to Florida
+venue cities. NHL Load More went from 10 to 20 Sunrise games. All Florida
+added Tampa NHL games; All cities displayed national inventory and reset to
+10 results. Pop & Rock's Cities filter returned only Miami; widening the area
+cleared that selection. Boxing showed the local empty state, then real events
+after selecting All cities. Only TicketNetwork was present in the provider
+section. The 390 px mobile calendar retained Dates, Teams and Cities,
+112 × 44 px purchase buttons, and no internal horizontal overflow or vertical
+scrollbar. The site's generic page title, optional supplier telemetry failure
+and existing Framer Motion warning remain unchanged.
+
+The content suite now contains 38 passing tests, including all-category Miami
+defaults and changing area without losing dates/teams or retaining a stale city.
+
+Follow-up Next.js production and OpenNext Cloudflare Worker builds both passed.
+Changes are saved on the task branch; no PR, merge or production deployment
+has been performed.

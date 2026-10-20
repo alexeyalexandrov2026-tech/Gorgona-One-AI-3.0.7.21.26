@@ -18,7 +18,8 @@ export function TicketNetworkCatalogue({ category }) {
         </a>
       </div>
       <p className="mt-5 max-w-3xl text-sm leading-relaxed text-villa-graphite">
-        Explore events here. Ticket selection, payment and order support are handled by TicketNetwork in a new tab.
+        Upcoming events start with Miami and nearby South Florida cities. Use Area, Dates, {catalogue.group === 'sports' ? 'Teams' : 'Artists'} and Cities to adjust the list.
+        Ticket selection, payment and order support are handled by TicketNetwork in a new tab.
         Resale prices may be above face value. We may earn a commission when you buy through these links.
       </p>
       <TicketNetworkFrame key={category} category={category} document={buildTicketNetworkDocument(category)} />

@@ -1,29 +1,23 @@
-import { getTicketProvidersWithLogos } from '../../lib/mockEventsData';
 import { getTicketNetworkFallback } from '../../lib/ticketnetwork';
 
-// Wall of ticket aggregators shown on a single subcategory page (NFL,
-// Pop & Rock, ...). Logos rest in monochrome and ease back to their full brand
-// colour on hover, so the row reads as one quiet band until you reach for it.
 export function TicketProviders({ categoryLabel, category }) {
-  const providers = getTicketProvidersWithLogos();
-
   return (
     <section className="mt-16 border-t border-villa-obsidian/15 pt-10">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 className="font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash">
-          Ticket providers
+          Ticket partner
         </h3>
         <p className="font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash">
-          {String(providers.length + 1).padStart(2, '0')} marketplaces
+          01 marketplace
         </p>
       </div>
 
       <p className="mt-4 max-w-xl text-sm leading-relaxed text-villa-graphite">
-        Explore {categoryLabel ? `${categoryLabel} ` : ''}tickets on these external marketplaces.
-        Each marketplace handles its own listings and orders.
+        Explore {categoryLabel ? `${categoryLabel} ` : ''}tickets on TicketNetwork.
+        TicketNetwork handles its own listings and orders.
       </p>
 
-      <div className="mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mt-8 max-w-sm">
         <a
           href={getTicketNetworkFallback(category)}
           target="_blank"
@@ -33,26 +27,10 @@ export function TicketProviders({ categoryLabel, category }) {
         >
           TicketNetwork
         </a>
-        {providers.map((provider) => (
-          <a
-            key={provider.slug}
-            href={provider.website}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={provider.name}
-            className="group flex h-28 items-center justify-center rounded-2xl border border-villa-obsidian/10 bg-white px-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-500 ease-out hover:-translate-y-1 hover:border-brand-gold hover:shadow-[0_14px_34px_rgba(0,0,0,0.12)]"
-          >
-            <img
-              src={provider.logo}
-              alt={provider.name}
-              className={`w-auto max-w-full object-contain grayscale opacity-60 transition-all duration-500 ease-out group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0 ${provider.logoClass || 'max-h-8'}`}
-            />
-          </a>
-        ))}
       </div>
       <p className="mt-5 text-xs leading-relaxed text-villa-graphite">
         TicketNetwork is our affiliate partner; we may earn a commission through its links.
-        The other marketplaces are ordinary external links. Checkout opens on the marketplace you choose.
+        Checkout opens on TicketNetwork.
       </p>
     </section>
   );
