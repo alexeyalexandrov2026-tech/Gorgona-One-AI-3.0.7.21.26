@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { getServerTranslation } from '../../lib/serverLocale';
 import { Reveal, Stagger, StaggerItem, Parallax } from '../components/Motion';
+import { TicketNetworkCatalogue } from './TicketNetworkCatalogue';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Tickets & Events | MIAMI ELIO',
@@ -104,6 +107,11 @@ export default function EventsMarketplacePage() {
             </StaggerItem>
           ))}
         </Stagger>
+      </section>
+      <section className="full-bleed bg-villa-parchment text-villa-obsidian">
+        <div className="mx-auto max-w-7xl px-4 pb-20 pt-1 sm:px-6 lg:px-8">
+          <TicketNetworkCatalogue category="events" />
+        </div>
       </section>
     </main>
   );

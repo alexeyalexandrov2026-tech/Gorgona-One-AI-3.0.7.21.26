@@ -11,6 +11,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Events use viewport-wide backgrounds inside the shared centered shell.
+   Keep the scrollbar's extra vw pixels from creating horizontal page scroll. */
+html:has([data-ticketnetwork-calendar]) {
+  overflow-x: clip;
+}
+
 body {
   min-height: 100vh;
   /* Plain paper from the design system; the old gold glow is gone. */

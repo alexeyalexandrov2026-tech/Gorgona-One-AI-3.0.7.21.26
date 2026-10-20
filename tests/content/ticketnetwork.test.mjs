@@ -1,201 +1,86 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { Script, createContext } from 'node:vm';
 import { buildTicketNetworkUrl, getTicketNetworkCatalogue, getTicketNetworkFallback, TICKETNETWORK_PID } from '../../lib/ticketnetwork.js';
-import { buildTicketNetworkDocument } from '../../lib/ticketnetworkWidget.js';
+import { parseTicketNetworkQuery, buildTicketNetworkSearch, normalizeTicketNetworkResults, ticketNetworkToday } from '../../lib/ticketnetworkSearch.js';
 import { EVENT_CATEGORIES, EVENT_CATEGORY_GROUPS } from '../../lib/mockEventsData.js';
-import { TICKETNETWORK_AREAS } from '../../lib/ticketnetworkLocation.js';
+import { GET } from '../../app/api/events/ticketnetwork/route.js';
 
-const widgetParams = html => JSON.parse(html.match(/var params = (\{[^\n]+\});/)[1]);
+const now = new Date('2026-10-20T12:00:00Z');
+const query = params => parseTicketNetworkQuery(new URLSearchParams({ category: 'nba', ...params }), now);
 
-test('CJ links preserve the verified website PID and encode the complete destination', () => {
-  const destination = 'https://www.ticketnetwork.com/category/sports?query=Miami&sort=date';
-  const link = new URL(buildTicketNetworkUrl(destination, 'GorgonaSports'));
+test('CJ tracking keeps the verified property, unique campaigns and complete encoded destination', () => {
+  const destination = 'https://www.ticketnetwork.com/tickets/123?one=1&two=2';
+  const url = new URL(buildTicketNetworkUrl(destination, 'GorgonaSports'));
   assert.equal(TICKETNETWORK_PID, '101825540');
-  assert.equal(link.origin, 'https://www.tkqlhce.com');
-  assert.equal(link.pathname, '/click-101825540-10793961');
-  assert.equal(link.searchParams.get('sid'), 'GorgonaSports');
-  assert.equal(link.searchParams.get('url'), destination);
-  assert.equal(link.searchParams.size, 2);
+  assert.equal(url.origin + url.pathname, 'https://www.tkqlhce.com/click-101825540-10793961');
+  assert.equal(url.searchParams.get('url'), destination);
+  assert.equal(url.searchParams.get('sid'), 'GorgonaSports');
+  for (const target of ['https://example.com', 'https://www.ticketnetwork.com.evil.test/', 'http://www.ticketnetwork.com/', 'javascript:alert(1)', 'https://user:pass@www.ticketnetwork.com/', 'https://www.ticketnetwork.com:8443/']) assert.throws(() => buildTicketNetworkUrl(target));
+  for (const sid of ['', 'sports&url=other', '<script>', 'a'.repeat(101)]) assert.throws(() => buildTicketNetworkUrl(undefined, sid));
 });
 
-test('tracking never redirects to arbitrary domains or accepts unsafe campaign IDs', () => {
-  for (const target of ['https://example.com', 'https://www.ticketnetwork.com.evil.test/', 'http://www.ticketnetwork.com/', 'javascript:alert(1)', 'https://user:pass@www.ticketnetwork.com/', 'https://www.ticketnetwork.com:8443/']) {
-    assert.throws(() => buildTicketNetworkUrl(target));
-  }
-  for (const sid of ['', 'sports&url=other', '<script>', 'a'.repeat(101)]) {
-    assert.throws(() => buildTicketNetworkUrl(undefined, sid));
-  }
-});
-
-test('sports and concerts have separate destinations and reporting SIDs', () => {
-  for (const [category, path, sid] of [['sports', '.1859.1988.', 'GorgonaSports'], ['concerts', '.1859.1986.', 'GorgonaConcerts']]) {
-    assert.equal(getTicketNetworkCatalogue(category).path, path);
-    const link = new URL(getTicketNetworkFallback(category));
-    assert.equal(link.searchParams.get('url'), `https://www.ticketnetwork.com/category/${category}`);
-    assert.equal(link.searchParams.get('sid'), sid);
-  }
-  for (const category of ['constructor', '__proto__', 'not-a-category', '<script>']) {
-    assert.equal(getTicketNetworkCatalogue(category), null);
-    assert.throws(() => buildTicketNetworkDocument(category));
-  }
-});
-
-test('every visible genre and sports league has a live catalogue and a distinct reporting SID', () => {
+test('every visible category and the Events overview has a unique tracked catalogue and a Miami default', () => {
   const sids = new Set();
-  for (const category of [...EVENT_CATEGORY_GROUPS, ...EVENT_CATEGORIES]) {
+  for (const category of [{ slug: 'events' }, ...EVENT_CATEGORY_GROUPS, ...EVENT_CATEGORIES]) {
     const catalogue = getTicketNetworkCatalogue(category.slug);
     assert.ok(catalogue, category.slug);
-    assert.equal(catalogue.group, category.group || category.slug);
-    assert.match(catalogue.sid, /^[A-Za-z0-9]{1,100}$/);
-    assert.ok(!sids.has(catalogue.sid), `duplicate SID: ${catalogue.sid}`);
-    sids.add(catalogue.sid);
-    for (const path of catalogue.paths) assert.match(path, /^\.(?:\d+\.)+$/);
-    const html = buildTicketNetworkDocument(category.slug);
-    new Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);
+    assert.ok(!sids.has(catalogue.sid)); sids.add(catalogue.sid);
+    const search = buildTicketNetworkSearch(query({ category: category.slug }));
+    assert.match(search.get('filter_by'), /venue_state_province_short:=FL/);
+    for (const city of ['Miami', 'Miami Gardens', 'Sunrise', 'Fort Lauderdale']) assert.ok(search.get('filter_by').includes(`\`${city}\``));
+    assert.match(search.get('filter_by'), /tickets_available:>0/);
+    assert.equal(new URL(getTicketNetworkFallback(category.slug)).searchParams.get('sid'), catalogue.sid);
   }
+  assert.equal(new URL(getTicketNetworkFallback('events')).searchParams.get('url'), 'https://www.ticketnetwork.com/');
+  for (const invalid of ['constructor', '__proto__', 'made-up']) assert.equal(getTicketNetworkCatalogue(invalid), null);
 });
 
-test('subcategories request their own inventory rather than the entire parent catalogue', () => {
-  const expected = {
-    'pop-rock': '.1859.1986.1903.',
-    nba: '.1859.1988.1865.1971.',
-    nfl: '.1859.1988.1879.1959.',
-    ufc: '.1859.1988.2027.2056.',
-    'theater-broadway': '.1859.1989.'
-  };
-  for (const [category, path] of Object.entries(expected)) {
-    const html = buildTicketNetworkDocument(category);
-    const params = widgetParams(html);
-    assert.equal(params.specialFilters, `&categoryFilter=startswith(path,'${path}')&includeFacets=true`);
-    assert.equal(new URL(params.url).searchParams.get('sid'), getTicketNetworkCatalogue(category).sid);
-  }
-  const rock = buildTicketNetworkDocument('pop-rock');
-  assert.match(rock, /<title>Pop &amp; Rock/);
+test('the new search preserves sports, mixed-genre and Formula 1 category boundaries', () => {
+  const expected = { nba: 'major_category:=`NBA`', nfl: 'major_category:=`NFL`', nhl: 'major_category:=`NHL`', mls: 'grandchild_category:=`Professional (MLS)`', nascar: 'grandchild_category:=NASCAR', 'pop-rock': 'child_category:=`Pop / Rock`' };
+  for (const [category, filter] of Object.entries(expected)) assert.ok(buildTicketNetworkSearch(query({ category })).get('filter_by').includes(filter));
+  for (const category of ['hip-hop-rnb', 'classical-opera', 'festivals', 'other-live']) assert.match(buildTicketNetworkSearch(query({ category })).get('filter_by'), / \|\| /);
+  assert.equal(buildTicketNetworkSearch(query({ category: 'formula-1' })).get('q'), 'Formula 1');
+  assert.equal(buildTicketNetworkSearch(query({ category: 'formula-1', performer: 'Miami' })).get('q'), 'Formula 1 Miami');
 });
 
-test('mixed genres include both taxonomies, while Formula 1 narrows the auto-racing category', () => {
-  for (const category of ['hip-hop-rnb', 'classical-opera', 'festivals', 'other-live']) {
-    const params = widgetParams(buildTicketNetworkDocument(category));
-    assert.equal((params.specialFilters.match(/startswith/g) || []).length, 2);
-    assert.match(params.specialFilters, / or /);
-  }
-  const params = widgetParams(buildTicketNetworkDocument('formula-1'));
-  assert.match(params.filters, /^q=Formula%201&filter=/);
-  assert.match(params.specialFilters, /\.1859\.1988\.1905\.1925\./);
+test('geography changes only when requested, dates use the Miami calendar day, and pagination stays bounded', () => {
+  assert.equal(ticketNetworkToday(new Date('2026-10-20T02:00:00Z')), '2026-10-19');
+  const florida = buildTicketNetworkSearch(query({ area: 'florida', performer: 'Panthers', from: '2026-11-01', to: '2026-11-30', page: '2' }));
+  assert.match(florida.get('filter_by'), /venue_state_province_short:=FL/);
+  assert.doesNotMatch(florida.get('filter_by'), /venue_city/);
+  assert.equal(florida.get('q'), 'Panthers'); assert.equal(florida.get('page'), '2');
+  assert.match(florida.get('filter_by'), new RegExp(`event_local_timestamp:<${Date.parse('2026-12-01') / 1000}`));
+  const all = buildTicketNetworkSearch(query({ area: 'all', city: 'New York' }));
+  assert.doesNotMatch(all.get('filter_by'), /venue_state_province_short/);
+  assert.match(all.get('filter_by'), /venue_city:=`New York`/);
+  assert.equal(all.get('per_page'), '10');
 });
 
-test('the supplier receives current, category-specific params with no unreliable price claims', () => {
-  for (const category of ['sports', 'concerts']) {
-    const html = buildTicketNetworkDocument(category, new Date('2027-03-05T12:00:00Z'));
-    const params = widgetParams(html);
-    assert.match(params.filters, /date\/date ge 2027-03-05 and/);
-    assert.match(params.filters, /date\/date le 2029-03-05 and/);
-    assert.ok(params.specialFilters.includes(getTicketNetworkCatalogue(category).path));
-    assert.match(params.url, /^https:\/\/www\.tkqlhce\.com\/click-101825540-10793961\?sid=Gorgona(?:Sports|Concerts)&url=$/);
-    assert.equal(params.target, '_blank');
-    assert.equal(params.perPage, '10');
-    assert.equal(params.pricing, '');
-    assert.equal(params.count, '');
-    assert.match(html, /setTimeout\(fail, 45000\)/);
-    assert.match(html, /options.timeout = 30000/);
-    assert.doesNotMatch(html, /http:\/\//);
-    // Compile the complete embedded program, including serialized params.
-    new Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);
-  }
+test('invalid dates, injection, raw upstream parameters and duplicate query fields are rejected', async () => {
+  for (const params of [
+    { category: '__proto__' }, { area: 'somewhere' }, { from: '2026-02-30' }, { from: '2026-10-19' },
+    { from: '2026-12-01', to: '2026-11-01' }, { to: '2031-01-01' }, { city: 'Miami` || tickets_available:>0' },
+    { performer: 'a'.repeat(101) }, { city: 'bad\ncity' }, { page: '0' }, { page: '101' }, { page: '2.5' },
+    { filter_by: 'arbitrary' }, { url: 'http://internal/' }, { consumerKey: 'anything' }
+  ]) assert.throws(() => query(params), JSON.stringify(params));
+  assert.throws(() => parseTicketNetworkQuery(new URLSearchParams('category=nba&category=nhl'), now));
+  const response = await GET(new Request('https://gorgona-one.com/api/events/ticketnetwork?category=__proto__'));
+  assert.equal(response.status, 400); assert.equal(response.headers.get('Cache-Control'), 'no-store');
 });
 
-test('all categories start in Miami and nearby Florida venue cities, with wider areas explicitly available', () => {
-  for (const category of [...EVENT_CATEGORY_GROUPS, ...EVENT_CATEGORIES]) {
-    const html = buildTicketNetworkDocument(category.slug);
-    const params = widgetParams(html);
-    assert.ok(params.filters.endsWith(TICKETNETWORK_AREAS[0].filter));
-    assert.match(params.filters, /stateProvince\/text\/abbr eq 'FL'/);
-    for (const city of ['Miami', 'Miami Gardens', 'Sunrise', 'Fort Lauderdale']) {
-      assert.ok(params.filters.includes(`'${city}'`));
-    }
-    assert.match(html, /tner-date-filter_gorgona/);
-    assert.match(html, /tner-performer-filter_gorgona/);
-    assert.match(html, /tner-city-filter_gorgona/);
-  }
-  assert.equal(TICKETNETWORK_AREAS[1].filter, " and stateProvince/text/abbr eq 'FL'");
-  assert.equal(TICKETNETWORK_AREAS[2].filter, '');
-});
-
-test('changing area restarts pagination, keeps dates and teams, and clears the previous city', async () => {
-  const calls = [];
-  let changeArea;
-  let initialized;
-  const ready = new Promise(resolve => { initialized = resolve; });
-  const fields = new Map();
-  const storedFilters = { city: ['Miami%2C%20FL'], performer: ['Miami%20Heat'], 'date-start': ['Nov 1, 2026'] };
-  const area = { value: 'miami', addEventListener: (_, callback) => { changeArea = callback; } };
-  fields.set('widget-area', area);
-  fields.set('tner-filter-storage_gorgona', { value: encodeURIComponent(JSON.stringify(storedFilters)) });
-  fields.set('tner-call-storage_gorgona', { value: 'previous-page-2' });
-  const element = { classList: { remove() {}, add() {} }, querySelectorAll: () => [], addEventListener() {} };
-  const context = createContext({
-    document: {
-      getElementById: id => fields.get(id) || element,
-      createElement: () => ({}), head: { appendChild: script => queueMicrotask(() => script.onload()) }
-    },
-    window: {
-      addEventListener() {}, tnerLoaded: true, initializeDatepickers() {},
-      jQuery: Object.assign(() => ({}), { ajaxPrefilter() {} }),
-      csctnCall: (params, replace) => { calls.push({ params: structuredClone(params), replace }); initialized(); }
-    },
-    MutationObserver: class { observe() {} }, ResizeObserver: class { observe() {} },
-    setTimeout: () => 1, clearTimeout() {}, clearInterval() {},
-    setInterval: callback => { queueMicrotask(callback); return 1; }, Promise
-  });
-  const html = buildTicketNetworkDocument('nba');
-  new Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]).runInContext(context);
-  await ready;
-  area.value = 'all'; changeArea();
-  assert.equal(calls[1].replace, true);
-  assert.equal(calls[1].params.page, 1);
-  assert.doesNotMatch(calls[1].params.filters, /city\/|stateProvince/);
-  assert.equal(calls[1].params.specialFilters, calls[0].params.specialFilters);
-  assert.equal(calls[1].params.url, calls[0].params.url);
-  const saved = JSON.parse(decodeURIComponent(fields.get('tner-filter-storage_gorgona').value));
-  assert.deepEqual(saved, { performer: ['Miami%20Heat'], 'date-start': ['Nov 1, 2026'] });
-  assert.equal(fields.get('tner-call-storage_gorgona').value, '');
-  area.value = 'florida'; changeArea();
-  assert.match(calls[2].params.filters, /stateProvince\/text\/abbr eq 'FL'$/);
-  area.value = 'miami'; changeArea();
-  assert.equal(calls[3].params.filters, calls[0].params.filters);
-});
-
-test('a supplier script failure yields an error and a retry action instead of an indefinite loader', async () => {
-  const status = { hidden: false, textContent: '' };
-  const container = { hidden: true, classList: { remove() {}, add() {} } };
-  const retry = { hidden: true, addEventListener: (_, callback) => { retry.click = callback; } };
-  const messages = [];
-  let signal;
-  const reported = new Promise(resolve => { signal = resolve; });
-  const context = createContext({
-    document: {
-      getElementById: id => id === 'widget-status' ? status : id === 'widget-retry' ? retry : container,
-      body: { getBoundingClientRect: () => ({ height: 80 }) },
-      createElement: () => ({}),
-      head: { appendChild: script => queueMicrotask(() => script.onerror()) }
-    },
-    window: { addEventListener() {} },
-    parent: { postMessage: message => { messages.push(message); signal(); } },
-    MutationObserver: class { observe() {} },
-    ResizeObserver: class { observe() {} },
-    setTimeout: () => 1, clearTimeout() {}, Promise
-  });
-  const html = buildTicketNetworkDocument('sports');
-  new Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]).runInContext(context);
-  await reported;
-  assert.equal(container.hidden, true);
-  assert.equal(status.hidden, false);
-  assert.match(status.textContent, /TicketNetwork is not responding/);
-  assert.equal(retry.hidden, false);
-  assert.equal(messages.at(-1).state, 'error');
-  assert.equal(messages.at(-1).category, 'sports');
-  assert.ok(messages.at(-1).height >= 120);
-  retry.click();
-  assert.equal(messages.at(-1).type, 'gorgona-ticketnetwork-retry');
+test('supplier rows become tracked links with venue-local dates and no invented price or scarcity claims', () => {
+  const data = normalizeTicketNetworkResults({ found: 11, hits: [{ document: {
+    event_id: 123, event_name: 'TEST fixture <event>', event_local_timestamp: Date.parse('2026-11-02T19:30:00Z') / 1000,
+    venue_name: 'TEST venue', venue_city: 'Miami', venue_state_province_short: 'FL', min_ticket_price: 99,
+    slugs: { event_name: 'test-event', event_date_weekday_month_day: 'mon-nov-2', venue_name: 'test-venue' }
+  } }], facet_counts: [{ field_name: 'venue_city', counts: [{ value: 'Miami' }] }] }, query({}));
+  assert.equal(data.events[0].localDateTime, '2026-11-02T19:30:00');
+  const url = new URL(data.events[0].url);
+  assert.equal(url.searchParams.get('sid'), 'Gorgonanba');
+  assert.equal(url.searchParams.get('url'), 'https://www.ticketnetwork.com/tickets/123/test-event-tickets-mon-nov-2-2026-test-venue');
+  assert.ok(!Object.hasOwn(data.events[0], 'price'));
+  assert.equal(data.hasMore, true); assert.deepEqual(data.cities, ['Miami']);
+  assert.throws(() => normalizeTicketNetworkResults({ found: 1, hits: [{ document: {} }], facet_counts: [] }, query({})));
+  assert.throws(() => normalizeTicketNetworkResults({ message: 'upstream failed' }, query({})));
+  assert.throws(() => normalizeTicketNetworkResults({ found: 3, hits: [], facet_counts: [] }, query({})), /Incomplete/);
 });
