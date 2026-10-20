@@ -3,6 +3,7 @@ import { getServerTranslation } from '../../lib/serverLocale';
 import { getWorldsCopy, displayValue, largeImage } from '../../lib/worldsCopy';
 import { fill } from '../../lib/homeCopy';
 import { WorldHero, ListingCard, SectionHead, Steps } from '../components/g1/ui';
+import Stay22Browse from './Stay22Browse';
 
 
 const STAY22_COPY = {
@@ -33,13 +34,62 @@ const STAY22_COPY = {
   }
 };
 
+
+const STAY22_UI = {
+  en: {
+    location: 'Miami, Florida · Partner stays',
+    modeLabel: 'Browse accommodation',
+    listTab: 'List with photos',
+    mapTab: 'Map',
+    listTitle: 'Miami accommodation with photos and booking links',
+    mapTitle: 'Stay22 Miami accommodation map',
+    scopeNotice: 'Partner results may include villas, apartments and hotels. Availability, prices and booking terms are set by the providers.'
+  },
+  ru: {
+    location: 'Майами, Флорида · Жильё партнёров',
+    modeLabel: 'Просмотр вариантов жилья',
+    listTab: 'Список с фото',
+    mapTab: 'Карта',
+    listTitle: 'Жильё Майами с фотографиями и ссылками для бронирования',
+    mapTitle: 'Карта жилья Stay22 в Майами',
+    scopeNotice: 'Среди предложений партнёров могут быть виллы, апартаменты и отели. Доступность, цены и условия бронирования устанавливают поставщики.'
+  },
+  es: {
+    location: 'Miami, Florida · Alojamientos asociados',
+    modeLabel: 'Explorar alojamientos',
+    listTab: 'Lista con fotos',
+    mapTab: 'Mapa',
+    listTitle: 'Alojamientos en Miami con fotos y enlaces de reserva',
+    mapTitle: 'Mapa Stay22 de alojamientos en Miami',
+    scopeNotice: 'Los resultados pueden incluir villas, apartamentos y hoteles. La disponibilidad, los precios y las condiciones dependen de los proveedores.'
+  },
+  pt: {
+    location: 'Miami, Flórida · Hospedagens parceiras',
+    modeLabel: 'Explorar hospedagens',
+    listTab: 'Lista com fotos',
+    mapTab: 'Mapa',
+    listTitle: 'Hospedagens em Miami com fotos e links para reservas',
+    mapTitle: 'Mapa Stay22 de hospedagens em Miami',
+    scopeNotice: 'Os resultados podem incluir vilas, apartamentos e hotéis. Disponibilidade, preços e condições são definidos pelos fornecedores.'
+  },
+  he: {
+    location: 'מיאמי, פלורידה · אירוח שותפים',
+    modeLabel: 'עיון במקומות אירוח',
+    listTab: 'רשימה עם תמונות',
+    mapTab: 'מפה',
+    listTitle: 'אירוח במיאמי עם תמונות וקישורי הזמנה',
+    mapTitle: 'מפת האירוח של Stay22 במיאמי',
+    scopeNotice: 'התוצאות עשויות לכלול וילות, דירות ומלונות. הספקים קובעים את הזמינות, המחירים ותנאי ההזמנה.'
+  }
+};
+
 export const dynamic = 'force-dynamic';
 
 export default function VacationRentalsPage() {
   const stays = getVacationRentals();
   const { t, locale } = getServerTranslation();
   const copy = getWorldsCopy(locale);
-  const stay22 = STAY22_COPY[locale] || STAY22_COPY.en;
+  const stay22 = { ...(STAY22_COPY[locale] || STAY22_COPY.en), ...(STAY22_UI[locale] || STAY22_UI.en) };
   const hero = stays.find((s) => s.featured) || stays[0];
 
   return (
@@ -54,17 +104,7 @@ export default function VacationRentalsPage() {
 
       <section className="border-t border-g1-rule py-[clamp(36px,5vw,72px)]" aria-label={stay22.title}>
         <SectionHead title={stay22.title} sub={stay22.description} />
-        <div className="overflow-hidden rounded-[26px] border border-g1-rule bg-g1-card">
-          <iframe
-            id="stay22-widget"
-            title={stay22.title}
-            src="https://www.stay22.com/embed/6ad7137bf9e9fcb545c96a7f"
-            width="100%"
-            height="428"
-            loading="lazy"
-            className="block h-[428px] w-full border-0 sm:h-[560px]"
-          />
-        </div>
+        <Stay22Browse labels={stay22} />
         <p className="mt-3 max-w-[75ch] text-[0.8rem] leading-relaxed text-g1-soft">{stay22.disclosure}</p>
       </section>
 
