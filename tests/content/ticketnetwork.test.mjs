@@ -97,7 +97,8 @@ test('the supplier receives current, category-specific params with no unreliable
     assert.equal(params.perPage, '10');
     assert.equal(params.pricing, '');
     assert.equal(params.count, '');
-    assert.match(html, /setTimeout\(fail, 20000\)/);
+    assert.match(html, /setTimeout\(fail, 45000\)/);
+    assert.match(html, /options.timeout = 30000/);
     assert.doesNotMatch(html, /http:\/\//);
     // Compile the complete embedded program, including serialized params.
     new Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);
@@ -132,7 +133,7 @@ test('changing area restarts pagination, keeps dates and teams, and clears the p
   fields.set('widget-area', area);
   fields.set('tner-filter-storage_gorgona', { value: encodeURIComponent(JSON.stringify(storedFilters)) });
   fields.set('tner-call-storage_gorgona', { value: 'previous-page-2' });
-  const element = { classList: { remove() {} }, querySelectorAll: () => [] };
+  const element = { classList: { remove() {}, add() {} }, querySelectorAll: () => [], addEventListener() {} };
   const context = createContext({
     document: {
       getElementById: id => fields.get(id) || element,
@@ -140,7 +141,7 @@ test('changing area restarts pagination, keeps dates and teams, and clears the p
     },
     window: {
       addEventListener() {}, tnerLoaded: true, initializeDatepickers() {},
-      jQuery: () => ({ ajaxError() {} }),
+      jQuery: Object.assign(() => ({}), { ajaxPrefilter() {} }),
       csctnCall: (params, replace) => { calls.push({ params: structuredClone(params), replace }); initialized(); }
     },
     MutationObserver: class { observe() {} }, ResizeObserver: class { observe() {} },
@@ -165,15 +166,16 @@ test('changing area restarts pagination, keeps dates and teams, and clears the p
   assert.equal(calls[3].params.filters, calls[0].params.filters);
 });
 
-test('a supplier script failure yields a visible error instead of an indefinite loader', async () => {
+test('a supplier script failure yields an error and a retry action instead of an indefinite loader', async () => {
   const status = { hidden: false, textContent: '' };
-  const container = { hidden: true };
+  const container = { hidden: true, classList: { remove() {}, add() {} } };
+  const retry = { hidden: true, addEventListener: (_, callback) => { retry.click = callback; } };
   const messages = [];
   let signal;
   const reported = new Promise(resolve => { signal = resolve; });
   const context = createContext({
     document: {
-      getElementById: id => id === 'widget-status' ? status : container,
+      getElementById: id => id === 'widget-status' ? status : id === 'widget-retry' ? retry : container,
       body: { getBoundingClientRect: () => ({ height: 80 }) },
       createElement: () => ({}),
       head: { appendChild: script => queueMicrotask(() => script.onerror()) }
@@ -189,8 +191,11 @@ test('a supplier script failure yields a visible error instead of an indefinite 
   await reported;
   assert.equal(container.hidden, true);
   assert.equal(status.hidden, false);
-  assert.match(status.textContent, /temporarily unavailable/);
+  assert.match(status.textContent, /TicketNetwork is not responding/);
+  assert.equal(retry.hidden, false);
   assert.equal(messages.at(-1).state, 'error');
   assert.equal(messages.at(-1).category, 'sports');
   assert.ok(messages.at(-1).height >= 120);
+  retry.click();
+  assert.equal(messages.at(-1).type, 'gorgona-ticketnetwork-retry');
 });

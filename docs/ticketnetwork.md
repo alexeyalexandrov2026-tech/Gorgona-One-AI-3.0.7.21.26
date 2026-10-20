@@ -56,7 +56,13 @@ recalculated per render instead of freezing the builder's end date.
 An explicit current-day lower bound excludes past events; the supplier's default
 Concerts query returned past dates even with `hasTickets=true`.
 
-Loading failures time out after 20 seconds and retain a server-rendered CJ link.
+Runtime loading has a separate 45-second deadline. Catalogue requests have a
+30-second timeout and retry transient network/5xx failures at most twice
+(after 2 and 4 seconds). A visible Try again button preserves the exact failed
+query and page; script-load failures ask the parent to recreate the isolated
+frame. Failed Load More requests retain previously rendered rows. Only the
+official catalogue request can affect this error state; unrelated vendor AJAX
+failures are ignored. The server-rendered CJ link remains available.
 That link also works without JavaScript. Price and ticket-count presentation is
 disabled: the builder preview displayed incomplete prices. No availability,
 price or commission guarantee should be inferred from the portal.
@@ -126,3 +132,29 @@ defaults and changing area without losing dates/teams or retaining a stale city.
 Follow-up Next.js production and OpenNext Cloudflare Worker builds both passed.
 Changes are saved on the task branch; no PR, merge or production deployment
 has been performed.
+
+## Catalogue outage recovery — 2026-10-20
+
+A production Sports page reproduced the reported error with zero rows. Both
+the Miami widget query and a basic supplier query without geographic filters
+returned HTTP 503 with an upstream connection-termination response in a
+read-only diagnostic. This establishes failed requests at verification time,
+not a permanent supplier outage or a browser-specific root cause.
+
+The former global AJAX error handler and cumulative 20-second deadline hid
+the entire widget without a recovery action. Catalogue errors are now scoped,
+requests have bounded retries, filters remain available after the runtime has
+loaded, and manual retry can recover without advancing pagination. A new area
+hides the old area's rows until its own query succeeds. Security isolation and
+CJ reporting are unchanged.
+
+41 content tests passed, including consecutive 503 responses, manual recovery,
+failed page 2 retaining page 1, exact query/page reuse, and unrelated AJAX
+failures. Browser QA used a clearly labelled local fixture with real jQuery:
+three simulated 503 responses showed the error and Try again; clicking it
+rendered the synthetic test row. The fixture was removed before building and
+is not production inventory. Live supplier recovery was not established by
+that simulated test.
+
+Recovery fix validation: Next.js production and OpenNext Cloudflare Worker
+builds passed. This fix does not manufacture events or bypass the supplier.
