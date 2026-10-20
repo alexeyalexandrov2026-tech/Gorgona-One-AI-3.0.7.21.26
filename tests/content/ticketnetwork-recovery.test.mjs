@@ -97,11 +97,12 @@ test('a rotated public search key triggers discovery again on manual retry', asy
 
 test('public failure details distinguish discovery and search errors without exposing supplier bodies or keys', async () => {
   const cases = [
+    [setup({ configStatus: 302 }), { code: 'TN_CONFIG_PAGE_HTTP', upstreamStatus: 302 }],
     [setup({ configStatus: 403 }), { code: 'TN_CONFIG_PAGE_HTTP', upstreamStatus: 403 }],
     [setup({ scriptStatus: 502 }), { code: 'TN_CONFIG_SCRIPT_HTTP', upstreamStatus: 502 }],
     [setup(), { code: 'TN_SEARCH_HTTP', upstreamStatus: 503 }]
   ];
-  cases[2][0].fail(503);
+  cases.at(-1)[0].fail(503);
   for (const [s, details] of cases) {
     await assert.rejects(() => s.source.get(query({})), error => {
       assert.deepEqual(ticketNetworkFailureDetails(error), details);
