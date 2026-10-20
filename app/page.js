@@ -10,6 +10,7 @@ import SeasonShelf from './components/home/SeasonShelf';
 import A1ALine from './components/home/A1ALine';
 import ConciergeBand from './components/home/ConciergeBand';
 import { SectionHead, ListingCard, btn } from './components/g1/ui';
+import { reservedLabel } from '../lib/vacationRentalsStatus';
 import Icon from './components/g1/icons';
 import GamblingNotice from './components/GamblingNotice';
 
@@ -114,6 +115,8 @@ export default function HomePage() {
                 meta={stay.location}
                 note={stay.description}
                 rate={copy.ratesOnRequest}
+                availabilityStatus={stay.availabilityStatus}
+                reservedLabel={reservedLabel(locale)}
               />
             ))}
           </div>
