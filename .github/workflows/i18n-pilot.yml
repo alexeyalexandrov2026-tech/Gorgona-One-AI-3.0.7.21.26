@@ -1,0 +1,98 @@
+name: Localization pilot
+
+on:
+  pull_request:
+    paths:
+      - 'app/i18n-pilot/**'
+      - 'i18n/pilot/**'
+      - 'scripts/i18n/**'
+      - 'tests/i18n/**'
+      - 'e2e/i18n/**'
+      - 'playwright.i18n.config.mjs'
+      - 'lib/languages.js'
+      - 'app/components/LocaleProvider.jsx'
+      - 'app/yachts/YatrCatalog.jsx'
+      - 'app/vacation-rentals/Stay22Browse.jsx'
+      - 'gt.config.json'
+      - 'next.config.js'
+      - 'package*.json'
+      - '.github/workflows/i18n-pilot.yml'
+  workflow_dispatch:
+    inputs:
+      generate:
+        description: 'Generate AI translations using the configured GT project'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: i18n-pilot-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run i18n:pilot:extract
+      - run: npm run i18n:pilot:check
+      - run: node --test tests/content/*.test.mjs
+      - run: npx next build
+        env:
+          NEXT_PRIVATE_STANDALONE: 'true'
+          NEXT_TELEMETRY_DISABLED: '1'
+      - run: node scripts/i18n/check-disabled.mjs
+      - run: npm run i18n:pilot:build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run i18n:pilot:e2e
+      - run: npx opennextjs-cloudflare build --skipNextBuild --openNextConfigPath open-next.config.mjs
+        env:
+          MIAMI_I18N_PILOT: '1'
+
+  generate:
+    if: github.event_name == 'workflow_dispatch' && inputs.generate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: i18n-pilot
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Require an isolated translation branch and configured credentials
+        env:
+          GT_PROJECT_ID: ${{ secrets.GT_PROJECT_ID }}
+          GT_API_KEY: ${{ secrets.GT_API_KEY }}
+        run: |
+          case "$GITHUB_REF_NAME" in i18n/*) ;; *) echo 'Use an i18n/* branch for this pilot'; exit 1 ;; esac
+          test -n "$GT_PROJECT_ID" || { echo 'GT_PROJECT_ID is missing'; exit 1; }
+          test -n "$GT_API_KEY" || { echo 'GT_API_KEY is missing'; exit 1; }
+      - run: npm ci --no-audit --no-fund
+      - name: Generate translations for the checked-out source revision
+        env:
+          GT_PROJECT_ID: ${{ secrets.GT_PROJECT_ID }}
+          GT_API_KEY: ${{ secrets.GT_API_KEY }}
+        run: npm run i18n:pilot:translate
+      - run: npm run i18n:pilot:check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: i18n-pilot-${{ github.sha }}
+          path: |
+            i18n/pilot/locales/*.json
+            i18n/pilot/snapshots.json
+            gt-lock.json
+          if-no-files-found: error
+          retention-days: 7

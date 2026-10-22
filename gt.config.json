@@ -1,0 +1,15 @@
+{
+  "$schema": "https://assets.gtx.dev/config-schema.json",
+  "defaultLocale": "en",
+  "locales": ["ru", "es", "he", "zh", "pt", "uk", "ja", "ko", "de", "ar", "tr", "fa", "it", "fr", "pl"],
+  "description": "Miami Elio: Miami yachts, vacation rentals, cars, events, shopping and concierge. Preserve brands, model names, URLs, referral parameters, numbers and interpolation variables. Translate only Miami Elio-owned text. This project is a qualification pilot.",
+  "src": ["app/i18n-pilot/fixtures/**/*.{js,jsx}"],
+  "files": {
+    "gt": {
+      "output": "i18n/pilot/locales/[locale].json",
+      "parsingFlags": { "enableAutoJsxInjection": true }
+    }
+  },
+  "publish": false,
+  "omitConfigIds": true
+}
