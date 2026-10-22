@@ -1,11 +1,13 @@
-import { getServerLocale } from '../../lib/serverLocale';
+'use client';
+
+import { useLocale } from '../components/LocaleProvider';
 import { getYatrCopy } from '../../lib/yatrCopy';
 import YatrCatalog from './YatrCatalog';
 
 export const dynamic = 'force-dynamic';
 
 export default function YachtsPage() {
-  const copy = getYatrCopy(getServerLocale());
+  const copy = getYatrCopy(useLocale());
 
   return (
     <main className="min-w-0 flex-1 pb-10 font-g1sans text-g1-ink">
