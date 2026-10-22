@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useAskConcierge } from './shared';
+import { getConciergeSample } from '../../../lib/conciergeSample';
+import { getLanguageDir, isSupportedLanguage } from '../../../lib/languages';
 import { btn } from '../g1/ui';
 import Icon from '../g1/icons';
 
@@ -15,16 +17,16 @@ const SAMPLES = {
   HE: { me: 'נוחתים ביום שישי, ארבעה אנשים. יאכטה בשבת?', them: 'בשמחה! ה־Azimut 68 Fly יוצאת מ־Star Island ומתאימה לקבוצה שלכם. להזמין גם שולחן לארוחת ערב ב־Komodo?', plan: ['Azimut 68 Fly · שבת', 'Komodo · 20:30'] }
 };
 
-const LOCALE_SAMPLE = { en: 'EN', es: 'ES', pt: 'PT', ru: 'RU', he: 'HE' };
+const sampleCode = locale => isSupportedLanguage(locale) ? locale.toUpperCase() : 'EN';
 
 export default function ConciergeBand({ copy, locale }) {
   const ask = useAskConcierge();
-  const [lang, setLang] = useState(LOCALE_SAMPLE[locale] || 'EN');
-  const sample = SAMPLES[lang];
+  const [lang, setLang] = useState(sampleCode(locale));
+  const sample = SAMPLES[lang] || getConciergeSample(lang.toLowerCase());
 
   // The site language is known only after mount; show the sample in it.
   useEffect(() => {
-    setLang(LOCALE_SAMPLE[locale] || 'EN');
+    setLang(sampleCode(locale));
   }, [locale]);
 
   return (
@@ -57,7 +59,7 @@ export default function ConciergeBand({ copy, locale }) {
               </button>
             ))}
           </div>
-          <div className="grid gap-3" dir={lang === 'HE' ? 'rtl' : 'ltr'} lang={lang.toLowerCase()}>
+          <div className="grid gap-3" dir={getLanguageDir(lang.toLowerCase())} lang={lang.toLowerCase()}>
             <p className="g1-bubble me">{sample.me}</p>
             <p className="g1-bubble them">{sample.them}</p>
             <div className="flex flex-wrap gap-2">

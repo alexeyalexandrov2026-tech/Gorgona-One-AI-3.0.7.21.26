@@ -1,5 +1,6 @@
 "use client";
 
+import { savedListing, savedSource, savedPrice } from '../../lib/savedCopy';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { allDeals, categories, getDealDescription } from '../../lib/dealsData';
@@ -142,6 +143,7 @@ function buildExtraCatalog(t) {
   return [
     ...getYachts().map((item) => ({
       id: `yacht-${item.id}`,
+      sourceId: item.id,
       name: item.title,
       description: item.description,
       category: t.search.popular.yachtRentals,
@@ -151,6 +153,7 @@ function buildExtraCatalog(t) {
     })),
     ...getVacationRentals().map((item) => ({
       id: `vacation-rental-${item.id}`,
+      sourceId: item.id,
       name: item.title,
       description: item.description,
       category: t.search.popular.vacationRentals,
@@ -160,6 +163,7 @@ function buildExtraCatalog(t) {
     })),
     ...getExperiences().map((item) => ({
       id: `experience-${item.id}`,
+      sourceId: item.id,
       name: item.title,
       description: item.description,
       category: t.search.popular.miamiExperiences,
@@ -169,6 +173,7 @@ function buildExtraCatalog(t) {
     })),
     ...getVenues().map((item) => ({
       id: `venue-${item.id}`,
+      sourceId: item.id,
       name: item.name,
       description: item.description,
       category: t.search.popular.restaurantsNightlife,
@@ -183,7 +188,7 @@ export function SearchBar() {
   const locale = useLocale();
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
-  const t = getTranslation(locale);
+  const t = useMemo(() => getTranslation(locale), [locale]);
 
   const filteredDeals = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -285,14 +290,14 @@ export function SearchBar() {
                 <div className="flex min-w-0 flex-1 flex-col justify-between">
                   <div>
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-medium text-g1-ink">{item.name}</p>
+                      <p className="font-medium text-g1-ink">{item.sourceId ? savedListing(locale, { id:item.sourceId, title:item.name }, 'title') : item.name}</p>
                       <span className="rounded-full bg-g1-accent-wash px-2 py-0.5 text-xs text-g1-ink">{item.category}</span>
                     </div>
-                    <p className="mt-2 line-clamp-2 text-[0.88rem] text-g1-soft">{item.description}</p>
+                    <p className="mt-2 line-clamp-2 text-[0.88rem] text-g1-soft">{item.sourceId ? savedListing(locale, {id:item.sourceId, description:item.description}) : item.description}</p>
                   </div>
                   <div className="mt-3 flex items-center justify-between gap-3 text-[0.86rem] text-g1-soft">
                     <span className="font-g1mono">{item.promoCode || t.category.noCodeNeeded}</span>
-                    <span className="text-end">{item.discount}</span>
+                    <span className="text-end">{savedPrice(locale, savedSource(locale, item.discount))}</span>
                   </div>
                 </div>
               </Link>

@@ -1,3 +1,5 @@
+
+import { LocalizedText, LocalizedElement } from "../components/LocalizedText";
 import Link from 'next/link';
 import { getServerTranslation } from '../../lib/serverLocale';
 import { Reveal, Stagger, StaggerItem, Parallax } from '../components/Motion';
@@ -44,7 +46,7 @@ export default function EventsMarketplacePage() {
       <section className="lux-hero full-bleed -mt-[60px] flex min-h-[92svh] items-end bg-travel-void">
         <div className="lux-hero__bg">
           <Parallax distance={70} className="h-full">
-            <img
+            <LocalizedElement as="img"
               src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=2400&q=80"
               alt="Events"
               className="lux-kenburns h-[115%] w-full object-cover opacity-80"
@@ -65,9 +67,8 @@ export default function EventsMarketplacePage() {
             <p className="lux-eyebrow">{t.events.marketplaceTitle}</p>
           </Reveal>
           <Reveal delay={0.08}>
-            <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl">
-              Experience the<br />
-              <span className="text-brand-gold">extraordinary.</span>
+            <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Experience the {highlight}" values={{ highlight: <><br />
+              <span className="text-brand-gold"><LocalizedText source="extraordinary." /></span></> }} />
             </h1>
           </Reveal>
           <Reveal delay={0.16}>
@@ -81,27 +82,25 @@ export default function EventsMarketplacePage() {
       {/* Experience grid */}
       <section className="py-20 lg:py-28">
         <Reveal>
-          <p className="font-mono text-2xl font-medium uppercase leading-none tracking-[0.3em] text-white/25 sm:text-4xl">
-            Categories
-          </p>
-          <h2 className="lux-display mt-6 max-w-2xl text-4xl sm:text-5xl">Select your next experience.</h2>
+          <p className="font-mono text-2xl font-medium uppercase leading-none tracking-[0.3em] text-white/25 sm:text-4xl"><LocalizedText source="Categories" /></p>
+          <h2 className="lux-display mt-6 max-w-2xl text-4xl sm:text-5xl"><LocalizedText source="Select your next experience." /></h2>
         </Reveal>
         <Stagger className="mt-12 grid gap-4 md:grid-cols-2" gap={0.08}>
           {eventCategories.map((item) => (
             <StaggerItem key={item.title}>
               <Link href={item.href} className="lux-tile group flex h-[360px] flex-col justify-end p-7">
                 <div className="lux-tile__media">
-                  <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                  <LocalizedElement as="img" src={item.image} alt={item.title} className="h-full w-full object-cover" />
                 </div>
                 <div className="lux-tile__scrim" />
                 <div className="lux-tile__glow" />
                 <div className="relative">
-                  <p className="lux-caption-upper">{item.tag}</p>
+                  <p className="lux-caption-upper"><LocalizedText source={item.tag} /></p>
                   <div className="mt-2 flex items-center justify-between gap-3">
-                    <h3 className="font-serif text-3xl italic text-white">{item.title}</h3>
+                    <h3 className="font-serif text-3xl italic text-white"><LocalizedText source={item.title} /></h3>
                     <ArrowIcon className="h-5 w-5 shrink-0 text-white/70 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
                   </div>
-                  <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-300/90">{item.copy}</p>
+                  <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-300/90"><LocalizedText source={item.copy} /></p>
                 </div>
               </Link>
             </StaggerItem>

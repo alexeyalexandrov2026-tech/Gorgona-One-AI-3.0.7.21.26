@@ -1,3 +1,5 @@
+import { savedListing, savedSource, savedPrice } from '../../lib/savedCopy';
+import { LocalizedListing } from '../components/LocalizedText';
 import Link from 'next/link';
 import { getExperiences } from '../../lib/experiencesData';
 import { getServerTranslation } from '../../lib/serverLocale';
@@ -6,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export default function ExperiencesPage() {
   const experiences = getExperiences();
-  const { t } = getServerTranslation();
+  const { t, locale } = getServerTranslation();
 
   return (
     <main className="flex-1 py-10">
@@ -19,20 +21,20 @@ export default function ExperiencesPage() {
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {experiences.map((item) => (
           <article key={item.id} className="market-card overflow-hidden rounded-[1.5rem]">
-            <img src={item.image} alt={item.title} className="h-48 w-full object-cover" />
+            <img src={item.image} alt={savedListing(locale, item, 'title')} className="h-48 w-full object-cover" />
             <div className="p-6">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-sm uppercase tracking-[0.2em] text-brand-gold">{item.location}</p>
-                  <h2 className="mt-2 text-xl font-semibold text-white">{item.title}</h2>
+                  <h2 className="mt-2 text-xl font-semibold text-white">{savedListing(locale, item, 'title')}</h2>
                 </div>
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-300">{item.duration}</span>
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-300">{savedSource(locale, item.duration)}</span>
               </div>
-              <p className="mt-4 text-sm text-zinc-400">{item.description}</p>
+              <p className="mt-4 text-sm text-zinc-400"><LocalizedListing itemId={item.id} source={item.description} /></p>
               <div className="mt-5 grid gap-2 text-sm text-zinc-300">
                 <div className="flex items-center justify-between"><span>{t.experiences.location}</span><span className="text-white">{item.location}</span></div>
-                <div className="flex items-center justify-between"><span>{t.experiences.duration}</span><span className="text-white">{item.duration}</span></div>
-                <div className="flex items-center justify-between"><span>{t.experiences.price}</span><span className="text-brand-gold">{item.price}</span></div>
+                <div className="flex items-center justify-between"><span>{t.experiences.duration}</span><span className="text-white">{savedSource(locale, item.duration)}</span></div>
+                <div className="flex items-center justify-between"><span>{t.experiences.price}</span><span className="text-brand-gold">{savedPrice(locale, item.price)}</span></div>
               </div>
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link href={`/experiences/${item.slug}`} className="market-button">{t.common.viewDetails}</Link>

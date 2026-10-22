@@ -1,6 +1,8 @@
 "use client";
 
 import Link from 'next/link';
+import { useLocale } from '../LocaleProvider';
+import { getTranslation } from '../../../lib/i18n';
 
 // ===========================================================================
 // Navigation frame rendered under a concierge reply.
@@ -20,13 +22,14 @@ import Link from 'next/link';
 // ===========================================================================
 
 export function AiActionCard({ card, onNavigate }) {
+  const t = getTranslation(useLocale());
   if (!card?.href) return null;
 
   return (
     <Link
       href={card.href}
       onClick={onNavigate}
-      aria-label={`${card.title || card.label} — ${card.cta || 'Open'}`}
+      aria-label={`${card.title || card.label} — ${card.cta || t.ai.open}`}
       className="group block rounded-2xl border border-brand-gold/25 bg-gradient-to-br from-brand-gold/[0.09] to-white/[0.02] p-4 transition hover:border-brand-gold/70 hover:from-brand-gold/[0.16] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black"
     >
       {card.label && (
@@ -38,7 +41,7 @@ export function AiActionCard({ card, onNavigate }) {
       {card.summary && <p className="mt-1 text-xs leading-relaxed text-zinc-400">{card.summary}</p>}
 
       <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-brand-gold px-3.5 py-1.5 text-[0.7rem] font-semibold uppercase tracking-wide text-black transition group-hover:brightness-110">
-        {card.cta || 'Open'}
+        {card.cta || t.ai.open}
         <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-0.5">
           &rarr;
         </span>

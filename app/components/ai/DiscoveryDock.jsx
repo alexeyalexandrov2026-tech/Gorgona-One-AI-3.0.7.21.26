@@ -1,4 +1,5 @@
 "use client";
+import { useSavedText } from "../LocalizedText";
 
 import { useAI } from './AIProvider';
 import { useAITheme } from '../ThemeProvider';
@@ -15,6 +16,7 @@ import DiscoveryRoom from './DiscoveryRoom';
 // ===========================================================================
 
 export default function AIDock() {
+  const msg = useSavedText();
   const { toggleRoom, roomOpen, saved, history, hydrated } = useAI();
   const { theme } = useAITheme();
 
@@ -25,10 +27,10 @@ export default function AIDock() {
     <>
       <button
         type="button"
-        className={`aidock ${roomOpen ? 'is-open' : ''}`}
+        className={`aidock ${roomOpen ? "is-open" : ''}`}
         data-ai-theme={theme}
         onClick={toggleRoom}
-        aria-label={roomOpen ? 'Close Miami Elio AI' : 'Open Miami Elio AI'}
+        aria-label={roomOpen ? msg("Close Miami Elio AI") : msg("Open Miami Elio AI")}
         aria-expanded={roomOpen}
       >
         <span className="aidock__orb" aria-hidden="true">

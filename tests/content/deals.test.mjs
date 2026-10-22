@@ -1,3 +1,4 @@
+import '../../lib/savedServerCatalog.js';
 // node --test tests/content/deals.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -6,6 +7,7 @@ import {
   HIDDEN_FROM_STORES, ROWE_AND_TAYLOR_DEAL,
   getStoreDeals, getCategoryDeals, dealUrl
 } from '../../lib/storeDirectory.js';
+import { SUPPORTED_LANGUAGES } from '../../lib/languages.js';
 import { DEALS_COPY, getDealsCopy } from '../../lib/dealsCopy.js';
 
 test('Stores keeps its rules: Rowe & Taylor first, hidden brands and duplicates out', () => {
@@ -44,15 +46,15 @@ test('every listed offer links to a partner, the brand or one of our pages', () 
   }
 });
 
-test('deals copy is complete in the five core languages', () => {
+test('deals copy is complete in all sixteen languages', () => {
   const placeholders = (text) => (text.match(/\{\w+\}/g) || []).sort().join();
   const en = DEALS_COPY.en;
-  for (const lang of ['ru', 'es', 'pt', 'he']) {
-    assert.deepEqual(Object.keys(DEALS_COPY[lang]).sort(), Object.keys(en).sort(), lang);
+  for (const {code:lang} of SUPPORTED_LANGUAGES.filter(language => language.code !== 'en')) {
+    assert.deepEqual(Object.keys(getDealsCopy(lang)).sort(), Object.keys(en).sort(), lang);
     for (const key of Object.keys(en)) {
-      assert.ok(DEALS_COPY[lang][key].trim(), `${lang}.${key}`);
-      assert.equal(placeholders(DEALS_COPY[lang][key]), placeholders(en[key]), `${lang}.${key}`);
+      assert.ok(getDealsCopy(lang)[key].trim(), `${lang}.${key}`);
+      assert.equal(placeholders(getDealsCopy(lang)[key]), placeholders(en[key]), `${lang}.${key}`);
     }
   }
-  assert.equal(getDealsCopy('fr').storesTitle, en.storesTitle);
+  assert.notEqual(getDealsCopy('fr').storesTitle, en.storesTitle);
 });

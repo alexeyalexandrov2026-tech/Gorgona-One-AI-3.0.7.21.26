@@ -1,3 +1,5 @@
+
+import { LocalizedText } from "../../components/LocalizedText";
 import Link from 'next/link';
 import { getServerTranslation } from '../../../lib/serverLocale';
 
@@ -62,9 +64,9 @@ export default function Adrenaline365ProfilePage() {
           style={{ '--sb-gradient': ADRENALINE_HERO_STYLE.gradient, '--sb-glow': ADRENALINE_HERO_STYLE.glow }}
         >
           <div className="relative z-[2] max-w-lg">
-            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{categoryLabel} Profile</p>
+            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{categoryLabel}<LocalizedText source=" Profile" /></p>
             <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white">Adrenaline 365</h1>
-            <p className="mt-4 text-base leading-relaxed text-zinc-300">Adventure experience deals, including skydiving, indoor skydiving, helicopter tours, and hot air balloon rides.</p>
+            <p className="mt-4 text-base leading-relaxed text-zinc-300"><LocalizedText source="Adventure experience deals, including skydiving, indoor skydiving, helicopter tours, and hot air balloon rides." /></p>
           </div>
           <div className="relative z-[2] w-3/4 max-w-[380px] rounded-2xl bg-white p-6 sm:w-[42%]">
             <img src="/images/brands/adrenaline-365-entertainment.png" alt="Adrenaline 365" className="w-full drop-shadow-[0_18px_40px_rgba(0,0,0,0.6)]" />
@@ -86,7 +88,7 @@ export default function Adrenaline365ProfilePage() {
         </div>
 
         <div className="p-8 lg:p-10">
-          <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Adrenaline 365 Deals</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-brand-gold"><LocalizedText source="Adrenaline 365 Deals" /></p>
           <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {ADRENALINE_DEALS.map((deal) => (
               <article key={deal.name} className="market-card flex flex-col overflow-hidden rounded-2xl">

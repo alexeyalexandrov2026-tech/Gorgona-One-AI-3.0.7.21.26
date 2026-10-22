@@ -4,8 +4,7 @@ import { buildAffiliateUrl } from '../../../lib/providers';
 import { Logo } from '../../components/Logo';
 import { BuyTicketsButton } from '../BuyTicketsButton';
 import { EventViewTracker } from '../EventViewTracker';
-import { getServerTranslations, getServerLocale } from '../../../lib/serverLocale';
-import { eventDescriptions, getContentText } from '../../../lib/contentTranslations';
+import { getServerTranslations } from '../../../lib/serverLocale';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,10 +13,9 @@ export async function generateMetadata({ params }) {
   if (!event) {
     return { title: 'Event not found | MIAMI ELIO' };
   }
-  const locale = getServerLocale();
   return {
     title: `${event.name} Tickets | ${event.venue}, ${event.city} | MIAMI ELIO`,
-    description: getContentText(eventDescriptions, locale, event.id, event.description)
+    description: event.description
   };
 }
 
@@ -47,7 +45,7 @@ export default async function EventDetailPage({ params }) {
           </div>
         </div>
 
-        <p className="mt-4 max-w-2xl text-zinc-400">{getContentText(eventDescriptions, locale, event.id, event.description)}</p>
+        <p lang="en" dir="auto" className="mt-4 max-w-2xl text-zinc-400">{event.description}</p>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.8fr]">
           <div className="rounded-2xl border border-white/10 bg-black/40 p-6">

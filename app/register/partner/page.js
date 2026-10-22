@@ -1,10 +1,12 @@
 "use client";
+import { LocalizedText, useSavedText } from "../../components/LocalizedText";
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { signUpPartner } from '../../../lib/auth';
 
 export default function RegisterPartnerPage() {
+  const msg = useSavedText();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ 
     name: '', email: '', phone: '', contactMethod: 'WhatsApp', password: '', confirmPassword: '',
@@ -44,14 +46,9 @@ export default function RegisterPartnerPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
         </div>
-        <h2 className="text-3xl font-semibold text-white">Please Verify Your Email</h2>
-        <p className="mt-4 text-zinc-400 max-w-md mx-auto leading-relaxed">
-          We have sent a verification link to <span className="text-white font-medium">{form.email}</span>. <br/>
-          Please click the link in the email to activate your partner account.
-        </p>
-        <Link href="/login" className="mt-8 rounded-full bg-white/10 px-6 py-3 font-medium text-white transition hover:bg-white/20">
-          Return to Login
-        </Link>
+        <h2 className="text-3xl font-semibold text-white">{msg("Please Verify Your Email")}</h2>
+        <p className="mt-4 text-zinc-400 max-w-md mx-auto leading-relaxed"><LocalizedText source="We have sent a verification link to {email}." values={{ email: <bdi className="text-white font-medium">{form.email}</bdi> }} /> <br/>{msg("Please click the link in the email to activate your partner account.")}</p>
+        <Link href="/login" className="mt-8 rounded-full bg-white/10 px-6 py-3 font-medium text-white transition hover:bg-white/20">{msg("Return to Login")}</Link>
       </main>
     );
   }
@@ -59,18 +56,18 @@ export default function RegisterPartnerPage() {
   return (
     <main className="flex flex-1 items-center justify-center py-16 px-4">
       <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium backdrop-blur-md">
-        <h1 className="text-3xl font-semibold text-white">Partner Application</h1>
-        <p className="mt-2 text-zinc-400">Join our exclusive network of premium providers.</p>
+        <h1 className="text-3xl font-semibold text-white">{msg("Partner Application")}</h1>
+        <p className="mt-2 text-zinc-400">{msg("Join our exclusive network of premium providers.")}</p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-8">
           
           <div className="space-y-4">
-            <h3 className="text-sm uppercase tracking-wider text-brand-gold border-b border-white/10 pb-2">Business Info</h3>
+            <h3 className="text-sm uppercase tracking-wider text-brand-gold border-b border-white/10 pb-2">{msg("Business Info")}</h3>
             <div className="grid grid-cols-2 gap-4">
               <input 
                 value={form.companyName} 
                 onChange={e => setForm({...form, companyName: e.target.value})} 
-                placeholder="Business Name" 
+                placeholder={msg("Business Name")}
                 className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" 
                 required 
               />
@@ -79,20 +76,20 @@ export default function RegisterPartnerPage() {
                 onChange={e => setForm({...form, companyCategory: e.target.value})}
                 className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold appearance-none transition"
               >
-                <option value="Villas">Villas & Estates</option>
-                <option value="Yachts">Yacht Charters</option>
-                <option value="Events">Events & Nightlife</option>
-                <option value="Transfer">Premium Transfer</option>
+                <option value="Villas">{msg("Villas & Estates")}</option>
+                <option value="Yachts">{msg("Yacht Charters")}</option>
+                <option value="Events">{msg("Events & Nightlife")}</option>
+                <option value="Transfer">{msg("Premium Transfer")}</option>
               </select>
             </div>
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm uppercase tracking-wider text-brand-gold border-b border-white/10 pb-2">Contact Info</h3>
+            <h3 className="text-sm uppercase tracking-wider text-brand-gold border-b border-white/10 pb-2">{msg("Contact Info")}</h3>
             <input 
               value={form.name} 
               onChange={e => setForm({...form, name: e.target.value})} 
-              placeholder="Representative Full Name" 
+              placeholder={msg("Representative Full Name")}
               className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" 
               required 
             />
@@ -100,7 +97,7 @@ export default function RegisterPartnerPage() {
               type="email" 
               value={form.email} 
               onChange={e => setForm({...form, email: e.target.value})} 
-              placeholder="Email Address" 
+              placeholder={msg("Email Address")}
               className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" 
               required 
             />
@@ -114,7 +111,7 @@ export default function RegisterPartnerPage() {
                  >
                    <option value="WhatsApp">WhatsApp</option>
                    <option value="Telegram">Telegram</option>
-                   <option value="Phone">Phone</option>
+                   <option value="Phone">{msg("Phone")}</option>
                  </select>
                </div>
                <div className="col-span-3">
@@ -122,7 +119,7 @@ export default function RegisterPartnerPage() {
                    type="tel" 
                    value={form.phone} 
                    onChange={e => setForm({...form, phone: e.target.value})} 
-                   placeholder="Phone Number" 
+                   placeholder={msg("Phone Number")}
                    className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" 
                    required 
                  />
@@ -134,7 +131,7 @@ export default function RegisterPartnerPage() {
                 type="password" 
                 value={form.password} 
                 onChange={e => setForm({...form, password: e.target.value})} 
-                placeholder="Password" 
+                placeholder={msg("Password")}
                 className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" 
                 required minLength={6} 
               />
@@ -142,7 +139,7 @@ export default function RegisterPartnerPage() {
                 type="password" 
                 value={form.confirmPassword} 
                 onChange={e => setForm({...form, confirmPassword: e.target.value})} 
-                placeholder="Confirm Password" 
+                placeholder={msg("Confirm Password")}
                 className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" 
                 required 
               />
@@ -159,24 +156,21 @@ export default function RegisterPartnerPage() {
                 className="h-5 w-5 rounded border-white/20 bg-black/50 text-brand-gold focus:ring-brand-gold focus:ring-offset-black"
               />
             </div>
-            <label htmlFor="agreement" className="text-sm text-zinc-400">
-              I agree to the <a href="/partner-agreement" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:underline">Miami Elio Partnership Agreement</a> and confirm that all provided business information is accurate.
-            </label>
+            <label htmlFor="agreement" className="text-sm text-zinc-400"><LocalizedText source="I agree to the {agreement} and confirm that all provided business information is accurate." values={{ agreement: <a href="/partner-agreement" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:underline">{msg("Miami Elio Partnership Agreement")}</a> }} /></label>
           </div>
           
-          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{error}</p>}
+          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{msg(error)}</p>}
           
           <button 
             type="submit" 
             disabled={loading}
             className="w-full rounded-full bg-brand-gold px-4 py-4 font-semibold text-black transition hover:brightness-110 disabled:opacity-50"
           >
-            {loading ? "Submitting..." : "Apply & Send Verification Email"}
+            {loading ? msg("Submitting...") : msg("Apply & Send Verification Email")}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-sm text-zinc-500">
-          Already a partner? <Link href="/login" className="text-white hover:underline">Sign In</Link>
+        <p className="mt-8 text-center text-sm text-zinc-500">{msg("Already a partner? ")}<Link href="/login" className="text-white hover:underline">{msg("Sign In")}</Link>
         </p>
       </div>
     </main>

@@ -1,3 +1,5 @@
+import { savedListing } from '../../../lib/savedCopy';
+import { LocalizedListing } from '../../components/LocalizedText';
 import { notFound } from 'next/navigation';
 import { getVacationRentals, getVacationRentalBySlug } from '../../../lib/vacationRentalsData';
 import { getServerTranslation } from '../../../lib/serverLocale';
@@ -18,18 +20,18 @@ export default function VacationRentalDetailPage({ params }) {
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
-      <Crumbs items={[[t.nav.villas, '/vacation-rentals'], [stay.title]]} />
+      <Crumbs items={[[t.nav.villas, '/vacation-rentals'], [savedListing(locale, stay, 'title')]]} />
 
       <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         <figure className="relative aspect-[3/2] overflow-hidden rounded-[26px] bg-g1-rule">
-          <img src={largeImage(stay.image)} alt={stay.title} width="1600" height="1067" fetchPriority="high" className="h-full w-full object-cover" />
+          <img src={largeImage(stay.image)} alt={savedListing(locale, stay, 'title')} width="1600" height="1067" fetchPriority="high" className="h-full w-full object-cover" />
           {stay.availability === 'booked' && <BookedStatus overlay />}
         </figure>
 
         <div className="grid min-w-0 gap-5 lg:sticky lg:top-24">
           <p className={eyebrowClass}>{stay.location}</p>
-          <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{stay.title}</h1>
-          <p className="text-[1.05rem] text-g1-soft">{stay.description}</p>
+          <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{savedListing(locale, stay, 'title')}</h1>
+          <p className="text-[1.05rem] text-g1-soft"><LocalizedListing itemId={stay.id} source={stay.description} /></p>
           <Specs
             items={[
               [t.vacationRentals.location, stay.location],
@@ -53,8 +55,8 @@ export default function VacationRentalDetailPage({ params }) {
                 key={s.slug}
                 href={`/vacation-rentals/${s.slug}`}
                 img={s.image}
-                alt={s.title}
-                title={s.title}
+                alt={savedListing(locale, s, 'title')}
+                title={savedListing(locale, s, 'title')}
                 meta={`${s.location} · ${t.vacationRentals.bedrooms}: ${s.bedrooms}`}
                 rate={`${t.vacationRentals.nightlyRate}: ${displayValue(s.nightlyRate, copy)}`}
                 booked={s.availability === 'booked'}

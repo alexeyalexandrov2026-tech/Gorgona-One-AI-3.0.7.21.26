@@ -1,4 +1,5 @@
 "use client";
+import { useSavedText } from "../LocalizedText";
 
 import Link from 'next/link';
 import { AiConversation } from './AiConversation';
@@ -18,6 +19,7 @@ import { getTranslation } from '../../../lib/i18n';
 // ===========================================================================
 
 export function ConciergeRoom() {
+  const msg = useSavedText();
   const { messages, reset } = useConciergeChat();
   const hasThread = messages.length > 0;
   // Same source of truth as the dock and the homepage bar: the global
@@ -42,11 +44,11 @@ export function ConciergeRoom() {
       </header>
 
       <section
-        aria-label="Concierge conversation"
+        aria-label={msg("Concierge conversation")}
         className="mx-auto mt-10 flex h-[min(640px,72vh)] w-full max-w-3xl flex-col rounded-3xl border border-white/10 bg-white/5 p-5 shadow-premium sm:p-7"
       >
         <div className="mb-3 flex items-center justify-between border-b border-white/5 pb-3">
-          <p className="text-sm font-semibold text-white">MIAMI ELIO Concierge</p>
+          <p className="text-sm font-semibold text-white">{msg("MIAMI ELIO Concierge")}</p>
           {hasThread && (
             <button
               type="button"
@@ -63,7 +65,7 @@ export function ConciergeRoom() {
         </div>
       </section>
 
-      <nav aria-label="Ecosystem sections" className="mx-auto mt-10 w-full max-w-3xl">
+      <nav aria-label={msg("Ecosystem sections")} className="mx-auto mt-10 w-full max-w-3xl">
         <p className="text-center font-mono text-[0.6rem] uppercase tracking-[0.28em] text-zinc-500">
           {t.ai?.jumpIn || 'Or jump straight in'}
         </p>

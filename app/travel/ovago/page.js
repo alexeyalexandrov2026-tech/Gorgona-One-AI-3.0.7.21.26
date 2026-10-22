@@ -1,3 +1,5 @@
+
+import { LocalizedText } from "../../components/LocalizedText";
 import Link from 'next/link';
 import { getServerTranslation } from '../../../lib/serverLocale';
 
@@ -65,9 +67,9 @@ export default function OvagoProfilePage() {
           style={{ '--sb-gradient': OVAGO_HERO_STYLE.gradient, '--sb-glow': OVAGO_HERO_STYLE.glow }}
         >
           <div className="relative z-[2] max-w-lg">
-            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.categories.travel} Profile</p>
+            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.categories.travel}<LocalizedText source=" Profile" /></p>
             <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white">Ovago</h1>
-            <p className="mt-4 text-base leading-relaxed text-zinc-300">Flight deals and discounts, including last-minute fares, cheap flights, and business class offers.</p>
+            <p className="mt-4 text-base leading-relaxed text-zinc-300"><LocalizedText source="Flight deals and discounts, including last-minute fares, cheap flights, and business class offers." /></p>
           </div>
           <div className="relative z-[2] w-3/4 max-w-[380px] rounded-2xl bg-white p-6 sm:w-[42%]">
             <img src="/images/brands/ovago-travel.svg" alt="Ovago" className="w-full drop-shadow-[0_18px_40px_rgba(0,0,0,0.6)]" />
@@ -89,7 +91,7 @@ export default function OvagoProfilePage() {
         </div>
 
         <div className="p-8 lg:p-10">
-          <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Ovago Deals</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-brand-gold"><LocalizedText source="Ovago Deals" /></p>
           <div className="mt-6 grid gap-6 md:grid-cols-3">
             {OVAGO_DEALS.map((deal) => (
               <article key={deal.name} className="market-card flex flex-col overflow-hidden rounded-2xl">

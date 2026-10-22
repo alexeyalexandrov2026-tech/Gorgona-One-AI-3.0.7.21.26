@@ -1,4 +1,7 @@
 "use client";
+import { savedListing } from '../lib/savedCopy';
+import { LocalizedListing } from './components/LocalizedText';
+import { useSavedText } from "./components/LocalizedText";
 
 import Link from 'next/link';
 import { getTranslation } from '../lib/i18n';
@@ -26,6 +29,7 @@ const WORLDS = [
 const worldImage = (world) => (world.img ? `/images/home/worlds/${world.img}.jpg` : carThumb(FLEET[0]));
 
 export default function HomePage() {
+  const msg = useSavedText();
   const locale = useLocale();
   const t = getTranslation(locale);
   const copy = getHomeCopy(locale);
@@ -34,7 +38,6 @@ export default function HomePage() {
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
       <HomeHero copy={copy} />
-
 
       <section className="py-[clamp(36px,5vw,72px)]">
         <SectionHead title={copy.season} sub={copy.seasonSub} href="/events" cta={t.nav.events} />
@@ -96,7 +99,7 @@ export default function HomePage() {
                 img={yacht.image}
                 title={yacht.title}
                 meta={`${yacht.length} · ${yacht.location}`}
-                note={yacht.description}
+                note={<LocalizedListing itemId={yacht.id} source={yacht.description} />}
                 rate={copy.ratesOnRequest}
               />
             ))}
@@ -110,9 +113,9 @@ export default function HomePage() {
                 key={stay.slug}
                 href={`/vacation-rentals/${stay.slug}`}
                 img={stay.image}
-                title={stay.title}
+                title={savedListing(locale, stay, 'title')}
                 meta={stay.location}
-                note={stay.description}
+                note={<LocalizedListing itemId={stay.id} source={stay.description} />}
                 rate={copy.ratesOnRequest}
                 booked={stay.availability === 'booked'}
               />
@@ -147,7 +150,7 @@ export default function HomePage() {
 
       <section className="grid items-center gap-[clamp(26px,4vw,56px)] pb-8 pt-[clamp(52px,7vw,110px)] md:grid-cols-2">
         <figure className="aspect-[4/3] overflow-hidden rounded-[26px] bg-g1-rule">
-          <img src="/images/home/deco-hotel.jpg" alt="Art Deco hotel facade on Ocean Drive" loading="lazy" width="1600" height="2400" className="h-full w-full object-cover" />
+          <img src="/images/home/deco-hotel.jpg" alt={msg("Art Deco hotel facade on Ocean Drive")} loading="lazy" width="1600" height="2400" className="h-full w-full object-cover" />
         </figure>
         <div className="grid gap-[18px]">
           <p className="font-g1sans text-[0.74rem] font-medium uppercase tracking-[0.2em] text-g1-soft">{copy.partnersEyebrow}</p>

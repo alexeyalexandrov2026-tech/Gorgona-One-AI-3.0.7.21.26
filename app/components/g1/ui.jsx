@@ -1,3 +1,5 @@
+
+import { LocalizedElement } from "../LocalizedText";
 // Shared building blocks of the new design. No hooks here, so server pages
 // and client components can both use them.
 import Link from 'next/link';
@@ -44,7 +46,7 @@ export function ListingCard({ href, img, alt = '', title, meta, note, rate, prio
         <img
           src={img}
           alt={alt}
-          loading={priority ? 'eager' : 'lazy'}
+          loading={priority ? "eager" : "lazy"}
           width="720"
           height="480"
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
@@ -116,13 +118,13 @@ export function Specs({ items }) {
 
 export function Crumbs({ items }) {
   return (
-    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 pt-6 text-[0.86rem] text-g1-soft">
+    <LocalizedElement as="nav" aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 pt-6 text-[0.86rem] text-g1-soft">
       {items.map(([label, href], i) => (
         <span key={label} className="inline-flex items-center gap-2">
           {i > 0 && <span aria-hidden="true">/</span>}
           {href ? <Link href={href} className="hover:text-g1-ink">{label}</Link> : <span aria-current="page" className="text-g1-ink">{label}</span>}
         </span>
       ))}
-    </nav>
+    </LocalizedElement>
   );
 }

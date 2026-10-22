@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { SEASON, upcomingSeason, daysUntil, formatSeasonRange, seasonStub } from '../../../lib/seasonData';
-import { fill, intlLocale, pickLang } from '../../../lib/homeCopy';
+import { fill } from '../../../lib/homeCopy';
 import { useAskConcierge } from './shared';
 import { btn } from '../g1/ui';
 import Icon from '../g1/icons';
 
-function statusLabel(days, copy) {
+function statusLabel(days, copy, locale) {
   if (days <= 0) return copy.onNow;
   if (days === 1) return copy.tomorrow;
-  return fill(copy.inDays, { n: days });
+  return new Intl.RelativeTimeFormat(locale, { numeric: 'always' }).format(days, 'day');
 }
 
 // The season as date-stub tickets. The server renders every event; once the
@@ -18,7 +18,8 @@ function statusLabel(days, copy) {
 export default function SeasonShelf({ copy, locale }) {
   const ask = useAskConcierge();
   const [today, setToday] = useState(null);
-  const intl = intlLocale(locale);
+  // Event records remain English in every site locale by user instruction.
+  const intl = 'en-US';
 
   useEffect(() => {
     const now = new Date();
@@ -44,11 +45,11 @@ export default function SeasonShelf({ copy, locale }) {
               </div>
               <div className="g1-vbody">
                 <p className="text-[0.92rem] font-medium text-g1-soft">{event.where}</p>
-                <h3 className="font-g1display text-[1.32rem] font-medium leading-[1.12] text-g1-ink [text-wrap:balance]">{event.name}</h3>
-                <p className="text-[0.9rem] leading-[1.45] text-g1-soft">{pickLang(event.tip, locale)}</p>
+                <h3 lang="en" dir="auto" className="font-g1display text-[1.32rem] font-medium leading-[1.12] text-g1-ink [text-wrap:balance]">{event.name}</h3>
+                <p lang="en" dir="auto" className="text-[0.9rem] leading-[1.45] text-g1-soft">{event.tip.en}</p>
                 <p className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-[0.8rem] text-g1-soft">
                   <span className="tabular-nums" suppressHydrationWarning>{range}</span>
-                  {today && <span className="g1-stamp">{statusLabel(daysUntil(event, today), copy)}</span>}
+                  {today && <span className="g1-stamp">{statusLabel(daysUntil(event, today), copy, locale)}</span>}
                 </p>
                 <div className="mt-auto flex flex-wrap items-center gap-2 pt-2">
                   <button

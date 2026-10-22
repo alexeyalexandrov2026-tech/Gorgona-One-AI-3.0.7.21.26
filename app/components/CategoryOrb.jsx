@@ -1,4 +1,5 @@
 "use client";
+import { useSavedText } from "./LocalizedText";
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -32,6 +33,7 @@ const clusterColor = CONSTELLATIONS.reduce((acc, c) => {
 const SIM_TRANSCRIPT = 'Find me a yacht charter in Miami this weekend…';
 
 export default function CategoryOrb() {
+  const msg = useSavedText();
   const router = useRouter();
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
@@ -167,16 +169,16 @@ export default function CategoryOrb() {
       <canvas ref={canvasRef} className="orb-canvas" aria-hidden="true" />
 
       {/* Concierge core */}
-      <div className={`orb-core ${phase === 'listening' ? 'is-listening' : ''}`}>
-        <p className="orb-core__eyebrow">Miami Elio AI Concierge</p>
+      <div className={`orb-core ${phase === 'listening' ? "is-listening" : ''}`}>
+        <p className="orb-core__eyebrow">{msg("Miami Elio AI Concierge")}</p>
         <form className="orb-core__bar" onSubmit={onSubmit} role="search">
           <input
             className="orb-core__input"
             type="text"
             value={query}
             onChange={onChange}
-            placeholder={placeholder}
-            aria-label="Ask the Miami Elio AI Concierge"
+            placeholder={msg(placeholder)}
+            aria-label={msg("Ask the Miami Elio AI Concierge")}
             autoComplete="off"
           />
           <button
@@ -184,7 +186,7 @@ export default function CategoryOrb() {
             className="orb-core__mic"
             onClick={toggleMic}
             aria-pressed={phase === 'listening'}
-            aria-label={phase === 'listening' ? 'Stop listening' : 'Speak your request'}
+            aria-label={phase === 'listening' ? msg("Stop listening") : msg("Speak your request")}
           >
             <span className="orb-core__halo" aria-hidden="true" />
             <MicIcon />
@@ -221,7 +223,7 @@ export default function CategoryOrb() {
         {CONSTELLATIONS.map((c) => {
           const isOpen = openCluster === c.id;
           return (
-            <div key={c.id} className={`orb-legend__group ${isOpen ? 'is-open' : ''}`}>
+            <div key={c.id} className={`orb-legend__group ${isOpen ? "is-open" : ''}`}>
               <button
                 type="button"
                 className="orb-legend__name"

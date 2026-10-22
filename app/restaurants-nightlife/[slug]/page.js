@@ -1,3 +1,4 @@
+import { LocalizedListing } from '../../components/LocalizedText';
 import { notFound } from 'next/navigation';
 import { getVenueBySlug } from '../../../lib/restaurantsNightlifeData';
 import { getServerTranslation } from '../../../lib/serverLocale';
@@ -30,7 +31,7 @@ export default function VenueDetailPage({ params }) {
         <div className="grid min-w-0 gap-5">
           <p className={eyebrowClass}>{kind}</p>
           <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{venue.name}</h1>
-          <p className="text-[1.05rem] text-g1-soft">{venue.description}</p>
+          <p className="text-[1.05rem] text-g1-soft"><LocalizedListing itemId={venue.id} source={venue.description} /></p>
           <Specs items={[[t.restaurantsNightlife.location, venue.location], [t.category.categoryLabel, kind]]} />
           <AskButton prompt={fill(copy.tablePrompt, { name: venue.name })} className="w-fit">{copy.requestTable}</AskButton>
         </div>

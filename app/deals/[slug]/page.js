@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getDealBySlug } from '../../../lib/dealsData';
+import { savedSource } from '../../../lib/savedCopy';
 import { isBettingCategory } from '../../../lib/storeDirectory';
 import { getDealsCopy } from '../../../lib/dealsCopy';
 import { getHomeCopy, fill, intlLocale } from '../../../lib/homeCopy';
@@ -32,11 +33,11 @@ export default function DealDetailPage({ params }) {
           <h1 className="g1-display font-g1display text-[clamp(2.1rem,3vw+1rem,4rem)] font-medium leading-none tracking-[-0.015em] text-g1-ink [text-wrap:balance]">
             {deal.name}
           </h1>
-          <p className="max-w-[58ch] text-[1.08rem] text-g1-soft">{fill(copy.dealLede, { offer: deal.discount, name: deal.name })}</p>
+          <p className="max-w-[58ch] text-[1.08rem] text-g1-soft">{fill(copy.dealLede, { offer: savedSource(locale, deal.discount), name: deal.name })}</p>
           <Specs
             items={[
               [t.category.categoryLabel, category],
-              [t.category.discountLabel, deal.discount],
+              [t.category.discountLabel, savedSource(locale, deal.discount)],
               [t.kosher.promoCode, deal.promoCode || t.category.noCodeNeeded],
               [t.category.expirationLabel, ends]
             ]}

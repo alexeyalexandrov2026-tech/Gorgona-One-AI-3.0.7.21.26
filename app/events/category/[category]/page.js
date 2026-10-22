@@ -1,4 +1,7 @@
+
+import { LocalizedText } from "../../../components/LocalizedText";
 import Link from 'next/link';
+import { savedSource } from '../../../../lib/savedCopy';
 import { notFound } from 'next/navigation';
 import { getServerTranslation } from '../../../../lib/serverLocale';
 import {
@@ -20,7 +23,7 @@ export const dynamic = 'force-dynamic';
 
 export default function EventsCategoryPage({ params }) {
   const { category: categoryParam } = params;
-  const { t } = getServerTranslation();
+  const { t, locale } = getServerTranslation();
 
   // Determine if we are viewing a group ('sports', 'concerts') or a specific subcategory ('basketball', etc.)
   const group = EVENT_CATEGORY_GROUPS.find(g => g.slug === categoryParam);
@@ -40,7 +43,7 @@ export default function EventsCategoryPage({ params }) {
     ? getEventsByCategoryGroup(currentGroupSlug)
     : getEventsByCategory(categoryParam);
 
-  const pageTitle = group ? group.label : specificCategory.label;
+  const pageTitle = savedSource(locale, group ? group.label : specificCategory.label);
   const titleParts = pageTitle.split(' ');
   const firstWord = titleParts[0];
   const restWords = titleParts.slice(1).join(' ');
@@ -67,7 +70,7 @@ export default function EventsCategoryPage({ params }) {
 
         <div className="mx-auto w-full max-w-7xl px-4 pb-20 pt-40 sm:px-6 lg:px-8">
           <Reveal>
-            <p className="lux-eyebrow">Events · {group ? 'Categories' : group?.label || 'Tickets'}</p>
+            <p className="lux-eyebrow"><LocalizedText source="Events · " />{group ? <LocalizedText source="Categories" /> : <LocalizedText source="Tickets" />}</p>
           </Reveal>
           <Reveal delay={0.08}>
             <h1 className="mt-6 max-w-3xl font-display text-5xl font-light leading-[1.02] tracking-tight text-white [text-shadow:0_4px_44px_rgba(0,0,0,0.5)] sm:text-6xl lg:text-7xl">
@@ -83,20 +86,18 @@ export default function EventsCategoryPage({ params }) {
           
           {/* Museum tag row */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-villa-obsidian/20 pb-4 font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash">
-            <span>Vol. 02 — Premium Experiences</span>
-            <span>{hasLiveCatalogue ? 'Live ticket catalogue' : `${String(displayedEvents.length).padStart(2, '0')} curated events`}</span>
+            <span><LocalizedText source="Vol. 02 — Premium Experiences" /></span>
+            <span>{hasLiveCatalogue ? <LocalizedText source="Live ticket catalogue" /> : <LocalizedText source="Curated events: {count}" values={{ count: new Intl.NumberFormat(locale).format(displayedEvents.length) }} />}</span>
           </div>
 
           {/* Monumental wordmark */}
-          <h2 className="mt-10 select-none font-display font-medium uppercase leading-[0.92] tracking-[-0.02em]">
+          <h2 className="mt-10 select-none [overflow-wrap:anywhere] font-display font-medium uppercase leading-[0.92] tracking-[-0.02em]">
             <span className="block text-[13.5vw] text-villa-ash/70 lg:text-[10.5rem]">{firstWord}</span>
             {restWords && <span className="block text-[13.5vw] text-villa-charcoal lg:text-[10.5rem]">{restWords}</span>}
           </h2>
 
           <div className="mt-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-            <p className="max-w-xl text-base leading-relaxed text-villa-graphite">
-              Exclusive VIP access, premium seating, and curated experiences for the world's most sought-after events.
-            </p>
+            <p className="max-w-xl text-base leading-relaxed text-villa-graphite"><LocalizedText source="Exclusive VIP access, premium seating, and curated experiences for the world's most sought-after events." /></p>
           </div>
 
           {/* Live Shows masthead — gives the Concerts pillar its own identity
@@ -128,9 +129,7 @@ export default function EventsCategoryPage({ params }) {
                       className="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                     />
                     {item.featured && (
-                      <span className="absolute left-2.5 top-2.5 rounded-[5px] border border-villa-obsidian bg-white px-2.5 py-1 font-fira text-[0.6rem] font-medium uppercase tracking-[0.183em] text-villa-obsidian">
-                        · Featured
-                      </span>
+                      <span className="absolute left-2.5 top-2.5 rounded-[5px] border border-villa-obsidian bg-white px-2.5 py-1 font-fira text-[0.6rem] font-medium uppercase tracking-[0.183em] text-villa-obsidian"><LocalizedText source="· Featured" /></span>
                     )}
                   </div>
 
@@ -151,9 +150,7 @@ export default function EventsCategoryPage({ params }) {
                     <Link
                       href={`/events/${item.slug || item.id}`}
                       className="border-b border-villa-obsidian pb-0.5 font-fira text-[0.66rem] font-medium uppercase tracking-[0.18em] text-villa-obsidian transition-opacity hover:opacity-60"
-                    >
-                      Book Tickets
-                    </Link>
+                    ><LocalizedText source="Book Tickets" /></Link>
                   </div>
                 </article>
               ))}

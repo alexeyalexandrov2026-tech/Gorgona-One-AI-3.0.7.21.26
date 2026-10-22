@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { dealUrl, hasDarkLogo } from '../../../lib/storeDirectory';
 import { fill } from '../../../lib/homeCopy';
 import Icon from './icons';
+import { useSavedText } from '../LocalizedText';
 
 const camel = (slug) => slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 const monogram = (name) =>
@@ -13,6 +14,7 @@ const monogram = (name) =>
 // Showing the code copies it and leaves a link to the brand. Directory pages
 // add a link to the store (storeLabel) and, for local places, the map.
 export default function DealTicket({ deal, copy, categories, endsLabel, storeLabel, mapLabel }) {
+  const msg = useSavedText();
   const [revealed, setRevealed] = useState(false);
   const [copyState, setCopyState] = useState('');
   const [logoFailed, setLogoFailed] = useState(false);
@@ -39,7 +41,7 @@ export default function DealTicket({ deal, copy, categories, endsLabel, storeLab
 
   return (
     <div className="g1-ticket-wrap">
-      <article className="g1-ticket g1-voucher" aria-label={`${deal.name}: ${deal.discount}`}>
+      <article className="g1-ticket g1-voucher" aria-label={`${deal.name}: ${msg(deal.discount)}`}>
         <div className="g1-stub">
           <div className={`g1-plate ${hasDarkLogo(deal) && !logoFailed ? 'dark' : ''}`}>
             {deal.logo && !logoFailed ? (
@@ -55,7 +57,7 @@ export default function DealTicket({ deal, copy, categories, endsLabel, storeLab
             {deal.name}
             {deal.city && <span className="font-normal"> · {deal.city}, {deal.state}</span>}
           </p>
-          <h3 className="text-[1.42rem] font-medium leading-[1.12] tracking-[-0.015em] text-g1-ink [text-wrap:balance]">{deal.discount}</h3>
+          <h3 className="text-[1.42rem] font-medium leading-[1.12] tracking-[-0.015em] text-g1-ink [text-wrap:balance]">{msg(deal.discount)}</h3>
           <p className="text-[0.8rem] text-g1-soft">
             {deal.promoCode ? copy.withCode : copy.noCode}
             {endsLabel && <> · {fill(copy.ends, { date: endsLabel })}</>}

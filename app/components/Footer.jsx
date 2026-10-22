@@ -50,7 +50,7 @@ export function Footer() {
             {sections.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="transition hover:text-g1-ink">
-                  {t.discovery?.[item.key] || item.fallback}
+                  {t.nav?.[({ shopping: 'stores', sportsbooks: 'sportsbook' })[item.key] || item.key] || t.discovery?.[item.key] || item.fallback}
                 </Link>
               </li>
             ))}
@@ -63,7 +63,7 @@ export function Footer() {
             {company.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="transition hover:text-g1-ink">
-                  {t.footer?.[item.key] || t.home?.[item.key] || item.fallback}
+                  {item.key === 'signIn' ? t.auth.signInTab : t.footer?.[item.key] || t.home?.[item.key] || item.fallback}
                 </Link>
               </li>
             ))}
