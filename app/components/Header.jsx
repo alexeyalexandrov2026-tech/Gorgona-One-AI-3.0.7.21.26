@@ -60,6 +60,8 @@ export function Header() {
   return (
     <header
       dir="ltr"
+      // Keep navigation legible above the catalogue's white page as it scrolls.
+      style={pathname === '/yachts' ? { backgroundColor: 'var(--g1-paper)' } : undefined}
       className={`sticky top-0 z-40 border-b font-g1sans backdrop-blur-xl transition-colors duration-300 ${
         scrolled ? 'border-g1-rule bg-g1-paper/90' : 'border-transparent bg-g1-paper/60'
       }`}
