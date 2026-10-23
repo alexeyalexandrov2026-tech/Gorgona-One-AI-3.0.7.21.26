@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { isReceipt, submissionKey } from '../../lib/bookingSubmission.mjs';
+import { readJournal, writeJournal, clearJournal } from '../../lib/bookingJournal.mjs';
+import { useAuth } from './AuthProvider';
+import { useSavedText } from './LocalizedText';
 import { supabase } from '../../lib/supabase';
 import { useLocale } from './LocaleProvider';
 import { getWorldsCopy, summarizeRequest } from '../../lib/worldsCopy';
@@ -21,6 +24,13 @@ const isoDay = (offset) => {
 // Request form for a car, a charter, a stay or an experience. Nothing is charged: the
 // request goes to the team, who confirm rate, deposit and requirements.
 export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
+  const auth=useAuth(),msg=useSavedText();
+  if(auth?.loading)return <div role="status" className="py-5">{msg('Loading...')}</div>;
+  return <BookingWorkspace key={[auth?.session?.id||'guest',kind,rentalSlug].join(':')} rentalSlug={rentalSlug} rentalTitle={rentalTitle} kind={kind}/>;
+}
+
+function BookingWorkspace({rentalSlug,rentalTitle,kind}) {
+  const msg=useSavedText();
   const locale = useLocale();
   const copy = getWorldsCopy(locale).form;
   const [status, setStatus] = useState('idle'); // idle | sending | sent
@@ -30,6 +40,10 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
   const [today, setToday] = useState('');
   const sending = useRef(false);
   const attempt = useRef(null);
+  const pending=useRef(null),mounted=useRef(true);
+  const [recovering,setRecovering]=useState(true),[locked,setLocked]=useState(false);
+  const scope={kind,slug:rentalSlug};
+  const storage=()=>{try{return window.sessionStorage;}catch{return null;}};
 
   // Dates depend on the visitor's clock, so they are filled in after mount.
   useEffect(() => {
@@ -39,14 +53,21 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
 
   // Signed-in visitors get their name and email filled in.
   useEffect(() => {
-    let active = true;
+    let active = true;mounted.current=true;
     supabase.auth.getSession().then(({ data }) => {
       const user = data?.session?.user;
-      if (active && user) {
+      if(!active)return;
+      const saved=readJournal(storage(),scope,user?.id||null);
+      if(saved){
+        pending.current=saved;setLocked(true);
+        setContact({name:saved.body.name,email:saved.body.email,phone:saved.body.phone});setTrip(saved.trip);
+        return send(saved,data?.session);
+      }
+      if (user) {
         setContact((c) => ({ ...c, name: c.name || user.user_metadata?.name || '', email: c.email || user.email || '' }));
       }
-    }).catch(() => {});
-    return () => { active = false; };
+    }).catch(() => {}).finally(()=>{if(active)setRecovering(false);});
+    return () => { active = false;mounted.current=false; };
   }, []);
 
   const setC = (key) => (event) => setContact({ ...contact, [key]: event.target.value });
@@ -56,35 +77,51 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
     event.preventDefault();
     if (sending.current) return;
     setError('');
-    if ((kind === 'car' || kind === 'stay') && trip.to <= trip.from) {
+    if (!pending.current && (kind === 'car' || kind === 'stay') && trip.to <= trip.from) {
       setError('badDates');
       return;
     }
-    setStatus('sending');
-    sending.current = true;
     try {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) throw sessionError;
-      const token = sessionData?.session?.access_token;
+      if(pending.current){
+        if(pending.current.owner!==(sessionData?.session?.user?.id||null))throw new Error('Session changed');
+        return await send(pending.current,sessionData?.session);
+      }
       const body = { ...contact, dates: summarizeRequest(kind, trip), itemSlug: rentalSlug, itemTitle: rentalTitle, kind };
       attempt.current = submissionKey(attempt.current, JSON.stringify([body, sessionData?.session?.user?.id || null]));
+      const entry={version:1,key:attempt.current.key,owner:sessionData?.session?.user?.id||null,createdAt:Date.now(),body,trip};
+      pending.current=entry;writeJournal(storage(),scope,entry);setLocked(true);
+      await send(entry,sessionData?.session);
+    } catch {setError('failed');setStatus('idle');}
+  }
+
+  async function send(entry,session) {
+    if(sending.current)return;
+    sending.current=true;setStatus('sending');setError('');
+    try {
+      const token=session?.access_token;
       const res = await fetch('/api/book', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Idempotency-Key':attempt.current.key, ...(token ? { Authorization:`Bearer ${token}` } : {}) },
-        body: JSON.stringify(body)
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key':entry.key, ...(token ? { Authorization:`Bearer ${token}` } : {}) },
+        body: JSON.stringify(entry.body)
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !isReceipt(data)) throw new Error('failed');
-      setStatus('sent');
+      if (!res.ok || !isReceipt(data)) {
+        if([400,413,429].includes(res.status)){clearJournal(storage(),scope,entry.owner);pending.current=null;if(mounted.current)setLocked(false);}
+        throw new Error('failed');
+      }
+      clearJournal(storage(),scope,entry.owner);pending.current=null;
+      if(mounted.current){setLocked(false);setStatus('sent');}
     } catch (err) {
-      setError('failed');
-      setStatus('idle');
+      if(mounted.current){setError('failed');setStatus('idle');}
     } finally {
       sending.current = false;
     }
   }
 
   const card = 'grid gap-4 rounded-[22px] border border-g1-rule bg-g1-card p-5 sm:p-6';
+  if(recovering)return <div className={card} role="status">{pending.current?copy.sending:msg('Loading...')}</div>;
 
   if (status === 'sent') {
     return (
@@ -101,7 +138,7 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
   return (
     <form onSubmit={handleSubmit} className={card} aria-label={copy.title[kind]}>
       <p className="font-g1sans text-[0.74rem] font-medium uppercase tracking-[0.2em] text-g1-soft">{copy.title[kind]}</p>
-
+      <fieldset disabled={locked||status==='sending'} className="contents">
       {kind === 'experience' ? (
         <div className="grid grid-cols-2 gap-3">
           <label className={labelClass}>
@@ -170,7 +207,7 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
           <input className={inputClass} type="email" required autoComplete="email" maxLength={254} value={contact.email} onChange={setC('email')} />
         </label>
       </div>
-
+      </fieldset>
       {error && <p role="alert" className="rounded-xl border border-g1-accent bg-g1-accent-wash px-3 py-2 text-[0.9rem] text-g1-ink">{copy[error] || error}</p>}
 
       <button type="submit" disabled={status === 'sending'} className={`${btn.base} ${btn.primary} w-full disabled:opacity-60`}>

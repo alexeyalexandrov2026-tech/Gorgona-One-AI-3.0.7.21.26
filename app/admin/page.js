@@ -122,6 +122,7 @@ function AdminWorkspace() {
   }, [auth, router]);
 
   async function loadData() {
+    setLoadError(false);
     try {
       // 1. Get counts
       const { count: usersCount, error: usersError } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'user');
@@ -137,15 +138,22 @@ function AdminWorkspace() {
       // 4. Load pending partner listings
       const { data: listings, error: listingsError } = await supabase
         .from('partner_listings')
-        .select(`
-          *,
-          profiles:partner_id(name, email, company_name)
-        `)
+        .select('*')
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
         
       if (listingsError) throw listingsError;
-      if (listings) setPendingListings(listings);
+      if (listings) {
+        const ids=[...new Set(listings.map(listing=>listing.partner_id))];
+        let profiles=[];
+        if(ids.length){
+          const {data,error}=await supabase.from('profiles').select('id,name,email,company_name').in('id',ids);
+          if(error)throw error;
+          profiles=data||[];
+        }
+        const byId=new Map(profiles.map(profile=>[profile.id,profile]));
+        setPendingListings(listings.map(listing=>({...listing,profiles:byId.get(listing.partner_id)||null})));
+      }
 
     } catch (err) {
       setLoadError(true);

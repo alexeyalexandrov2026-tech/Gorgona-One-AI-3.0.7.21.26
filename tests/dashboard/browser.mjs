@@ -3,7 +3,7 @@ import path from 'node:path';
 import http from 'node:http';
 import { spawn } from 'node:child_process';
 import { chromium,expect as baseExpect } from '@playwright/test';
-import { fixture,ids,rpc } from './database.mjs';
+import { fixture,ids,rpc,asUser } from './database.mjs';
 import { provider,fixtureEnv } from './provider.mjs';
 import '../../lib/savedServerCatalog.js';
 import { savedSource } from '../../lib/savedCopy.js';
@@ -12,6 +12,7 @@ const output=process.env.DASHBOARD_QA_OUTPUT||'/tmp/miami-workspaces-qa';fs.mkdi
 const db=await fixture(),backend=provider(db),results=[];
 const seed=await rpc(db,'dashboard_submit',{p_key:crypto.randomUUID(),p_fingerprint:'browser-fixture',p_rate:'browser-fixture',p_user:ids.customer,
   p_input:{name:'Demo customer',email:'customer@example.com',phone:'+13055550123',dates:'Nov 1 – Nov 3, 2026',itemSlug:'demo-charter',itemTitle:'Demo charter',kind:'yacht'}});
+await asUser(db,ids.partner,"insert into public.partner_listings(partner_id,title,description,price,currency) values($1,'Dashboard QA listing','Fictitious fixture',1,'USD')",[ids.partner]);
 const backendServer=http.createServer(async(req,res)=>{
   try{
     const chunks=[];for await(const chunk of req)chunks.push(chunk);
@@ -65,7 +66,7 @@ try{
     await page.getByRole('heading',{name:text('ru','Requests'),exact:true}).evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
   });
   await role('admin',{width:1440,height:1000},'ru',async page=>{
-    await page.goto(base+'/admin',{waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Demo charter',exact:true}).click();
+    await page.goto(base+'/admin',{waitUntil:'domcontentloaded'});await expect(page.getByRole('heading',{name:'Dashboard QA listing',exact:true})).toBeVisible();await page.getByRole('button',{name:'Demo charter',exact:true}).click();
     await expect(page.getByRole('button',{name:text('ru','Start review'),exact:true})).toBeVisible();
     await page.getByRole('button',{name:text('ru','Start review'),exact:true}).click();
     await expect(page.getByRole('button',{name:text('ru','Start review'),exact:true})).toHaveCount(0);
@@ -94,7 +95,10 @@ try{
     await page.goto(base+'/rentals/lamborghini-urus-se',{waitUntil:'domcontentloaded'});const form=page.locator('main form');
     await form.locator('[autocomplete="name"]').fill('Demo guest');await form.locator('input[type=tel]').fill('+13055550123');await form.locator('input[type=email]').fill('guest@example.com');
     await form.locator('button[type=submit]').click();await expect(form.getByRole('alert')).toBeVisible();
-    await form.locator('button[type=submit]').click();await expect(page.locator('main').getByRole('status')).toBeVisible();
+    await expect(form.locator('[autocomplete="name"]')).toBeDisabled();
+    await page.reload({waitUntil:'domcontentloaded'});
+    await expect(page.locator('main').getByRole('status')).toContainText((await import('../../lib/worldsCopy.js')).getWorldsCopy('ru').form.sentTitle);
+    expect(await page.evaluate(()=>Object.keys(sessionStorage).filter(k=>k.startsWith('miami-booking:')))).toEqual([]);
     expect((await db.query("select count(*)::int n from public.bookings where client_email='guest@example.com'")).rows[0].n).toBe(1);
   });
 }finally{server.kill('SIGTERM');await new Promise(resolve=>backendServer.close(resolve));await db.close();}

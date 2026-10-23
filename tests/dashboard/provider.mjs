@@ -30,6 +30,10 @@ export function provider(db) {
       const where=[],params=[];
       for(const key of ['id','role','customer_user_id','assigned_partner_id','status','booking_id']){
         const value=url.searchParams.get(key);if(!value)continue;
+        if(key==='id'&&value.startsWith('in.(')&&value.endsWith(')')){
+          const ids=value.slice(4,-1).split(',');if(!ids.length||ids.some(id=>!/^[0-9a-f-]{36}$/i.test(id)))throw new Error('Invalid fixture ID list');
+          params.push(ids);where.push('id=any($'+params.length+'::uuid[])');continue;
+        }
         if(!value.startsWith('eq.'))throw new Error('Unexpected fixture filter');
         params.push(value.slice(3));where.push(key+'=$'+params.length);
       }

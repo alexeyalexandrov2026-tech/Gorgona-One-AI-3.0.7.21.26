@@ -16,6 +16,10 @@ The API verifies each bearer token with Supabase Auth and obtains the role from 
 
 New requests save a booking, history and notification deliveries in one transaction. A UUIDv4 idempotency key replays the receipt; different contents with that key conflict. Commands also have idempotency receipts and a version check, so stale edits return 409. Server routes reject malformed/oversized inputs and produce no-store responses. Privileged RPC execution is restricted to the service role; private delivery data is unavailable to browser roles.
 
+An outgoing form attempt is retained in same-tab `sessionStorage`, scoped to the account and item. Reloading replays its original payload and idempotency key; contact fields stay locked until a receipt or a definite validation/rate-limit rejection. A confirmed receipt clears the entry. Pending contact data has a 30-minute validity limit checked on read; closing the tab or blocked storage can prevent recovery. Auth tokens are not stored in this journal. Account changes remount the form and cannot replay another account's pending attempt.
+
+Admin listing moderation resolves partner profiles with a separate RLS-protected batch query. The live schema's `partner_id` points to Auth users, so embedding `profiles:partner_id(...)` caused PostgREST `PGRST200` and prevented the old admin summary from loading.
+
 ## Notification delivery
 
 Saved requests, request changes, profile registrations and partner listing changes produce durable events. These are supported business events, not every page view, keystroke or payment event. The old browser-triggered `/api/notify` cannot send arbitrary messages and responds 410 to an authenticated caller.
@@ -39,15 +43,17 @@ Before lockdown, the old direct booking insert policy remains and does not provi
 
 ## Verification
 
-Run `npm run i18n:check`, `node --test tests/content/*.test.mjs tests/i18n/*.test.mjs tests/dashboard/*.test.mjs`, a production Next build, and `node scripts/i18n/build-worker.mjs` after that build. CI includes dashboard SQL/API tests. The PGlite tests use a real PostgreSQL engine (PG18) and the captured production guard definitions; the target currently uses PG17, so staging on the actual stack is still required.
+Run `npm run i18n:check`, `node --test tests/content/*.test.mjs tests/i18n/*.test.mjs tests/dashboard/*.test.mjs`, a production Next build, and `node scripts/i18n/build-worker.mjs` after that build. CI includes dashboard SQL/API tests. The current local run passed 95 tests, all 16 catalogs with 935 messages each, the production build and Cloudflare packaging (1 handler, 82 client assets). PGlite uses PG18; acceptance also ran against a separate real Supabase project on PG17.11.
 
-`node tests/dashboard/browser.mjs` starts an isolated SQL-backed provider fixture plus a local production Next server. It exercises customer history, admin triage/assignment, an Arabic mobile partner response, customer receipt of that response, forged admin metadata and a lost booking response/retry. All identities and contact information are fictitious, and provider sends are mocked. `DASHBOARD_APP_DIR` may point to a clean build copy; `I18N_BROWSER_EXECUTABLE`/`I18N_BROWSER_ARGS_FILE` support an existing Chromium runtime. The explicit QA preload never ships with the product.
+`node tests/dashboard/browser.mjs` starts an isolated SQL-backed provider fixture plus a local production Next server. It exercises customer history, admin triage/assignment, an Arabic mobile partner response, customer receipt of that response, forged admin metadata and a lost booking response followed by reload. All identities and contact information are fictitious, and provider sends are mocked. `DASHBOARD_APP_DIR` may point to a clean build copy; `I18N_BROWSER_EXECUTABLE`/`I18N_BROWSER_ARGS_FILE` support an existing Chromium runtime. The explicit QA preload never ships with the product.
+
+Real staging acceptance passed 10 API/Auth/RLS/Storage checks and four production-UI browser flows, including reload recovery without a duplicate booking. The UI ran locally against real staging services through a temporary gated adapter; this does not certify a hosted Cloudflare staging deployment. That adapter has been replaced with an inert 404 handler and JWT verification re-enabled. See `docs/DASHBOARD_STAGING.md` for the environment, evidence and remaining limits.
 
 ## Remaining stages
 
-- Real Supabase staging and production rollout; actual owner channel setup and receipt confirmation.
+- Hosted Cloudflare staging and production rollout; actual owner channel setup and receipt confirmation. Real Supabase staging acceptance is complete.
 - Organization provisioning, invitations, workspace switching and staff permission UI. Only the protected organization/membership schema is included here.
-- Reliable unknown-outcome recovery after a full guest page reload. Current idempotency keys survive retries while the form is mounted, not a reload.
+- Recovery across closed tabs, devices or expired journals; current recovery covers a reload in the same tab within the pending attempt's validity window.
 - Guest-to-account linking with proof of ownership, richer request search and full history pagination (details currently show at most 100 events; partner lookup at most 100 accounts).
 - Verified invoices, Stripe/payment/provider operations, richer analytics and document workflows. No placeholder balances or simulated tools imply those are available.
 - Real Safari/iOS, keyboard/screen-reader acceptance and production Storage/media upload verification. This stage retains the existing villa visual language rather than introducing a new design system.

@@ -82,6 +82,12 @@ test('partner listing moderation remains authoritative and queues a real event',
 test('organization membership cannot be self-assigned',async()=>{
   await assert.rejects(asUser(db,ids.partner,"insert into public.organization_memberships(organization_id,user_id,member_role) values($1,$2,'owner')",[randomUUID(),ids.partner]),/permission denied/);
 });
+test('role helpers preserve authorization without public SECURITY DEFINER RPCs',async()=>{
+  assert.equal((await asUser(db,ids.partner,'select public.current_app_role() as role')).rows[0].role,'partner');
+  assert.equal((await asUser(db,ids.customer,'select public.is_admin() as admin')).rows[0].admin,false);
+  assert.equal((await db.query("select count(*)::int n from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname in ('current_app_role','is_admin','is_partner_or_admin') and p.prosecdef")).rows[0].n,0);
+  await db.exec('set role anon');try{await assert.rejects(db.query('select public.current_app_role()'),/permission denied/);}finally{await db.exec('reset role');}
+});
 test('delivery leases reject stale settlements and successful sends are not reclaimed',async()=>{
   await db.exec('set role service_role');
   let row;
