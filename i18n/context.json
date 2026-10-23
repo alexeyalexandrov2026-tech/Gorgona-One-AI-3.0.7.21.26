@@ -268,7 +268,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.counts.brands": {
-    "sourceHash": "7e9485dace43a73a2c2cbba50ebb27a66c6c0d0b1e56990d1f217ab5fbf36068",
+    "sourceHash": "d6833e9b5d3ad6e046ae66e7322cb625e026fb27cbd09279f89cf5c336ddc3df",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.counts.flights": {
@@ -276,15 +276,15 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.counts.homes": {
-    "sourceHash": "f072a42f84e53a620f3aa9e173e224f4fe0da15954cf250cd97309f6f8c088d8",
+    "sourceHash": "ec49cb6a1d7cc4342135b7cb078aa95df687fdd906d2273c0efe20edc988795f",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.counts.charters": {
-    "sourceHash": "f339e42eec1da9ba42df9ecd723e7cbaa7c97a66f7fef1128639421eca1e607c",
+    "sourceHash": "e22b6984626d144950d130acf30ec573e7e96efffba57208f4c88affd55d06a6",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.counts.cars": {
-    "sourceHash": "d4094132bfee8e7b76abcb1710c00cf75a557002ce51bcdc58c26e67b7cd62ca",
+    "sourceHash": "3791e7553614e5cf63f1bc56b239139889829cb12338f924d75e1b6772569900",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.counts.tickets": {
@@ -292,7 +292,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.counts.operators": {
-    "sourceHash": "c019bf613088f2ef8034806d67dcd51f6543616bb5788cad5aa216a59f1df849",
+    "sourceHash": "69ca3b5a050d25cdea4d8ca274729e63481dcc764a33a451820c6d4cbf053a0e",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.counts.ai": {
@@ -304,7 +304,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.fleetSub": {
-    "sourceHash": "a0426e913d6d8bb782e7341caeb1c56f55e5b078864781cb4a8476b3f324ff0b",
+    "sourceHash": "b0fbfc92f84ed7678f977d563ac6b02231a77bcd4d43e952d110453e1c375530",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.ratesOnRequest": {
@@ -416,7 +416,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.cars.eyebrow": {
-    "sourceHash": "22c4c4c8d3ca781fded178c622b3d69586f8a82afa3ff58776dcce1ab1af57a6",
+    "sourceHash": "b76d547c8a56f0701c8b648bde6eb8c53aff8660f694e5d56a0fe9d6414f11c0",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.cars.title": {
@@ -476,7 +476,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.yachts.eyebrow": {
-    "sourceHash": "ffa1abe8eff4dda69fd0e64294ef679c13b872c5870781b74271098cabc61c52",
+    "sourceHash": "18dbc53d309c5b374947ebd614d16beb54aef1b912225db85e1236ab8ae6f5cb",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.yachts.title": {
@@ -524,7 +524,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.stays.eyebrow": {
-    "sourceHash": "049e67a6f53648081628aa690b1f66295f8678c7b70b1138124a174143562100",
+    "sourceHash": "b60057a0f57a23b964c32d48c549dee3f52937000c89d89d14212b8307af1b77",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.stays.title": {
@@ -724,7 +724,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "deals.storesEyebrow": {
-    "sourceHash": "1afda3bcec419075cbdff6cfaacabdd2317b8af872adf60b0b0a717c1bd292a3",
+    "sourceHash": "5e029f35e2ade7917f924f488b3945aa30f4ff46f56ad9d9f32a03fba463856e",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "deals.storesTitle": {
@@ -744,7 +744,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "deals.offers": {
-    "sourceHash": "3ba51eaa64daec62882d7d9cdacd460ca67862b94e981b1ad0759e5f801ea26c",
+    "sourceHash": "0e64a44f54ccac11c6df94292aa5cea7bdd321947f1b08ef67f32d076ca1dda9",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "deals.empty": {
@@ -2253,11 +2253,11 @@
   },
   "ui.fe8de04d7c8124a6": {
     "sourceHash": "fe8de04d7c8124a68f221fdd0128fe1649f9abdb73fb620ef6b13bb16dbf7fae",
-    "description": "app/register/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/login/page.js; app/register/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.8864165e8b42303e": {
     "sourceHash": "8864165e8b42303e0dec7d6835dccc1fcc3c2553d0a19f932d2dbfb42fb06f9f",
-    "description": "app/register/page.js; app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/login/page.js; app/register/page.js; app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.2005290ddda9a56d": {
     "sourceHash": "2005290ddda9a56d32aaa84e434f3d2ffa1ed268cb8228a39173cafd08eada4e",
@@ -3330,5 +3330,73 @@
   "ui.1c24f3c29c5afd48": {
     "sourceHash": "1c24f3c29c5afd4836e3282f0fa00b5c849db2bc75ee497ab6389dc4d38b9ae2",
     "description": "app/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "authError.credentials": {
+    "sourceHash": "b07f9fb201d7164fb3dc159aedbf87637521031ec29d4d5cc1fdac6e0c500a9d",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.confirm": {
+    "sourceHash": "f7fe26187f2c2fae5b729fa7240db77bb5e0dec279e46b4410fb06f74a30c936",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.exists": {
+    "sourceHash": "05cfc22f388685dfd9f8acb99f7869551a14156202765ca805d1fed994cb4b35",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.email": {
+    "sourceHash": "8864165e8b42303e0dec7d6835dccc1fcc3c2553d0a19f932d2dbfb42fb06f9f",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.password": {
+    "sourceHash": "31586818ae0fac83b0f05263d1488933828ea6f671f92649beed47c8bc9420e4",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.rate": {
+    "sourceHash": "d1de3635fd27f839d66798ea2a907faac300d86fda47b297f4049e1aa5010baf",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.disabled": {
+    "sourceHash": "03ce60c6c91f2c13c09f3d51f8ace63dfc25876bf3f11edcfaa1f5917e520c8b",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.failed": {
+    "sourceHash": "6136cb4d651a41d0f0de1c7e22a61b7810f167978155f04dc783f3ec2532749b",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.required": {
+    "sourceHash": "fe8de04d7c8124a68f221fdd0128fe1649f9abdb73fb620ef6b13bb16dbf7fae",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.requiredPartner": {
+    "sourceHash": "16dea64b4aa59fe3f0ae1617ec01959a43181e2040c456254c13c6323674300e",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.length": {
+    "sourceHash": "2005290ddda9a56d32aaa84e434f3d2ffa1ed268cb8228a39173cafd08eada4e",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.match": {
+    "sourceHash": "b6eb82cd3300c838f99773b371b2f81d5ad517b3ba903de637d3e5920de7c04f",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "authError.agreement": {
+    "sourceHash": "20a5df3bf275f846641dc36671173b383176f6c1d7941f1237d7a57dbf9086f1",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "ui.c09c83fed7aa493f": {
+    "sourceHash": "c09c83fed7aa493f426dd7c230329c1061e6cd053a32644c93ed76a6b963a446",
+    "description": "app/components/LanguageSwitcher.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.f8416d793a642faa": {
+    "sourceHash": "f8416d793a642faa027935eb7b5a975533baa3705a806c57cde08be442c95d46",
+    "description": "app/components/LanguageSwitcher.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.4197828a99712897": {
+    "sourceHash": "4197828a99712897bc5772ee26de1ad43114ca3b9d30d46e1f49d1669c76af61",
+    "description": "app/not-found.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.eca5eea16e066283": {
+    "sourceHash": "eca5eea16e0662831162f9e2e1a90af59efd4b9367647c284b9a993738c79a24",
+    "description": "app/register/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   }
 }

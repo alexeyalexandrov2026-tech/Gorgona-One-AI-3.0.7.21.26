@@ -1,6 +1,7 @@
 "use client";
 import { useSavedText } from "../components/LocalizedText";
 
+import { authErrorSource } from '../../lib/authMessages';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -32,7 +33,7 @@ export default function RegisterUserPage() {
       setSuccess("Account created successfully! Redirecting...");
       setTimeout(() => router.push('/profile'), 1500);
     } catch (err) {
-      setError(err.message);
+      setError(err);
     } finally {
       setLoading(false);
     }
@@ -51,8 +52,8 @@ export default function RegisterUserPage() {
           <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder={msg("Password (min 6 chars)")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required minLength={6} />
           <input type="password" value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} placeholder={msg("Confirm Password")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
           
-          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{msg(error)}</p>}
-          {success && <p className="text-emerald-400 text-sm bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/30">{success}</p>}
+          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{msg(authErrorSource(error))}</p>}
+          {success && <p className="text-emerald-400 text-sm bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/30">{msg(success)}</p>}
           
           <button type="submit" disabled={loading} className="w-full rounded-full bg-brand-gold px-4 py-3 font-medium text-black transition hover:brightness-110 disabled:opacity-60">
             {loading ? msg("Creating account...") : msg("Sign Up")}

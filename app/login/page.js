@@ -1,6 +1,7 @@
 "use client";
 import { useSavedText } from "../components/LocalizedText";
 
+import { authErrorSource } from '../../lib/authMessages';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -31,12 +32,15 @@ export default function LoginPage() {
     setSuccess('');
     setLoading(true);
     try {
-      await signIn(form, t.auth);
+      await signIn(form, {
+        errorRequired: 'Please fill out all fields',
+        errorEmail: 'Invalid email'
+      });
       setSuccess(t.auth.successSignIn);
       auth?.refresh();
       setTimeout(() => router.push('/profile'), 900);
     } catch (err) {
-      setError(err.message);
+      setError(err);
     } finally {
       setLoading(false);
     }
@@ -65,8 +69,8 @@ export default function LoginPage() {
             placeholder={msg("Password")}
           />
 
-          {error && <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">{msg(error)}</p>}
-          {success && <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">{success}</p>}
+          {error && <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">{msg(authErrorSource(error))}</p>}
+          {success && <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">{msg(success)}</p>}
 
           <button
             type="submit"

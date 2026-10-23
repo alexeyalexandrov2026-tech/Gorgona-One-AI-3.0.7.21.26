@@ -67,6 +67,7 @@ export function discoverMessages() {
       // Own validation strings are translated at display time, so switching
       // locale also updates an already visible error without resubmitting.
       if (/^app\/(login|register)(\/partner)?\/page\.js$/.test(file) && node.type === 'ObjectProperty' && /^error/.test(node.key.name) && node.value.type === 'StringLiteral') add(node.value.value,file);
+      if (file === 'app/register/page.js' && node.type === 'CallExpression' && node.callee.name === 'setSuccess' && node.arguments[0]?.type === 'StringLiteral') add(node.arguments[0].value,file);
       if (['app/register/partner/page.js','app/events/TicketNetworkEvents.jsx'].includes(file) && node.type === 'StringLiteral' && node.value !== 'AbortError' && parents.some(p => (p.type === 'CallExpression' && p.callee.name === 'setError') || (p.type === 'NewExpression' && p.callee.name === 'Error'))) add(node.value,file);
     });
   }

@@ -6,6 +6,32 @@ import { createHash } from 'node:crypto';
 import { SAVED_MESSAGES, savedMessage, savedListing, savedSource, savedPrice } from '../../lib/savedCopy.js';
 import { canRefreshForLocale } from '../../lib/localePolicy.js';
 import { LOCALES, ROOT, readJSON, appFiles, parseFile, walk } from '../../scripts/i18n/catalogue.mjs';
+import { AUTH_MESSAGES, authErrorSource } from '../../lib/authMessages.js';
+import { SUPPORTED_LANGUAGES } from '../../lib/languages.js';
+
+test('auth messages localize provider codes and never expose unknown diagnostics', () => {
+  assert.equal(authErrorSource({code:'invalid_credentials',message:'private upstream details'}),AUTH_MESSAGES.credentials);
+  assert.equal(authErrorSource({code:'email_not_confirmed'}),AUTH_MESSAGES.confirm);
+  assert.equal(authErrorSource({code:'new_server_error',message:'private upstream details'}),AUTH_MESSAGES.failed);
+  assert.equal(authErrorSource(new Error('Invalid email')),AUTH_MESSAGES.email);
+  assert.equal(authErrorSource('You must agree to the Miami Elio Partnership Agreement.'),AUTH_MESSAGES.agreement);
+  for (const locale of LOCALES.filter(code=>code!=='en')) {
+    assert.notEqual(savedSource(locale,authErrorSource({code:'invalid_credentials'})),AUTH_MESSAGES.credentials,locale);
+    assert.notEqual(savedSource(locale,authErrorSource(new Error('private upstream details'))),AUTH_MESSAGES.failed,locale);
+  }
+});
+
+test('language registry and neutral quantity labels remain valid when inventory changes', () => {
+  assert.deepEqual(LOCALES,SUPPORTED_LANGUAGES.map(language=>language.code));
+  for (const locale of LOCALES) for (const n of [0,1,2,5,11,21,22]) {
+    for (const id of ['home.counts.brands','home.counts.homes','home.counts.charters','home.counts.cars','home.counts.operators','deals.offers']) {
+      const text=savedMessage(locale,id,{n});
+      assert.ok(text.includes(String(n)),`${locale}/${id}/${n}`);
+      assert.doesNotMatch(text,/\{n\}/);
+    }
+  }
+  assert.equal(savedMessage('en','home.counts.cars',{n:1}),'Cars: 1');
+});
 
 test('only ordinary routes may refresh when changing locale', () => {
   for (const route of ['/yachts','/yachts/','/vacation-rentals','/vacation-rentals/']) assert.equal(canRefreshForLocale(route),false,route);

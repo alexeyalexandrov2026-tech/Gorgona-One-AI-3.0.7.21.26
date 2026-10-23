@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { SUPPORTED_LANGUAGES } from '../../lib/languages';
 import { useLocaleController } from './LocaleProvider';
+import { useSavedText } from './LocalizedText';
 
 const MENU_WIDTH = 256;
 const VIEWPORT_MARGIN = 12;
 
 export function LanguageSwitcher() {
+  const msg = useSavedText();
   const controller = useLocaleController();
   const [open, setOpen] = useState(false);
   const [menuStyle, setMenuStyle] = useState(null);
@@ -61,6 +63,7 @@ export function LanguageSwitcher() {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-label={msg('Language: {language}', { language: active.nativeLabel })}
         className="flex min-h-[40px] items-center gap-2 rounded-full border border-g1-rule bg-g1-card px-3 text-sm text-g1-ink outline-none transition hover:border-g1-ink focus-visible:ring-2 focus-visible:ring-g1-accent"
       >
         <span aria-hidden="true">{active.flag}</span>
@@ -71,6 +74,7 @@ export function LanguageSwitcher() {
         <div
           ref={menuRef}
           role="listbox"
+          aria-label={msg('Choose a language')}
           style={menuStyle}
           className="z-50 max-h-80 overflow-y-auto rounded-2xl border border-g1-rule bg-g1-card p-2 shadow-2xl"
         >

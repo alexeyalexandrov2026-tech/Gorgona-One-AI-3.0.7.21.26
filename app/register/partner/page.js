@@ -1,6 +1,7 @@
 "use client";
 import { LocalizedText, useSavedText } from "../../components/LocalizedText";
 
+import { authErrorSource } from '../../../lib/authMessages';
 import { useState } from 'react';
 import Link from 'next/link';
 import { signUpPartner } from '../../../lib/auth';
@@ -32,7 +33,7 @@ export default function RegisterPartnerPage() {
       });
       setStep('success');
     } catch (err) {
-      setError(err.message);
+      setError(err);
     } finally {
       setLoading(false);
     }
@@ -159,7 +160,7 @@ export default function RegisterPartnerPage() {
             <label htmlFor="agreement" className="text-sm text-zinc-400"><LocalizedText source="I agree to the {agreement} and confirm that all provided business information is accurate." values={{ agreement: <a href="/partner-agreement" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:underline">{msg("Miami Elio Partnership Agreement")}</a> }} /></label>
           </div>
           
-          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{msg(error)}</p>}
+          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{msg(authErrorSource(error))}</p>}
           
           <button 
             type="submit" 
