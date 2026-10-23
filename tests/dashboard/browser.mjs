@@ -51,6 +51,8 @@ async function role(name,viewport,locale,task){
     await route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:Buffer.from(await response.arrayBuffer())});
   });
   try{await task(page);expect(errors).toEqual([]);expect(consoleErrors.filter(m=>/hydration|Minified React|uncaught|application error|Failed to load admin data/i.test(m))).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)).toBeLessThanOrEqual(2);
+    const details=page.getByRole('heading',{name:savedSource(locale,'Details'),exact:true});
+    if(await details.count())await details.first().evaluate(el=>{el.parentElement.parentElement.scrollIntoView({behavior:'instant',block:'start'});scrollBy(0,-100);});
     await page.screenshot({path:path.join(output,name+'-'+locale+'-'+viewport.width+'.png'),fullPage:false,animations:'disabled',timeout:15000});results.push({name,locale,viewport,status:'passed',jsErrors:errors,consoleErrors,network});console.log('PASS '+name+' '+locale);
   }catch(error){await page.screenshot({path:path.join(output,name+'-failure.png'),fullPage:true}).catch(()=>{});results.push({name,status:'failed',error:error.message,jsErrors:errors,network});console.error(JSON.stringify(network));throw error;}
   finally{clearInterval(saveProgress);await context.close().catch(()=>{});await browser.close().catch(()=>{});fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(results,null,2));}
