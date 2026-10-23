@@ -39,7 +39,13 @@ const proofDoc = '<!doctype html><html lang="en" dir="ltr"><meta name="viewport"
 
 async function choose(page,locale) {
   const language = SUPPORTED_LANGUAGES.find(item => item.code === locale);
-  await page.locator('header button[aria-haspopup="listbox"]').click();
+  const button=page.locator('header button[aria-haspopup="listbox"]');
+  // A full route navigation first restores the saved locale during hydration.
+  // Open only when closed; a pre-hydration click can otherwise be discarded.
+  await expect(async()=>{
+    if(await button.getAttribute('aria-expanded')!=='true')await button.click();
+    await expect(page.getByRole('listbox')).toBeVisible({timeout:800});
+  }).toPass({timeout:10000});
   await page.getByRole('option').filter({has:page.getByText(language.nativeLabel,{exact:true})}).click();
   await expect(page.locator('html')).toHaveAttribute('lang',locale);
   await expect(page.locator('html')).toHaveAttribute('dir',language.dir);
@@ -217,8 +223,27 @@ await scenario('route-matrix',{width:1440,height:1000},async(page,{context})=>{
   await mockRole(context,'admin');await mockCalendar(page);
   const samples={'/rentals/[slug]':'/rentals/'+getRentals()[0].slug,'/yachts/[slug]':'/yachts/'+getYachts()[0].slug,'/vacation-rentals/[slug]':'/vacation-rentals/'+getVacationRentals()[0].slug,'/experiences/[slug]':'/experiences/'+getExperiences()[0].slug,'/restaurants-nightlife/[slug]':'/restaurants-nightlife/'+getVenues()[0].slug,'/deals/[slug]':'/deals/'+allDeals[0].slug,'/stores/[category]':'/stores/'+categories[0].slug,'/sportsbook/[slug]':'/sportsbook/hard-rock-bet','/events/category/[category]':'/events/category/nba','/events/league/[league]':'/events/league/nba','/events/[slug]':'/events/i18n-no-published-event'};
   const matrix=[];
-  for(const file of appFiles().filter(f=>f.endsWith('/page.js'))){const template=file.slice(3,-8)||'/';const route=samples[template]||template;const response=await page.goto(baseURL+route,{waitUntil:'domcontentloaded'});const status=response.status();expect(status).toBe(template==='/events/[slug]'?404:200);for(const locale of locales){await choose(page,locale);expect((await page.locator('body').innerText()).trim().length).toBeGreaterThan(50);await expect(page.locator('nextjs-portal')).toHaveCount(0);await noOverflow(page);}matrix.push({template,route,status,locales:locales.length,finalURL:page.url()});console.log('ROUTE '+template);}
-  fs.writeFileSync(path.join(output,'route-matrix.json'),JSON.stringify(matrix,null,2));
+  for(const file of appFiles().filter(f=>f.endsWith('/page.js'))){
+    const template=file.slice(3,-8)||'/';
+    const route=samples[template]||template;
+    console.log('CHECK '+template);
+    const response=await page.goto(baseURL+route,{waitUntil:'domcontentloaded'});
+    const status=response.status();
+    if(template==='/concierge'){
+      // This existing route deliberately redirects; validate its destination.
+      expect([200,307]).toContain(status);
+      await page.waitForURL(baseURL+'/discovery');
+    }else expect(status).toBe(template==='/events/[slug]'?404:200);
+    for(const locale of locales){
+      await choose(page,locale);
+      expect((await page.locator('body').innerText()).trim().length).toBeGreaterThan(50);
+      await expect(page.locator('nextjs-portal')).toHaveCount(0);
+      await noOverflow(page);
+    }
+    matrix.push({template,route,status,locales:locales.length,finalURL:page.url()});
+    fs.writeFileSync(path.join(output,'route-matrix.json'),JSON.stringify(matrix,null,2));
+    console.log('ROUTE '+template);
+  }
 });
 server?.kill('SIGTERM');
 console.log(JSON.stringify(results.map(({name,status})=>({name,status}))));

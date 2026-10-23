@@ -262,7 +262,7 @@ export default function AdminDashboard() {
         <div className="grid lg:grid-cols-2 gap-16">
           
           {/* Recent Registrations Table */}
-          <div>
+          <div className="min-w-0 break-words">
             <h2 className="font-display text-3xl font-medium tracking-tight text-villa-obsidian mb-6">{msg("Recent Registrations")}</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left font-fira text-[0.7rem] uppercase">
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Admin Notification Settings */}
-          <div>
+          <div className="min-w-0 break-words">
             <h2 className="font-display text-3xl font-medium tracking-tight text-villa-obsidian mb-2">{msg("Notification Settings")}</h2>
             <p className="font-fira text-[0.7rem] uppercase tracking-[0.1em] text-villa-graphite mb-8">{msg("Receive alerts for new listings and partner activity")}</p>
             

@@ -4,11 +4,24 @@ import { ROOT, LOCALES, readJSON, readLocale, hash, discoverMessages, messageId,
 import { coreMessages } from './core-sources.mjs';
 import { ownedMessages } from './owned-inventory.mjs';
 import { unmarkedDisplayText } from './display-policy.mjs';
+import { translations } from '../../lib/i18n.js';
+import { sportsbookDescriptions, storeDescriptions, rentalDescriptions } from '../../lib/contentTranslations.js';
 
 export const placeholders = text => [...text.matchAll(/\{([A-Za-z][A-Za-z0-9_]*)\}/g)].map(match => match[1]).sort().join(',');
 export function checkCatalogue() {
   const source = readJSON('i18n/source.json'), context = readJSON('i18n/context.json');
   const errors = [], coverage = [];
+  // Existing dictionaries remain supported alongside the saved catalog.
+  // A new legacy key must also be populated in every registered language.
+  const flatten = (object, prefix='') => Object.entries(object || {}).flatMap(([key,value]) =>
+    typeof value === 'string' ? [[prefix+key,value]] : value && typeof value === 'object' ? flatten(value,prefix+key+'.') : []);
+  for (const [name,dictionary] of Object.entries({legacy:translations,sportsbooks:sportsbookDescriptions,stores:storeDescriptions,rentals:rentalDescriptions})) {
+    const english=Object.fromEntries(flatten(dictionary.en));
+    for (const locale of LOCALES) {
+      const target=Object.fromEntries(flatten(dictionary[locale]));
+      for (const key of Object.keys(english)) if (!target[key]?.trim()) errors.push(`Missing existing dictionary message: ${name}/${locale}/${key}`);
+    }
+  }
   for (const [id,text] of Object.entries(source)) {
     if (typeof text !== 'string' || !text.trim()) errors.push(`Empty source: ${id}`);
     if (context[id]?.sourceHash !== hash(text)) errors.push(`Stale context: ${id}`);
