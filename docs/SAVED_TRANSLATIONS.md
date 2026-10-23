@@ -44,6 +44,15 @@ are inventoried explicitly; the checker is not an automatic semantic audit of
 every possible future data source. English fallback preserves unknown material
 instead of displaying an unrelated or stale translation.
 
+## Cloudflare packaging
+
+The existing production build now runs `node scripts/i18n/build-worker.mjs`
+after the Next.js build. This removes only the generated `.open-next` output,
+rebuilds it from the current standalone Next output and checks that embedded
+hashed JavaScript/CSS references exist in the packaged client assets. A stale
+server manifest cannot silently pass this guard. The previous inconsistent
+local package was replayed against the check and correctly rejected.
+
 ## Browser regression
 
 After a production Next.js build, run `node tests/i18n/browser.mjs` with a local
@@ -55,8 +64,8 @@ The suite checks language/RTL state, layout overflow, persistence, booking and
 chat drafts, localized authentication failures, role pages, event records,
 iframe identity/state and all 48 route templates at desktop and mobile sizes.
 The route matrices also detect registered long English prose that remains
-visible after switching languages. `I18N_ROUTE_TEMPLATE` can select one exact
-route template for diagnosis; leave it unset for full acceptance. The
+visible after switching languages. `I18N_ROUTE_TEMPLATE` can select exact,
+comma-separated route templates for diagnosis; leave it unset for full acceptance. The
 `global-error-cold` case renders the actual root error boundary in a fresh
 browser document for each language, without a mounted locale provider or a
 preloaded target catalog, and verifies its recovery button. That fixture is
@@ -68,6 +77,26 @@ The test server alone preloads `tests/i18n/server-fixtures.cjs` to supply a
 read-only sportsbook row for the unconfigured Supabase placeholder host. This
 file is never loaded by the application or deployment. Real supplier payment,
 booking and production account operations are outside these tests.
+
+## Accepted verification scope
+
+- All 16 saved catalogs contain 920 messages with no missing, stale, empty or
+  mismatched named-slot entries. All 60 content/runtime tests pass.
+- Both production bundles pass: standalone Next.js and a clean OpenNext
+  Cloudflare package, with 81 referenced client assets validated.
+- All 48 route templates were checked in all 16 languages at 1440×1000 and
+  390×844: 1,536 route/language/viewport combinations. The consolidated result
+  includes successful targeted repeats of five initial language-loading
+  timeouts after the test began awaiting the rendered language selection.
+- Fourteen functional browser cases pass, including all-language booking
+  draft preservation, chat/role drafts, event records, authentication errors,
+  404, iframe state, the cold root boundary and document-locale reconciliation.
+- Six smoke cases pass in the local Workers runtime. A browser process crashed
+  before opening the final 404 case; that case then passed separately.
+
+These are local fixture-backed checks. Real supplier booking/payment,
+production account operations, native-speaker review, Safari and deployment
+are not established by this record. No merge or publication was performed.
 
 ## Deferred automation
 

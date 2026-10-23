@@ -5,7 +5,7 @@
   "scripts": {
     "prebuild": "npm run i18n:check",
     "dev": "concurrently \"next dev\" \"cd ai-router && npm install && set PORT=20128&& npm run dev\"",
-    "build": "NEXT_PRIVATE_STANDALONE=true next build && opennextjs-cloudflare build --skipNextBuild --openNextConfigPath open-next.config.mjs && cd ai-router && npm install && npm run build",
+    "build": "NEXT_PRIVATE_STANDALONE=true next build && node scripts/i18n/build-worker.mjs && cd ai-router && npm install && npm run build",
     "start": "concurrently \"next start\" \"cd ai-router && set PORT=20128&& npm run start\"",
     "i18n:extract": "node scripts/i18n/catalogue.mjs --extract",
     "i18n:check": "node scripts/i18n/check.mjs"

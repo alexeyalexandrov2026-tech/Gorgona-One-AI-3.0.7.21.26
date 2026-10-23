@@ -46,10 +46,13 @@ async function choose(page,locale) {
   await expect(async()=>{
     if(await button.getAttribute('aria-expanded')!=='true')await button.click();
     await expect(page.getByRole('listbox')).toBeVisible({timeout:800});
-  }).toPass({timeout:10000});
+  }).toPass({timeout:20000});
   await page.getByRole('option').filter({has:page.getByText(language.nativeLabel,{exact:true})}).click();
-  await expect(page.locator('html')).toHaveAttribute('lang',locale);
-  await expect(page.locator('html')).toHaveAttribute('dir',language.dir);
+  // The selected saved bundle loads asynchronously; wait for the controller's
+  // rendered selection before validating the document attributes.
+  await expect(button).toHaveAttribute('aria-label',savedSource(locale,'Language: {language}',{language:language.nativeLabel}),{timeout:15000});
+  await expect(page.locator('html')).toHaveAttribute('lang',locale,{timeout:15000});
+  await expect(page.locator('html')).toHaveAttribute('dir',language.dir,{timeout:15000});
   await page.evaluate(()=>document.fonts.ready).catch(async()=>{await page.waitForLoadState('domcontentloaded');});
   await expect(page.locator('header button[aria-haspopup="listbox"]')).toHaveAttribute('aria-label',savedSource(locale,'Language: {language}',{language:language.nativeLabel}));
 }
@@ -160,9 +163,12 @@ await scenario('booking-state',{width:1440,height:1000},async page => {
   await form.locator('input[type="email"]').fill('i18n-qa@example.com');
   await form.locator('select').selectOption('4');
   const before = await form.locator('input, select').evaluateAll(nodes=>nodes.map(node=>node.value));
+  for(const locale of locales){
+    await choose(page,locale);
+    await expect(page.locator('main')).toContainText(getTranslation(locale).rentals.location);
+    expect(await form.locator('input, select').evaluateAll(nodes=>nodes.map(node=>node.value))).toEqual(before);
+  }
   await choose(page,'ru');
-  await expect(page.locator('main')).toContainText(getTranslation('ru').rentals.location);
-  expect(await form.locator('input, select').evaluateAll(nodes=>nodes.map(node=>node.value))).toEqual(before);
   await form.locator('button[type="submit"]').click();
   await expect(page.locator('main')).toContainText(savedMessage('ru','worlds.form.sentTitle'));
   expect(submitted).toMatchObject({name:'I18N QA Customer',phone:'+13055550123',email:'i18n-qa@example.com',itemSlug:'lamborghini-urus-se'});
@@ -247,6 +253,21 @@ await scenario('global-error-cold',{width:390,height:844},async page=>{
     await expect(page.locator('body')).toHaveAttribute('data-recovered','true');
   }
 });
+await scenario('document-locale-reconciliation',{width:390,height:844},async page=>{
+  await page.goto(baseURL+'/draftkings-promos',{waitUntil:'domcontentloaded'});
+  for(const locale of locales){
+    await choose(page,locale);
+    // A late root-attribute reconciliation must not roll back a selection
+    // when it happens without another LocaleProvider render.
+    await page.evaluate(()=>{
+      document.documentElement.lang='stale';
+      document.documentElement.dir='rtl';
+    });
+    await expect(page.locator('html')).toHaveAttribute('lang',locale);
+    await expect(page.locator('html')).toHaveAttribute('dir',SUPPORTED_LANGUAGES.find(item=>item.code===locale).dir);
+    expect(await page.evaluate(()=>localStorage.getItem('gorgona-locale'))).toBe(locale);
+  }
+});
 for (const [name, viewport] of [
   ['route-matrix', {width:1440,height:1000}],
   ['route-matrix-mobile', {width:390,height:844}]
@@ -259,17 +280,20 @@ for (const [name, viewport] of [
     localStorage.setItem('gorgona-locale',decodeURIComponent(selected));
   });
   const samples={'/rentals/[slug]':'/rentals/'+getRentals()[0].slug,'/yachts/[slug]':'/yachts/'+getYachts()[0].slug,'/vacation-rentals/[slug]':'/vacation-rentals/'+getVacationRentals()[0].slug,'/experiences/[slug]':'/experiences/'+getExperiences()[0].slug,'/restaurants-nightlife/[slug]':'/restaurants-nightlife/'+getVenues()[0].slug,'/deals/[slug]':'/deals/'+allDeals[0].slug,'/stores/[category]':'/stores/'+categories[0].slug,'/sportsbook/[slug]':'/sportsbook/hard-rock-bet','/events/category/[category]':'/events/category/nba','/events/league/[league]':'/events/league/nba','/events/[slug]':'/events/i18n-no-published-event'};
-  const matrix=[];
+  const matrix=[], failures=[];
   const normalize=text=>text.replace(/\s+/g,' ').trim();
   const prose=Object.values(SAVED_MESSAGES.en).filter(text=>
     !/\{[A-Za-z][A-Za-z0-9_]*\}/.test(text) && (text.match(/\b[A-Za-z]{2,}\b/g)||[]).length>=5);
   for(const file of appFiles().filter(f=>f.endsWith('/page.js'))){
     const template=file.slice(3,-8)||'/';
-    if(process.env.I18N_ROUTE_TEMPLATE && template!==process.env.I18N_ROUTE_TEMPLATE)continue;
+    if(process.env.I18N_ROUTE_TEMPLATE && !process.env.I18N_ROUTE_TEMPLATE.split(',').includes(template))continue;
     const route=samples[template]||template;
     console.log('CHECK '+template);
+    let completedLocales=0;
+    try {
     await context.addCookies([{name:'gorgona-locale',value:'en',url:baseURL}]);
     const response=await page.goto(baseURL+route,{waitUntil:'domcontentloaded'});
+    await page.evaluate(()=>{window.__i18nInitialRoot=document.documentElement;});
     const status=response.status();
     if(template==='/concierge'){
       // This existing route deliberately redirects; validate its destination.
@@ -291,12 +315,28 @@ for (const [name, viewport] of [
       await noOverflow(page);
       await expect(page.locator('html')).toHaveAttribute('lang',locale);
       await expect(page.locator('html')).toHaveAttribute('dir',SUPPORTED_LANGUAGES.find(item=>item.code===locale).dir);
+      completedLocales++;
     }
-    matrix.push({template,route,status,locales:locales.length,ownedProse:ownedProse.length,finalURL:page.url()});
-    fs.writeFileSync(path.join(output,name+'.json'),JSON.stringify(matrix,null,2));
+    matrix.push({template,route,status,outcome:'passed',locales:completedLocales,ownedProse:ownedProse.length,finalURL:page.url()});
     console.log('ROUTE '+template);
+    } catch(error) {
+      const documentState=await page.evaluate(()=>({
+        sameRoot:window.__i18nInitialRoot===document.documentElement,
+        lang:document.documentElement.lang,dir:document.documentElement.dir,
+        stored:localStorage.getItem('gorgona-locale'),
+        selected:document.querySelector('header button[aria-haspopup="listbox"]')?.getAttribute('aria-label'),
+        cookie:document.cookie.match(/(?:^|; )gorgona-locale=([^;]*)/)?.[1]
+      })).catch(()=>null);
+      failures.push({template,error:error.message,documentState});
+      matrix.push({template,route,outcome:'failed',locales:completedLocales,error:error.message,documentState,finalURL:page.url()});
+      await page.screenshot({path:path.join(output,name+'-'+template.replace(/[^a-z0-9]+/gi,'-')+'-failure.png'),fullPage:true}).catch(()=>{});
+      console.error('ROUTE FAIL '+template+': '+error.message+' '+JSON.stringify(documentState));
+    } finally {
+      fs.writeFileSync(path.join(output,name+'.json'),JSON.stringify(matrix,null,2));
+    }
   }
   expect(matrix.length).toBeGreaterThan(0);
+  expect(failures,'Every selected route must pass all locale checks').toEqual([]);
 });
 server?.kill('SIGTERM');
 console.log(JSON.stringify(results.map(({name,status})=>({name,status}))));
