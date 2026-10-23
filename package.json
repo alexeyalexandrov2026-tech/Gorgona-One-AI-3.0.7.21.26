@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@babel/parser": "7.29.9",
+    "@electric-sql/pglite": "0.5.11",
     "@opennextjs/cloudflare": "1.15.1",
     "@playwright/test": "^1.61.1",
     "concurrently": "^10.0.3",

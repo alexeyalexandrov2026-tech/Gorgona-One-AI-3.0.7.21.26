@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 2,
+  "baseCommit": "5fcd0fa18cca537ea079a9a88a05b8109290d151",
+  "excludeOnlySourceWhiteGClass": true,
+  "vehicles": [
+    {
+      "sourceIndex": 0,
+      "action": "add",
+      "targetSlug": "mercedes-cle300-white-beige",
+      "title": "Mercedes-Benz CLE300 Cabriolet · White",
+      "description": "White convertible with a beige interior, combining open-air driving with a comfortable cabin.",
+      "category": "Convertibles"
+    },
+    {
+      "sourceIndex": 1,
+      "action": "add",
+      "targetSlug": "maserati-levante-q4-white-red",
+      "title": "Maserati Levante Q4 · White",
+      "description": "White Italian luxury SUV with a red interior, combining distinctive design and everyday comfort."
+    },
+    {
+      "sourceIndex": 2,
+      "action": "add",
+      "targetSlug": "range-rover-hse-p400-lwb-white-black",
+      "title": "Range Rover HSE P400 LWB · White",
+      "description": "White long-wheelbase luxury SUV with a black interior and generous passenger space."
+    },
+    {
+      "sourceIndex": 3,
+      "action": "add",
+      "targetSlug": "cadillac-escalade-600-black-brown",
+      "title": "Cadillac Escalade 600 · Black / Brown",
+      "description": "Black full-size luxury SUV with a brown interior, a commanding presence and a spacious cabin."
+    },
+    {
+      "sourceIndex": 4,
+      "action": "add",
+      "targetSlug": "bmw-x5-brooklyn-grey-brown",
+      "title": "BMW X5 · Brooklyn Grey",
+      "description": "Brooklyn Grey luxury SUV with a brown interior, pairing athletic styling with everyday comfort."
+    },
+    {
+      "sourceIndex": 5,
+      "action": "merge",
+      "targetSlug": "bmw-x5-white-brown",
+      "title": "BMW X5 · White",
+      "description": "White luxury SUV with a brown interior, modern technology and a spacious cabin."
+    },
+    {
+      "sourceIndex": 6,
+      "action": "merge",
+      "targetSlug": "bmw-x6-light-blue"
+    },
+    {
+      "sourceIndex": 7,
+      "action": "add",
+      "targetSlug": "bmw-x7-brooklyn-grey-black",
+      "title": "BMW X7 · Brooklyn Grey",
+      "description": "Brooklyn Grey luxury SUV with a black interior, a panoramic roof and a spacious cabin."
+    },
+    {
+      "sourceIndex": 8,
+      "action": "add",
+      "targetSlug": "bmw-x7-xdrive40i-white-brown",
+      "title": "BMW X7 xDrive40i · White",
+      "description": "White luxury SUV with a brown interior, offering generous passenger space and refined comfort."
+    },
+    {
+      "sourceIndex": 9,
+      "action": "add",
+      "targetSlug": "cadillac-escalade-white-black",
+      "title": "Cadillac Escalade · White",
+      "description": "White full-size luxury SUV with a black interior, bringing a bold presence and a spacious cabin."
+    },
+    {
+      "sourceIndex": 10,
+      "action": "add",
+      "targetSlug": "cadillac-escalade-600-black-black",
+      "title": "Cadillac Escalade 600 · Black / Black",
+      "description": "Black full-size luxury SUV with a black interior, advanced cabin technology and refined comfort."
+    },
+    {
+      "sourceIndex": 11,
+      "action": "merge",
+      "targetSlug": "range-rover-sport-white"
+    },
+    {
+      "sourceIndex": 12,
+      "action": "add",
+      "targetSlug": "range-rover-p400-se-white-brown",
+      "title": "Range Rover P400 SE · White",
+      "description": "White luxury SUV with a brown interior, combining understated design with a comfortable cabin."
+    },
+    {
+      "sourceIndex": 13,
+      "action": "merge",
+      "targetSlug": "mercedes-g-class-blue"
+    },
+    {
+      "sourceIndex": 14,
+      "action": "exclude",
+      "targetSlug": null,
+      "title": "Mercedes-Benz G550 · White",
+      "description": "White G-Class excluded from import; existing Miami Elio listing stays unchanged."
+    },
+    {
+      "sourceIndex": 15,
+      "action": "quarantine",
+      "targetSlug": "mercedes-amg-cle-53-cabriolet",
+      "reason": "The source CLE53 page shows CLE300 badges and beige seats. Existing AMG CLE53 badges and black seats identify a distinct vehicle."
+    },
+    {
+      "sourceIndex": 16,
+      "action": "add",
+      "targetSlug": "mercedes-gls450-white-brown",
+      "title": "Mercedes-Benz GLS450 · White / Brown",
+      "description": "White full-size luxury SUV with a brown interior and a spacious cabin."
+    },
+    {
+      "sourceIndex": 17,
+      "action": "add",
+      "targetSlug": "porsche-cayenne-grey-black",
+      "title": "Porsche Cayenne · Grey",
+      "description": "Grey luxury SUV with a black interior, combining Porsche styling with everyday versatility."
+    },
+    {
+      "sourceIndex": 18,
+      "action": "merge",
+      "targetSlug": "porsche-911-cabriolet-white"
+    },
+    {
+      "sourceIndex": 19,
+      "action": "merge",
+      "targetSlug": "bmw-7-series-white"
+    },
+    {
+      "sourceIndex": 20,
+      "action": "merge",
+      "targetSlug": "bentley-continental-gt-conv-grey"
+    },
+    {
+      "sourceIndex": 21,
+      "action": "add",
+      "targetSlug": "range-rover-sport-dynamic-white-red",
+      "title": "Range Rover Sport Dynamic · White",
+      "description": "White luxury SUV with a red interior, balancing a sporty silhouette with a refined cabin."
+    },
+    {
+      "sourceIndex": 22,
+      "action": "merge",
+      "targetSlug": "bentley-flying-spur-white"
+    },
+    {
+      "sourceIndex": 23,
+      "action": "merge",
+      "targetSlug": "bentley-bentayga-white"
+    },
+    {
+      "sourceIndex": 24,
+      "action": "merge",
+      "targetSlug": "lamborghini-urus-se"
+    }
+  ],
+  "correctExistingWhiteGClassTo": "bmw-x5-white-brown",
+  "existingCorrections": [
+    {
+      "fromSlug": "mercedes-g-class-white",
+      "toSlug": "bmw-x5-white-brown",
+      "reason": "All six original photographs depict a BMW X5. Merge source white X5 into this corrected card."
+    },
+    {
+      "slug": "mercedes-gls-white",
+      "reason": "Preserve original cream interior separately from source brown interior."
+    }
+  ]
+}

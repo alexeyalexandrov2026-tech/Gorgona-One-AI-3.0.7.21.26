@@ -1,0 +1,77 @@
+{
+  "ru": {
+    "listing.mercedes-cle300-white-beige.description": "Белый кабриолет с бежевым салоном, комфортной кабиной и возможностью ездить с открытым верхом.",
+    "listing.mercedes-gls450-white-brown.description": "Белый полноразмерный премиальный SUV с коричневым салоном и просторной кабиной.",
+    "listing.mercedes-gls-white.description": "Белый полноразмерный премиальный SUV с кремовым салоном и просторной кабиной."
+  },
+  "es": {
+    "listing.mercedes-cle300-white-beige.description": "Descapotable blanco con interior beige y un habitáculo cómodo para conducir al aire libre.",
+    "listing.mercedes-gls450-white-brown.description": "SUV de lujo blanco de tamaño completo con interior marrón y habitáculo espacioso.",
+    "listing.mercedes-gls-white.description": "SUV de lujo blanco de tamaño completo con interior crema y habitáculo espacioso."
+  },
+  "he": {
+    "listing.mercedes-cle300-white-beige.description": "קבריולה לבנה עם תא נוסעים בז׳ ונוחות בנסיעה תחת כיפת השמיים.",
+    "listing.mercedes-gls450-white-brown.description": "רכב פנאי יוקרתי לבן בגודל מלא עם תא נוסעים חום ומרחב פנימי גדול.",
+    "listing.mercedes-gls-white.description": "רכב פנאי יוקרתי לבן בגודל מלא עם תא נוסעים בגוון קרם ומרחב פנימי גדול."
+  },
+  "zh": {
+    "listing.mercedes-cle300-white-beige.description": "白色敞篷车，配米色内饰，兼具敞篷驾驶乐趣与舒适座舱。",
+    "listing.mercedes-gls450-white-brown.description": "白色全尺寸豪华SUV，配棕色内饰和宽敞座舱。",
+    "listing.mercedes-gls-white.description": "白色全尺寸豪华SUV，配奶油色内饰和宽敞座舱。"
+  },
+  "pt": {
+    "listing.mercedes-cle300-white-beige.description": "Conversível branco com interior bege e cabine confortável para dirigir ao ar livre.",
+    "listing.mercedes-gls450-white-brown.description": "SUV de luxo branco de tamanho grande com interior marrom e cabine espaçosa.",
+    "listing.mercedes-gls-white.description": "SUV de luxo branco de tamanho grande com interior creme e cabine espaçosa."
+  },
+  "uk": {
+    "listing.mercedes-cle300-white-beige.description": "Білий кабріолет із бежевим салоном, зручною кабіною та можливістю їздити з відкритим верхом.",
+    "listing.mercedes-gls450-white-brown.description": "Білий повнорозмірний преміальний SUV із коричневим салоном і просторою кабіною.",
+    "listing.mercedes-gls-white.description": "Білий повнорозмірний преміальний SUV із кремовим салоном і просторою кабіною."
+  },
+  "ja": {
+    "listing.mercedes-cle300-white-beige.description": "白いコンバーチブル。ベージュの内装と快適な室内で、オープンエアのドライブを楽しめます。",
+    "listing.mercedes-gls450-white-brown.description": "白いフルサイズ高級SUV。茶色い内装と広い室内を備えています。",
+    "listing.mercedes-gls-white.description": "白いフルサイズ高級SUV。クリーム色の内装と広い室内を備えています。"
+  },
+  "ko": {
+    "listing.mercedes-cle300-white-beige.description": "흰색 컨버터블로, 베이지색 실내와 편안한 실내 공간에서 오픈 에어 드라이빙을 즐길 수 있습니다.",
+    "listing.mercedes-gls450-white-brown.description": "흰색 대형 럭셔리 SUV로, 갈색 실내와 넓은 실내 공간을 갖췄습니다.",
+    "listing.mercedes-gls-white.description": "흰색 대형 럭셔리 SUV로, 크림색 실내와 넓은 실내 공간을 갖췄습니다."
+  },
+  "de": {
+    "listing.mercedes-cle300-white-beige.description": "Weißes Cabriolet mit beigem Interieur und komfortabler Kabine für Fahrten unter freiem Himmel.",
+    "listing.mercedes-gls450-white-brown.description": "Weißes Luxus-SUV in voller Größe mit braunem Interieur und geräumiger Kabine.",
+    "listing.mercedes-gls-white.description": "Weißes Luxus-SUV in voller Größe mit cremefarbenem Interieur und geräumiger Kabine."
+  },
+  "ar": {
+    "listing.mercedes-cle300-white-beige.description": "سيارة مكشوفة بيضاء بمقصورة بيج مريحة للاستمتاع بالقيادة في الهواء الطلق.",
+    "listing.mercedes-gls450-white-brown.description": "سيارة SUV فاخرة بيضاء بالحجم الكامل مع مقصورة بنية ومساحة داخلية واسعة.",
+    "listing.mercedes-gls-white.description": "سيارة SUV فاخرة بيضاء بالحجم الكامل مع مقصورة كريمية ومساحة داخلية واسعة."
+  },
+  "tr": {
+    "listing.mercedes-cle300-white-beige.description": "Bej iç mekânlı beyaz cabriolet; konforlu kabiniyle üstü açık sürüş keyfi sunar.",
+    "listing.mercedes-gls450-white-brown.description": "Kahverengi iç mekânlı beyaz büyük boy lüks SUV; geniş bir kabin sunar.",
+    "listing.mercedes-gls-white.description": "Krem iç mekânlı beyaz büyük boy lüks SUV; geniş bir kabin sunar."
+  },
+  "fa": {
+    "listing.mercedes-cle300-white-beige.description": "خودروی کانورتیبل سفید با کابین بژ و فضای داخلی راحت برای لذت بردن از رانندگی با سقف باز.",
+    "listing.mercedes-gls450-white-brown.description": "شاسی‌بلند لوکس فول‌سایز سفید با کابین قهوه‌ای و فضای داخلی جادار.",
+    "listing.mercedes-gls-white.description": "شاسی‌بلند لوکس فول‌سایز سفید با کابین کرم و فضای داخلی جادار."
+  },
+  "it": {
+    "listing.mercedes-cle300-white-beige.description": "Cabriolet bianca con interni beige e abitacolo confortevole per guidare a cielo aperto.",
+    "listing.mercedes-gls450-white-brown.description": "SUV di lusso bianco di grandi dimensioni con interni marroni e abitacolo spazioso.",
+    "listing.mercedes-gls-white.description": "SUV di lusso bianco di grandi dimensioni con interni color crema e abitacolo spazioso."
+  },
+  "fr": {
+    "listing.mercedes-cle300-white-beige.description": "Cabriolet blanc avec intérieur beige et habitacle confortable pour rouler à ciel ouvert.",
+    "listing.mercedes-gls450-white-brown.description": "Grand SUV de luxe blanc avec intérieur marron et habitacle spacieux.",
+    "listing.mercedes-gls-white.description": "Grand SUV de luxe blanc avec intérieur crème et habitacle spacieux."
+  },
+  "pl": {
+    "listing.mercedes-cle300-white-beige.description": "Biały kabriolet z beżowym wnętrzem i wygodną kabiną do jazdy pod gołym niebem.",
+    "listing.mercedes-gls450-white-brown.description": "Biały pełnowymiarowy luksusowy SUV z brązowym wnętrzem i przestronną kabiną.",
+    "listing.mercedes-gls-white.description": "Biały pełnowymiarowy luksusowy SUV z kremowym wnętrzem i przestronną kabiną."
+  }
+}

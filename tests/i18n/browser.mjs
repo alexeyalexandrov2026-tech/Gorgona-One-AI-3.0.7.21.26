@@ -154,7 +154,7 @@ for (const [name,route,headingKey,ids] of [
 
 await scenario('booking-state',{width:1440,height:1000},async page => {
   let submitted;
-  await page.route('**/api/book',async route => { submitted=route.request().postDataJSON(); await route.fulfill({json:{ok:true}}); });
+  await page.route('**/api/book',async route => { submitted=route.request().postDataJSON(); await route.fulfill({json:{success:true,bookingId:'55555555-5555-4555-8555-555555555555',replayed:false}}); });
   await page.goto(baseURL+'/rentals/lamborghini-urus-se',{waitUntil:'domcontentloaded'});
   const form = page.locator('main form');
   await expect(form.locator('input[type="date"]').first()).not.toHaveValue('');
@@ -208,7 +208,7 @@ async function mockRole(context,role){
     if(!['GET','HEAD'].includes(route.request().method()))return route.fulfill({status:400,json:{error:'Unexpected fixture mutation blocked'}});
     const url=new URL(route.request().url());
     const json=url.pathname.includes('/auth/')?user:url.pathname.includes('partner_listings')?[{id:'fixture-listing',partner_id:user.id,title:'Show code',description:'A partner-authored fixture remains unchanged.',price:199,currency:'USD',status:'pending',images:[],profiles:{name:user.user_metadata.name,email:user.email,company_name:'QA Fixture Company'}}]:[{id:user.id,name:user.user_metadata.name,email:user.email,role,company_name:'QA Fixture Company'}];
-    return route.fulfill({json,headers:{'content-range':'0-0/1'}});
+    return route.fulfill({json:route.request().headers()['accept']?.includes('application/vnd.pgrst.object+json') && Array.isArray(json) ? json[0] : json,headers:{'content-range':'0-0/1'}});
   });
 }
 for(const[role,route,title]of [['admin','/admin','Admin{break}Console'],['partner','/partner','Partner{break}Desk'],['user','/profile','Concierge{break}Desk']])await scenario('role-'+role,{width:390,height:844},async(page,{context})=>{

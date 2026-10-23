@@ -1,0 +1,111 @@
+(node:39180) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/rentalsData.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ unaffected original vehicles retain their routes, covers and descriptive metadata (3.2635ms)
+✔ each new description has saved copy in all sixteen supported languages (0.8755ms)
+✖ thirty canonical vehicles include one corrected white X5 and separate GLS interior variants (0.8605ms)
+✖ covers the source exactly once and quarantines its mislabeled CLE53 entry (0.3344ms)
+✖ CLE53 and CLE300 cannot share galleries after the rear badges identified distinct models (3.7806ms)
+✖ GLS cream and brown interiors cannot be combined into one physical vehicle (0.4128ms)
+✔ all original gallery files match their captured hashes and have bounded local covers (194.4694ms)
+✔ source vehicles have no imported tariffs, deposits, external booking links or provider branding (0.5465ms)
+✔ all source gallery photos are represented by a local file or a reviewed equivalent in the merged gallery (1.0832ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 5
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 337.5931
+
+✖ failing tests:
+
+test at tests\content\fleet-import.test.mjs:32:1
+✖ thirty canonical vehicles include one corrected white X5 and separate GLS interior variants (0.8605ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  29 !== 30
+
+      at TestContext.<anonymous> (file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/tests/content/fleet-import.test.mjs:33:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 29,
+    expected: 30,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\content\fleet-import.test.mjs:46:1
+✖ covers the source exactly once and quarantines its mislabeled CLE53 entry (0.3344ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  12 !== 13
+
+      at TestContext.<anonymous> (file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/tests/content/fleet-import.test.mjs:49:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 12,
+    expected: 13,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\content\fleet-import.test.mjs:55:1
+✖ CLE53 and CLE300 cannot share galleries after the rear badges identified distinct models (3.7806ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(cle300)
+
+      at TestContext.<anonymous> (file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/tests/content/fleet-import.test.mjs:57:69)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\content\fleet-import.test.mjs:64:1
+✖ GLS cream and brown interiors cannot be combined into one physical vehicle (0.4128ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+    assert.ok(brown)
+
+      at TestContext.<anonymous> (file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/tests/content/fleet-import.test.mjs:65:112)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1325:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)
+      at Test.postRun (node:internal/test_runner/test:1465:19)
+      at Test.run (node:internal/test_runner/test:1390:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

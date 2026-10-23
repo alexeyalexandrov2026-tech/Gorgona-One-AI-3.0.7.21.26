@@ -1,0 +1,21 @@
+(node:24956) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/savedServerCatalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{
+  "newVehiclePages": 13,
+  "existingVehiclePages": 17,
+  "localizedDescriptions": 16,
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "errors": [],
+  "status": "PASS"
+}
