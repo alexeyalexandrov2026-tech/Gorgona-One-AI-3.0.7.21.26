@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getRentals } from '../../lib/rentalsData';
+import { getRentals } from '../../lib/data/listings';
 import { rentalDescriptions, getContentText } from '../../lib/contentTranslations';
 import { getServerTranslation } from '../../lib/serverLocale';
 import { getWorldsCopy, displayValue } from '../../lib/worldsCopy';
@@ -10,8 +10,8 @@ import { WorldHero, ListingCard, Steps, chipClass } from '../components/g1/ui';
 export const dynamic = 'force-dynamic';
 
 // Our own fleet: filter by body type with ?type=, so it works without JS.
-export default function RentalsPage({ searchParams }) {
-  const rentals = getRentals();
+export default async function RentalsPage({ searchParams }) {
+  const rentals = await getRentals({editorial:true});
   const { t, locale } = getServerTranslation();
   const copy = getWorldsCopy(locale);
   const types = [...new Set(rentals.map((car) => car.category))];

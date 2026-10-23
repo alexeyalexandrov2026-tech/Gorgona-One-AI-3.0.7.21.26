@@ -66,7 +66,7 @@ try{
     await page.getByRole('heading',{name:text('ru','Requests'),exact:true}).evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
   });
   await role('admin',{width:1440,height:1000},'ru',async page=>{
-    await page.goto(base+'/admin',{waitUntil:'domcontentloaded'});await expect(page.getByRole('heading',{name:'Dashboard QA listing',exact:true})).toBeVisible();await page.getByRole('button',{name:'Demo charter',exact:true}).click();
+    await page.goto(base+'/admin',{waitUntil:'domcontentloaded'});await expect(page.getByRole('heading',{name:(await import('../../lib/partnerListingCopy.mjs')).getPartnerListingCopy('ru').queue,exact:true})).toBeVisible();await page.getByRole('button',{name:'Demo charter',exact:true}).click();
     await expect(page.getByRole('button',{name:text('ru','Start review'),exact:true})).toBeVisible();
     await page.getByRole('button',{name:text('ru','Start review'),exact:true}).click();
     await expect(page.getByRole('button',{name:text('ru','Start review'),exact:true})).toHaveCount(0);
