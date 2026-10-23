@@ -61,6 +61,22 @@ async function role(name,viewport,locale,task){
 }
 const text=(locale,value)=>savedSource(locale,value);
 try{
+  await role('other',{width:390,height:844},'ru',async page=>{
+    await page.goto(base+'/account/setup',{waitUntil:'domcontentloaded'});
+    const t=(await import('../../lib/i18n.js')).getTranslation('ru').auth,form=page.locator('main form');
+    await form.getByLabel(t.password,{exact:true}).fill('FixturePassword2026!');
+    await form.getByLabel(t.confirmPassword,{exact:true}).fill('different');
+    let updates=0;page.on('request',r=>{if(new URL(r.url()).pathname==='/auth/v1/user'&&r.method()==='PUT')updates++;});
+    await form.getByRole('button',{name:text('ru','Save'),exact:true}).click();
+    await expect(form.getByRole('alert')).toHaveText(text('ru','Passwords do not match'));expect(updates).toBe(0);
+    await form.getByLabel(t.password,{exact:true}).fill('short');await form.getByLabel(t.confirmPassword,{exact:true}).fill('short');
+    await form.getByRole('button',{name:text('ru','Save'),exact:true}).click();
+    await expect(form.getByRole('alert')).toHaveText(text('ru','Password must be at least 6 characters'));expect(updates).toBe(0);
+    await form.getByLabel(t.password,{exact:true}).fill('FixturePassword2026!');await form.getByLabel(t.confirmPassword,{exact:true}).fill('FixturePassword2026!');
+    const updated=page.waitForResponse(r=>new URL(r.url()).pathname==='/auth/v1/user'&&r.request().method()==='PUT');
+    await form.getByRole('button',{name:text('ru','Save'),exact:true}).click();expect((await updated).status()).toBe(200);
+    await expect(page).toHaveURL(base+'/profile');expect(updates).toBe(1);
+  });
   await role('customer',{width:1440,height:1000},'ru',async page=>{
     await page.goto(base+'/',{waitUntil:'domcontentloaded'});
     const account=page.locator('header[dir="ltr"]').getByRole('link',{name:text('ru','User Profile'),exact:true});
@@ -120,6 +136,8 @@ try{
     expect((await db.query("select count(*)::int n from public.bookings where client_email='guest@example.com'")).rows[0].n).toBe(1);
   });
   await role('guest',{width:390,height:844},'ru',async page=>{
+    await page.goto(base+'/account/setup',{waitUntil:'domcontentloaded'});await expect(page.locator('main form')).toHaveCount(0);
+    await expect(page.locator('main').getByRole('link',{name:(await import('../../lib/i18n.js')).getTranslation('ru').auth.signInTab,exact:true})).toBeVisible();
     await page.goto(base+'/',{waitUntil:'domcontentloaded'});
     const header=page.locator('header[dir="ltr"]');await header.getByRole('button',{name:text('ru','Menu'),exact:true}).click();
     const signIn=header.getByRole('link',{name:(await import('../../lib/i18n.js')).getTranslation('ru').auth.signInTab,exact:true}).last();
