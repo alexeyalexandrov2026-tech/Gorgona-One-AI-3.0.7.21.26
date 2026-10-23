@@ -30,7 +30,7 @@ An independent security/data reviewer examined the final change and reported no 
 
 Rollback: withdraw the partner snapshot through an audited command; retain candidate/audit data. Roll back application code only while preserving the schema and private media. Do not drop partner records, rewrite existing editorial inventory or run a destructive down migration as rollback.
 
-## Confirmed checks, 2026-10-23
+## Initial local checks at 67c32e4, 2026-10-23
 
 | Check | Outcome | Evidence and limits |
 | --- | --- | --- |
@@ -100,3 +100,20 @@ Entry points after activation: `/login` -> `/profile`; protected `partner`/`admi
 - `tests/dashboard/photo-fixture.mjs`
 - `tests/dashboard/provider.mjs`
 - `tests/dashboard/staging-release.test.mjs`
+
+## Authorized staging continuation, 2026-10-23
+
+The owner explicitly authorized the narrow production-trigger exclusion and a draft PR, with no main merge or production deployment. Review base for the packaging follow-up is `67c32e48e18a36211d609a677e0db4c2edd531e4`; PR review target is the existing `dashboard/workspaces` branch at `413500de0504036e88dba60f5cd20a6e944ba5bf`, not main. Continue this accepted dashboard implementation rather than importing unrelated branches.
+
+Cloudflare trigger `e85bb453-81a3-41d1-9158-96cb8e571ce6` changed only its `branch_excludes` from `["main"]` to `["main","feat/partner-listing-publication"]` at `2026-10-23T20:12:31.548Z`. Fresh before/after comparison confirmed all other fields and the separate main trigger unchanged. Keep this exclusion while the feature branch exists; do not restore the wildcard onto an active feature branch. Production deployment remained `7171ecdf-ec6a-491d-a90e-c0157d40dcf3`, version `aa8627d1-2a7d-4f3a-ae74-46228ff10926`, created at `17:55:29.40232Z` before this change.
+
+The dedicated Supabase project `kaxslgjbrarapeyoifdh` was confirmed `miami-elio-dashboard-staging`, ACTIVE_HEALTHY, with all four earlier dashboard migrations. A before-change snapshot is stored outside Git in `../partner-publication-preview/staging-release/before-publication.json`. Applied only there:
+
+- `20261023201422_partner_listing_publication` (source `supabase/migrations/20261023200000_partner_publication.sql`).
+- `20261023201435_private_partner_listing_images` (source `supabase/storage/partner-listing-images.sql`).
+
+Post-migration counts remained 4 profiles, 1 legacy partner listing, 5 bookings and 0 publications. The new bucket is private, limits files to 8 MiB and JPEG/PNG/WebP, and has the restrictive server-only policy. All three publication/media RPCs grant execution only to postgres/service_role, not browser roles. The three extra private-table RLS-without-policy INFO notices are intentional deny-all. The pre-existing leaked-password protection warning remains; no Auth setting was changed.
+
+Packaging follow-up changed `scripts/i18n/build-worker.mjs`, both staging build callers and `tests/dashboard/worker-packaging.test.mjs`. A failing-first test reproduced the missing explicit-config behavior; the focused six tests then passed, and the full suite passed 124/124 without skips. Independent release review found no blockers and verified malformed CLI calls preserve the existing package. The real managed build, draft PR CI and hosted functional acceptance are subsequent gates, not implied by these results.
+
+Required Worker runtime secrets are still absent at this checkpoint. The Supabase connector exposes public keys but has no service-key retrieval capability. No credential was fabricated or substituted. The protected Worker must continue to reject traffic until the correct staging-only secret is configured. External Telegram/Resend delivery remains disabled.

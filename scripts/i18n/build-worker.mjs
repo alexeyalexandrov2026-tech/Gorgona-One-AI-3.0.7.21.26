@@ -28,13 +28,25 @@ export function checkWorkerAssets(directory = output) {
   return { handlers: handlers.length, clientAssets: references.size };
 }
 
+export function workerBuildArgs(argv) {
+  let config = 'wrangler.jsonc';
+  if (argv.length) {
+    if (argv.length !== 2 || argv[0] !== '--config' || !['wrangler.jsonc', 'wrangler.dashboard-staging.json'].includes(argv[1])) {
+      throw new Error('Unsupported Worker packaging configuration');
+    }
+    config = argv[1];
+  }
+  return ['build', '--skipNextBuild', '--openNextConfigPath', 'open-next.config.mjs', '--config', config];
+}
+
 function main() {
+  const args = workerBuildArgs(process.argv.slice(2));
   // A previous output can retain an embedded manifest after its assets change.
   fs.rmSync(output, { recursive: true, force: true });
   const packageDirectory = path.join(root, 'node_modules', '@opennextjs', 'cloudflare');
   const metadata = JSON.parse(fs.readFileSync(path.join(packageDirectory, 'package.json'), 'utf8'));
   const binary = path.join(packageDirectory, metadata.bin['opennextjs-cloudflare']);
-  const result = spawnSync(process.execPath, [binary, 'build', '--skipNextBuild', '--openNextConfigPath', 'open-next.config.mjs'], {
+  const result = spawnSync(process.execPath, [binary, ...args], {
     cwd: root, stdio: 'inherit', env: process.env
   });
   if (result.error) throw result.error;
