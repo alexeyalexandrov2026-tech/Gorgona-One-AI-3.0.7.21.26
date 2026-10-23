@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { isReceipt, submissionKey } from '../../lib/bookingSubmission.mjs';
 import { supabase } from '../../lib/supabase';
 import { useLocale } from './LocaleProvider';
 import { getWorldsCopy, summarizeRequest } from '../../lib/worldsCopy';
@@ -27,6 +28,8 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
   const [contact, setContact] = useState({ name: '', phone: '', email: '' });
   const [trip, setTrip] = useState({ from: '', to: '', place: 0, duration: 0, guests: 2 });
   const [today, setToday] = useState('');
+  const sending = useRef(false);
+  const attempt = useRef(null);
 
   // Dates depend on the visitor's clock, so they are filled in after mount.
   useEffect(() => {
@@ -51,24 +54,33 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (sending.current) return;
     setError('');
     if ((kind === 'car' || kind === 'stay') && trip.to <= trip.from) {
       setError('badDates');
       return;
     }
     setStatus('sending');
+    sending.current = true;
     try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      const token = sessionData?.session?.access_token;
+      const body = { ...contact, dates: summarizeRequest(kind, trip), itemSlug: rentalSlug, itemTitle: rentalTitle, kind };
+      attempt.current = submissionKey(attempt.current, JSON.stringify([body, sessionData?.session?.user?.id || null]));
       const res = await fetch('/api/book', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...contact, dates: summarizeRequest(kind, trip), itemSlug: rentalSlug, itemTitle: rentalTitle })
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key':attempt.current.key, ...(token ? { Authorization:`Bearer ${token}` } : {}) },
+        body: JSON.stringify(body)
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'failed');
+      if (!res.ok || !isReceipt(data)) throw new Error('failed');
       setStatus('sent');
     } catch (err) {
-      setError(err.message || 'failed');
+      setError('failed');
       setStatus('idle');
+    } finally {
+      sending.current = false;
     }
   }
 
@@ -79,7 +91,7 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
       <div className={card} role="status">
         <span className="g1-stamp w-fit"><Icon name="check" className="h-3.5 w-3.5" />{copy.sentTitle}</span>
         <p className="text-g1-ink">{copy.sentText}</p>
-        <button type="button" onClick={() => setStatus('idle')} className="w-fit text-[0.92rem] font-medium text-g1-accent hover:underline">
+        <button type="button" onClick={() => { attempt.current = null; setStatus('idle'); }} className="w-fit text-[0.92rem] font-medium text-g1-accent hover:underline">
           {copy.again}
         </button>
       </div>

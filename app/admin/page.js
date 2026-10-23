@@ -1,10 +1,11 @@
 "use client";
-import { LocalizedText, LocalizedTitle, useSavedText } from "../components/LocalizedText";
+import { LocalizedTitle, useSavedText } from "../components/LocalizedText";
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../components/AuthProvider';
 import { supabase } from '../../lib/supabase';
+import RequestBoard, { NotificationSummary } from '../components/dashboard/RequestBoard';
 
 function AdminListingCard({ listing, onAction }) {
   const msg = useSavedText();
@@ -21,7 +22,7 @@ function AdminListingCard({ listing, onAction }) {
       const { error } = await supabase
         .from('partner_listings')
         .update(editForm)
-        .eq('id', listing.id);
+        .eq('id', listing.id).select('id').single();
       if (error) throw error;
       
       // Update local listing state (mutating props isn't ideal but fine for this simple use case, better to refresh or let parent handle)
@@ -96,20 +97,17 @@ function AdminListingCard({ listing, onAction }) {
   );
 }
 
-export default function AdminDashboard() {
+function AdminWorkspace() {
   const msg = useSavedText();
   const auth = useAuth();
   const router = useRouter();
   
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ users: 0, partners: 0 });
+  const [stats, setStats] = useState({ users: null, partners: null });
   const [recentUsers, setRecentUsers] = useState([]);
   const [pendingListings, setPendingListings] = useState([]);
   
-  // Notification settings state
-  const [notifyEmail, setNotifyEmail] = useState('');
-  const [notifyPhone, setNotifyPhone] = useState('');
-  const [savingSettings, setSavingSettings] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     if (auth && !auth.loading) {
@@ -126,24 +124,18 @@ export default function AdminDashboard() {
   async function loadData() {
     try {
       // 1. Get counts
-      const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'user');
-      const { count: partnersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'partner');
-      setStats({ users: usersCount || 0, partners: partnersCount || 0 });
+      const { count: usersCount, error: usersError } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'user');
+      const { count: partnersCount, error: partnersError } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'partner');
+      if (usersError || partnersError) throw usersError || partnersError;
+      setStats({ users: usersCount, partners: partnersCount });
 
       // 2. Get recent users
-      const { data: recent } = await supabase.from('profiles').select('*').order('created_at', { ascending: false }).limit(5);
+      const { data: recent, error: recentError } = await supabase.from('profiles').select('*').order('created_at', { ascending: false }).limit(5);
+      if (recentError) throw recentError;
       if (recent) setRecentUsers(recent);
 
-      // 3. Load admin notification settings
-      if (auth?.session?.metadata?.notify_email) {
-        setNotifyEmail(auth.session.metadata.notify_email);
-      }
-      if (auth?.session?.metadata?.notify_phone) {
-        setNotifyPhone(auth.session.metadata.notify_phone);
-      }
-
       // 4. Load pending partner listings
-      const { data: listings } = await supabase
+      const { data: listings, error: listingsError } = await supabase
         .from('partner_listings')
         .select(`
           *,
@@ -152,10 +144,11 @@ export default function AdminDashboard() {
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
         
+      if (listingsError) throw listingsError;
       if (listings) setPendingListings(listings);
 
     } catch (err) {
-      console.error('Failed to load admin data', err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -168,7 +161,7 @@ export default function AdminDashboard() {
       const { error } = await supabase
         .from('partner_listings')
         .update({ status: action === 'approve' ? 'approved' : 'rejected' })
-        .eq('id', listingId);
+        .eq('id', listingId).select('id').single();
         
       if (error) throw error;
       
@@ -176,37 +169,11 @@ export default function AdminDashboard() {
       setPendingListings(prev => prev.filter(l => l.id !== listingId));
       
     } catch (err) {
-      alert(action === 'approve' ? msg("Failed to approve listing: {error}", { error: err.message }) : msg("Failed to reject listing: {error}", { error: err.message }));
+      alert(action === 'approve' ? msg("Failed to approve listing: {error}", { error: msg('Try again') }) : msg("Failed to reject listing: {error}", { error: msg('Try again') }));
     }
   }
 
-  async function saveNotificationSettings(e) {
-    e.preventDefault();
-    setSavingSettings(true);
-    try {
-      const newMetadata = { 
-        ...auth.session.metadata, 
-        notify_email: notifyEmail, 
-        notify_phone: notifyPhone 
-      };
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({ metadata: newMetadata })
-        .eq('id', auth.session.id);
-
-      if (error) throw error;
-      
-      auth.session.metadata = newMetadata;
-      alert(msg("Notification settings saved successfully."));
-    } catch (err) {
-      alert(msg("Failed to save settings: {error}", { error: err.message }));
-    } finally {
-      setSavingSettings(false);
-    }
-  }
-
-  if (loading || !auth?.session) {
+  if (loading || auth?.loading || auth?.session?.role !== 'admin') {
     return (
       <main className="flex-1 theme-villa full-bleed flex items-center justify-center bg-villa-parchment py-16">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-villa-obsidian border-t-transparent"></div>
@@ -229,22 +196,25 @@ export default function AdminDashboard() {
         <div className="grid gap-x-10 gap-y-10 md:grid-cols-3 border-t border-villa-obsidian/20 pt-10 mb-20">
           <div className="group border-b border-villa-obsidian/20 pb-10">
             <p className="font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash">{msg("Total Users (B2C)")}</p>
-            <p className="mt-4 font-display text-5xl text-villa-charcoal">{stats.users}</p>
+            <p className="mt-4 font-display text-5xl text-villa-charcoal">{stats.users ?? '—'}</p>
           </div>
           <div className="group border-b border-villa-obsidian/20 pb-10">
             <p className="font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash">{msg("B2B Partners")}</p>
-            <p className="mt-4 font-display text-5xl text-villa-charcoal">{stats.partners}</p>
+            <p className="mt-4 font-display text-5xl text-villa-charcoal">{stats.partners ?? '—'}</p>
           </div>
           <div className="group border-b border-villa-obsidian/20 pb-10">
             <p className="font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash">{msg("Pending Listings")}</p>
-            <p className="mt-4 font-display text-5xl text-villa-charcoal">{pendingListings.length}</p>
+            <p className="mt-4 font-display text-5xl text-villa-charcoal">{loadError ? '—' : pendingListings.length}</p>
           </div>
         </div>
 
+        <RequestBoard key={auth.session.id} scope="admin" />
+        <NotificationSummary key={'notifications-' + auth.session.id} />
+        {loadError && <p role="alert" className="mb-6 text-sm text-villa-graphite">{msg('Unable to load requests.')}</p>}
         {/* Pending Listings Section */}
         <div className="mb-20">
           <h2 className="font-display text-3xl font-medium tracking-tight text-villa-obsidian mb-6">{msg("Pending Proof Listings")}</h2>
-          {pendingListings.length === 0 ? (
+          {loadError ? null : pendingListings.length === 0 ? (
             <p className="font-fira text-[0.7rem] uppercase text-villa-ash">{msg("No listings waiting for approval.")}</p>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -259,7 +229,7 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-16">
+        <div className="grid gap-16">
           
           {/* Recent Registrations Table */}
           <div className="min-w-0 break-words">
@@ -285,7 +255,7 @@ export default function AdminDashboard() {
                       </td>
                     </tr>
                   ))}
-                  {recentUsers.length === 0 && (
+                  {!loadError && recentUsers.length === 0 && (
                     <tr>
                       <td colSpan="3" className="py-8 text-center text-villa-ash">{msg("No recent users found.")}</td>
                     </tr>
@@ -295,51 +265,14 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Admin Notification Settings */}
-          <div className="min-w-0 break-words">
-            <h2 className="font-display text-3xl font-medium tracking-tight text-villa-obsidian mb-2">{msg("Notification Settings")}</h2>
-            <p className="font-fira text-[0.7rem] uppercase tracking-[0.1em] text-villa-graphite mb-8">{msg("Receive alerts for new listings and partner activity")}</p>
-            
-            <form onSubmit={saveNotificationSettings} className="space-y-6">
-              <div>
-                <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">{msg("Notification Email")}</label>
-                <input 
-                  type="email"
-                  value={notifyEmail}
-                  onChange={(e) => setNotifyEmail(e.target.value)}
-                  placeholder="admin@gorgona.com" 
-                  className="w-full border-b border-villa-obsidian/30 bg-transparent py-2 text-villa-charcoal outline-none focus:border-villa-obsidian transition placeholder:text-villa-ash/50" 
-                />
-              </div>
-              
-              <div>
-                <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">{msg("Notification Phone (SMS/WhatsApp)")}</label>
-                <input 
-                  type="tel"
-                  value={notifyPhone}
-                  onChange={(e) => setNotifyPhone(e.target.value)}
-                  placeholder="+1 234 567 8900" 
-                  className="w-full border-b border-villa-obsidian/30 bg-transparent py-2 text-villa-charcoal outline-none focus:border-villa-obsidian transition placeholder:text-villa-ash/50" 
-                />
-              </div>
-              
-              <button 
-                type="submit" 
-                disabled={savingSettings}
-                className="mt-4 border-b border-villa-obsidian pb-1 font-fira text-sm font-medium uppercase tracking-[0.18em] text-villa-obsidian transition-opacity hover:opacity-60 disabled:opacity-30"
-              >
-                {savingSettings ? msg("Saving...") : msg("Save Settings")}
-              </button>
-            </form>
-
-            <div className="mt-8 p-4 border border-villa-obsidian/10 bg-villa-obsidian/5">
-               <p className="font-fira text-[0.64rem] font-medium tracking-[0.18em] text-villa-ash uppercase mb-2">{msg("System Architecture")}</p>
-               <p className="text-xs text-villa-graphite leading-relaxed"><LocalizedText source="When partners submit a listing, an API request is made to {endpoint}. This route checks your saved notification settings and simulates sending an email and SMS alert. You can easily connect Twilio/SendGrid to this route in production." values={{ endpoint: <code>/api/notify</code> }} /></p>
-            </div>
-          </div>
           
         </div>
       </div>
     </main>
   );
+}
+
+export default function AdminDashboard() {
+  const auth = useAuth();
+  return <AdminWorkspace key={auth?.session?.id || 'signed-out'} />;
 }
