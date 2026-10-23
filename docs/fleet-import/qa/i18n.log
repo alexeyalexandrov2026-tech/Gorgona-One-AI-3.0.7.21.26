@@ -1,0 +1,29 @@
+
+> gorgona-one@1.0.0 i18n:check
+> node scripts/i18n/check.mjs
+
+(node:36644) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/i18n.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+┌─────────┬────────┬────────────┬───────┬─────────┐
+│ (index) │ locale │ translated │ total │ missing │
+├─────────┼────────┼────────────┼───────┼─────────┤
+│ 0       │ 'en'   │ 932        │ 932   │ 0       │
+│ 1       │ 'ru'   │ 932        │ 932   │ 0       │
+│ 2       │ 'es'   │ 932        │ 932   │ 0       │
+│ 3       │ 'he'   │ 932        │ 932   │ 0       │
+│ 4       │ 'zh'   │ 932        │ 932   │ 0       │
+│ 5       │ 'pt'   │ 932        │ 932   │ 0       │
+│ 6       │ 'uk'   │ 932        │ 932   │ 0       │
+│ 7       │ 'ja'   │ 932        │ 932   │ 0       │
+│ 8       │ 'ko'   │ 932        │ 932   │ 0       │
+│ 9       │ 'de'   │ 932        │ 932   │ 0       │
+│ 10      │ 'ar'   │ 932        │ 932   │ 0       │
+│ 11      │ 'tr'   │ 932        │ 932   │ 0       │
+│ 12      │ 'fa'   │ 932        │ 932   │ 0       │
+│ 13      │ 'it'   │ 932        │ 932   │ 0       │
+│ 14      │ 'fr'   │ 932        │ 932   │ 0       │
+│ 15      │ 'pl'   │ 932        │ 932   │ 0       │
+└─────────┴────────┴────────────┴───────┴─────────┘
+All 16 saved catalogs match the current sources and named slots.

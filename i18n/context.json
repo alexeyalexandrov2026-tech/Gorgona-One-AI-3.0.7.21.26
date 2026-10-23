@@ -971,10 +971,6 @@
     "sourceHash": "d74b6975af487fee3dbd202a724ea2c344073fab7a21d0447d97fdd91c4e068a",
     "description": "Owned listing: cars / bmw-7-series-white / description. Product/brand/place names remain intact."
   },
-  "listing.mercedes-g-class-white.description": {
-    "sourceHash": "d0a9c333e62014501dee6115faef6be19c2e60bcf13e3e855bf2c787cbb5d3f7",
-    "description": "Owned listing: cars / mercedes-g-class-white / description. Product/brand/place names remain intact."
-  },
   "listing.porsche-911-cabriolet-white.description": {
     "sourceHash": "6375d242e9a635479edad973f9061c19fba3efb297e3298c8e04eb47dcc12fa1",
     "description": "Owned listing: cars / porsche-911-cabriolet-white / description. Product/brand/place names remain intact."
@@ -1012,7 +1008,7 @@
     "description": "Owned listing: cars / mercedes-gle-white / description. Product/brand/place names remain intact."
   },
   "listing.mercedes-gls-white.description": {
-    "sourceHash": "1ffdf80c6a05065d37023585714436fa60ab1a14e6d8438cab67ee6d84dc7a81",
+    "sourceHash": "01522c972c3fddb9dd5fa1ada24f4ce6136eb29c90702b3eddc9c32a204764d7",
     "description": "Owned listing: cars / mercedes-gls-white / description. Product/brand/place names remain intact."
   },
   "listing.mercedes-maybach-gls-white.description": {
@@ -3678,5 +3674,61 @@
   "ui.3f7fc68df107cb35": {
     "sourceHash": "3f7fc68df107cb356b8332cb575b8db7f180af640156ddfeae22f3ef8e81c19e",
     "description": "lib/aiSuggestions.js: owned section navigation label. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "listing.maserati-levante-q4-white-red.description": {
+    "sourceHash": "e1a1dc8d71ed2179602a8aa1fddc10d0379d754c9963557e44af0cd5d53435a2",
+    "description": "Owned listing: cars / maserati-levante-q4-white-red / description. Product/brand/place names remain intact."
+  },
+  "listing.range-rover-hse-p400-lwb-white-black.description": {
+    "sourceHash": "43543ffc55275ce07f653ec960b2c4e12cebac5690802eb5e20d1b3cd7963f18",
+    "description": "Owned listing: cars / range-rover-hse-p400-lwb-white-black / description. Product/brand/place names remain intact."
+  },
+  "listing.cadillac-escalade-600-black-brown.description": {
+    "sourceHash": "2a096639aa2b23c5ec359a43e092a431e9a68f201e0bfc80c169de1f379536d0",
+    "description": "Owned listing: cars / cadillac-escalade-600-black-brown / description. Product/brand/place names remain intact."
+  },
+  "listing.bmw-x5-brooklyn-grey-brown.description": {
+    "sourceHash": "7cc2f6842111a052a68fe7b80dd8dc280762cf5518eb8d4095209e38322c903e",
+    "description": "Owned listing: cars / bmw-x5-brooklyn-grey-brown / description. Product/brand/place names remain intact."
+  },
+  "listing.bmw-x5-white-brown.description": {
+    "sourceHash": "d054171194d5d966702395b5b3e237b9eca2af1e99d66dd4422b465122528e9d",
+    "description": "Owned listing: cars / bmw-x5-white-brown / description. Product/brand/place names remain intact."
+  },
+  "listing.bmw-x7-brooklyn-grey-black.description": {
+    "sourceHash": "0b0d228dfcaf4193cc370decc56db9f82e85cebe21eeb6b251b3953773c32f6f",
+    "description": "Owned listing: cars / bmw-x7-brooklyn-grey-black / description. Product/brand/place names remain intact."
+  },
+  "listing.bmw-x7-xdrive40i-white-brown.description": {
+    "sourceHash": "c87ccbeea9c097199401b62a3ee8dd32d0a223def37ecdefd0cbf5b9587b8864",
+    "description": "Owned listing: cars / bmw-x7-xdrive40i-white-brown / description. Product/brand/place names remain intact."
+  },
+  "listing.cadillac-escalade-white-black.description": {
+    "sourceHash": "604f86f9b8b342d6473d56a80ba5d3348d3473b4c6ff362000fceede9a143566",
+    "description": "Owned listing: cars / cadillac-escalade-white-black / description. Product/brand/place names remain intact."
+  },
+  "listing.cadillac-escalade-600-black-black.description": {
+    "sourceHash": "8c747325a767fcdede8264b834a99fa6cab0495c3bff991bd0aa4347fea9a5f5",
+    "description": "Owned listing: cars / cadillac-escalade-600-black-black / description. Product/brand/place names remain intact."
+  },
+  "listing.range-rover-p400-se-white-brown.description": {
+    "sourceHash": "3b9779648ac7b1a1a759321e6e312d1bef3ca2006bc8de5b448ee2cf146e4517",
+    "description": "Owned listing: cars / range-rover-p400-se-white-brown / description. Product/brand/place names remain intact."
+  },
+  "listing.porsche-cayenne-grey-black.description": {
+    "sourceHash": "8c31c287adca9be73a0b719f3f9bb84da82dcb14c3772b7c73100a9ed8be3e81",
+    "description": "Owned listing: cars / porsche-cayenne-grey-black / description. Product/brand/place names remain intact."
+  },
+  "listing.range-rover-sport-dynamic-white-red.description": {
+    "sourceHash": "c8b704fcd80767d508802ad8c97e864ee8f0dadd5e89de7ad98d99992847df38",
+    "description": "Owned listing: cars / range-rover-sport-dynamic-white-red / description. Product/brand/place names remain intact."
+  },
+  "listing.mercedes-cle300-white-beige.description": {
+    "sourceHash": "fe76940d51983221225b567354f7b390bc6b3d23be5819b8b6612284beacbba9",
+    "description": "Owned listing: cars / mercedes-cle300-white-beige / description. Product/brand/place names remain intact."
+  },
+  "listing.mercedes-gls450-white-brown.description": {
+    "sourceHash": "eb740e505c3bdafe58682aa5782748d08b992cf654d8550d70252d31d19cf226",
+    "description": "Owned listing: cars / mercedes-gls450-white-brown / description. Product/brand/place names remain intact."
   }
 }
