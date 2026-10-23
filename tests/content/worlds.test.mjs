@@ -1,11 +1,13 @@
+import '../../lib/savedServerCatalog.js';
 // node --test tests/content/worlds.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { SUPPORTED_LANGUAGES } from '../../lib/languages.js';
 import { WORLDS_COPY, getWorldsCopy, displayValue, largeImage, summarizeRequest } from '../../lib/worldsCopy.js';
 import { getRentals } from '../../lib/rentalsData.js';
 
-const LANGS = ['en', 'ru', 'es', 'pt', 'he'];
+const LANGS = SUPPORTED_LANGUAGES.map(language => language.code);
 const shape = (value) => (Array.isArray(value)
   ? value.map(shape)
   : value && typeof value === 'object'
@@ -16,22 +18,22 @@ const strings = (value, path = '') => (typeof value === 'string'
   ? [[path, value]]
   : Object.entries(value).flatMap(([k, v]) => strings(v, `${path}.${k}`)));
 
-test('world copy has the same keys, lists and placeholders in every core language', () => {
+test('world copy has the same keys, lists and placeholders in all sixteen languages', () => {
   const en = WORLDS_COPY.en;
   const enStrings = Object.fromEntries(strings(en));
   for (const lang of LANGS.slice(1)) {
-    assert.deepEqual(shape(WORLDS_COPY[lang]), shape(en), lang);
-    for (const [path, text] of strings(WORLDS_COPY[lang])) {
+    assert.deepEqual(shape(getWorldsCopy(lang)), shape(en), lang);
+    for (const [path, text] of strings(getWorldsCopy(lang))) {
       assert.ok(text.trim(), `${lang}${path} is empty`);
       assert.equal(placeholders(text), placeholders(enStrings[path]), `${lang}${path}`);
     }
   }
-  assert.equal(getWorldsCopy('ja').onRequest, en.onRequest);
+  assert.notEqual(getWorldsCopy('ja').onRequest, en.onRequest);
 });
 
 test('every car category has a label', () => {
   for (const car of getRentals()) {
-    for (const lang of LANGS) assert.ok(WORLDS_COPY[lang].categories[car.category], `${lang}: ${car.category}`);
+    for (const lang of LANGS) assert.ok(getWorldsCopy(lang).categories[car.category], `${lang}: ${car.category}`);
   }
 });
 

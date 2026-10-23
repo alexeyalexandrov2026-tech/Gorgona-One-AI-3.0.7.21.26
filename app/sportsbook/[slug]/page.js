@@ -1,3 +1,5 @@
+
+import { LocalizedText, LocalizedElement } from "../../components/LocalizedText";
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getSportsbookBySlug } from '../../../lib/sportsbooksData';
@@ -117,15 +119,13 @@ export default async function SportsbookProfilePage({ params }) {
             style={{ '--sb-gradient': heroStyle.gradient, '--sb-glow': heroStyle.glow }}
           >
             <div className="relative z-[2] max-w-lg">
-              <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.sportsbookPage.pill} Profile</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.sportsbookPage.pill}<LocalizedText source=" Profile" /></p>
               <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white">{sportsbook.name}</h1>
               <p className="mt-4 text-base leading-relaxed text-zinc-300">{getContentText(sportsbookDescriptions, locale, sportsbook.slug, sportsbook.description)}</p>
               <Link
                 href={sportsbook.website}
                 className="mt-7 inline-flex items-center gap-2 rounded-full bg-brand-gold px-6 py-3.5 text-sm font-bold text-black transition hover:brightness-110"
-              >
-                Visit Official Website
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path d="M15 3h6v6" /><path d="M10 14 21 3" /></svg>
+              ><LocalizedText source="Visit Official Website" /><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><path d="M15 3h6v6" /><path d="M10 14 21 3" /></svg>
               </Link>
             </div>
             {heroLogo && (
@@ -142,8 +142,8 @@ export default async function SportsbookProfilePage({ params }) {
                   <path d={f.d} />
                 </svg>
                 <div>
-                  <p className="text-sm font-semibold text-white">{f.title}</p>
-                  <p className="text-sm text-zinc-500">{f.sub}</p>
+                  <p className="text-sm font-semibold text-white"><LocalizedText source={f.title} /></p>
+                  <p className="text-sm text-zinc-500"><LocalizedText source={f.sub} /></p>
                 </div>
               </div>
             ))}
@@ -151,29 +151,27 @@ export default async function SportsbookProfilePage({ params }) {
 
           <div className="grid gap-6 p-8 lg:grid-cols-2 lg:p-10">
             <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
-              <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Offer overview</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-brand-gold"><LocalizedText source="Offer overview" /></p>
               <div className="mt-4 space-y-4 text-sm text-zinc-400">
-                <p><span className="text-white">Website:</span> {sportsbook.website}</p>
+                <p><span className="text-white"><LocalizedText source="Website:" /></span> {sportsbook.website}</p>
                 <SportsbookAvailability slug={sportsbook.slug} locale={locale} className="text-sm" />
-                <p><span className="text-white">{t.kosher.promoCode}:</span> {sportsbook.promo_code || 'Empty and ready for future updates'}</p>
-                <p><span className="text-white">Bonus offer:</span> {sportsbook.bonus_offer}</p>
+                <p><span className="text-white">{t.kosher.promoCode}:</span> {sportsbook.promo_code || <LocalizedText source={"Empty and ready for future updates"} />}</p>
+                <p><span className="text-white"><LocalizedText source="Bonus offer:" /></span> {sportsbook.bonus_offer}</p>
               </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
-              <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Responsible Gambling</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-brand-gold"><LocalizedText source="Responsible Gambling" /></p>
               <GamblingNotice locale={locale} className="mt-4" />
               <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="font-semibold text-white">Terms & Conditions</p>
-                <p className="mt-2 text-sm text-zinc-400">All offers are subject to regional availability and official operator terms.</p>
+                <p className="font-semibold text-white"><LocalizedText source="Terms & Conditions" /></p>
+                <p className="mt-2 text-sm text-zinc-400"><LocalizedText source="All offers are subject to regional availability and official operator terms." /></p>
               </div>
             </div>
           </div>
 
           <div className="mx-8 mb-8 rounded-2xl border border-dashed border-brand-gold/30 bg-black/20 p-6 lg:mx-10 lg:mb-10">
-            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Affiliate Program</p>
-            <p className="mt-3 text-sm text-zinc-400">
-              This section is reserved for {sportsbook.name}'s affiliate tracking link and exclusive promo terms. The button above currently points to the operator's official website - affiliate links will be added here once approved.
-            </p>
+            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold"><LocalizedText source="Affiliate Program" /></p>
+            <p className="mt-3 text-sm text-zinc-400"><LocalizedText source="This section is reserved for the affiliate tracking link and exclusive promo terms for {operator}. The button above currently points to the operator’s official website; affiliate links will be added here once approved." values={{ operator: <bdi>{sportsbook.name}</bdi> }} /></p>
           </div>
         </div>
       </main>
@@ -191,7 +189,7 @@ export default async function SportsbookProfilePage({ params }) {
               </div>
             )}
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.sportsbookPage.pill} Profile</p>
+              <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.sportsbookPage.pill}<LocalizedText source=" Profile" /></p>
               <h1 className="mt-2 text-3xl font-semibold text-white">{sportsbook.name}</h1>
               <p className="mt-3 max-w-2xl text-zinc-400">{getContentText(sportsbookDescriptions, locale, sportsbook.slug, sportsbook.description)}</p>
             </div>
@@ -203,35 +201,31 @@ export default async function SportsbookProfilePage({ params }) {
         </div>
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.9fr]">
           <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
-            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Offer overview</p>
+            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold"><LocalizedText source="Offer overview" /></p>
             <div className="mt-4 space-y-4 text-sm text-zinc-400">
-              <p><span className="text-white">Website:</span> {sportsbook.website}</p>
+              <p><span className="text-white"><LocalizedText source="Website:" /></span> {sportsbook.website}</p>
               <SportsbookAvailability slug={sportsbook.slug} locale={locale} className="text-sm" />
-              <p><span className="text-white">{t.kosher.promoCode}:</span> {sportsbook.promo_code || 'Empty and ready for future updates'}</p>
-              <p><span className="text-white">Bonus offer:</span> {sportsbook.bonus_offer}</p>
+              <p><span className="text-white">{t.kosher.promoCode}:</span> {sportsbook.promo_code || <LocalizedText source={"Empty and ready for future updates"} />}</p>
+              <p><span className="text-white"><LocalizedText source="Bonus offer:" /></span> {sportsbook.bonus_offer}</p>
             </div>
             <Link
               href={sportsbook.website}
               className="market-button mt-6 inline-flex"
-            >
-              Visit Official Website
-            </Link>
+            ><LocalizedText source="Visit Official Website" /></Link>
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/40 p-6">
-            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Responsible Gambling</p>
+            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold"><LocalizedText source="Responsible Gambling" /></p>
             <GamblingNotice locale={locale} className="mt-4" />
             <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
-              <p className="font-semibold text-white">Terms & Conditions</p>
-              <p className="mt-2 text-sm text-zinc-400">All offers are subject to regional availability and official operator terms.</p>
+              <p className="font-semibold text-white"><LocalizedText source="Terms & Conditions" /></p>
+              <p className="mt-2 text-sm text-zinc-400"><LocalizedText source="All offers are subject to regional availability and official operator terms." /></p>
             </div>
           </div>
         </div>
 
         <div className="mt-6 rounded-2xl border border-dashed border-brand-gold/30 bg-black/20 p-6">
-          <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Affiliate Program</p>
-          <p className="mt-3 text-sm text-zinc-400">
-            This section is reserved for {sportsbook.name}'s affiliate tracking link and exclusive promo terms. The button above currently points to the operator's official website - affiliate links will be added here once approved.
-          </p>
+          <p className="text-sm uppercase tracking-[0.3em] text-brand-gold"><LocalizedText source="Affiliate Program" /></p>
+          <p className="mt-3 text-sm text-zinc-400"><LocalizedText source="This section is reserved for the affiliate tracking link and exclusive promo terms for {operator}. The button above currently points to the operator’s official website; affiliate links will be added here once approved." values={{ operator: <bdi>{sportsbook.name}</bdi> }} /></p>
         </div>
       </div>
     </main>

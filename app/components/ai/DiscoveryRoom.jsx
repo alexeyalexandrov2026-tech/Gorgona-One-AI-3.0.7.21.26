@@ -1,4 +1,8 @@
 "use client";
+import { LocalizedText } from "../LocalizedText";
+
+import { localizeOwnedResult } from '../../../lib/ownedContent';
+import { useSavedText } from "../LocalizedText";
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -25,6 +29,7 @@ function loadProvider() {
 }
 
 export default function DiscoveryRoom() {
+  const msg = useSavedText();
   const { history, saved, roomOpen, closeRoom, saveResult, removeSaved, clearHistory, recordQuery, isSaved } = useAI();
   const { theme } = useAITheme();
   const router = useRouter();
@@ -70,13 +75,13 @@ export default function DiscoveryRoom() {
   }
 
   return (
-    <div className={`dr ${roomOpen ? 'is-open' : ''}`} data-ai-theme={theme} aria-hidden={!roomOpen}>
+    <div className={`dr ${roomOpen ? "is-open" : ''}`} data-ai-theme={theme} aria-hidden={!roomOpen}>
       <div className="dr__scrim" onClick={closeRoom} />
-      <aside className="dr__panel" role="dialog" aria-modal="true" aria-label="Discovery Room">
+      <aside className="dr__panel" role="dialog" aria-modal="true" aria-label={msg("Discovery Room")}>
         <header className="dr__head">
           <div>
-            <p className="dr__eyebrow">Miami Elio AI</p>
-            <h2 className="dr__title">{t.ai?.discoveryRoom || 'Discovery Room'}</h2>
+            <p className="dr__eyebrow">{msg("Miami Elio AI")}</p>
+            <h2 className="dr__title">{t.ai?.discoveryRoom || <LocalizedText source={"Discovery Room"} />}</h2>
           </div>
           <button type="button" className="dr__close" onClick={closeRoom} aria-label={t.ai?.closeAI || "Close Discovery Room"}>✕</button>
         </header>
@@ -89,7 +94,7 @@ export default function DiscoveryRoom() {
             placeholder={t.ai?.askAnywhere || "Ask from anywhere…"}
             aria-label={t.ai?.askPlaceholder || "Ask Miami Elio AI"}
           />
-          <button type="submit" className="dr__go" disabled={busy}>{busy ? '…' : (t.ai?.ask || 'Ask')}</button>
+          <button type="submit" className="dr__go" disabled={busy}>{busy ? '…' : (t.ai?.ask || <LocalizedText source={"Ask"} />)}</button>
         </form>
 
         <div className="dr__body">
@@ -124,8 +129,8 @@ export default function DiscoveryRoom() {
                 {h.results?.length > 0 && (
                   <div className="dr__histResults">
                     {h.results.slice(0, 3).map((r) => (
-                      <button key={r.id} type="button" className="dr__mini" onClick={() => go(r)} title={r.title}>
-                        {r.title}
+                      <button key={r.id} type="button" className="dr__mini" onClick={() => go(r)} title={localizeOwnedResult(locale,r).title}>
+                        {localizeOwnedResult(locale,r).title}
                       </button>
                     ))}
                   </div>
@@ -136,7 +141,7 @@ export default function DiscoveryRoom() {
         </div>
 
         <footer className="dr__foot">
-          <button type="button" className="dr__return" onClick={returnToAI}>{t.ai?.returnToAI || 'Return to Miami Elio AI'}</button>
+          <button type="button" className="dr__return" onClick={returnToAI}>{t.ai?.returnToAI || <LocalizedText source={"Return to Miami Elio AI"} />}</button>
         </footer>
       </aside>
 
@@ -157,16 +162,18 @@ function Section({ title, action, empty, children }) {
 }
 
 function ResultRow({ r, onGo, onSave, onUnsave, saved, t }) {
+  const locale = useLocale();
+  const display = localizeOwnedResult(locale,r);
   return (
     <div className="dr__row">
       <button type="button" className="dr__rowMain" onClick={() => onGo(r)}>
-        <span className="dr__rowType">{r.type}</span>
-        <span className="dr__rowTitle">{r.title}</span>
-        {r.subtitle && <span className="dr__rowSub">{r.subtitle}</span>}
+        <span className="dr__rowType">{display.type}</span>
+        <span className="dr__rowTitle">{display.title}</span>
+        {r.subtitle && <span className="dr__rowSub">{display.subtitle}</span>}
       </button>
       <button
         type="button"
-        className={`dr__pin ${saved ? 'is-saved' : ''}`}
+        className={`dr__pin ${saved ? "is-saved" : ''}`}
         onClick={() => (saved ? onUnsave(r.id) : onSave(r))}
         aria-label={saved ? (t?.ai?.removeFromSaved || 'Remove from saved') : (t?.ai?.save || 'Save')}
         title={saved ? (t?.ai?.saved || 'Saved') : (t?.ai?.save || 'Save')}

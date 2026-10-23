@@ -1,3 +1,4 @@
+import { LocalizedListing } from '../../components/LocalizedText';
 import { notFound } from 'next/navigation';
 import { getYachts, getYachtBySlug } from '../../../lib/yachtsData';
 import { getServerTranslation } from '../../../lib/serverLocale';
@@ -27,7 +28,7 @@ export default function YachtDetailPage({ params }) {
         <div className="grid min-w-0 gap-5 lg:sticky lg:top-24">
           <p className={eyebrowClass}>{yacht.length} · {yacht.location}</p>
           <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{yacht.title}</h1>
-          <p className="text-[1.05rem] text-g1-soft">{yacht.description}</p>
+          <p className="text-[1.05rem] text-g1-soft"><LocalizedListing itemId={yacht.id} source={yacht.description} /></p>
           <Specs
             items={[
               [t.yachts.location, yacht.location],

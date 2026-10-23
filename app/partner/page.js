@@ -1,4 +1,5 @@
 "use client";
+import { LocalizedTitle, useSavedText } from "../components/LocalizedText";
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -20,6 +21,7 @@ async function notifyAdmin(payload) {
 }
 
 function PartnerListingCard({ listing, onUpdate }) {
+  const msg = useSavedText();
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     title: listing.title,
@@ -47,7 +49,7 @@ function PartnerListingCard({ listing, onUpdate }) {
       });
       
     } catch (e) {
-      alert("Failed to update listing: " + e.message);
+      alert(msg("Failed to update listing: {error}", { error: e.message }));
     }
   };
 
@@ -61,8 +63,8 @@ function PartnerListingCard({ listing, onUpdate }) {
         </div>
         <textarea className="mb-2 p-1 border border-villa-obsidian/20 text-sm w-full h-16" value={editForm.description} onChange={e => setEditForm({...editForm, description: e.target.value})} />
         <div className="flex gap-2">
-          <button onClick={handleSave} className="bg-brand-gold text-white text-[0.6rem] uppercase px-3 py-1">Save</button>
-          <button onClick={() => setIsEditing(false)} className="border border-villa-obsidian/20 text-[0.6rem] uppercase px-3 py-1">Cancel</button>
+          <button onClick={handleSave} className="bg-brand-gold text-white text-[0.6rem] uppercase px-3 py-1">{msg("Save")}</button>
+          <button onClick={() => setIsEditing(false)} className="border border-villa-obsidian/20 text-[0.6rem] uppercase px-3 py-1">{msg("Cancel")}</button>
         </div>
       </div>
     );
@@ -74,14 +76,14 @@ function PartnerListingCard({ listing, onUpdate }) {
         <h4 className="font-display text-xl text-villa-charcoal">{listing.title}</h4>
         <div className="flex items-center gap-2">
           {listing.status === 'pending' && (
-            <button onClick={() => setIsEditing(true)} className="text-[0.6rem] uppercase text-villa-ash hover:text-brand-gold">Edit</button>
+            <button onClick={() => setIsEditing(true)} className="text-[0.6rem] uppercase text-villa-ash hover:text-brand-gold">{msg("Edit")}</button>
           )}
           <span className={`font-fira text-[0.6rem] uppercase tracking-[0.15em] px-2 py-0.5 ${
-            listing.status === 'approved' ? 'text-green-700 bg-green-100' : 
-            listing.status === 'rejected' ? 'text-red-700 bg-red-100' : 
-            'text-orange-600 bg-orange-100'
+            listing.status === 'approved' ? "text-green-700 bg-green-100" :
+            listing.status === 'rejected' ? "text-red-700 bg-red-100" :
+            "text-orange-600 bg-orange-100"
           }`}>
-            {listing.status}
+            {({approved:msg('Approved'),rejected:msg('Rejected'),pending:msg('Pending')})[listing.status] || listing.status}
           </span>
         </div>
       </div>
@@ -94,6 +96,7 @@ function PartnerListingCard({ listing, onUpdate }) {
 }
 
 export default function PartnerDashboard() {
+  const msg = useSavedText();
   const auth = useAuth();
   const router = useRouter();
   
@@ -193,7 +196,7 @@ export default function PartnerDashboard() {
         filesCount: files.length
       });
 
-      alert('Listing sent for proof! Admin has been notified.');
+      alert(msg("Listing sent for proof! Admin has been notified."));
       
       // Reset form
       setTitle('');
@@ -208,7 +211,7 @@ export default function PartnerDashboard() {
       
     } catch (err) {
       console.error(err);
-      alert('Failed to submit listing: ' + err.message);
+      alert(msg("Failed to submit listing: {error}", { error: err.message }));
     } finally {
       setSubmitting(false);
     }
@@ -227,37 +230,36 @@ export default function PartnerDashboard() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-villa-obsidian/20 pb-4 font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash">
-          <span>Partner Portal</span>
+          <span>{msg("Partner Portal")}</span>
           <span>{auth.session.company_name || auth.session.name}</span>
         </div>
 
-        <h1 className="mt-10 font-display text-[10vw] sm:text-[6rem] font-medium leading-[0.92] tracking-[-0.02em] text-villa-charcoal uppercase mb-16">
-          Partner<br/><span className="text-villa-ash/70">Desk</span>
+        <h1 className="mt-10 font-display text-[10vw] sm:text-[6rem] font-medium leading-[0.92] tracking-[-0.02em] text-villa-charcoal uppercase mb-16"><LocalizedTitle source="Partner{break}Desk" />
         </h1>
 
         <div className="grid gap-16 lg:grid-cols-2 border-t border-villa-obsidian/20 pt-10">
           
           {/* Create Listing Form */}
           <div>
-            <h2 className="font-display text-3xl font-medium tracking-tight text-villa-obsidian mb-2">Create Listing</h2>
-            <p className="font-fira text-[0.7rem] uppercase tracking-[0.1em] text-villa-graphite mb-8">Submit services for proof</p>
+            <h2 className="font-display text-3xl font-medium tracking-tight text-villa-obsidian mb-2">{msg("Create Listing")}</h2>
+            <p className="font-fira text-[0.7rem] uppercase tracking-[0.1em] text-villa-graphite mb-8">{msg("Submit services for proof")}</p>
             
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
-                <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">Service Title</label>
+                <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">{msg("Service Title")}</label>
                 <input 
                   value={title} onChange={e => setTitle(e.target.value)}
-                  placeholder="e.g. Premium Yacht 50ft" 
+                  placeholder={msg("e.g. Premium Yacht 50ft")}
                   className="w-full border-b border-villa-obsidian/30 bg-transparent py-2 text-villa-charcoal outline-none focus:border-villa-obsidian transition placeholder:text-villa-ash/50" 
                   required 
                 />
               </div>
               
               <div>
-                <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">Description & Info</label>
+                <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">{msg("Description & Info")}</label>
                 <textarea 
                   value={description} onChange={e => setDescription(e.target.value)}
-                  placeholder="Describe the service, capacity, amenities..." 
+                  placeholder={msg("Describe the service, capacity, amenities...")}
                   rows={3} 
                   className="w-full border-b border-villa-obsidian/30 bg-transparent py-2 text-villa-charcoal outline-none focus:border-villa-obsidian transition placeholder:text-villa-ash/50" 
                   required 
@@ -266,7 +268,7 @@ export default function PartnerDashboard() {
 
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">Price</label>
+                  <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">{msg("Price")}</label>
                   <input 
                     type="number" 
                     value={price} onChange={e => setPrice(e.target.value)}
@@ -276,7 +278,7 @@ export default function PartnerDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">Currency</label>
+                  <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">{msg("Currency")}</label>
                   <select 
                     value={currency} onChange={e => setCurrency(e.target.value)}
                     className="w-full border-b border-villa-obsidian/30 bg-transparent py-2 text-villa-charcoal outline-none focus:border-villa-obsidian appearance-none transition"
@@ -290,17 +292,15 @@ export default function PartnerDashboard() {
               </div>
               
               <div>
-                <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">Upload Files & Pictures (Unlimited)</label>
+                <label className="block font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-2">{msg("Upload Files & Pictures (Unlimited)")}</label>
                 <div 
                   onClick={() => fileInputRef.current?.click()}
                   className="flex flex-col items-center justify-center border border-dashed border-villa-obsidian/30 p-8 hover:border-villa-obsidian transition cursor-pointer bg-villa-obsidian/5"
                 >
-                  <span className="font-fira text-[0.7rem] uppercase tracking-[0.1em] text-villa-obsidian">
-                    Click to select files
-                  </span>
-                  <p className="mt-2 text-xs text-villa-graphite">Supports all file types (JPG, PDF, DOC, etc.)</p>
+                  <span className="font-fira text-[0.7rem] uppercase tracking-[0.1em] text-villa-obsidian">{msg("Click to select files")}</span>
+                  <p className="mt-2 text-xs text-villa-graphite">{msg("Supports all file types (JPG, PDF, DOC, etc.)")}</p>
                   {files.length > 0 && (
-                    <p className="mt-4 font-medium text-villa-charcoal">{files.length} file(s) selected</p>
+                    <p className="mt-4 font-medium text-villa-charcoal">{msg("Selected files: {count}", { count: files.length })}</p>
                   )}
                 </div>
                 <input 
@@ -317,19 +317,19 @@ export default function PartnerDashboard() {
                 disabled={submitting}
                 className="mt-4 border-b border-villa-obsidian pb-1 font-fira text-sm font-medium uppercase tracking-[0.18em] text-villa-obsidian transition-opacity hover:opacity-60 disabled:opacity-30"
               >
-                {submitting ? 'Sending to Database...' : 'Send for Proof'}
+                {submitting ? msg("Sending to Database...") : msg("Send for Proof")}
               </button>
             </form>
           </div>
           
           {/* Your Listings */}
           <div>
-            <h2 className="font-display text-3xl font-medium tracking-tight text-villa-obsidian mb-2">Your Listings</h2>
-            <p className="font-fira text-[0.7rem] uppercase tracking-[0.1em] text-villa-graphite mb-8">Status of submitted services</p>
+            <h2 className="font-display text-3xl font-medium tracking-tight text-villa-obsidian mb-2">{msg("Your Listings")}</h2>
+            <p className="font-fira text-[0.7rem] uppercase tracking-[0.1em] text-villa-graphite mb-8">{msg("Status of submitted services")}</p>
             
             <div className="flex flex-col gap-6">
               {myListings.length === 0 && (
-                <p className="text-sm text-villa-ash">You haven't submitted any listings yet.</p>
+                <p className="text-sm text-villa-ash">{msg("You haven't submitted any listings yet.")}</p>
               )}
               {myListings.map(listing => (
                 <PartnerListingCard key={listing.id} listing={listing} />

@@ -1,3 +1,4 @@
+import { LocalizedText } from '../components/LocalizedText';
 import Link from 'next/link';
 import { CategoryGlyph } from './CategoryGlyph';
 
@@ -62,7 +63,7 @@ export function SubcategoryGrid({ categories, activeSlug, columns = 6 }) {
                 isActive ? 'text-brand-gold' : 'text-villa-ash group-hover:text-villa-obsidian'
               }`}
             >
-              {category.label}
+              <LocalizedText source={category.label} />
             </span>
           </Link>
         );

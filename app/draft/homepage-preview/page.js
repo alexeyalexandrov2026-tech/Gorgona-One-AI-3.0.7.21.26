@@ -1,4 +1,5 @@
 "use client";
+import { useSavedText } from "../../components/LocalizedText";
 
 import Link from 'next/link';
 import { SearchBar } from '../../components/SearchBar';
@@ -206,41 +207,37 @@ function SkylineIllustration() {
 }
 
 export default function HomepagePreviewDraft() {
+  const msg = useSavedText();
   const locale = useLocale();
   const t = getTranslation(locale);
 
   return (
     <main className="flex-1">
       <div className="sticky top-0 z-50 -mx-4 mb-6 border-b border-brand-gold/30 bg-black/90 px-4 py-3 text-center backdrop-blur sm:-mx-6 lg:-mx-8 lg:px-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-brand-gold">
-          Draft preview — not the live homepage
-        </p>
+        <p className="text-xs uppercase tracking-[0.2em] text-brand-gold">{msg("Draft preview — not the live homepage")}</p>
       </div>
 
       <section className="market-shell relative overflow-hidden rounded-[2rem] border-brand-gold/20">
         <SkylineIllustration />
 
         <div className="relative z-10 min-h-[400px] px-6 py-12 sm:px-10 sm:py-14 lg:min-h-[480px] lg:px-16 lg:py-16">
-          <p className="market-pill mb-5">Global deals • Promo codes • Lifestyle offers</p>
-          <h1 className="market-title text-3xl sm:text-4xl lg:text-5xl">
-            Premium deals for every lifestyle{' '}
-            <span className="font-serif italic text-brand-gold">in Miami,</span> 🌴
+          <p className="market-pill mb-5">{msg("Global deals • Promo codes • Lifestyle offers")}</p>
+          <h1 className="market-title text-3xl sm:text-4xl lg:text-5xl">{msg("Premium deals for every lifestyle")}{' '}
+            <span className="font-serif italic text-brand-gold">{msg("in Miami,")}</span> 🌴
           </h1>
-          <p className="market-subtitle text-lg">
-            Verified discounts • Exclusive promo codes • Shopping • Travel • Dining • Entertainment • Miami
-          </p>
+          <p className="market-subtitle text-lg">{msg("Verified discounts • Exclusive promo codes • Shopping • Travel • Dining • Entertainment • Miami")}</p>
           <p className="mt-3 flex items-center gap-2 text-base text-zinc-200">
             <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 text-brand-gold">
               <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
             </svg>
-            <span className="font-semibold text-brand-gold">Miami, Florida</span>
-            <span className="text-zinc-400">• Our home. Your advantage.</span>
+            <span className="font-semibold text-brand-gold">{msg("Miami, Florida")}</span>
+            <span className="text-zinc-400">{msg("• Our home. Your advantage.")}</span>
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/stores" className="market-button">Explore Marketplace</Link>
-            <Link href="/coupons" className="market-button-secondary border-brand-gold/40 text-brand-gold hover:bg-brand-gold hover:text-black">Browse Deals</Link>
-            <Link href="/partner" className="market-button-secondary border-brand-gold/40 text-brand-gold hover:bg-brand-gold hover:text-black">Join as Partner</Link>
+            <Link href="/stores" className="market-button">{msg("Explore Marketplace")}</Link>
+            <Link href="/coupons" className="market-button-secondary border-brand-gold/40 text-brand-gold hover:bg-brand-gold hover:text-black">{msg("Browse Deals")}</Link>
+            <Link href="/partner" className="market-button-secondary border-brand-gold/40 text-brand-gold hover:bg-brand-gold hover:text-black">{msg("Join as Partner")}</Link>
           </div>
 
           <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-5 lg:grid-cols-4">
@@ -250,8 +247,8 @@ export default function HomepagePreviewDraft() {
                   <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">{badge.icon}</svg>
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-white">{badge.title}</p>
-                  <p className="text-xs text-zinc-400">{badge.detail}</p>
+                  <p className="text-sm font-semibold text-white">{msg(badge.title)}</p>
+                  <p className="text-xs text-zinc-400">{msg(badge.detail)}</p>
                 </div>
               </div>
             ))}
@@ -279,15 +276,15 @@ export default function HomepagePreviewDraft() {
                   </svg>
                 </span>
                 <div className="min-w-0">
-                  <p className="text-xl font-bold text-white sm:text-2xl">{item.title}</p>
-                  <p className="mt-1 text-base font-medium sm:text-lg" style={{ color: item.accent }}>{item.value}</p>
-                  <p className="mt-2 line-clamp-2 max-w-md text-sm text-zinc-400">{item.description}</p>
+                  <p className="text-xl font-bold text-white sm:text-2xl">{msg(item.title)}</p>
+                  <p className="mt-1 text-base font-medium sm:text-lg" style={{ color: item.accent }}>{msg(item.value)}</p>
+                  <p className="mt-2 line-clamp-2 max-w-md text-sm text-zinc-400">{msg(item.description)}</p>
                 </div>
               </div>
               <div className="relative h-40 w-full shrink-0 sm:h-full sm:w-[42%]">
                 <img
                   src={item.image}
-                  alt={item.title}
+                  alt={msg(item.title)}
                   className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.05]"
                 />
               </div>
@@ -310,15 +307,15 @@ export default function HomepagePreviewDraft() {
 
       <section className="py-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-white">Popular categories</h2>
-          <Link href="/stores" className="text-sm text-brand-gold">Browse all</Link>
+          <h2 className="text-2xl font-semibold text-white">{msg("Popular categories")}</h2>
+          <Link href="/stores" className="text-sm text-brand-gold">{msg("Browse all")}</Link>
         </div>
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => (
             <Link key={category.slug} href={`/stores/${category.slug}`} className="market-card rounded-2xl p-5">
               <p className="text-2xl">{category.icon}</p>
               <p className="mt-3 font-semibold text-white">{t.categories[camelizeSlug(category.slug)] || category.label}</p>
-              <p className="mt-2 text-sm text-zinc-400">{category.description}</p>
+              <p className="mt-2 text-sm text-zinc-400">{msg(category.description)}</p>
             </Link>
           ))}
         </div>
@@ -333,8 +330,8 @@ export default function HomepagePreviewDraft() {
             { title: 'Legal framework', body: 'Terms, privacy, affiliate disclosure, and cookie policy pages ready for rollout.', href: '/terms' }
           ].map((item) => (
             <Link key={item.title} href={item.href} className="market-card rounded-2xl p-5">
-              <p className="font-semibold text-white">{item.title}</p>
-              <p className="mt-2 text-sm text-zinc-400">{item.body}</p>
+              <p className="font-semibold text-white">{msg(item.title)}</p>
+              <p className="mt-2 text-sm text-zinc-400">{msg(item.body)}</p>
             </Link>
           ))}
         </div>

@@ -1,4 +1,7 @@
 "use client";
+import { LocalizedText } from "../LocalizedText";
+
+import { useSavedText } from "../LocalizedText";
 
 import { useEffect } from 'react';
 import Link from 'next/link';
@@ -9,6 +12,7 @@ import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 
 export function AiDock() {
+  const msg = useSavedText();
   const { isOpen, close } = useAiDock();
   // The dock chrome follows the global switcher too - the transcript inside
   // it was already localized, so an English header was the odd one out.
@@ -34,13 +38,13 @@ export function AiDock() {
         aria-hidden="true"
         onClick={close}
         className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
-          isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+          isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
       <aside
         role="dialog"
         aria-modal="true"
-        aria-label="MIAMI ELIO AI Dock"
+        aria-label={msg("MIAMI ELIO AI Dock")}
         // The dock stays mounted when closed (it slides out on a transform,
         // and unmounting would throw away the scroll position). Closed, it is
         // only visually gone, so without `inert` its text input and buttons
@@ -50,13 +54,13 @@ export function AiDock() {
         inert={isOpen ? undefined : ''}
         aria-hidden={!isOpen}
         className={`fixed bottom-0 right-0 z-50 flex h-[min(640px,88vh)] w-full flex-col border-t border-white/10 bg-[#0a0a0a]/[0.97] p-5 shadow-premium backdrop-blur-xl transition-transform duration-300 sm:bottom-6 sm:right-6 sm:h-[560px] sm:w-[400px] sm:rounded-[1.75rem] sm:border ${
-          isOpen ? 'translate-y-0' : 'translate-y-[110%]'
+          isOpen ? "translate-y-0" : "translate-y-[110%]"
         }`}
       >
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-brand-gold">AI Dock</p>
-            <p className="mt-1 text-sm font-semibold text-white">MIAMI ELIO Concierge</p>
+            <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-brand-gold">{msg("AI Dock")}</p>
+            <p className="mt-1 text-sm font-semibold text-white">{msg("MIAMI ELIO Concierge")}</p>
           </div>
           <div className="flex items-center gap-2">
             <Link
@@ -64,7 +68,7 @@ export function AiDock() {
               onClick={close}
               className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold"
             >
-              {t.ai?.discoveryRoom || 'Discovery Room'}
+              {t.ai?.discoveryRoom || <LocalizedText source={"Discovery Room"} />}
             </Link>
             <button
               type="button"

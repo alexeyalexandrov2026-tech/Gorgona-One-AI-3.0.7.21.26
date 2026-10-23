@@ -1,4 +1,5 @@
 import { ListingCard } from './g1/ui';
+import { LocalizedListing } from './LocalizedText';
 
 // Dining and nightlife venue card, shared by /stores/restaurants and
 // /restaurants-nightlife so the two lists never drift apart.
@@ -11,7 +12,7 @@ export function VenueCard({ venue, t }) {
       alt={venue.name}
       title={venue.name}
       meta={`${kind} · ${venue.location}`}
-      note={venue.description}
+      note={<LocalizedListing itemId={venue.id} source={venue.description} />}
       rate={t.common.viewDetails}
     />
   );

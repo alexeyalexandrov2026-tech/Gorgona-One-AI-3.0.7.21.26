@@ -1,4 +1,5 @@
 "use client";
+import { LocalizedText, useSavedText } from "./LocalizedText";
 
 import { useEffect, useState } from 'react';
 
@@ -37,6 +38,7 @@ function ShareIcon({ className }) {
 // beforeinstallprompt and can be installed with one tap; iOS Safari has no
 // such API, so guests there get explicit Share-sheet instructions instead.
 export function InstallPrompt() {
+  const msg = useSavedText();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showIosHint, setShowIosHint] = useState(false);
   const [dismissed, setDismissed] = useState(true);
@@ -79,42 +81,32 @@ export function InstallPrompt() {
           <span className="ai-sphere h-full w-full" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-white">Add MIAMI ELIO to your Home Screen</p>
+          <p className="text-sm font-semibold text-white">{msg("Add MIAMI ELIO to your Home Screen")}</p>
           {deferredPrompt ? (
             <>
-              <p className="mt-1 text-xs leading-relaxed text-zinc-400">
-                Install the app for a focused, standalone concierge experience.
-              </p>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-400">{msg("Install the app for a focused, standalone concierge experience.")}</p>
               <div className="mt-3 flex gap-2">
                 <button
                   type="button"
                   onClick={handleInstallClick}
                   className="rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold uppercase tracking-wide text-black transition hover:brightness-110"
-                >
-                  Install
-                </button>
+                >{msg("Install")}</button>
                 <button
                   type="button"
                   onClick={dismiss}
                   className="rounded-full border border-white/10 px-4 py-2 text-xs text-zinc-400 transition hover:text-white"
-                >
-                  Not now
-                </button>
+                >{msg("Not now")}</button>
               </div>
             </>
           ) : (
             <>
-              <p className="mt-1 flex flex-wrap items-center gap-1 text-xs leading-relaxed text-zinc-400">
-                Tap <ShareIcon className="inline h-3.5 w-3.5 text-brand-gold" /> Share, then
-                <span className="text-white">&ldquo;Add to Home Screen&rdquo;</span>.
+              <p className="mt-1 flex flex-wrap items-center gap-1 text-xs leading-relaxed text-zinc-400"><LocalizedText source="Tap {share}, then {install}." values={{ share: <><ShareIcon className="inline h-3.5 w-3.5 text-brand-gold" />{msg("Share")}</>, install: <span className="text-white">{msg("“Add to Home Screen”")}</span> }} />
               </p>
               <button
                 type="button"
                 onClick={dismiss}
                 className="mt-3 rounded-full border border-white/10 px-4 py-2 text-xs text-zinc-400 transition hover:text-white"
-              >
-                Got it
-              </button>
+              >{msg("Got it")}</button>
             </>
           )}
         </div>

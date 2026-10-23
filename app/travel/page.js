@@ -1,3 +1,5 @@
+
+import { LocalizedText, LocalizedElement } from "../components/LocalizedText";
 import Link from 'next/link';
 import { Reveal, Stagger, StaggerItem, Parallax } from '../components/Motion';
 
@@ -68,18 +70,13 @@ export default function TravelLandingPage() {
         <div className="lux-hero__grain" />
 
         <div className="mx-auto w-full max-w-7xl px-4 pb-24 pt-40 sm:px-6 lg:px-8">
-          <p className="lux-eyebrow">Travel · Exclusive destinations</p>
-          <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl">
-            Go somewhere<br />
-            <span className="text-travel-lavender">extraordinary.</span>
+          <p className="lux-eyebrow"><LocalizedText source="Travel · Exclusive destinations" /></p>
+          <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Go somewhere{break}{highlight}" values={{ break: <br />, highlight: <span className="text-travel-lavender"><LocalizedText source="extraordinary." /></span> }} />
           </h1>
-          <p className="lux-lede mt-8 text-lg">
-            A cinematic travel concierge — luxury destinations, curated flights, and stays, wrapped in a single
-            premium experience.
-          </p>
+          <p className="lux-lede mt-8 text-lg"><LocalizedText source="A cinematic travel concierge — luxury destinations, curated flights, and stays, wrapped in a single premium experience." /></p>
           <div className="mt-10 flex flex-wrap gap-3">
-            <Link href="/experiences" className="lux-btn">Explore experiences <ArrowIcon className="h-4 w-4" /></Link>
-            <Link href="/travel/ovago" className="lux-btn-ghost">Find flights</Link>
+            <Link href="/experiences" className="lux-btn"><LocalizedText source="Explore experiences " /><ArrowIcon className="h-4 w-4" /></Link>
+            <Link href="/travel/ovago" className="lux-btn-ghost"><LocalizedText source="Find flights" /></Link>
           </div>
         </div>
       </section>
@@ -88,8 +85,8 @@ export default function TravelLandingPage() {
       <section className="full-bleed border-y border-white/10 bg-travel-void">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex items-baseline justify-between font-mono text-[0.64rem] uppercase tracking-[0.28em]">
-            <span className="text-travel-paper/80">Departures — MIA · Miami Intl</span>
-            <span className="text-travel-violet">Live</span>
+            <span className="text-travel-paper/80"><LocalizedText source="Departures — MIA · Miami Intl" /></span>
+            <span className="text-travel-violet"><LocalizedText source="Live" /></span>
           </div>
           <div className="mt-4 divide-y divide-white/10 font-mono">
             {[
@@ -104,8 +101,8 @@ export default function TravelLandingPage() {
                 className="group grid grid-cols-[3rem_1fr_auto] items-baseline gap-4 py-3.5 text-[0.72rem] uppercase tracking-[0.18em] sm:grid-cols-[4rem_1fr_auto]"
               >
                 <span className="text-travel-steel">{code}</span>
-                <span className="text-travel-paper transition-colors group-hover:text-travel-lavender">{dest}</span>
-                <span className="text-travel-violet">{status}</span>
+                <span className="text-travel-paper transition-colors group-hover:text-travel-lavender"><LocalizedText source={dest} /></span>
+                <span className="text-travel-violet"><LocalizedText source={status} /></span>
               </Link>
             ))}
           </div>
@@ -115,27 +112,25 @@ export default function TravelLandingPage() {
       {/* Experience grid */}
       <section className="py-20 lg:py-28">
         <Reveal>
-          <p className="font-mono text-2xl font-medium uppercase leading-none tracking-[0.3em] text-white/25 sm:text-4xl">
-            The Journey
-          </p>
-          <h2 className="lux-display mt-6 max-w-2xl text-4xl sm:text-5xl">Every part of the trip, elevated.</h2>
+          <p className="font-mono text-2xl font-medium uppercase leading-none tracking-[0.3em] text-white/25 sm:text-4xl"><LocalizedText source="The Journey" /></p>
+          <h2 className="lux-display mt-6 max-w-2xl text-4xl sm:text-5xl"><LocalizedText source="Every part of the trip, elevated." /></h2>
         </Reveal>
         <Stagger className="mt-12 grid gap-4 md:grid-cols-2" gap={0.08}>
           {experiences.map((item) => (
             <StaggerItem key={item.title}>
               <Link href={item.href} className="lux-tile group flex h-[360px] flex-col justify-end p-7">
                 <div className="lux-tile__media">
-                  <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+                  <LocalizedElement as="img" src={item.image} alt={item.title} className="h-full w-full object-cover" />
                 </div>
                 <div className="lux-tile__scrim" />
                 <div className="lux-tile__glow" />
                 <div className="relative">
-                  <p className="lux-caption-upper">{item.tag}</p>
+                  <p className="lux-caption-upper"><LocalizedText source={item.tag} /></p>
                   <div className="mt-2 flex items-center justify-between gap-3">
-                    <h3 className="font-serif text-3xl italic text-white">{item.title}</h3>
+                    <h3 className="font-serif text-3xl italic text-white"><LocalizedText source={item.title} /></h3>
                     <ArrowIcon className="h-5 w-5 shrink-0 text-white/70 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
                   </div>
-                  <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-300/90">{item.copy}</p>
+                  <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-300/90"><LocalizedText source={item.copy} /></p>
                 </div>
               </Link>
             </StaggerItem>
@@ -148,11 +143,11 @@ export default function TravelLandingPage() {
         <Reveal>
           <div className="lux-hero relative overflow-hidden rounded-3xl border border-travel-violet/25 bg-travel-void px-8 py-16 text-center sm:px-16">
             <div className="lux-hero__grain" />
-            <p className="lux-eyebrow justify-center">Ovago flight deals</p>
-            <h2 className="mx-auto mt-5 max-w-2xl font-serif text-4xl italic text-white">Your next flight, at a better fare.</h2>
-            <p className="lux-lede mx-auto mt-5 text-base">Business class, cheap fares and last-minute routes — curated and affiliate-verified.</p>
+            <p className="lux-eyebrow justify-center"><LocalizedText source="Ovago flight deals" /></p>
+            <h2 className="mx-auto mt-5 max-w-2xl font-serif text-4xl italic text-white"><LocalizedText source="Your next flight, at a better fare." /></h2>
+            <p className="lux-lede mx-auto mt-5 text-base"><LocalizedText source="Business class, cheap fares and last-minute routes — curated and affiliate-verified." /></p>
             <div className="mt-8 flex justify-center">
-              <Link href="/travel/ovago" className="lux-btn">View Ovago deals <ArrowIcon className="h-4 w-4" /></Link>
+              <Link href="/travel/ovago" className="lux-btn"><LocalizedText source="View Ovago deals " /><ArrowIcon className="h-4 w-4" /></Link>
             </div>
           </div>
         </Reveal>

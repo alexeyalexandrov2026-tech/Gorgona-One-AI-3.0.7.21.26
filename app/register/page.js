@@ -1,5 +1,7 @@
 "use client";
+import { useSavedText } from "../components/LocalizedText";
 
+import { authErrorSource } from '../../lib/authMessages';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -7,6 +9,7 @@ import { useAuth } from '../components/AuthProvider';
 import { signUp } from '../../lib/auth';
 
 export default function RegisterUserPage() {
+  const msg = useSavedText();
   const auth = useAuth();
   const router = useRouter();
   
@@ -30,7 +33,7 @@ export default function RegisterUserPage() {
       setSuccess("Account created successfully! Redirecting...");
       setTimeout(() => router.push('/profile'), 1500);
     } catch (err) {
-      setError(err.message);
+      setError(err);
     } finally {
       setLoading(false);
     }
@@ -39,27 +42,25 @@ export default function RegisterUserPage() {
   return (
     <main className="flex flex-1 items-center justify-center py-16">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium backdrop-blur-md">
-        <h1 className="text-3xl font-semibold text-white">Create Account</h1>
-        <p className="mt-2 text-zinc-400">Join Miami Elio for exclusive access</p>
+        <h1 className="text-3xl font-semibold text-white">{msg("Create Account")}</h1>
+        <p className="mt-2 text-zinc-400">{msg("Join Miami Elio for exclusive access")}</p>
         
 
-
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Your Name" className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
-          <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder="Email Address" className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
-          <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder="Password (min 6 chars)" className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required minLength={6} />
-          <input type="password" value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} placeholder="Confirm Password" className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
+          <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder={msg("Your Name")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
+          <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder={msg("Email Address")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
+          <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder={msg("Password (min 6 chars)")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required minLength={6} />
+          <input type="password" value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} placeholder={msg("Confirm Password")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
           
-          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{error}</p>}
-          {success && <p className="text-emerald-400 text-sm bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/30">{success}</p>}
+          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{msg(authErrorSource(error))}</p>}
+          {success && <p className="text-emerald-400 text-sm bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/30">{msg(success)}</p>}
           
           <button type="submit" disabled={loading} className="w-full rounded-full bg-brand-gold px-4 py-3 font-medium text-black transition hover:brightness-110 disabled:opacity-60">
-            {loading ? "Creating account..." : "Sign Up"}
+            {loading ? msg("Creating account...") : msg("Sign Up")}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-zinc-500">
-          Already have an account? <Link href="/login" className="text-white hover:underline">Sign In</Link>
+        <p className="mt-6 text-center text-sm text-zinc-500">{msg("Already have an account? ")}<Link href="/login" className="text-white hover:underline">{msg("Sign In")}</Link>
         </p>
       </div>
     </main>

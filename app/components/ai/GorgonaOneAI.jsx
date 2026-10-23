@@ -1,4 +1,8 @@
 "use client";
+import { LocalizedText } from "../LocalizedText";
+
+import { localizeOwnedResult } from '../../../lib/ownedContent';
+import { useSavedText } from "../LocalizedText";
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -65,6 +69,7 @@ function palette(theme) {
 }
 
 export default function GorgonaOneAI() {
+  const msg = useSavedText();
   const router = useRouter();
   const { theme, isDark, toggle } = useAITheme();
   const locale = useLocale();
@@ -260,19 +265,19 @@ export default function GorgonaOneAI() {
         aria-label={isDark ? (t.ai?.switchToLight || 'Switch to light atmosphere') : (t.ai?.switchToDark || 'Switch to dark atmosphere')}
       >
         {isDark ? <SunIcon /> : <MoonIcon />}
-        <span>{isDark ? (t.ai?.light || 'Light') : (t.ai?.dark || 'Dark')}</span>
+        <span>{isDark ? (t.ai?.light || <LocalizedText source={"Light"} />) : (t.ai?.dark || <LocalizedText source={"Dark"} />)}</span>
       </button>
 
       {/* Console core */}
-      <div className={`gai__core ${phase === 'listening' ? 'is-listening' : ''} ${phase === 'intent' ? 'is-intent' : ''}`}>
-        <p className="gai__eyebrow">Miami Elio AI</p>
+      <div className={`gai__core ${phase === 'listening' ? "is-listening" : ''} ${phase === 'intent' ? "is-intent" : ''}`}>
+        <p className="gai__eyebrow">{msg("Miami Elio AI")}</p>
         <form className="gai__bar" onSubmit={onSubmit} role="search">
           <input
             className="gai__input"
             type="text"
             value={query}
             onChange={onChange}
-            placeholder={placeholder}
+            placeholder={msg(placeholder)}
             aria-label={t.ai?.askPlaceholder || "Ask Miami Elio AI"}
             autoComplete="off"
           />
@@ -283,7 +288,7 @@ export default function GorgonaOneAI() {
             aria-pressed={phase === 'listening'}
             aria-disabled={!voice.recognitionSupported}
             aria-label={phase === 'listening' ? (t.ai?.stopListening || 'Stop listening') : (t.ai?.speakRequest || 'Speak your request')}
-            title={voice.recognitionSupported ? undefined : 'Voice input is not supported in this browser'}
+            title={voice.recognitionSupported ? undefined : msg("Voice input is not supported in this browser")}
           >
             <span className="gai__halo" aria-hidden="true" />
             <MicIcon />
@@ -300,11 +305,11 @@ export default function GorgonaOneAI() {
                 key={item.id}
                 type="button"
                 className="gai__chip gai__chip--match"
-                title={item.subtitle ? `${item.title} — ${item.subtitle}` : item.title}
+                title={localizeOwnedResult(locale,item).subtitle ? `${localizeOwnedResult(locale,item).title} — ${localizeOwnedResult(locale,item).subtitle}` : localizeOwnedResult(locale,item).title}
                 onClick={() => selectResult(item)}
               >
-                <span className="gai__chipType">{item.type}</span>
-                {item.title}
+                <span className="gai__chipType">{localizeOwnedResult(locale,item).type}</span>
+                {localizeOwnedResult(locale,item).title}
               </button>
             ))}
           </div>
@@ -316,7 +321,7 @@ export default function GorgonaOneAI() {
         {CONSTELLATIONS.map((c) => {
           const isOpen = openCluster === c.id;
           return (
-            <div key={c.id} className={`gai__group ${isOpen ? 'is-open' : ''}`}>
+            <div key={c.id} className={`gai__group ${isOpen ? "is-open" : ''}`}>
               <button
                 type="button"
                 className="gai__legendName"

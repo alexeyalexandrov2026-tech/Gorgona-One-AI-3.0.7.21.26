@@ -1,3 +1,4 @@
+import { LocalizedText } from '../../../components/LocalizedText';
 import { notFound } from 'next/navigation';
 import { getLeagueBySlug, getTeamsByLeague, getEventsByLeague, paginate } from '../../../../lib/eventsData';
 import { Logo } from '../../../components/Logo';
@@ -25,7 +26,7 @@ export default async function LeaguePage({ params, searchParams }) {
         <div className="flex items-center gap-4">
           <Logo slug={league.slug} alt={league.name} className="h-14 w-14 rounded-2xl bg-white/5 object-contain p-2" />
           <div>
-            <p className="market-pill">{league.sport}</p>
+            <p className="market-pill"><LocalizedText source={league.sport} /></p>
             <h1 className="market-title mt-2">{league.name}</h1>
           </div>
         </div>

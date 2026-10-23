@@ -53,7 +53,7 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
     event.preventDefault();
     setError('');
     if ((kind === 'car' || kind === 'stay') && trip.to <= trip.from) {
-      setError(copy.badDates);
+      setError('badDates');
       return;
     }
     setStatus('sending');
@@ -64,10 +64,10 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
         body: JSON.stringify({ ...contact, dates: summarizeRequest(kind, trip), itemSlug: rentalSlug, itemTitle: rentalTitle })
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || copy.failed);
+      if (!res.ok) throw new Error(data.error || 'failed');
       setStatus('sent');
     } catch (err) {
-      setError(err.message || copy.failed);
+      setError(err.message || 'failed');
       setStatus('idle');
     }
   }
@@ -159,7 +159,7 @@ export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
         </label>
       </div>
 
-      {error && <p role="alert" className="rounded-xl border border-g1-accent bg-g1-accent-wash px-3 py-2 text-[0.9rem] text-g1-ink">{error}</p>}
+      {error && <p role="alert" className="rounded-xl border border-g1-accent bg-g1-accent-wash px-3 py-2 text-[0.9rem] text-g1-ink">{copy[error] || error}</p>}
 
       <button type="submit" disabled={status === 'sending'} className={`${btn.base} ${btn.primary} w-full disabled:opacity-60`}>
         {status === 'sending' ? copy.sending : copy.submit}

@@ -1,3 +1,5 @@
+
+import { LocalizedText, LocalizedElement } from "../../components/LocalizedText";
 import Link from 'next/link';
 import { getServerTranslation } from '../../../lib/serverLocale';
 
@@ -65,9 +67,9 @@ export default function OvagoProfilePage() {
           style={{ '--sb-gradient': OVAGO_HERO_STYLE.gradient, '--sb-glow': OVAGO_HERO_STYLE.glow }}
         >
           <div className="relative z-[2] max-w-lg">
-            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.categories.travel} Profile</p>
+            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.categories.travel}<LocalizedText source=" Profile" /></p>
             <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white">Ovago</h1>
-            <p className="mt-4 text-base leading-relaxed text-zinc-300">Flight deals and discounts, including last-minute fares, cheap flights, and business class offers.</p>
+            <p className="mt-4 text-base leading-relaxed text-zinc-300"><LocalizedText source="Flight deals and discounts, including last-minute fares, cheap flights, and business class offers." /></p>
           </div>
           <div className="relative z-[2] w-3/4 max-w-[380px] rounded-2xl bg-white p-6 sm:w-[42%]">
             <img src="/images/brands/ovago-travel.svg" alt="Ovago" className="w-full drop-shadow-[0_18px_40px_rgba(0,0,0,0.6)]" />
@@ -81,25 +83,25 @@ export default function OvagoProfilePage() {
                 <path d={f.d} />
               </svg>
               <div>
-                <p className="text-sm font-semibold text-white">{f.title}</p>
-                <p className="text-sm text-zinc-500">{f.sub}</p>
+                <p className="text-sm font-semibold text-white"><LocalizedText source={f.title} /></p>
+                <p className="text-sm text-zinc-500"><LocalizedText source={f.sub} /></p>
               </div>
             </div>
           ))}
         </div>
 
         <div className="p-8 lg:p-10">
-          <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Ovago Deals</p>
+          <p className="text-sm uppercase tracking-[0.3em] text-brand-gold"><LocalizedText source="Ovago Deals" /></p>
           <div className="mt-6 grid gap-6 md:grid-cols-3">
             {OVAGO_DEALS.map((deal) => (
               <article key={deal.name} className="market-card flex flex-col overflow-hidden rounded-2xl">
                 <div className="flex items-center justify-center bg-black/40 p-4">
-                  <img src={deal.image} alt={deal.name} className="max-h-40 w-full object-contain" />
+                  <LocalizedElement as="img" src={deal.image} alt={deal.name} className="max-h-40 w-full object-contain" />
                 </div>
                 <div className="flex flex-1 flex-col justify-between p-6">
                   <div>
-                    <h2 className="text-lg font-semibold text-white">{deal.name}</h2>
-                    <p className="mt-3 text-sm text-zinc-400">{deal.description}</p>
+                    <h2 className="text-lg font-semibold text-white"><LocalizedText source={deal.name} /></h2>
+                    <p className="mt-3 text-sm text-zinc-400"><LocalizedText source={deal.description} /></p>
                   </div>
                   <Link href={deal.href} className="market-button mt-6 inline-flex justify-center">
                     {t.buttons.getDeal}

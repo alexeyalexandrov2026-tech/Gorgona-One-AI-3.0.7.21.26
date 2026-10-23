@@ -1,3 +1,5 @@
+
+import { LocalizedText } from "../components/LocalizedText";
 import React from 'react';
 import Link from 'next/link';
 import GamblingNotice, { SportsbookAvailability } from '../components/GamblingNotice';
@@ -40,15 +42,9 @@ export default function SportsbookDirectoryFinal() {
 
         {/* Header Section */}
         <div className="mb-10">
-          <p className="text-[#d4af37] text-xs md:text-sm font-extrabold tracking-[0.25em] uppercase mb-4">
-            Sports Betting
-          </p>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 tracking-tight">
-            Premium sportsbook directory
-          </h1>
-          <p className="text-gray-400 max-w-3xl text-sm md:text-base leading-relaxed">
-            Explore the major sportsbook companies with dedicated profile pages, where-it-is-legal sources, and future-ready promo code sections.
-          </p>
+          <p className="text-[#d4af37] text-xs md:text-sm font-extrabold tracking-[0.25em] uppercase mb-4"><LocalizedText source="Sports Betting" /></p>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 tracking-tight"><LocalizedText source="Premium sportsbook directory" /></h1>
+          <p className="text-gray-400 max-w-3xl text-sm md:text-base leading-relaxed"><LocalizedText source="Explore the major sportsbook companies with dedicated profile pages, where-it-is-legal sources, and future-ready promo code sections." /></p>
           <GamblingNotice locale={locale} className="mt-6 max-w-3xl" />
         </div>
 
@@ -60,9 +56,7 @@ export default function SportsbookDirectoryFinal() {
               className={`relative border border-[#d4af37]/30 rounded-3xl p-7 flex flex-col justify-between overflow-hidden shadow-2xl transition-all duration-300 hover:border-[#d4af37]/60 group ${book.gradient}`}
             >
               {/* Badge */}
-              <div className="absolute top-5 right-5 border border-[#d4af37]/50 text-[#d4af37] text-xs font-bold px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-sm z-10 tracking-wide">
-                Sports Betting
-              </div>
+              <div className="absolute top-5 right-5 border border-[#d4af37]/50 text-[#d4af37] text-xs font-bold px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-sm z-10 tracking-wide"><LocalizedText source="Sports Betting" /></div>
 
               {/* Logo Area */}
               <div className="h-28 md:h-36 w-full flex items-center justify-center mb-8 relative z-10">
@@ -79,9 +73,7 @@ export default function SportsbookDirectoryFinal() {
                 </p>
                 <SportsbookAvailability slug={book.slug} locale={locale} className="-mt-4 mb-6" />
                 <div>
-                  <Link href={`/sportsbook/${book.slug}`} className="inline-block border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg">
-                    View Profile
-                  </Link>
+                  <Link href={`/sportsbook/${book.slug}`} className="inline-block border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg"><LocalizedText source="View Profile" /></Link>
                 </div>
               </div>
             </div>
@@ -92,9 +84,7 @@ export default function SportsbookDirectoryFinal() {
         <div className="mt-6 flex justify-center">
             <div className={`relative border border-[#d4af37]/30 rounded-3xl p-7 flex flex-col justify-between overflow-hidden shadow-2xl group w-full md:max-w-md ${sportsbooks[9].gradient}`}>
               {/* Badge */}
-              <div className="absolute top-5 right-5 border border-[#d4af37]/50 text-[#d4af37] text-xs font-bold px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-sm z-10 tracking-wide">
-                Sports Betting
-              </div>
+              <div className="absolute top-5 right-5 border border-[#d4af37]/50 text-[#d4af37] text-xs font-bold px-4 py-1.5 rounded-full bg-black/50 backdrop-blur-sm z-10 tracking-wide"><LocalizedText source="Sports Betting" /></div>
 
               {/* Logo Area */}
               <div className="h-28 md:h-36 w-full flex items-center justify-center mb-8 relative z-10">
@@ -111,9 +101,7 @@ export default function SportsbookDirectoryFinal() {
                 </p>
                 <SportsbookAvailability slug={sportsbooks[9].slug} locale={locale} className="-mt-4 mb-6" />
                 <div className="text-center">
-                  <Link href={`/sportsbook/${sportsbooks[9].slug}`} className="inline-block border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg">
-                    View Profile
-                  </Link>
+                  <Link href={`/sportsbook/${sportsbooks[9].slug}`} className="inline-block border border-[#d4af37]/70 text-[#d4af37] px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-[#d4af37]/10 transition-colors shadow-lg"><LocalizedText source="View Profile" /></Link>
                 </div>
               </div>
             </div>
