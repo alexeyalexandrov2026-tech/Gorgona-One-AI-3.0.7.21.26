@@ -62,8 +62,10 @@ export function Header() {
   return (
     <header
       dir="ltr"
-      // Keep navigation legible above the catalogue's white page as it scrolls.
-      style={pathname === '/yachts' ? { backgroundColor: 'var(--g1-paper)' } : undefined}
+      // Dashboard pages have a light surface; keep their sticky navigation readable.
+      style={['/profile','/partner','/admin'].includes(pathname)
+        ? { backgroundColor:'#0b1419', '--g1-paper':'#0b1419', '--g1-ink':'#f3f6f7', '--g1-soft':'#b9c2c8', '--g1-rule':'#35454f' }
+        : pathname === '/yachts' ? { backgroundColor: 'var(--g1-paper)' } : undefined}
       className={`sticky top-0 z-40 border-b font-g1sans backdrop-blur-xl transition-colors duration-300 ${
         scrolled ? "border-g1-rule bg-g1-paper/90" : "border-transparent bg-g1-paper/60"
       }`}

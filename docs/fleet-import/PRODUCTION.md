@@ -1,51 +1,35 @@
-# Кандидат для публикации только автопарка
+# Fleet production integration
 
-23 октября 2026. Ветка `release/miami-fleet-only` создана от свежего `origin/main`, `5fcd0fa18cca537ea079a9a88a05b8109290d151`. Публичный сайт и общий staging этой веткой не изменялись.
+Approved on 23 October 2026. Release branch: `release/miami-fleet-only`.
 
-## Состав
+## Source and preservation boundary
 
-Только 30 карточек автомобилей, локальные фотографии, уменьшенные обложки, 16 языков, исправление неверного G-Class URL и инструменты передачи. Белый и серый BMW X5 раздельны; CLE53/CLE300 и GLS с разными салонами разделены. Белый G550 источника исключён. Числовые цены источника не публикуются.
+Fresh main is `5fcd0fa18cca537ea079a9a88a05b8109290d151`, but the current production Worker was built from `dashboard/workspaces` commit `413500de0504036e88dba60f5cd20a6e944ba5bf` (Cloudflare build `9cefc17d-a348-4c32-8ae3-f3bcda745d44`). A main-only fleet candidate would roll back already deployed functionality and is superseded.
 
-Прежние компоненты ListingCard, Gallery, Specs и BookingForm сохранены. Каталог и детали в main прямо читают lib/rentalsData.js; SQL seed для этого переноса выполнять не нужно. Файлы app/, Auth/API, миграции, package/lock, GitHub workflows, Wrangler config и AI router относительно main не меняются.
+This release merges the actual production source with the reviewed fleet. The 89 baseline files already deployed from `413500de` are reconciled into main through the PR. Application components, Auth, booking journal, dashboard/server handlers, migrations, package/lock, CI and Worker/build configuration are preserved byte for byte from that production source. The separate partner-publication release on shared staging is not promoted.
 
-Основные изменённые файлы: lib/rentalsData.js, lib/miamiFleetImport.js, lib/homeData.js, lib/data/listings.js, next.config.js, словари i18n/, public/images/rentals/, tests/content/fleet-import.test.mjs и fleet-browser.mjs. Сбор и упаковка — scripts/import/. Необязательный SQL seed подготовлен, но не выполнен.
+## Fleet delta
 
-Независимая проверка подтвердила совпадение всех 30 записей и 293 используемых изображений/thumbnail с ранее проверенной hosted-интеграцией. Совпадение контента не заменяет отдельную проверку полного production candidate.
+30 cars: 13 new and 17 historical records, including the corrected historical BMW X5 card. White/brown and Brooklyn Grey/brown X5 remain separate. CLE53/CLE300 and GLS variants with different interiors remain separate. The source white G550 is excluded. Numerical source prices and deposits are not published.
 
-## Свежая локальная проверка этой ветки
+Changed content: `lib/rentalsData.js`, `lib/miamiFleetImport.js`, `lib/homeData.js`, `lib/data/listings.js`, `next.config.js`, fleet translations, `public/images/rentals/`, import/seed preparation scripts and fleet tests. The old mislabeled G-Class URL redirects to the white X5. The 163 imported JPEG originals and all 293 active images/thumbnails match the approved fleet. Existing ListingCard, Gallery, Specs and BookingForm components are preserved.
 
-| Проверка | Результат |
-|---|---|
-| Content/i18n | PASS: 70 тестов, 0 failures/skips, exit 0 |
-| Словари | PASS: 16 языков по 933 сообщения, 0 пропусков, exit 0 |
-| Next production-mode build | PASS, exit 0 |
-| OpenNext package | PASS: 1 handler, 81 referenced client assets, exit 0 |
-| Production-config dry-run | PASS: 699 assets, exit 0, upload/deploy не выполнялся |
-| Chrome | PASS: 30 страниц, 16 локализаций, 1440/390px, галереи, редирект, 0 JS errors, exit 0 |
-| Архив | Проверяет SHA-256 каждого элемента, применение patch к чистому main и совпадение перенесённых файлов |
+The public catalogue reads static data. No SQL seed or migration is executed by this integration. Migration source files belong to the already deployed baseline.
 
-Журналы вне Git в родительской папке: fleet-production-only-tests.log, fleet-production-only-i18n.log, fleet-production-only-build.log, fleet-production-only-worker.log, fleet-production-only-browser.log и fleet-production-only-dry-run.log. Скриншоты: outputs/fleet-production-only-qa/.
+## Validation evidence
 
-Полный штатный managed `npm run build`, Linux CI, запуск данного main-only candidate на hosted staging, production rollout, настоящая отправка заявки и внешние уведомления — NOT TESTED. Вложенный ai-router находится в Git, но исключён из локального sparse checkout; отсутствие локального каталога не означает ошибку managed сборки. Не изменять его зависимости и сборку в рамках переноса автомобилей.
+The previous main-only 70-test/build/browser reports are historical and do not establish readiness of this corrected candidate. Current local logs use the `fleet-production-preserved-` prefix in the parent folder.
 
-## Архив передачи
+The first full Windows run discovered 116 tests: 115 passed; one pre-existing staging-artifact symlink test failed because Windows denied creation of a file symlink (EPERM). This test must pass in exact-head Linux CI; it must not be skipped or weakened. The merged translation check passed: 16 languages, 948 messages each, zero missing entries.
 
-Из чистой сохранённой ветки:
+Final build, browser, Worker packaging, exact-head Linux CI and hosted rollout results must be recorded separately after they finish. Never infer successful booking delivery from an invalid-payload 400 response.
 
-```powershell
-python scripts/import/package-miami.py --base origin/main --archive-name miami-fleet-production-2026-10-23.zip
-```
+## Deployment and rollback
 
-Архив содержит patch существующих файлов, files/ с новыми, TRANSFER.md и SHA256SUMS.json с baseCommit. Именной receipt хранит SHA-256 ZIP и результаты integrity/cleanBaseTransfer. Проверка пути запрещает директории и альтернативные Windows streams в имени архива. Прежний v2 не перезаписывается.
+Before any release-branch push, prevent the production wildcard trigger from publishing it. Preserve the main trigger and all unrelated build settings. Merge only through the reviewed PR after exact-head checks. Preserve the current production public build configuration and runtime bindings.
 
-Применять только к чистому указанному main в отдельной ветке. Проверить baseCommit в SHA256SUMS.json. Партнёрский архив v2 относительно ba93717 не является main-based production package.
+Pre-release production deployment: `7171ecdf-ec6a-491d-a90e-c0157d40dcf3`; version: `aa8627d1-2a7d-4f3a-ae74-46228ff10926`. Shared staging remains independently owned at unified source `fc91187572c1f6e5a17fb02a06a5310890288c28`.
 
-## Границы публикации
+## Unverified boundaries
 
-Свежая проверка выявила production wildcard trigger e85bb453-81a3-41d1-9158-96cb8e571ce6: он включает все ветки и исключает только main и feat/partner-listing-publication. Push этой release-ветки может запустить production. Перед push требуется отдельное разрешённое исключение ровно release/miami-fleet-only; основной main trigger не менять.
-
-По CLAUDE.md PR создаёт или одобряет пользователь; напрямую main не изменяется. Этот кандидат не включает разрешение на push, PR, trigger change, merge или deployment. После разрешения проверить exact-head CI и путь managed сборки до публикации.
-
-Общий staging одновременно обновляется задачей «Исправить Cloudflare deployment». На проверенном 68c14db там нет импортированного флита, хотя ранняя версия 51014da проходила hosted acceptance. Не перезаписывать текущий staging без согласования единого источника и владельца публикации. Исторические PASS не выдавать за текущее содержимое staging.
-
-Не подтверждены VIN двух белых фотонаборов, точные комплектации/годы/коды краски и коммерческая доступность. Два белых набора объединены как вариант каталога без утверждения об одном VIN.
+VIN identity of two white photo collections, exact model years/trim/paint codes and commercial availability are not established. They are catalogue variants, not verified VIN identities. Successful real bookings, production database operations and external notification delivery are not tested; do not activate credentials, run SQL or submit real customer requests as part of this fleet release.

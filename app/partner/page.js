@@ -5,20 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../components/AuthProvider';
 import { supabase } from '../../lib/supabase';
-
-// /api/notify only accepts signed-in callers, so send the session token along.
-async function notifyAdmin(payload) {
-  const { data } = await supabase.auth.getSession();
-  const token = data?.session?.access_token;
-  await fetch('/api/notify', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    },
-    body: JSON.stringify(payload)
-  });
-}
+import RequestBoard from '../components/dashboard/RequestBoard';
 
 function PartnerListingCard({ listing, onUpdate }) {
   const msg = useSavedText();
@@ -35,21 +22,16 @@ function PartnerListingCard({ listing, onUpdate }) {
       const { error } = await supabase
         .from('partner_listings')
         .update(editForm)
-        .eq('id', listing.id);
+        .eq('id', listing.id).select('id').single();
       if (error) throw error;
       
       Object.assign(listing, editForm);
       setIsEditing(false);
       
-      // Notify admin about the change
-      await notifyAdmin({
-        event: 'listing_updated',
-        partner: listing.partner_id,
-        filesCount: 0
-      });
+
       
     } catch (e) {
-      alert(msg("Failed to update listing: {error}", { error: e.message }));
+      alert(msg("Failed to update listing: {error}", { error: msg('Try again') }));
     }
   };
 
@@ -95,7 +77,7 @@ function PartnerListingCard({ listing, onUpdate }) {
   );
 }
 
-export default function PartnerDashboard() {
+function PartnerWorkspace() {
   const msg = useSavedText();
   const auth = useAuth();
   const router = useRouter();
@@ -113,6 +95,7 @@ export default function PartnerDashboard() {
   
   // Listings State
   const [myListings, setMyListings] = useState([]);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     if (auth && !auth.loading) {
@@ -127,17 +110,19 @@ export default function PartnerDashboard() {
   }, [auth, router]);
 
   async function loadMyListings() {
+    setLoadError(false);
     try {
       const { data, error } = await supabase
         .from('partner_listings')
         .select('*')
         .order('created_at', { ascending: false });
         
-      if (!error && data) {
+      if (error) throw error;
+      if (data) {
         setMyListings(data);
       }
     } catch (err) {
-      console.error('Failed to load listings', err);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -189,14 +174,8 @@ export default function PartnerDashboard() {
 
       if (insertError) throw insertError;
 
-      // 3. Notify Admin via API route
-      await notifyAdmin({
-        event: 'new_listing',
-        partner: auth.session.name || auth.session.email,
-        filesCount: files.length
-      });
-
-      alert(msg("Listing sent for proof! Admin has been notified."));
+      // Delivery is queued by the database trigger after a successful insert.
+      alert(msg("Listing submitted for review."));
       
       // Reset form
       setTitle('');
@@ -211,13 +190,13 @@ export default function PartnerDashboard() {
       
     } catch (err) {
       console.error(err);
-      alert(msg("Failed to submit listing: {error}", { error: err.message }));
+      alert(msg("Failed to submit listing: {error}", { error: msg('Try again') }));
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (loading || !auth?.session) {
+  if (loading || auth?.loading || !['partner','admin'].includes(auth?.session?.role)) {
     return (
       <main className="flex-1 theme-villa full-bleed flex items-center justify-center bg-villa-parchment py-16">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-villa-obsidian border-t-transparent"></div>
@@ -236,6 +215,9 @@ export default function PartnerDashboard() {
 
         <h1 className="mt-10 font-display text-[10vw] sm:text-[6rem] font-medium leading-[0.92] tracking-[-0.02em] text-villa-charcoal uppercase mb-16"><LocalizedTitle source="Partner{break}Desk" />
         </h1>
+        <RequestBoard key={auth.session.id} scope="partner" />
+        {loadError && <p role="alert">{msg('Unable to load requests.')}</p>}
+
 
         <div className="grid gap-16 lg:grid-cols-2 border-t border-villa-obsidian/20 pt-10">
           
@@ -341,4 +323,9 @@ export default function PartnerDashboard() {
       </div>
     </main>
   );
+}
+
+export default function PartnerDashboard() {
+  const auth = useAuth();
+  return <PartnerWorkspace key={auth?.session?.id || 'signed-out'} />;
 }
