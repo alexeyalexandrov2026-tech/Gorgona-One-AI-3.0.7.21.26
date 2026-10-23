@@ -1,0 +1,91 @@
+  ▲ Next.js 14.2.35
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/44) ...
+   Generating static pages (11/44)
+   Generating static pages (22/44)
+   Generating static pages (33/44)
+Error fetching sportsbooks: {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '\n' +
+    'Caused by: Error: getaddrinfo ENOTFOUND placeholder.supabase.co (ENOTFOUND)\n' +
+    'Error: getaddrinfo ENOTFOUND placeholder.supabase.co\n' +
+    '    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)',
+  hint: '',
+  code: ''
+}
+ ✓ Generating static pages (44/44)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    17.5 kB         235 kB
+├ ○ /_not-found                          147 B          87.8 kB
+├ ○ /admin                               4.94 kB         180 kB
+├ ○ /affiliate-disclosure                597 B           186 kB
+├ ○ /ai-ready                            834 B           114 kB
+├ ○ /amazon-promo-codes                  834 B           114 kB
+├ ƒ /api/book                            0 B                0 B
+├ ƒ /api/chat                            0 B                0 B
+├ ƒ /api/events/ticketnetwork            0 B                0 B
+├ ƒ /api/notify                          0 B                0 B
+├ ƒ /api/search                          0 B                0 B
+├ ƒ /api/tts                             0 B                0 B
+├ ○ /best-shopping-deals                 772 B           123 kB
+├ ƒ /betmgm-promos                       834 B           114 kB
+├ ƒ /caesars-sportsbook-promos           834 B           114 kB
+├ ○ /concierge                           147 B          87.8 kB
+├ ○ /cookie-policy                       594 B           185 kB
+├ ƒ /deals/[slug]                        211 B           132 kB
+├ ○ /discovery                           1.3 kB          213 kB
+├ ○ /draft/homepage-preview              10.7 kB         209 kB
+├ ƒ /draftkings-promos                   832 B           114 kB
+├ ƒ /entertainment/adrenaline-365        767 B           123 kB
+├ ƒ /events                              211 B           166 kB
+├ ƒ /events/[slug]                       509 B          97.1 kB
+├ ƒ /events/category/[category]          213 B           166 kB
+├ ƒ /events/league/[league]              778 B           131 kB
+├ ƒ /experiences                         763 B           123 kB
+├ ƒ /experiences/[slug]                  2.63 kB         190 kB
+├ ƒ /fanduel-promos                      832 B           114 kB
+├ ○ /fashion-discounts                   834 B           114 kB
+├ ○ /login                               2.75 kB         258 kB
+├ ○ /manifest.webmanifest                0 B                0 B
+├ ○ /nike-coupons                        834 B           114 kB
+├ ○ /partner                             4.5 kB          179 kB
+├ ○ /partner-agreement                   595 B           186 kB
+├ ○ /privacy                             589 B           185 kB
+├ ○ /profile                             2.01 kB         257 kB
+├ ○ /register                            3.14 kB         187 kB
+├ ○ /register/partner                    3.85 kB         187 kB
+├ ƒ /rentals                             1.45 kB         123 kB
+├ ƒ /rentals/[slug]                      4.65 kB         192 kB
+├ ƒ /restaurants-nightlife               1.46 kB         123 kB
+├ ƒ /restaurants-nightlife/[slug]        3.1 kB          210 kB
+├ ○ /robots.txt                          0 B                0 B
+├ ○ /sitemap.xml                         0 B                0 B
+├ ƒ /sports-betting-promos               834 B           114 kB
+├ ƒ /sportsbook                          772 B           123 kB
+├ ƒ /sportsbook/[slug]                   772 B           123 kB
+├ ƒ /stores                              213 B           132 kB
+├ ƒ /stores/[category]                   213 B           132 kB
+├ ƒ /stores/restaurants                  1.46 kB         123 kB
+├ ○ /terms                               587 B           185 kB
+├ ○ /travel                              1.25 kB         163 kB
+├ ƒ /travel/ovago                        767 B           123 kB
+├ ƒ /vacation-rentals                    3.07 kB         201 kB
+├ ƒ /vacation-rentals/[slug]             2.64 kB         190 kB
+├ ○ /yachts                              1.36 kB         114 kB
+└ ƒ /yachts/[slug]                       2.64 kB         190 kB
++ First Load JS shared by all            87.7 kB
+  ├ chunks/4463-7febc7a13e784fad.js      31.7 kB
+  ├ chunks/c2d1446b-3a83567d3da93ad2.js  53.6 kB
+  └ other shared chunks (total)          2.31 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

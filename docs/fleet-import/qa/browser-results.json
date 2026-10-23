@@ -1,0 +1,17 @@
+{
+  "newVehiclePages": 13,
+  "existingVehiclePages": 17,
+  "localizedDescriptions": 16,
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "errors": [],
+  "status": "PASS"
+}

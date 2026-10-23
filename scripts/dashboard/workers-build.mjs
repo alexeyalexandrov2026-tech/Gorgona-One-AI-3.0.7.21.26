@@ -23,7 +23,7 @@ function main(){
   const env={...process.env,NEXT_PUBLIC_SUPABASE_URL:c.url,NEXT_PUBLIC_SUPABASE_ANON_KEY:c.anonKey,NEXT_PRIVATE_STANDALONE:'true',NEXT_TELEMETRY_DISABLED:'1',GORGONA_AI_ENABLED:'off'};
   for(const name of ['SUPABASE_SERVICE_ROLE_KEY','BOOKING_RATE_SECRET','DASHBOARD_OUTBOX_TOKEN','DASHBOARD_STAGING_ACCESS_SECRET','TELEGRAM_BOT_TOKEN','TELEGRAM_OWNER_CHAT_ID','RESEND_API_KEY','ADMIN_EMAIL','NOTIFICATIONS_FROM_EMAIL','GEMINI_API_KEY','OPENAI_API_KEY'])env[name]='';
   run(['node_modules/next/dist/bin/next','build'],env);
-  run(['scripts/i18n/build-worker.mjs'],env);
+  run(['scripts/i18n/build-worker.mjs','--config','wrangler.dashboard-staging.json'],env);
   const release={commit:c.commit,tree:git('rev-parse','HEAD^{tree}'),projectRef:c.projectRef,clientKeyHash:createHash('sha256').update(c.anonKey).digest('hex'),builtAt:new Date().toISOString(),artifactHash:artifactHash(root)};
   fs.writeFileSync(path.join(root,'.open-next/dashboard-staging-release.json'),JSON.stringify(release,null,2)+'\n');
   console.log('Prepared protected staging release '+c.commit);

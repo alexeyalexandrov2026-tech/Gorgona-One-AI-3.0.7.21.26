@@ -1,29 +1,31 @@
 import { LocalizedListing } from '../../components/LocalizedText';
 import { notFound } from 'next/navigation';
-import { getYachts, getYachtBySlug } from '../../../lib/yachtsData';
+import { getYachts, getYachtBySlug } from '../../../lib/data/listings';
 import { getServerTranslation } from '../../../lib/serverLocale';
 import { getWorldsCopy, displayValue, largeImage } from '../../../lib/worldsCopy';
 import BookingForm from '../../components/BookingForm';
+import Gallery from '../../components/g1/Gallery';
+import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
 
 export const dynamic = 'force-dynamic';
 
-export default function YachtDetailPage({ params }) {
-  const yacht = getYachtBySlug(params.slug);
+export default async function YachtDetailPage({ params }) {
+  const yacht = await getYachtBySlug(params.slug,{editorial:true});
   if (!yacht) notFound();
 
   const { t, locale } = getServerTranslation();
   const copy = getWorldsCopy(locale);
-  const more = getYachts().filter((y) => y.slug !== yacht.slug).slice(0, 3);
+  const more = (await getYachts({editorial:true})).filter((y) => y.slug !== yacht.slug).slice(0, 3);
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
       <Crumbs items={[[t.nav.yachts, '/yachts'], [yacht.title]]} />
 
       <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
-        <figure className="aspect-[3/2] overflow-hidden rounded-[26px] bg-g1-rule">
+        {yacht.partner?<Gallery images={yacht.gallery} title={yacht.title} copy={copy}/>:<figure className="aspect-[3/2] overflow-hidden rounded-[26px] bg-g1-rule">
           <img src={largeImage(yacht.image)} alt={yacht.title} width="1600" height="1067" fetchPriority="high" className="h-full w-full object-cover" />
-        </figure>
+        </figure>}
 
         <div className="grid min-w-0 gap-5 lg:sticky lg:top-24">
           <p className={eyebrowClass}>{yacht.length} · {yacht.location}</p>
@@ -38,6 +40,7 @@ export default function YachtDetailPage({ params }) {
             ]}
           />
           <BookingForm rentalSlug={yacht.slug} rentalTitle={yacht.title} kind="yacht" />
+          {yacht.partner&&<PartnerSpecs specs={yacht.specs}/>}
         </div>
       </div>
 

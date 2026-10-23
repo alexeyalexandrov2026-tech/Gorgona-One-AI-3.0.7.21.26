@@ -69,7 +69,7 @@ function build(){
   for(const k of ['SUPABASE_SERVICE_ROLE_KEY','BOOKING_RATE_SECRET','DASHBOARD_OUTBOX_TOKEN','TELEGRAM_BOT_TOKEN','TELEGRAM_OWNER_CHAT_ID','RESEND_API_KEY','ADMIN_EMAIL','NOTIFICATIONS_FROM_EMAIL','GEMINI_API_KEY','OPENAI_API_KEY','DASHBOARD_STAGING_ACCESS_SECRET'])env[k]='';
   console.log('Building isolated staging source '+commit);
   run(process.execPath,[tool(dir,'next/dist/bin/next'),'build'],dir,env);
-  run(process.execPath,['scripts/i18n/build-worker.mjs'],dir,env);
+  run(process.execPath,['scripts/i18n/build-worker.mjs','--config','wrangler.dashboard-staging.json'],dir,env);
   const release={commit,tree,projectRef:c.projectRef,clientKeyHash:hash(c.anonKey),builtAt:new Date().toISOString(),artifactHash:artifactHash(dir)};
   fs.writeFileSync(path.join(dir,'.open-next/dashboard-staging-release.json'),JSON.stringify(release,null,2)+'\n');
   console.log(JSON.stringify({buildDirectory:dir,...release}));

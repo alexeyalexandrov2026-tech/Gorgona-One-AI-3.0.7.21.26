@@ -22,5 +22,5 @@ test('artifact integrity detects changed bundles and wrapper code but excludes i
  }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
 test('artifact integrity rejects links that could pull files from outside the saved build',()=>{
- const dir=fixture();try{fs.symlinkSync(path.join(dir,'wrangler.dashboard-staging.json'),path.join(dir,'.open-next/unsafe-link'));assert.throws(()=>artifactHash(dir),/symlinks/);}finally{fs.rmSync(dir,{recursive:true,force:true});}
+ const dir=fixture();try{fs.symlinkSync(path.join(dir,'workers'),path.join(dir,'.open-next/unsafe-link'),process.platform==='win32'?'junction':'dir');assert.throws(()=>artifactHash(dir),/symlinks/);}finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
