@@ -38,3 +38,36 @@ The adapter was replaced after acceptance with an inert `Not found` / 404 handle
 The security advisor's five private-table RLS-without-policy INFO results are intentional browser denial. Its remaining warning is disabled leaked-password protection, an Auth configuration setting; see [Supabase password protection](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection). That setting has not been enabled by this migration.
 
 No real Telegram/Resend delivery, sender-domain setup, bot pairing or scheduled delivery job was activated. Hosting acceptance on the actual Cloudflare staging URL, owner-channel receipt confirmation, Safari/iOS/accessibility checks and the separate production rollout remain. Private acceptance results and credentials are not release artifacts.
+
+## Separate hosted Worker
+
+`wrangler.dashboard-staging.json` targets only `miami-elio-dashboard-staging`, without production routes or custom domains. The staging entry wraps the real OpenNext worker. `run_worker_first` protects static assets as well as HTML and API traffic. HTTP Basic uses username `preview` and a separate high-entropy `DASHBOARD_STAGING_ACCESS_SECRET`; successful access sets a signed, four-hour HttpOnly/Secure cookie, so subsequent Supabase bearer headers still reach the application. Rotating that secret revokes old cookies. Responses prohibit indexing and caching. Delivery credentials are refused and the dispatch endpoint remains disabled.
+
+The wrapper fails closed if required runtime secrets are absent, a project differs from the staging ref, or the runtime public key differs from the key inlined at build time. Its authenticated `/__dashboard_staging/health` identifies the exact commit and project; it does not claim database or delivery acceptance.
+
+`scripts/dashboard/staging-release.mjs` builds an immutable `git archive` snapshot into a new private temporary directory. Untracked files and local `.env` files are excluded. It uses only the public Supabase configuration during the Next build and packages Cloudflare output. A release receipt records commit/tree, public-key hash and artifact integrity; altered output or a different current commit is rejected before deployment. An optional `DASHBOARD_STAGING_NODE_MODULES` absolute directory reuses installed dependencies (Next 14.2.35, OpenNext 1.15.1); otherwise it runs `npm ci`.
+
+Use the private mode-600 staging config already described above, outside the repository. The optional QA token in that file is not put in the build. From a clean, committed checkout:
+
+```sh
+node scripts/dashboard/staging-release.mjs build
+```
+
+Set `DASHBOARD_STAGING_BUILD_DIR` to the returned directory. `check` verifies its receipt without publishing. To deploy, `DASHBOARD_STAGING_SECRETS` must name an outside-repository mode-600 JSON file containing exactly `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `BOOKING_RATE_SECRET`, `DASHBOARD_OUTBOX_TOKEN`, and `DASHBOARD_STAGING_ACCESS_SECRET`. The last three should be distinct cryptographically random values of at least 32 characters. Do not reuse the temporary acceptance adapter's gate. No delivery-provider credentials belong in this file.
+
+```sh
+node scripts/dashboard/staging-release.mjs check
+node scripts/dashboard/staging-release.mjs deploy
+```
+
+Deploy requires Wrangler authentication in the intended Cloudflare account, or its scoped API token and account ID. It verifies the service credential against the staging-only privileged RPC before uploading. The first version rejects traffic until encrypted runtime secrets are installed through `wrangler secret bulk`; secret values are never CLI arguments or saved build files. A failed intermediate step leaves a fail-closed staging worker, not a usable release. Do not substitute the production Wrangler config.
+
+Use only the exact workers.dev URL returned by that deployment as `DASHBOARD_STAGING_URL`, then run:
+
+```sh
+node scripts/dashboard/staging-release.mjs probe
+```
+
+The probe checks unauthenticated denial, authenticated exact commit/project identity and invalid booking rejection. Full hosted role/browser/Storage acceptance must still follow. At preparation time, Wrangler was unauthenticated and the Cloudflare browser showed its login page; no hosted deployment or URL is claimed by these scripts.
+
+The build/runtime split follows [OpenNext environment variables](https://opennext.js.org/cloudflare/howtos/env-vars); runtime credentials follow [Cloudflare Secrets](https://developers.cloudflare.com/workers/configuration/secrets/).

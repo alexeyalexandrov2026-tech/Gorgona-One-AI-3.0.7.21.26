@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "miami-elio-dashboard-staging",
+  "main": "workers/dashboard-staging.mjs",
+  "compatibility_date": "2026-07-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "vars": {
+    "APP_ENV": "dashboard-staging",
+    "STAGING_PROJECT_REF": "kaxslgjbrarapeyoifdh",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://kaxslgjbrarapeyoifdh.supabase.co",
+    "GORGONA_AI_ENABLED": "off"
+  },
+  "observability": { "enabled": false }
+}

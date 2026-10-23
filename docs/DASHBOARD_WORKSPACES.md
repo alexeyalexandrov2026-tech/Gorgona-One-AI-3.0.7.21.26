@@ -49,6 +49,8 @@ Run `npm run i18n:check`, `node --test tests/content/*.test.mjs tests/i18n/*.tes
 
 Real staging acceptance passed 10 API/Auth/RLS/Storage checks and four production-UI browser flows, including reload recovery without a duplicate booking. The UI ran locally against real staging services through a temporary gated adapter; this does not certify a hosted Cloudflare staging deployment. That adapter has been replaced with an inert 404 handler and JWT verification re-enabled. See `docs/DASHBOARD_STAGING.md` for the environment, evidence and remaining limits.
 
+The separate hosted-staging entry is `wrangler.dashboard-staging.json`, with a password/cookie gate covering HTML, assets and APIs. Its release script builds a clean Git snapshot, verifies project/key/artifact identity and refuses notification-provider credentials. It does not change the production entry or routes. Publishing requires Cloudflare account access and the staging service credential; see the same staging document for the build, check, deploy and probe commands.
+
 ## Remaining stages
 
 - Hosted Cloudflare staging and production rollout; actual owner channel setup and receipt confirmation. Real Supabase staging acceptance is complete.
