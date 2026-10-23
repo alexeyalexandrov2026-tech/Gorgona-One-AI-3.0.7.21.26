@@ -71,3 +71,13 @@ node scripts/dashboard/staging-release.mjs probe
 The probe checks unauthenticated denial, authenticated exact commit/project identity and invalid booking rejection. Full hosted role/browser/Storage acceptance must still follow. At preparation time, Wrangler was unauthenticated and the Cloudflare browser showed its login page; no hosted deployment or URL is claimed by these scripts.
 
 The build/runtime split follows [OpenNext environment variables](https://opennext.js.org/cloudflare/howtos/env-vars); runtime credentials follow [Cloudflare Secrets](https://developers.cloudflare.com/workers/configuration/secrets/).
+
+## Workers Builds through the existing Git integration
+
+If local Wrangler authentication is unavailable, use the authenticated Cloudflare dashboard's existing GitHub integration to create a **separate** Worker named `miami-elio-dashboard-staging` from this repository and branch `dashboard/workspaces`. Keep the root directory at the repository root. Do not edit `gorgonaoneai3072126` or its production branch, domains or routes.
+
+Set build command `node scripts/dashboard/workers-build.mjs` and deploy command `npx wrangler deploy --config wrangler.dashboard-staging.json`. In build variables set `NEXT_PUBLIC_SUPABASE_URL` to the staging URL and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to that project's public anon/publishable key. These two variables must also be available to the runtime (the URL is already pinned in the staging Wrangler config). Workers Builds supplies the checkout and `WORKERS_CI_COMMIT_SHA`; the entry verifies the commit, project and protected Worker config, builds in that checkout, then stamps the same release receipt. It does not require the developer-only `DASHBOARD_STAGING_CONFIG` file, nor does it upload secrets or run a deployment itself.
+
+The five runtime bindings listed above remain necessary. Configure server credentials only as encrypted secrets in the separate Worker; do not copy them into build commands or source. Until the required configuration exists, the hosted wrapper returns 503 before serving application data. Provider credentials and notification dispatch remain disabled. A successful build with missing secrets is therefore not functional acceptance of hosted dashboards.
+
+On 2026-10-23 the user's existing TinyFish profile `Miami Elio — Cloudflare DNS` provided an authenticated Cloudflare dashboard session, without a new Google sign-in. Read-only inspection confirmed the staging Worker was absent. This restores the dashboard route for setup; it does not provide a local Wrangler token or the staging service credential.
