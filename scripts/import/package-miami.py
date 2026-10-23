@@ -16,7 +16,10 @@ if __name__ == '__main__':
     run(['git', 'diff', '--check'], cwd=ROOT, check=True)
     parser = argparse.ArgumentParser()
     parser.add_argument('--base', default=json.loads((ROOT/'docs/fleet-import/decisions.json').read_text(encoding='utf-8'))['baseCommit'])
+    parser.add_argument('--archive-name', default='miami-fleet-import-2026-10-23-v2.zip')
     args = parser.parse_args()
+    if Path(args.archive_name).name != args.archive_name or not args.archive_name.endswith('.zip') or any(c in args.archive_name for c in '\\/:'):
+        raise ValueError('Archive name must be a ZIP filename without directories')
     base = check_output(['git', 'rev-parse', args.base+'^{commit}'], cwd=ROOT, text=True).strip()
     branch = check_output(['git', 'branch', '--show-current'], cwd=ROOT, text=True).strip()
     baseline_files = set(check_output(['git','ls-tree','-r','--name-only','-z',base],cwd=ROOT).decode('utf-8').split('\0'))
@@ -29,7 +32,7 @@ if __name__ == '__main__':
     patch = check_output(['git', 'diff', '--binary', '--no-ext-diff', base,'--',*changed], cwd=ROOT)
     output_dir = ROOT.parent / 'outputs'
     output_dir.mkdir(exist_ok=True)
-    target = output_dir / 'miami-fleet-import-2026-10-23-v2.zip'
+    target = output_dir / args.archive_name
     checksums = {'baseCommit': base, 'branch': branch, 'files': {}}
     with ZipFile(target, 'w', compression=ZIP_DEFLATED, compresslevel=6) as package:
         package.writestr('tracked-changes.patch', patch)
@@ -92,5 +95,5 @@ if __name__ == '__main__':
                                      f'newlineOnly={actual.replace(bytes([13,10]),bytes([10])) == expected.replace(bytes([13,10]),bytes([10]))}')
     result = {'path': str(target), 'bytes': target.stat().st_size, 'sha256': sha256(target.read_bytes()).hexdigest(),
               'entries': len(checksums['files']) + 1, 'integrity': 'PASS', 'cleanBaseTransfer': 'PASS', 'baseCommit': base}
-    (output_dir / 'miami-fleet-import-2026-10-23-v2.receipt.json').write_text(json.dumps(result, indent=2) + '\n')
+    target.with_suffix('.receipt.json').write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps(result))
