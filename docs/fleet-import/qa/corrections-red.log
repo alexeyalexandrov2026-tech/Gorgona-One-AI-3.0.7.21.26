@@ -25,9 +25,9 @@ To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\
 test at tests\content\fleet-import.test.mjs:32:1
 ✖ thirty canonical vehicles include one corrected white X5 and separate GLS interior variants (0.8605ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   29 !== 30
-  
+
       at TestContext.<anonymous> (file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/tests/content/fleet-import.test.mjs:33:9)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1325:25)
@@ -47,9 +47,9 @@ test at tests\content\fleet-import.test.mjs:32:1
 test at tests\content\fleet-import.test.mjs:46:1
 ✖ covers the source exactly once and quarantines its mislabeled CLE53 entry (0.3344ms)
   AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
-  
+
   12 !== 13
-  
+
       at TestContext.<anonymous> (file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/tests/content/fleet-import.test.mjs:49:9)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1325:25)
@@ -69,9 +69,9 @@ test at tests\content\fleet-import.test.mjs:46:1
 test at tests\content\fleet-import.test.mjs:55:1
 ✖ CLE53 and CLE300 cannot share galleries after the rear badges identified distinct models (3.7806ms)
   AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
-  
+
     assert.ok(cle300)
-  
+
       at TestContext.<anonymous> (file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/tests/content/fleet-import.test.mjs:57:69)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1325:25)
@@ -91,9 +91,9 @@ test at tests\content\fleet-import.test.mjs:55:1
 test at tests\content\fleet-import.test.mjs:64:1
 ✖ GLS cream and brown interiors cannot be combined into one physical vehicle (0.4128ms)
   AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
-  
+
     assert.ok(brown)
-  
+
       at TestContext.<anonymous> (file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/tests/content/fleet-import.test.mjs:65:112)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1325:25)

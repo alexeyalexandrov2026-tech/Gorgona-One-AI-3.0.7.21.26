@@ -91,6 +91,6 @@ if __name__ == '__main__':
     result = {'schemaVersion': 1, 'capturedAt': datetime.now(timezone.utc).isoformat(), 'source': HOST, 'vehicles': vehicles}
     target = ROOT / 'docs/fleet-import/source-inventory.json'
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    target.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
     for vehicle in vehicles:
         print(f"{len(vehicle['photoUrls']):2} photos | {vehicle['sourceTitle']} | excluded={vehicle['excluded']}")
