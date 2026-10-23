@@ -1,0 +1,118 @@
+✔ there is no public route that seeds the database (3.7973ms)
+✔ admin notifications need a signed-in caller (1.2914ms)
+✔ the chat health check does not expose the router (2.6827ms)
+✔ the footer has no Admin link (18.8088ms)
+(node:39860) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/savedServerCatalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ Stores keeps its rules: Rowe & Taylor first, hidden brands and duplicates out (2.2972ms)
+✔ category pages hide the same brands and never list betting (0.9736ms)
+✔ Stores now lists Disney+, DoorDash and Uber Eats, which used to live on Coupons (0.5424ms)
+✔ every listed offer links to a partner, the brand or one of our pages (2.7909ms)
+✔ deals copy is complete in all sixteen languages (31.3646ms)
+(node:8852) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/rentalsData.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ unaffected original vehicles retain their routes, covers and descriptive metadata (4.2892ms)
+✔ each new description has saved copy in all sixteen supported languages (4.122ms)
+✔ thirty canonical vehicles include one corrected white X5 and separate GLS interior variants (0.7538ms)
+✔ covers the source exactly once and quarantines its mislabeled CLE53 entry (0.4899ms)
+✔ CLE53 and CLE300 cannot share galleries after the rear badges identified distinct models (0.5982ms)
+✔ GLS cream and brown interiors cannot be combined into one physical vehicle (0.627ms)
+✔ grey and white X5 variants remain separate and legacy G-Class URL redirects to the corrected white X5 (0.6358ms)
+✔ all original gallery files match their captured hashes and have bounded local covers (161.3682ms)
+✔ source vehicles have no imported tariffs, deposits, external booking links or provider branding (1.3039ms)
+✔ all source gallery photos are represented by a local file or a reviewed equivalent in the merged gallery (1.7448ms)
+(node:31264) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/savedServerCatalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the homepage shows the same ten sportsbooks in the same order (10.1473ms)
+✔ the homepage has no promo-code copy in any core language (7.7708ms)
+✔ every car has its small homepage cover (3.6282ms)
+✔ season dates are well formed, sourced and translated (0.9134ms)
+✔ past events drop off and countdowns count whole days (5.2353ms)
+✔ the A1A line has every stop it shows, each translated (5.1883ms)
+✔ homepage copy has matching structure and slots in all sixteen languages (8.3132ms)
+(node:37736) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/discoveryCategories.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ every Discovery and AI category link opens a real page (4.823ms)
+✔ the partner sign-up links to the partnership agreement (2.8137ms)
+✔ all ten current sportsbook programs are disabled by default (1.5968ms)
+✔ a fully reviewed and verified approved destination can resolve (0.524ms)
+✔ unknown brands, absent state verification or age verification fail closed (0.4554ms)
+✔ all approvals and state permissions must be explicit (0.4715ms)
+✔ Florida sportsbook promotion is blocked for all brands except Hard Rock Bet (0.3446ms)
+✔ reject insecure, unexpected, malformed or credentialed tracking URLs (0.2632ms)
+(node:37100) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/sportsbookDirectory.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the list keeps the same ten operators in the same order (3.8505ms)
+✔ theScore Bet takes the former ESPN BET place (1.0134ms)
+✔ every operator has a where-it-is-legal source and a check date (0.549ms)
+✔ only Hard Rock Bet is marked available in Florida, with sources (0.2514ms)
+✔ no visitor-facing data still says ESPN BET (5.9467ms)
+(node:39252) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/ticketnetworkSource.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ only the current public storefront search configuration is accepted; arbitrary hosts fail closed (3.9454ms)
+✔ concurrent identical searches are coalesced, fresh results reused, and no vendor key reaches the response (99.1903ms)
+✔ an upstream outage serves an explicitly stale matching list, and expired saved inventory is never used (8.7208ms)
+✔ page 1 cache never substitutes for a failed page 2 or for another area (9.7931ms)
+✔ malformed JSON and supplier errors produce a failure, never an empty successful catalogue (8.0923ms)
+✔ edge cache preserves valid inventory across service instances and cache failures do not break live results (10.9504ms)
+✔ a rotated public search key triggers discovery again on manual retry (6.2094ms)
+✔ public failure details distinguish discovery and search errors without exposing supplier bodies or keys (35.6664ms)
+✔ native Workers requests discover configuration and return a real-shaped catalogue (375.2013ms)
+✔ native Workers rejects supplier redirects at every stage without following Location (574.6085ms)
+(node:37948) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/ticketnetwork.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ CJ tracking keeps the verified property, unique campaigns and complete encoded destination (13.264ms)
+✔ every visible category and the Events overview has a unique tracked catalogue and a Miami default (60.0845ms)
+✔ the new search preserves sports, mixed-genre and Formula 1 category boundaries (3.6446ms)
+✔ geography changes only when requested, dates use the Miami calendar day, and pagination stays bounded (1.6513ms)
+✔ invalid dates, injection, raw upstream parameters and duplicate query fields are rejected (65.5844ms)
+✔ supplier rows become tracked links with venue-local dates and no invented price or scarcity claims (15.0731ms)
+(node:36876) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/savedServerCatalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ world copy has the same keys, lists and placeholders in all sixteen languages (38.4293ms)
+✔ every car category has a label (59.6767ms)
+✔ request summaries fit the booking API and stay in English (0.475ms)
+✔ the booking form still posts the fields /api/book reads (1.351ms)
+✔ display helpers (0.4082ms)
+(node:40340) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/i18n.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ all sixteen saved catalogs cover the current owned material and display UI (711.5756ms)
+(node:39360) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/alexa/Documents/ChatGPT/Miami%20Elio/miami-fleet-import/lib/savedServerCatalog.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to \\?\C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-fleet-import\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ new literal display text and accessibility attributes require localization (21.0288ms)
+✔ auth messages localize provider codes and never expose unknown diagnostics (0.7148ms)
+✔ language registry and neutral quantity labels remain valid when inventory changes (2.1529ms)
+✔ only ordinary routes may refresh when changing locale (0.8754ms)
+✔ unknown or changed material is preserved instead of receiving a stale translation (2.1087ms)
+✔ named values, prices and user input keep their data (23.9684ms)
+✔ external widget implementations stay byte-identical to the audited production base (3.8329ms)
+✔ new visible JSX text must be localized or explicitly exempted (292.2712ms)
+✔ event records are excluded from saved sources and remain English at their render sites (3.3136ms)
+ℹ tests 70
+ℹ suites 0
+ℹ pass 70
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2221.0443
