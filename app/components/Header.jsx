@@ -73,7 +73,7 @@ export function Header() {
         scrolled ? "border-g1-rule bg-g1-paper/90" : "border-transparent bg-g1-paper/60"
       }`}
     >
-      <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4">
+      <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4 xl:flex-wrap">
         <div className="flex min-w-0 items-center gap-2">
           {/* Universal back navigation. Available on both mobile and desktop.
               Hidden on the homepage (nothing to go "back" from) and when 
@@ -90,13 +90,13 @@ export function Header() {
               </svg>
             </button>
           )}
-          <Link href="/" aria-label={msg("Miami Elio, home")} className="group flex items-baseline gap-2">
-            <span className="font-g1mono text-[0.72rem] uppercase tracking-[0.3em] text-g1-accent">Miami</span>
+          <Link href="/" aria-label={msg("Miami Elio, home")} className="group flex shrink-0 items-baseline gap-2">
+            <span className="hidden font-g1mono text-[0.72rem] uppercase tracking-[0.3em] text-g1-accent min-[360px]:inline">Miami</span>
             <span className="font-g1display text-2xl font-medium tracking-tight text-g1-ink sm:text-3xl">Elio</span>
           </Link>
         </div>
 
-        <nav className="hidden items-center gap-3.5 xl:flex xl:gap-6">
+        <nav className="hidden items-center gap-3.5 xl:order-last xl:flex xl:w-full xl:justify-between xl:gap-6">
           {navItems.map((item) => (
             <Link
               key={item.href}

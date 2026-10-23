@@ -90,9 +90,19 @@ try{
     const account=page.locator('header[dir="ltr"]').getByRole('link',{name:text('ru','Admin Portal'),exact:true});
     await expect(account).toHaveAttribute('href','/admin');await account.click();await expect(page).toHaveURL(base+'/admin');
     await expect(page.getByRole('heading',{name:(await import('../../lib/partnerListingCopy.mjs')).getPartnerListingCopy('ru').queue,exact:true})).toBeVisible();
+    await page.evaluate(()=>document.fonts.ready);
     for(const width of [320,390,768,1024,1280,1440]){
       await page.setViewportSize({width,height:1000});await expect(account).toBeVisible();
       expect(await page.locator('header[dir="ltr"]').evaluate(el=>el.scrollWidth-el.clientWidth),'header layout at '+width).toBeLessThanOrEqual(2);
+      const brand=page.locator('header[dir="ltr"]').getByRole('link',{name:text('ru','Miami Elio, home'),exact:true});
+      expect(await brand.evaluate(el=>el.scrollWidth-el.clientWidth),'brand text at '+width).toBeLessThanOrEqual(2);
+      const overlaps=await page.locator('header[dir="ltr"]').evaluate(el=>{
+        const boxes=[...el.querySelectorAll('a,button')].map(node=>node.getBoundingClientRect()).filter(r=>r.width&&r.height);
+        let count=0;for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){
+          const a=boxes[i],b=boxes[j];if(Math.min(a.right,b.right)-Math.max(a.left,b.left)>2&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>2)count++;
+        }return count;
+      });expect(overlaps,'header control overlaps at '+width).toBe(0);
+      await page.locator('header[dir="ltr"]').screenshot({path:path.join(output,'header-'+width+'.png'),animations:'disabled'});
     }
     await page.getByRole('button',{name:'Demo charter',exact:true}).click();
     await expect(page.getByRole('button',{name:text('ru','Start review'),exact:true})).toBeVisible();
