@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { DEFAULT_LANGUAGE, getLanguageDir, isSupportedLanguage } from '../../lib/languages';
 import { canRefreshForLocale } from '../../lib/localePolicy';
@@ -11,6 +11,7 @@ const LOCALE_COOKIE_KEY = 'gorgona-locale';
 
 const LocaleContext = createContext(DEFAULT_LANGUAGE);
 const LocaleControllerContext = createContext(null);
+const useDocumentEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 function readCookie(name) {
   if (typeof document === 'undefined') return null;
@@ -26,8 +27,10 @@ function writeCookie(name, value) {
 
 function applyDocumentLocale(code) {
   if (typeof document === 'undefined') return;
-  document.documentElement.lang = code;
-  document.documentElement.dir = getLanguageDir(code);
+  const root = document.documentElement;
+  const dir = getLanguageDir(code);
+  if (root.lang !== code) root.lang = code;
+  if (root.dir !== dir) root.dir = dir;
 }
 
 export function readSavedLocale() {
@@ -49,6 +52,11 @@ export function LocaleProvider({ children }) {
   const currentPathname = useRef(pathname);
   const clientLocaleRoutes = useRef(new Map());
   currentPathname.current = pathname;
+
+  // An RSC refresh can reconcile the root attributes after the selection's
+  // initial update. Reapply the active locale after every committed render,
+  // before paint, including renders where only server children changed.
+  useDocumentEffect(() => { applyDocumentLocale(locale); });
 
   const registerClientLocaleRoute = useCallback((path) => {
     const routes = clientLocaleRoutes.current;

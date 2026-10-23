@@ -2,9 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { chromium, expect } from '@playwright/test';
+import { build } from 'esbuild';
 import '../../lib/savedServerCatalog.js';
 import { SUPPORTED_LANGUAGES } from '../../lib/languages.js';
-import { savedMessage, savedSource } from '../../lib/savedCopy.js';
+import { SAVED_MESSAGES, savedMessage, savedSource } from '../../lib/savedCopy.js';
 import { getTranslation } from '../../lib/i18n.js';
 import { appFiles, messageId } from '../../scripts/i18n/catalogue.mjs';
 import { getRentals } from '../../lib/rentalsData.js';
@@ -54,7 +55,7 @@ async function choose(page,locale) {
 }
 async function noOverflow(page) {
   const extra = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-  if(extra>2) console.log('OVERFLOW '+JSON.stringify(await page.evaluate(()=>({lang:document.documentElement.lang,width:innerWidth,items:[...document.querySelectorAll('body *')].map(n=>({tag:n.tagName,cls:String(n.className).slice(0,100),text:n.textContent?.slice(0,60),left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right,width:n.getBoundingClientRect().width})).filter(n=>n.right>innerWidth+2||n.left< -2).slice(0,14)}))));
+  if(extra>2) console.log('OVERFLOW '+JSON.stringify(await page.evaluate(()=>({lang:document.documentElement.lang,width:innerWidth,items:[...document.querySelectorAll('body *')].filter(n=>!n.closest('svg')).map(n=>({tag:n.tagName,cls:String(n.className).slice(0,100),text:n.textContent?.slice(0,60),left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right,width:n.getBoundingClientRect().width})).filter(n=>n.right>innerWidth+2||n.left< -2).slice(0,14)}))));
   expect(extra).toBeLessThanOrEqual(2);
 }
 async function scenario(name,viewport,task) {
@@ -97,6 +98,7 @@ await scenario('home-desktop',{width:1440,height:1000},async page => {
     await choose(page,locale);
     const heading = savedMessage(locale,'ui.e50dfd503195d9af',{highlight:savedMessage(locale,'home.titleEm')});
     await expect(page.locator('main h1')).toHaveText(heading);
+    await expect(page.locator('html')).toHaveAttribute('lang',locale);
     await noOverflow(page);
   }
   await choose(page,'ja');
@@ -108,7 +110,7 @@ await scenario('home-desktop',{width:1440,height:1000},async page => {
 
 await scenario('home-mobile',{width:390,height:844},async page => {
   await page.goto(baseURL,{waitUntil:'domcontentloaded'});
-  for (const locale of ['ru','de','he','ar','fa','ja','ko','zh']) {
+  for (const locale of locales) {
     await choose(page,locale);
     await expect(page.locator('main h1')).toHaveText(savedMessage(locale,'ui.e50dfd503195d9af',{highlight:savedMessage(locale,'home.titleEm')}));
     await noOverflow(page);
@@ -185,6 +187,7 @@ await scenario('event-records-and-filters',{width:390,height:844},async page=>{
 await scenario('auth-error',{width:390,height:844},async page=>{
   await page.route(url=>url.hostname.endsWith('.supabase.co'),route=>route.fulfill({status:400,json:{code:'invalid_credentials',error_code:'invalid_credentials',msg:'private upstream diagnostic'}}));
   await page.goto(baseURL+'/login',{waitUntil:'domcontentloaded'});
+  await choose(page,'en');
   const form=page.locator('main form');await form.locator('input[type="email"]').fill('i18n-qa@example.com');await form.locator('input[type="password"]').fill('Test-fixture-only-123');await form.locator('button[type="submit"]').click();
   await expect(page.locator('main')).toContainText(savedMessage('en','authError.credentials'));
   for(const locale of locales){await choose(page,locale);await expect(page.locator('main')).toContainText(savedMessage(locale,'authError.credentials'));await expect(page.locator('main')).not.toContainText('private upstream diagnostic');await noOverflow(page);}
@@ -219,14 +222,53 @@ await scenario('not-found',{width:390,height:844},async page=>{
   const response=await page.goto(baseURL+'/i18n-this-page-does-not-exist',{waitUntil:'domcontentloaded'});expect(response.status()).toBe(404);
   for(const locale of locales){await choose(page,locale);await expect(page.locator('body')).toContainText(savedSource(locale,'This page could not be found.'));await noOverflow(page);}
 });
-await scenario('route-matrix',{width:1440,height:1000},async(page,{context})=>{
+await scenario('global-error-cold',{width:390,height:844},async page=>{
+  // Render the actual root boundary in a fresh document. Its client bundle
+  // must restore the language without LocaleProvider or a preloaded catalog.
+  const fixture=await build({
+    stdin:{
+      contents:"import React from 'react';import {createRoot} from 'react-dom/client';import GlobalError from './app/global-error.js';localStorage.setItem('gorgona-locale',new URL(location.href).searchParams.get('locale'));createRoot(document).render(React.createElement(GlobalError,{error:new Error('Fixture only'),reset:()=>{document.body.dataset.recovered='true'}}));",
+      resolveDir:process.cwd(),sourcefile:'root-boundary-fixture.jsx',loader:'jsx'
+    },
+    bundle:true,platform:'browser',format:'iife',write:false,jsx:'automatic',
+    loader:{'.js':'jsx'},define:{'process.env.NODE_ENV':'"production"'},logLevel:'silent'
+  });
+  await page.route(baseURL+'/__i18n-root-error*',route=>route.fulfill({
+    contentType:new URL(route.request().url()).pathname.endsWith('.js')?'application/javascript':'text/html',
+    body:new URL(route.request().url()).pathname.endsWith('.js')?fixture.outputFiles[0].text:'<!doctype html><html><head><meta name="viewport" content="width=device-width"></head><body><script src="/__i18n-root-error.js"></script></body></html>'
+  }));
+  for(const locale of locales){
+    await page.goto(baseURL+'/__i18n-root-error?locale='+locale,{waitUntil:'domcontentloaded'});
+    await expect(page.locator('h2')).toHaveText(savedSource(locale,'Critical Error'));
+    await expect(page.locator('p')).toHaveText(savedSource(locale,'A critical system error occurred. We have logged the issue and are working on it.'));
+    await expect(page.locator('html')).toHaveAttribute('lang',locale);
+    await expect(page.locator('html')).toHaveAttribute('dir',SUPPORTED_LANGUAGES.find(item=>item.code===locale).dir);
+    await page.getByRole('button',{name:savedSource(locale,'Try again'),exact:true}).click();
+    await expect(page.locator('body')).toHaveAttribute('data-recovered','true');
+  }
+});
+for (const [name, viewport] of [
+  ['route-matrix', {width:1440,height:1000}],
+  ['route-matrix-mobile', {width:390,height:844}]
+]) await scenario(name,viewport,async(page,{context})=>{
   await mockRole(context,'admin');await mockCalendar(page);
+  // Each full route load starts with matching server and client English state.
+  // Locale persistence is exercised separately without this fixture reset.
+  await context.addInitScript(()=>{
+    const selected=document.cookie.match(/(?:^|; )gorgona-locale=([^;]*)/)?.[1]||'en';
+    localStorage.setItem('gorgona-locale',decodeURIComponent(selected));
+  });
   const samples={'/rentals/[slug]':'/rentals/'+getRentals()[0].slug,'/yachts/[slug]':'/yachts/'+getYachts()[0].slug,'/vacation-rentals/[slug]':'/vacation-rentals/'+getVacationRentals()[0].slug,'/experiences/[slug]':'/experiences/'+getExperiences()[0].slug,'/restaurants-nightlife/[slug]':'/restaurants-nightlife/'+getVenues()[0].slug,'/deals/[slug]':'/deals/'+allDeals[0].slug,'/stores/[category]':'/stores/'+categories[0].slug,'/sportsbook/[slug]':'/sportsbook/hard-rock-bet','/events/category/[category]':'/events/category/nba','/events/league/[league]':'/events/league/nba','/events/[slug]':'/events/i18n-no-published-event'};
   const matrix=[];
+  const normalize=text=>text.replace(/\s+/g,' ').trim();
+  const prose=Object.values(SAVED_MESSAGES.en).filter(text=>
+    !/\{[A-Za-z][A-Za-z0-9_]*\}/.test(text) && (text.match(/\b[A-Za-z]{2,}\b/g)||[]).length>=5);
   for(const file of appFiles().filter(f=>f.endsWith('/page.js'))){
     const template=file.slice(3,-8)||'/';
+    if(process.env.I18N_ROUTE_TEMPLATE && template!==process.env.I18N_ROUTE_TEMPLATE)continue;
     const route=samples[template]||template;
     console.log('CHECK '+template);
+    await context.addCookies([{name:'gorgona-locale',value:'en',url:baseURL}]);
     const response=await page.goto(baseURL+route,{waitUntil:'domcontentloaded'});
     const status=response.status();
     if(template==='/concierge'){
@@ -234,16 +276,27 @@ await scenario('route-matrix',{width:1440,height:1000},async(page,{context})=>{
       expect([200,307]).toContain(status);
       await page.waitForURL(baseURL+'/discovery');
     }else expect(status).toBe(template==='/events/[slug]'?404:200);
+    const content=await page.locator('main').count()?page.locator('main'):page.locator('body');
+    const english=normalize(await content.innerText());
+    const ownedProse=[...new Set(prose.filter(text=>english.includes(normalize(text))))];
     for(const locale of locales){
       await choose(page,locale);
+      const mustTranslate=ownedProse.filter(text=>savedSource(locale,text)!==text);
+      await expect.poll(async()=>{
+        const rendered=normalize(await content.innerText());
+        return mustTranslate.filter(text=>rendered.includes(normalize(text)));
+      },{timeout:10000,message:`Owned English prose remains on ${template} in ${locale}`}).toEqual([]);
       expect((await page.locator('body').innerText()).trim().length).toBeGreaterThan(50);
       await expect(page.locator('nextjs-portal')).toHaveCount(0);
       await noOverflow(page);
+      await expect(page.locator('html')).toHaveAttribute('lang',locale);
+      await expect(page.locator('html')).toHaveAttribute('dir',SUPPORTED_LANGUAGES.find(item=>item.code===locale).dir);
     }
-    matrix.push({template,route,status,locales:locales.length,finalURL:page.url()});
-    fs.writeFileSync(path.join(output,'route-matrix.json'),JSON.stringify(matrix,null,2));
+    matrix.push({template,route,status,locales:locales.length,ownedProse:ownedProse.length,finalURL:page.url()});
+    fs.writeFileSync(path.join(output,name+'.json'),JSON.stringify(matrix,null,2));
     console.log('ROUTE '+template);
   }
+  expect(matrix.length).toBeGreaterThan(0);
 });
 server?.kill('SIGTERM');
 console.log(JSON.stringify(results.map(({name,status})=>({name,status}))));

@@ -3,12 +3,23 @@
 import { useEffect, useState } from 'react';
 import { readSavedLocale } from './components/LocaleProvider';
 import { getLanguageDir } from '../lib/languages';
-import { savedSource } from '../lib/savedCopy';
+import { loadSavedLocale, savedSource } from '../lib/savedCopy';
 
 export default function GlobalError({ error, reset }) {
   // The root error boundary replaces the layout, including LocaleProvider.
   const [locale, setLocale] = useState('en');
-  useEffect(() => { setLocale(readSavedLocale() || 'en'); }, []);
+  useEffect(() => {
+    let active = true;
+    const saved = readSavedLocale() || 'en';
+    // The layout may fail before LocaleProvider loads this language bundle.
+    // Publish the locale only after its saved messages are available.
+    loadSavedLocale(saved).then(() => {
+      if (active) setLocale(saved);
+    }).catch(() => {
+      // Retain the usable English boundary if the language bundle cannot load.
+    });
+    return () => { active = false; };
+  }, []);
   const msg = (source) => savedSource(locale, source);
   return (
     <html lang={locale} dir={getLanguageDir(locale)}>

@@ -284,7 +284,7 @@ export default function HomepagePreviewDraft() {
               <div className="relative h-40 w-full shrink-0 sm:h-full sm:w-[42%]">
                 <img
                   src={item.image}
-                  alt={item.title}
+                  alt={msg(item.title)}
                   className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.05]"
                 />
               </div>

@@ -42,9 +42,9 @@ export default function HomeHero({ copy }) {
   return (
     <section className="pb-[clamp(44px,6vw,90px)] pt-[clamp(28px,5vw,70px)]">
       <div className="grid items-center gap-[clamp(30px,5vw,76px)] lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
-        <div className="grid min-w-0 gap-[clamp(18px,2.4vw,28px)]">
+        <div className="grid min-w-0 grid-cols-1 gap-[clamp(18px,2.4vw,28px)]">
           <p className="font-g1sans text-[0.74rem] font-medium uppercase leading-[1.3] tracking-[0.2em] text-g1-soft">{copy.eyebrow}</p>
-          <h1 className="g1-display font-g1display text-[clamp(2.1rem,4.6vw+1rem,5.8rem)] font-medium leading-none tracking-[-0.015em] text-g1-ink [overflow-wrap:break-word] [text-wrap:balance]">
+          <h1 className="g1-display min-w-0 font-g1display text-[clamp(2.1rem,4.6vw+1rem,5.8rem)] font-medium leading-none tracking-[-0.015em] text-g1-ink [overflow-wrap:anywhere] [text-wrap:balance]">
             <LocalizedText source="Save on the everyday. {highlight} on the extraordinary." values={{ highlight: <em className="[word-break:keep-all]">{copy.titleEm}</em> }} />
           </h1>
           <p className="max-w-[58ch] text-[clamp(1.06rem,0.35vw+1rem,1.22rem)] text-g1-soft [text-wrap:pretty]">

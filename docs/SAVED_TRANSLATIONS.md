@@ -14,6 +14,8 @@ opens a page or switches language.
   dates and season cards. Translate our surrounding event UI.
 - Leave the external YATR and Stay22 documents and widget implementations
   unchanged. Their landing pages update our text without refreshing the iframe.
+- Keep the document language and direction synchronized after server refreshes,
+  including refreshes that do not change the active client locale.
 - Keep brands, product names, URLs, promotion codes, filter values and submitted
   data intact. Prices retain their original amount and currency.
 - Preserve customer messages and supplier or partner submissions. A known
@@ -51,7 +53,16 @@ starts and stops an isolated Next.js server on port 3024.
 
 The suite checks language/RTL state, layout overflow, persistence, booking and
 chat drafts, localized authentication failures, role pages, event records,
-iframe identity/state and all 48 route templates. Supplier documents, chat,
+iframe identity/state and all 48 route templates at desktop and mobile sizes.
+The route matrices also detect registered long English prose that remains
+visible after switching languages. `I18N_ROUTE_TEMPLATE` can select one exact
+route template for diagnosis; leave it unset for full acceptance. The
+`global-error-cold` case renders the actual root error boundary in a fresh
+browser document for each language, without a mounted locale provider or a
+preloaded target catalog, and verifies its recovery button. That fixture is
+intercepted only in the test browser and adds no application route.
+
+Supplier documents, chat,
 booking and authenticated database traffic use deterministic test fixtures.
 The test server alone preloads `tests/i18n/server-fixtures.cjs` to supply a
 read-only sportsbook row for the unconfigured Supabase placeholder host. This

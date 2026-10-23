@@ -295,9 +295,9 @@ export function SearchBar() {
                     </div>
                     <p className="mt-2 line-clamp-2 text-[0.88rem] text-g1-soft">{item.sourceId ? savedListing(locale, {id:item.sourceId, description:item.description}) : item.description}</p>
                   </div>
-                  <div className="mt-3 flex items-center justify-between gap-3 text-[0.86rem] text-g1-soft">
-                    <span className="font-g1mono">{item.promoCode || t.category.noCodeNeeded}</span>
-                    <span className="text-end">{savedPrice(locale, savedSource(locale, item.discount))}</span>
+                  <div className="mt-3 flex flex-wrap items-start justify-between gap-x-3 gap-y-1 text-[0.86rem] text-g1-soft">
+                    <span className="min-w-0 max-w-full break-words font-g1mono">{item.promoCode || t.category.noCodeNeeded}</span>
+                    <span className="min-w-0 max-w-full break-words text-end">{savedPrice(locale, savedSource(locale, item.discount))}</span>
                   </div>
                 </div>
               </Link>
