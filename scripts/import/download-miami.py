@@ -60,6 +60,6 @@ if __name__ == '__main__':
     urls = sorted({url for v in inventory['vehicles'] if not v['excluded'] for url in v['photoUrls']})
     with ThreadPoolExecutor(max_workers=3) as pool:
         assets = list(pool.map(download, urls))
-    (ROOT / 'docs/fleet-import/assets.json').write_text(json.dumps({'schemaVersion': 1, 'assets': assets}, indent=2) + '\n')
+    (ROOT / 'docs/fleet-import/assets.json').write_text(json.dumps({'schemaVersion': 1, 'assets': assets}, indent=2) + '\n', encoding='utf-8', newline='\n')
     print(json.dumps({'photos': len(assets), 'bytes': sum(a['bytes'] for a in assets),
                       'duplicateHashes': len(assets) - len({a['sha256'] for a in assets})}))

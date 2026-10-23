@@ -5,9 +5,9 @@
    Linting and checking validity of types ...
    Collecting page data ...
    Generating static pages (0/44) ...
-   Generating static pages (11/44) 
-   Generating static pages (22/44) 
-   Generating static pages (33/44) 
+   Generating static pages (11/44)
+   Generating static pages (22/44)
+   Generating static pages (33/44)
 Error fetching sportsbooks: {
   message: 'TypeError: fetch failed',
   details: 'TypeError: fetch failed\n' +
