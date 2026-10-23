@@ -1,4 +1,6 @@
 "use client";
+import { LocalizedText } from "./LocalizedText";
+
 
 import Link from 'next/link';
 import { useLocale } from './LocaleProvider';
@@ -40,12 +42,12 @@ export function Footer() {
             <span className="font-g1display text-4xl font-medium tracking-tight text-g1-ink">Elio</span>
           </div>
           <p className="mt-4 max-w-sm leading-relaxed">
-            {t.footer?.desc || 'A luxury ecosystem for travel, shopping, stays, yachts, cars, sportsbooks, events and an AI concierge — verified offers and premium experiences in one destination.'}
+            {t.footer?.desc || <LocalizedText source={"A luxury ecosystem for travel, shopping, stays, yachts, cars, sportsbooks, events and an AI concierge — verified offers and premium experiences in one destination."} />}
           </p>
         </div>
 
         <div>
-          <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em] text-g1-accent">{t.footer?.ecosystemTitle || 'Ecosystem'}</p>
+          <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em] text-g1-accent">{t.footer?.ecosystemTitle || <LocalizedText source={"Ecosystem"} />}</p>
           <ul className="mt-4 space-y-2.5">
             {sections.map((item) => (
               <li key={item.href}>
@@ -58,7 +60,7 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em] text-g1-accent">{t.footer?.companyTitle || 'Company'}</p>
+          <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em] text-g1-accent">{t.footer?.companyTitle || <LocalizedText source={"Company"} />}</p>
           <ul className="mt-4 space-y-2.5">
             {company.map((item) => (
               <li key={item.href}>
@@ -71,7 +73,7 @@ export function Footer() {
         </div>
 
         <div>
-          <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em] text-g1-accent">{t.footer?.legalTitle || 'Legal'}</p>
+          <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em] text-g1-accent">{t.footer?.legalTitle || <LocalizedText source={"Legal"} />}</p>
           <ul className="mt-4 space-y-2.5">
             {legal.map((item) => (
               <li key={item.href}>
@@ -85,8 +87,8 @@ export function Footer() {
       </div>
 
       <div className="mt-14 flex flex-col gap-3 border-t border-g1-rule pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p>{t.footer?.copyright || '© 2026 MIAMI ELIO. Premium deals, verified offers, and affiliate-ready monetization.'}</p>
-        <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em]">{t.footer?.tagline || 'A unified luxury ecosystem'}</p>
+        <p>{t.footer?.copyright || <LocalizedText source={"© 2026 MIAMI ELIO. Premium deals, verified offers, and affiliate-ready monetization."} />}</p>
+        <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em]">{t.footer?.tagline || <LocalizedText source={"A unified luxury ecosystem"} />}</p>
       </div>
     </footer>
   );

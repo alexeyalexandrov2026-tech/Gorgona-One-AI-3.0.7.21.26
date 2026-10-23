@@ -1,5 +1,5 @@
 "use client";
-import { useSavedText } from "../components/LocalizedText";
+import { LocalizedTitle, useSavedText } from "../components/LocalizedText";
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -234,7 +234,7 @@ export default function PartnerDashboard() {
           <span>{auth.session.company_name || auth.session.name}</span>
         </div>
 
-        <h1 className="mt-10 font-display text-[10vw] sm:text-[6rem] font-medium leading-[0.92] tracking-[-0.02em] text-villa-charcoal uppercase mb-16">{msg("Partner")}<br/><span className="text-villa-ash/70">{msg("Desk")}</span>
+        <h1 className="mt-10 font-display text-[10vw] sm:text-[6rem] font-medium leading-[0.92] tracking-[-0.02em] text-villa-charcoal uppercase mb-16"><LocalizedTitle source="Partner{break}Desk" />
         </h1>
 
         <div className="grid gap-16 lg:grid-cols-2 border-t border-villa-obsidian/20 pt-10">

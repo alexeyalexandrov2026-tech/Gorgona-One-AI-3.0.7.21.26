@@ -39,3 +39,10 @@ export function LocalizedListing({ itemId, source, field = 'description' }) {
 export function LocalizedPrice({ source }) {
   return savedPrice(useLocale(), source);
 }
+
+// Translate the full heading, keeping its existing two-line presentation.
+export function LocalizedTitle({ source }) {
+  const text = savedSource(useLocale(), source);
+  const [first, second] = text.split('{break}');
+  return <>{first}<br/><span className="text-villa-ash/70">{second}</span></>;
+}

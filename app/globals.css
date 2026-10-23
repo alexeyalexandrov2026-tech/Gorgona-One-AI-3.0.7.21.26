@@ -178,8 +178,11 @@ a {
   /* Break a block out of the centered max-w-7xl shell to full viewport width */
   .full-bleed {
     width: 100vw;
-    margin-left: 50%;
+    margin-inline-start: 50%;
     transform: translateX(-50%);
+  }
+  .full-bleed:dir(rtl) {
+    transform: translateX(50%);
   }
 }
 

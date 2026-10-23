@@ -1,4 +1,6 @@
 "use client";
+import { LocalizedText } from "../LocalizedText";
+
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -130,7 +132,7 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
                 onClick={onNavigate}
                 className="rounded-full border border-brand-gold/40 bg-brand-gold/10 px-3 py-1.5 text-xs text-brand-gold transition hover:bg-brand-gold hover:text-black"
               >
-                {t.ai?.open || 'Open'} {s.label} &rarr;
+                {t.ai?.open || <LocalizedText source={"Open"} />} {s.label} &rarr;
               </Link>
             ))}
           </div>
@@ -172,7 +174,7 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
           type="submit"
           className="shrink-0 rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold uppercase tracking-wide text-black transition hover:brightness-110"
         >
-          {t.ai?.ask || 'Ask'}
+          {t.ai?.ask || <LocalizedText source={"Ask"} />}
         </button>
       </form>
     </div>

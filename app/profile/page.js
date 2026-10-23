@@ -1,5 +1,5 @@
 "use client";
-import { useSavedText } from "../components/LocalizedText";
+import { LocalizedTitle, useSavedText } from "../components/LocalizedText";
 
 import Link from 'next/link';
 import { getTranslation } from '../../lib/i18n';
@@ -40,7 +40,7 @@ export default function ProfilePage() {
           {auth?.session && <span>{t.auth.signedInAs} {auth.session.name} ({auth.session.email})</span>}
         </div>
 
-        <h1 className="mt-10 font-display text-[10vw] sm:text-[6rem] font-medium leading-[0.92] tracking-[-0.02em] text-villa-charcoal uppercase mb-16">{msg("Concierge")}<br/><span className="text-villa-ash/70">{msg("Desk")}</span>
+        <h1 className="mt-10 font-display text-[10vw] sm:text-[6rem] font-medium leading-[0.92] tracking-[-0.02em] text-villa-charcoal uppercase mb-16"><LocalizedTitle source="Concierge{break}Desk" />
         </h1>
 
         <div className="grid gap-x-10 gap-y-10 md:grid-cols-3 border-t border-villa-obsidian/20 pt-10">

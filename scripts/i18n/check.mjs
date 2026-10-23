@@ -3,6 +3,7 @@ import path from 'node:path';
 import { ROOT, LOCALES, readJSON, readLocale, hash, discoverMessages, messageId, appFiles, parseFile, walk } from './catalogue.mjs';
 import { coreMessages } from './core-sources.mjs';
 import { ownedMessages } from './owned-inventory.mjs';
+import { unmarkedDisplayText } from './display-policy.mjs';
 
 export const placeholders = text => [...text.matchAll(/\{([A-Za-z][A-Za-z0-9_]*)\}/g)].map(match => match[1]).sort().join(',');
 export function checkCatalogue() {
@@ -26,6 +27,7 @@ export function checkCatalogue() {
       if (placeholders(text) !== placeholders(value)) errors.push(`Named slots differ: ${locale}/${id}`);
       if (locale === 'en' && value !== text) errors.push(`English source differs: ${id}`);
       if (locale !== 'en' && revisions[id] !== hash(text)) errors.push(`Translation needs update for current source: ${locale}/${id}`);
+      if (locale !== 'en' && value === text && (text.match(/\b[A-Za-z]{2,}\b/g) || []).length >= 5 && !context[id]?.verbatimAllowed) errors.push(`English sentence copied into target: ${locale}/${id}`);
     }
     const extra = Object.keys(messages).filter(id => !Object.hasOwn(source,id));
     if (extra.length) errors.push(`Obsolete keys in ${locale}: ${extra.join(', ')}`);
@@ -36,8 +38,10 @@ export function checkCatalogue() {
   // class, enum, form value, iframe attributes or event-handler semantics.
   const displayAttributes = new Set(['placeholder','aria-label','title','alt']);
   for (const file of appFiles()) {
-    walk(parseFile(file),(node,parents) => {
-      if ((node.type === 'CallExpression' && node.callee.name === 'msg') || (node.type === 'JSXOpeningElement' && node.name.name === 'LocalizedText')) {
+    const parsed = parseFile(file);
+    errors.push(...unmarkedDisplayText(file,parsed));
+    walk(parsed,(node,parents) => {
+      if ((node.type === 'CallExpression' && node.callee.name === 'msg') || (node.type === 'JSXOpeningElement' && ['LocalizedText','LocalizedTitle'].includes(node.name.name))) {
         const attr = parents.find(parent => parent.type === 'JSXAttribute');
         const owner = attr && parents[parents.indexOf(attr)+1];
         const richSlots = attr?.name.name === 'values' && owner?.type === 'JSXOpeningElement' && owner.name.name === 'LocalizedText';

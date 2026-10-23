@@ -7,9 +7,10 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [session, setSessionState] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getSession().then(session => setSessionState(session));
+    getSession().then(session => setSessionState(session)).catch(() => setSessionState(null)).finally(() => setLoading(false));
   }, []);
 
   function refresh() {
@@ -22,7 +23,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, refresh, signOut }}>
+    <AuthContext.Provider value={{ session, loading, refresh, signOut }}>
       {children}
     </AuthContext.Provider>
   );

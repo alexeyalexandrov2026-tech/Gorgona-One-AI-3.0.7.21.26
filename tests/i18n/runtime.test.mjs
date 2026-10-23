@@ -8,6 +8,19 @@ import { canRefreshForLocale } from '../../lib/localePolicy.js';
 import { LOCALES, ROOT, readJSON, appFiles, parseFile, walk } from '../../scripts/i18n/catalogue.mjs';
 import { AUTH_MESSAGES, authErrorSource } from '../../lib/authMessages.js';
 import { SUPPORTED_LANGUAGES } from '../../lib/languages.js';
+import { unmarkedDisplayText } from '../../scripts/i18n/display-policy.mjs';
+import { parse } from '@babel/parser';
+
+test('new literal display text and accessibility attributes require localization', () => {
+  const errors=source=>unmarkedDisplayText('app/new-section/page.js',parse(source,{sourceType:'module',plugins:['jsx']}));
+  assert.equal(errors('<input placeholder="New field" />').length,1);
+  assert.equal(errors('<button>{loading ? "Please wait" : "Continue"}</button>').length,2);
+  assert.equal(errors('<div>新しい説明</div>').length,1);
+  assert.deepEqual(errors('<input placeholder={msg("New field")} />'),[]);
+  assert.deepEqual(errors('<LocalizedElement as="input" placeholder="New field" />'),[]);
+  assert.deepEqual(errors('<button className={state === "ready" ? "bg-red-500" : "bg-white"}>{msg("Continue")}</button>'),[]);
+  assert.deepEqual(errors('<div>{state === "ready" && <LocalizedText source="Continue" />}</div>'),[]);
+});
 
 test('auth messages localize provider codes and never expose unknown diagnostics', () => {
   assert.equal(authErrorSource({code:'invalid_credentials',message:'private upstream details'}),AUTH_MESSAGES.credentials);

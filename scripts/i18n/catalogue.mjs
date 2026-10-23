@@ -56,8 +56,12 @@ export function discoverMessages() {
     if (file === 'app/yachts/YatrCatalog.jsx' || file === 'app/vacation-rentals/Stay22Browse.jsx') continue;
     walk(parseFile(file),(node,parents) => {
       if (node.type === 'CallExpression' && node.callee.name === 'msg' && node.arguments[0]?.type === 'StringLiteral') add(node.arguments[0].value,file);
-      if (node.type === 'JSXOpeningElement' && ['LocalizedText','LocalizedElement'].includes(node.name.name)) {
-        for (const attr of node.attributes) if (attr.type === 'JSXAttribute' && ['source','placeholder','aria-label','title','alt'].includes(attr.name.name) && attr.value?.type === 'StringLiteral') add(attr.value.value,file);
+      if (node.type === 'JSXOpeningElement' && ['LocalizedText','LocalizedElement','LocalizedTitle'].includes(node.name.name)) {
+        for (const attr of node.attributes) {
+          if (attr.type !== 'JSXAttribute' || !['source','placeholder','aria-label','title','alt'].includes(attr.name.name)) continue;
+          const literal = attr.value?.type === 'JSXExpressionContainer' ? attr.value.expression : attr.value;
+          if (literal?.type === 'StringLiteral') add(literal.value,file);
+        }
       }
       // These arrays are our editorial cards, never individual event records.
       if (['app/travel/page.js','app/events/page.js'].includes(file) && parents.some(p => p.type === 'VariableDeclarator' && ['experiences','eventCategories'].includes(p.id.name)) && node.type === 'ObjectProperty' && ['title','copy','tag'].includes(node.key.name) && node.value.type === 'StringLiteral') add(node.value.value,file);
@@ -71,6 +75,24 @@ export function discoverMessages() {
       if (['app/register/partner/page.js','app/events/TicketNetworkEvents.jsx'].includes(file) && node.type === 'StringLiteral' && node.value !== 'AbortError' && parents.some(p => (p.type === 'CallExpression' && p.callee.name === 'setError') || (p.type === 'NewExpression' && p.callee.name === 'Error'))) add(node.value,file);
     });
   }
+  // Editorial feature strips, supplied promotion cards and our draft preview.
+  // Only display fields from these reviewed local arrays; URLs and enums stay out.
+  const arrays = new Map([
+    ['app/sportsbook/[slug]/page.js',new Map([['PROFILE_FEATURES',['title','sub']]])],
+    ['app/travel/ovago/page.js',new Map([['OVAGO_FEATURES',['title','sub']],['OVAGO_DEALS',['name','description']]])],
+    ['app/entertainment/adrenaline-365/page.js',new Map([['ADRENALINE_FEATURES',['title','sub']],['ADRENALINE_DEALS',['name']]])]
+  ]);
+  for (const [file,variables] of arrays) walk(parseFile(file),(node,parents)=>{
+    const variable=parents.find(p=>p.type==='VariableDeclarator')?.id.name;
+    if(node.type==='ObjectProperty' && variables.get(variable)?.includes(node.key.name) && node.value.type==='StringLiteral' && node.value.value!=='Rentcars.com') add(node.value.value,file+': owned editorial card');
+  });
+  const draft='app/draft/homepage-preview/page.js';
+  walk(parseFile(draft),(node,parents)=>{
+    if(node.type==='ObjectProperty' && ['title','detail','value','description','body'].includes(node.key.name) && node.value.type==='StringLiteral' && parents.some(p=>p.type==='ArrayExpression')) add(node.value.value,draft+': owned preview card');
+  });
+  walk(parseFile('lib/aiSuggestions.js'),node=>{
+    if(node.type==='ObjectProperty' && node.key.name==='label' && node.value.type==='StringLiteral') add(node.value.value,'lib/aiSuggestions.js: owned section navigation label');
+  });
   // Own options and accessible text selected through small enum maps. The
   // corresponding API/filter values remain unchanged.
   for (const text of ['Miami & South Florida','All Florida','All cities','Team','Team or artist','Artist','Any team','Any team or artist','Any artist','Sport tickets','Concert tickets','Boxing','Tennis','Golf','All sports','Pop & Rock','Hip-Hop & R&B','Jazz & Blues','Electronic / EDM','Classical & Opera','Country','Comedy & Stand-up','Theater & Broadway','Festivals','All live shows','From {amount}','Please check the event filters and date range.']) add(text,'owned calendar filter and category labels');

@@ -67,13 +67,12 @@ export default function EventsMarketplacePage() {
             <p className="lux-eyebrow">{t.events.marketplaceTitle}</p>
           </Reveal>
           <Reveal delay={0.08}>
-            <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Experience the {highlight}" values={{ highlight: <><br />
-              <span className="text-brand-gold"><LocalizedText source="extraordinary." /></span></> }} />
+            <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Experience the{break}{highlight}" values={{ break: <br />, highlight: <span className="text-brand-gold"><LocalizedText source="extraordinary." /></span> }} />
             </h1>
           </Reveal>
           <Reveal delay={0.16}>
             <p className="lux-lede mt-8 text-lg">
-              {t.events.marketplaceSubtitle || 'Curated VIP access to the world\'s most exclusive sports and concert events.'}
+              {t.events.marketplaceSubtitle || <LocalizedText source={"Curated VIP access to the world's most exclusive sports and concert events."} />}
             </p>
           </Reveal>
         </div>

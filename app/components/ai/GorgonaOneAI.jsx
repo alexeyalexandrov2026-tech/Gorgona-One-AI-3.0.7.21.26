@@ -1,4 +1,6 @@
 "use client";
+import { LocalizedText } from "../LocalizedText";
+
 import { localizeOwnedResult } from '../../../lib/ownedContent';
 import { useSavedText } from "../LocalizedText";
 
@@ -263,7 +265,7 @@ export default function GorgonaOneAI() {
         aria-label={isDark ? (t.ai?.switchToLight || 'Switch to light atmosphere') : (t.ai?.switchToDark || 'Switch to dark atmosphere')}
       >
         {isDark ? <SunIcon /> : <MoonIcon />}
-        <span>{isDark ? (t.ai?.light || 'Light') : (t.ai?.dark || 'Dark')}</span>
+        <span>{isDark ? (t.ai?.light || <LocalizedText source={"Light"} />) : (t.ai?.dark || <LocalizedText source={"Dark"} />)}</span>
       </button>
 
       {/* Console core */}

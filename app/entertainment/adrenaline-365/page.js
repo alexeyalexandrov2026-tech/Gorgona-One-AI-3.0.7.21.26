@@ -1,5 +1,5 @@
 
-import { LocalizedText } from "../../components/LocalizedText";
+import { LocalizedText, LocalizedElement } from "../../components/LocalizedText";
 import Link from 'next/link';
 import { getServerTranslation } from '../../../lib/serverLocale';
 
@@ -80,8 +80,8 @@ export default function Adrenaline365ProfilePage() {
                 <path d={f.d} />
               </svg>
               <div>
-                <p className="text-sm font-semibold text-white">{f.title}</p>
-                <p className="text-sm text-zinc-500">{f.sub}</p>
+                <p className="text-sm font-semibold text-white"><LocalizedText source={f.title} /></p>
+                <p className="text-sm text-zinc-500"><LocalizedText source={f.sub} /></p>
               </div>
             </div>
           ))}
@@ -93,11 +93,11 @@ export default function Adrenaline365ProfilePage() {
             {ADRENALINE_DEALS.map((deal) => (
               <article key={deal.name} className="market-card flex flex-col overflow-hidden rounded-2xl">
                 <div className="flex items-center justify-center bg-black/40 p-4">
-                  <img src={deal.image} alt={deal.name} className="max-h-40 w-full object-contain" />
+                  <LocalizedElement as="img" src={deal.image} alt={deal.name} className="max-h-40 w-full object-contain" />
                 </div>
                 <div className="flex flex-1 flex-col justify-between p-6">
                   <div>
-                    <h2 className="text-lg font-semibold text-white">{deal.name}</h2>
+                    <h2 className="text-lg font-semibold text-white"><LocalizedText source={deal.name} /></h2>
                     <p className="mt-3 text-sm text-zinc-400">{t.category.dealDescriptionTemplate.replace('{name}', deal.name).replace('{category}', categoryLabel)}</p>
                   </div>
                   <Link href={deal.href} className="market-button mt-6 inline-flex justify-center">

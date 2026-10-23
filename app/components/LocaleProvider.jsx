@@ -47,7 +47,18 @@ export function LocaleProvider({ children }) {
   const restored = useRef(false);
   const selection = useRef(0);
   const currentPathname = useRef(pathname);
+  const clientLocaleRoutes = useRef(new Map());
   currentPathname.current = pathname;
+
+  const registerClientLocaleRoute = useCallback((path) => {
+    const routes = clientLocaleRoutes.current;
+    routes.set(path, (routes.get(path) || 0) + 1);
+    return () => {
+      const remaining = (routes.get(path) || 1) - 1;
+      if (remaining) routes.set(path, remaining);
+      else routes.delete(path);
+    };
+  }, []);
 
   const setLocale = useCallback(async (code) => {
     const next = isSupportedLanguage(code) ? code : DEFAULT_LANGUAGE;
@@ -67,7 +78,7 @@ export function LocaleProvider({ children }) {
     // Refresh merges RSC text while preserving unaffected client state.
     // Protected embed pages render our text from this context instead.
     const activePath = window.location.pathname || currentPathname.current;
-    if (changed && canRefreshForLocale(activePath)) router.refresh();
+    if (changed && canRefreshForLocale(activePath) && !clientLocaleRoutes.current.has(activePath)) router.refresh();
   }, [router]);
 
   useEffect(() => {
@@ -79,7 +90,7 @@ export function LocaleProvider({ children }) {
   }, [setLocale]);
 
   const localeValue = useMemo(() => locale, [locale]);
-  const controllerValue = useMemo(() => ({ locale, setLocale }), [locale, setLocale]);
+  const controllerValue = useMemo(() => ({ locale, setLocale, registerClientLocaleRoute }), [locale, setLocale, registerClientLocaleRoute]);
 
   return (
     <LocaleContext.Provider value={localeValue}>
@@ -94,4 +105,11 @@ export function useLocale() {
 
 export function useLocaleController() {
   return useContext(LocaleControllerContext);
+}
+
+// Client-only route text (such as 404) needs no RSC refresh. Keep the
+// registration scoped to its mounted page, including during locale changes.
+export function useClientLocaleRoute() {
+  const register = useLocaleController()?.registerClientLocaleRoute;
+  useEffect(() => register?.(window.location.pathname), [register]);
 }

@@ -71,7 +71,7 @@ export default function TravelLandingPage() {
 
         <div className="mx-auto w-full max-w-7xl px-4 pb-24 pt-40 sm:px-6 lg:px-8">
           <p className="lux-eyebrow"><LocalizedText source="Travel · Exclusive destinations" /></p>
-          <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Go somewhere {highlight}" values={{ highlight: <><br /><span className="text-travel-lavender"><LocalizedText source="extraordinary." /></span></> }} />
+          <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Go somewhere{break}{highlight}" values={{ break: <br />, highlight: <span className="text-travel-lavender"><LocalizedText source="extraordinary." /></span> }} />
           </h1>
           <p className="lux-lede mt-8 text-lg"><LocalizedText source="A cinematic travel concierge — luxury destinations, curated flights, and stays, wrapped in a single premium experience." /></p>
           <div className="mt-10 flex flex-wrap gap-3">

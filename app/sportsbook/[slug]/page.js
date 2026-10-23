@@ -1,5 +1,5 @@
 
-import { LocalizedText } from "../../components/LocalizedText";
+import { LocalizedText, LocalizedElement } from "../../components/LocalizedText";
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getSportsbookBySlug } from '../../../lib/sportsbooksData';
@@ -142,8 +142,8 @@ export default async function SportsbookProfilePage({ params }) {
                   <path d={f.d} />
                 </svg>
                 <div>
-                  <p className="text-sm font-semibold text-white">{f.title}</p>
-                  <p className="text-sm text-zinc-500">{f.sub}</p>
+                  <p className="text-sm font-semibold text-white"><LocalizedText source={f.title} /></p>
+                  <p className="text-sm text-zinc-500"><LocalizedText source={f.sub} /></p>
                 </div>
               </div>
             ))}
@@ -155,7 +155,7 @@ export default async function SportsbookProfilePage({ params }) {
               <div className="mt-4 space-y-4 text-sm text-zinc-400">
                 <p><span className="text-white"><LocalizedText source="Website:" /></span> {sportsbook.website}</p>
                 <SportsbookAvailability slug={sportsbook.slug} locale={locale} className="text-sm" />
-                <p><span className="text-white">{t.kosher.promoCode}:</span> {sportsbook.promo_code || 'Empty and ready for future updates'}</p>
+                <p><span className="text-white">{t.kosher.promoCode}:</span> {sportsbook.promo_code || <LocalizedText source={"Empty and ready for future updates"} />}</p>
                 <p><span className="text-white"><LocalizedText source="Bonus offer:" /></span> {sportsbook.bonus_offer}</p>
               </div>
             </div>
@@ -205,7 +205,7 @@ export default async function SportsbookProfilePage({ params }) {
             <div className="mt-4 space-y-4 text-sm text-zinc-400">
               <p><span className="text-white"><LocalizedText source="Website:" /></span> {sportsbook.website}</p>
               <SportsbookAvailability slug={sportsbook.slug} locale={locale} className="text-sm" />
-              <p><span className="text-white">{t.kosher.promoCode}:</span> {sportsbook.promo_code || 'Empty and ready for future updates'}</p>
+              <p><span className="text-white">{t.kosher.promoCode}:</span> {sportsbook.promo_code || <LocalizedText source={"Empty and ready for future updates"} />}</p>
               <p><span className="text-white"><LocalizedText source="Bonus offer:" /></span> {sportsbook.bonus_offer}</p>
             </div>
             <Link

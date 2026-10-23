@@ -247,8 +247,8 @@ export default function HomepagePreviewDraft() {
                   <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">{badge.icon}</svg>
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-white">{badge.title}</p>
-                  <p className="text-xs text-zinc-400">{badge.detail}</p>
+                  <p className="text-sm font-semibold text-white">{msg(badge.title)}</p>
+                  <p className="text-xs text-zinc-400">{msg(badge.detail)}</p>
                 </div>
               </div>
             ))}
@@ -276,9 +276,9 @@ export default function HomepagePreviewDraft() {
                   </svg>
                 </span>
                 <div className="min-w-0">
-                  <p className="text-xl font-bold text-white sm:text-2xl">{item.title}</p>
-                  <p className="mt-1 text-base font-medium sm:text-lg" style={{ color: item.accent }}>{item.value}</p>
-                  <p className="mt-2 line-clamp-2 max-w-md text-sm text-zinc-400">{item.description}</p>
+                  <p className="text-xl font-bold text-white sm:text-2xl">{msg(item.title)}</p>
+                  <p className="mt-1 text-base font-medium sm:text-lg" style={{ color: item.accent }}>{msg(item.value)}</p>
+                  <p className="mt-2 line-clamp-2 max-w-md text-sm text-zinc-400">{msg(item.description)}</p>
                 </div>
               </div>
               <div className="relative h-40 w-full shrink-0 sm:h-full sm:w-[42%]">
@@ -330,8 +330,8 @@ export default function HomepagePreviewDraft() {
             { title: 'Legal framework', body: 'Terms, privacy, affiliate disclosure, and cookie policy pages ready for rollout.', href: '/terms' }
           ].map((item) => (
             <Link key={item.title} href={item.href} className="market-card rounded-2xl p-5">
-              <p className="font-semibold text-white">{item.title}</p>
-              <p className="mt-2 text-sm text-zinc-400">{item.body}</p>
+              <p className="font-semibold text-white">{msg(item.title)}</p>
+              <p className="mt-2 text-sm text-zinc-400">{msg(item.body)}</p>
             </Link>
           ))}
         </div>

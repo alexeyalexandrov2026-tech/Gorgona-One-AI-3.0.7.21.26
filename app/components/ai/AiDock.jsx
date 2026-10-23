@@ -1,4 +1,6 @@
 "use client";
+import { LocalizedText } from "../LocalizedText";
+
 import { useSavedText } from "../LocalizedText";
 
 import { useEffect } from 'react';
@@ -66,7 +68,7 @@ export function AiDock() {
               onClick={close}
               className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold"
             >
-              {t.ai?.discoveryRoom || 'Discovery Room'}
+              {t.ai?.discoveryRoom || <LocalizedText source={"Discovery Room"} />}
             </Link>
             <button
               type="button"
