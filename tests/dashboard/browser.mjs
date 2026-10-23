@@ -62,9 +62,12 @@ async function role(name,viewport,locale,task){
 const text=(locale,value)=>savedSource(locale,value);
 try{
   await role('other',{width:390,height:844},'ru',async page=>{
-    await page.goto(base+'/account/setup',{waitUntil:'domcontentloaded'});
+    await page.goto(base+'/profile',{waitUntil:'domcontentloaded'});
+    const token=await page.evaluate(()=>JSON.parse(localStorage.getItem('sb-placeholder-auth-token')).access_token);
+    await page.goto(base+'/account/setup#'+new URLSearchParams({access_token:token,refresh_token:'fixture-only',expires_in:'7200',token_type:'bearer',type:'recovery'}),{waitUntil:'domcontentloaded'});
     const t=(await import('../../lib/i18n.js')).getTranslation('ru').auth,form=page.locator('main form');
     await form.getByLabel(t.password,{exact:true}).fill('FixturePassword2026!');
+    await expect.poll(()=>new URL(page.url()).hash).toBe('');
     await form.getByLabel(t.confirmPassword,{exact:true}).fill('different');
     let updates=0;page.on('request',r=>{if(new URL(r.url()).pathname==='/auth/v1/user'&&r.method()==='PUT')updates++;});
     await form.getByRole('button',{name:text('ru','Save'),exact:true}).click();

@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {useRouter} from 'next/navigation';
 import Link from 'next/link';
 import {useAuth} from '../../components/AuthProvider';
@@ -14,6 +14,13 @@ function PasswordSetup(){
   const auth=useAuth(),locale=useLocale(),msg=useSavedText(),router=useRouter(),t=getTranslation(locale).auth;
   const [password,updatePassword]=useState(''),[confirmPassword,updateConfirmation]=useState('');
   const [saving,setSaving]=useState(false),[error,setError]=useState(null);
+  useEffect(()=>{
+    if(auth?.loading||!auth?.session)return;
+    // The SDK consumes the implicit-flow fragment before profile verification.
+    // Synchronize Next's canonical URL even when the SDK has already cleared
+    // location.hash, so a pending hydration cannot restore the old fragment.
+    router.replace(window.location.pathname+window.location.search,{scroll:false});
+  },[auth?.loading,auth?.session?.id,router]);
   async function submit(event){
     event.preventDefault();if(saving)return;setSaving(true);setError(null);
     try{
