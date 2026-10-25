@@ -32,6 +32,14 @@ function run(binary,args,cwd,env=process.env,input){
   if(r.error||r.status!==0)throw Error('Staging command failed: '+path.basename(binary));
 }
 function tool(dir,name){const p=path.join(dir,'node_modules',...name.split('/'));if(!fs.existsSync(p))throw Error('Missing staging build dependency');return p;}
+export function checkDependencyVersions(dir){
+  const manifest=JSON.parse(fs.readFileSync(path.join(dir,'package.json'),'utf8'));
+  for(const name of ['next','@opennextjs/cloudflare']){
+    const version=manifest.dependencies?.[name]||manifest.devDependencies?.[name];
+    if(typeof version!=='string'||!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version))throw Error('Saved build requires exact dependency pins');
+    if(JSON.parse(fs.readFileSync(tool(dir,name+'/package.json'),'utf8')).version!==version)throw Error('Dependency cache does not match the saved build versions');
+  }
+}
 export function artifactHash(dir){
   const parts=[];
   function walk(relative){
@@ -64,7 +72,7 @@ function build(){
     if(!path.isAbsolute(modules))throw Error('Dependency cache must be an absolute path');
     fs.cpSync(modules,path.join(dir,'node_modules'),{recursive:true,mode:fs.constants.COPYFILE_FICLONE});
   }else run(process.platform==='win32'?'npm.cmd':'npm',['ci'],dir);
-  for(const [name,version]of [['next','14.2.35'],['@opennextjs/cloudflare','1.15.1']])if(JSON.parse(fs.readFileSync(tool(dir,name+'/package.json'),'utf8')).version!==version)throw Error('Dependency cache does not match the saved build versions');
+  checkDependencyVersions(dir);
   const env={...process.env,NEXT_PUBLIC_SUPABASE_URL:c.url,NEXT_PUBLIC_SUPABASE_ANON_KEY:c.anonKey,NEXT_PRIVATE_STANDALONE:'true',NEXT_TELEMETRY_DISABLED:'1',GORGONA_AI_ENABLED:'off'};
   for(const k of ['SUPABASE_SERVICE_ROLE_KEY','BOOKING_RATE_SECRET','DASHBOARD_OUTBOX_TOKEN','TELEGRAM_BOT_TOKEN','TELEGRAM_OWNER_CHAT_ID','RESEND_API_KEY','ADMIN_EMAIL','NOTIFICATIONS_FROM_EMAIL','GEMINI_API_KEY','OPENAI_API_KEY','DASHBOARD_STAGING_ACCESS_SECRET'])env[k]='';
   console.log('Building isolated staging source '+commit);
