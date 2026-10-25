@@ -1,8 +1,8 @@
-import { getVacationRentals } from '../../lib/vacationRentalsData';
+import { getVacationRentals } from '../../lib/data/listings';
 import StayContent from './StayContent';
 
 export const dynamic = 'force-dynamic';
 
-export default function VacationRentalsPage() {
-  return <StayContent stays={getVacationRentals()} />;
+export default async function VacationRentalsPage() {
+  return <StayContent stays={await getVacationRentals({editorial:true})} />;
 }

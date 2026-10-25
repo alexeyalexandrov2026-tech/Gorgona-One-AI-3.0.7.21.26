@@ -44,3 +44,19 @@ test('authorized assets use the asset binding and dynamic requests fall through'
  assert.equal(await (await worker.fetch(request('/_next/static/test.js',auth),{...env,ASSETS:assets},{})).text(),'static');
  assert.equal(await (await worker.fetch(request('/profile',auth),{...env,ASSETS:assets},{})).text(),'dynamic');
 });
+
+test('verified staging Basic credentials stay at the gate while POST data reaches the app',async()=>{
+ const body=JSON.stringify({message:'guest request'}),key='request-key';let received;
+ const worker=stagingWorker({async fetch(r){received={authorization:r.headers.get('authorization'),method:r.method,url:r.url,key:r.headers.get('idempotency-key'),type:r.headers.get('content-type'),body:await r.text()};return new Response('guest');}},release);
+ const response=await worker.fetch(new Request('https://qa.example.com/api/book?source=form',{method:'POST',headers:{...auth,'Content-Type':'application/json','Idempotency-Key':key},body}),env,{});
+ assert.equal(response.status,200);assert.match(response.headers.get('set-cookie'),/HttpOnly; Secure/);
+ assert.deepEqual(received,{authorization:null,method:'POST',url:'https://qa.example.com/api/book?source=form',key,type:'application/json',body});
+});
+
+test('cached Basic credentials are removed from both asset reads and application fallthrough',async()=>{
+ const seen=[],worker=stagingWorker({fetch:r=>{seen.push(['app',r.headers.get('authorization')]);return new Response('dynamic');}},release);
+ const initial=await worker.fetch(request('/__dashboard_staging/health',auth),env,{}),cookie=initial.headers.get('set-cookie').split(';')[0];
+ const assets={fetch:r=>{seen.push(['assets',r.headers.get('authorization')]);return new Response('missing',{status:404});}};
+ const result=await worker.fetch(request('/profile',{...auth,cookie}),{...env,ASSETS:assets},{});
+ assert.equal(result.status,200);assert.deepEqual(seen,[['assets',null],['app',null]]);
+});

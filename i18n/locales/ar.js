@@ -947,5 +947,19 @@ export default {
   "ui.c16bc82bf1f04ede": "تم الإرسال",
   "ui.031a8f0f659df890": "فشل الإرسال",
   "ui.eb65e75dfa152079": "تم إرسال العرض للمراجعة.",
-  "ui.acdd1e734125f341": "Telegram"
+  "ui.acdd1e734125f341": "Telegram",
+  "listing.maserati-levante-q4-white-red.description": "سيارة SUV إيطالية فاخرة باللون الأبيض ومقصورة حمراء، تجمع بين التصميم المميز والراحة اليومية.",
+  "listing.range-rover-hse-p400-lwb-white-black.description": "سيارة SUV فاخرة بيضاء بقاعدة عجلات طويلة ومقصورة سوداء ومساحة رحبة للركاب.",
+  "listing.cadillac-escalade-600-black-brown.description": "سيارة SUV فاخرة سوداء بالحجم الكامل ومقصورة بنية، تتميز بحضور قوي ومساحة داخلية واسعة.",
+  "listing.bmw-x5-brooklyn-grey-brown.description": "سيارة SUV فاخرة بلون Brooklyn Grey ومقصورة بنية، تجمع بين التصميم الرياضي والراحة اليومية.",
+  "listing.bmw-x5-white-brown.description": "سيارة SUV فاخرة بيضاء بمقصورة بنية وتقنيات حديثة ومساحة داخلية واسعة.",
+  "listing.bmw-x7-brooklyn-grey-black.description": "سيارة SUV فاخرة بلون Brooklyn Grey ومقصورة سوداء وسقف بانورامي ومساحة داخلية واسعة.",
+  "listing.bmw-x7-xdrive40i-white-brown.description": "سيارة SUV فاخرة بيضاء بمقصورة بنية، توفر مساحة رحبة للركاب وراحة راقية.",
+  "listing.cadillac-escalade-white-black.description": "سيارة SUV فاخرة بيضاء بالحجم الكامل ومقصورة سوداء، تتميز بحضور لافت ومساحة داخلية واسعة.",
+  "listing.cadillac-escalade-600-black-black.description": "سيارة SUV فاخرة سوداء بالحجم الكامل ومقصورة سوداء، توفر تقنيات داخلية متقدمة وراحة راقية.",
+  "listing.range-rover-p400-se-white-brown.description": "سيارة SUV فاخرة بيضاء بمقصورة بنية، تجمع بين التصميم الهادئ والمقصورة المريحة.",
+  "listing.porsche-cayenne-grey-black.description": "سيارة SUV فاخرة رمادية بمقصورة سوداء، تجمع بين تصميم Porsche والمرونة في الاستخدام اليومي.",
+  "listing.range-rover-sport-dynamic-white-red.description": "سيارة SUV فاخرة بيضاء بمقصورة حمراء، تجمع بين الخطوط الرياضية والمقصورة الراقية.",
+  "listing.mercedes-cle300-white-beige.description": "سيارة مكشوفة بيضاء بمقصورة بيج مريحة للاستمتاع بالقيادة في الهواء الطلق.",
+  "listing.mercedes-gls450-white-brown.description": "سيارة SUV فاخرة بيضاء بالحجم الكامل مع مقصورة بنية ومساحة داخلية واسعة."
 };

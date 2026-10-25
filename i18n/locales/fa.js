@@ -947,5 +947,19 @@ export default {
   "ui.c16bc82bf1f04ede": "ارسال شد",
   "ui.031a8f0f659df890": "ارسال ناموفق",
   "ui.eb65e75dfa152079": "پیشنهاد برای بررسی ارسال شد.",
-  "ui.acdd1e734125f341": "Telegram"
+  "ui.acdd1e734125f341": "Telegram",
+  "listing.maserati-levante-q4-white-red.description": "شاسی‌بلند لوکس ایتالیایی سفید با کابین قرمز؛ ترکیبی از طراحی متمایز و راحتی روزمره.",
+  "listing.range-rover-hse-p400-lwb-white-black.description": "شاسی‌بلند لوکس سفید با فاصله محوری بلند، کابین مشکی و فضای جادار برای سرنشینان.",
+  "listing.cadillac-escalade-600-black-brown.description": "شاسی‌بلند لوکس فول‌سایز مشکی با کابین قهوه‌ای، ظاهری باشکوه و فضای داخلی جادار.",
+  "listing.bmw-x5-brooklyn-grey-brown.description": "شاسی‌بلند لوکس به رنگ Brooklyn Grey با کابین قهوه‌ای؛ ترکیبی از طراحی اسپرت و راحتی روزمره.",
+  "listing.bmw-x5-white-brown.description": "شاسی‌بلند لوکس سفید با کابین قهوه‌ای، فناوری مدرن و فضای داخلی جادار.",
+  "listing.bmw-x7-brooklyn-grey-black.description": "شاسی‌بلند لوکس به رنگ Brooklyn Grey با کابین مشکی، سقف پانوراما و فضای داخلی جادار.",
+  "listing.bmw-x7-xdrive40i-white-brown.description": "شاسی‌بلند لوکس سفید با کابین قهوه‌ای، فضای فراوان برای سرنشینان و راحتی ممتاز.",
+  "listing.cadillac-escalade-white-black.description": "شاسی‌بلند لوکس فول‌سایز سفید با کابین مشکی، ظاهری چشمگیر و فضای داخلی جادار.",
+  "listing.cadillac-escalade-600-black-black.description": "شاسی‌بلند لوکس فول‌سایز مشکی با کابین مشکی، فناوری پیشرفته کابین و راحتی ممتاز.",
+  "listing.range-rover-p400-se-white-brown.description": "شاسی‌بلند لوکس سفید با کابین قهوه‌ای؛ ترکیبی از طراحی ساده و کابین راحت.",
+  "listing.porsche-cayenne-grey-black.description": "شاسی‌بلند لوکس خاکستری با کابین مشکی؛ ترکیبی از طراحی Porsche و کاربردپذیری روزمره.",
+  "listing.range-rover-sport-dynamic-white-red.description": "شاسی‌بلند لوکس سفید با کابین قرمز؛ ترکیبی از فرم اسپرت و کابین شیک.",
+  "listing.mercedes-cle300-white-beige.description": "خودروی کانورتیبل سفید با کابین بژ و فضای داخلی راحت برای لذت بردن از رانندگی با سقف باز.",
+  "listing.mercedes-gls450-white-brown.description": "شاسی‌بلند لوکس فول‌سایز سفید با کابین قهوه‌ای و فضای داخلی جادار."
 };

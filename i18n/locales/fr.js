@@ -947,5 +947,19 @@ export default {
   "ui.c16bc82bf1f04ede": "Envoyé",
   "ui.031a8f0f659df890": "Échec de l’envoi",
   "ui.eb65e75dfa152079": "Annonce soumise pour examen.",
-  "ui.acdd1e734125f341": "Telegram"
+  "ui.acdd1e734125f341": "Telegram",
+  "listing.maserati-levante-q4-white-red.description": "SUV italien de luxe blanc avec intérieur rouge, au design distinctif et au confort quotidien.",
+  "listing.range-rover-hse-p400-lwb-white-black.description": "SUV de luxe blanc à empattement long, avec intérieur noir et un espace généreux pour les passagers.",
+  "listing.cadillac-escalade-600-black-brown.description": "Grand SUV de luxe noir avec intérieur marron, une présence imposante et un habitacle spacieux.",
+  "listing.bmw-x5-brooklyn-grey-brown.description": "SUV de luxe Brooklyn Grey avec intérieur marron, au style sportif et au confort quotidien.",
+  "listing.bmw-x5-white-brown.description": "SUV de luxe blanc avec intérieur marron, des technologies modernes et un habitacle spacieux.",
+  "listing.bmw-x7-brooklyn-grey-black.description": "SUV de luxe Brooklyn Grey avec intérieur noir, un toit panoramique et un habitacle spacieux.",
+  "listing.bmw-x7-xdrive40i-white-brown.description": "SUV de luxe blanc avec intérieur marron, un espace généreux pour les passagers et un confort raffiné.",
+  "listing.cadillac-escalade-white-black.description": "Grand SUV de luxe blanc avec intérieur noir, une présence affirmée et un habitacle spacieux.",
+  "listing.cadillac-escalade-600-black-black.description": "Grand SUV de luxe noir avec intérieur noir, des technologies avancées et un confort raffiné.",
+  "listing.range-rover-p400-se-white-brown.description": "SUV de luxe blanc avec intérieur marron, au design discret et à l'habitacle confortable.",
+  "listing.porsche-cayenne-grey-black.description": "SUV de luxe gris avec intérieur noir, au style Porsche et à la polyvalence quotidienne.",
+  "listing.range-rover-sport-dynamic-white-red.description": "SUV de luxe blanc avec intérieur rouge, à la silhouette sportive et à l'habitacle raffiné.",
+  "listing.mercedes-cle300-white-beige.description": "Cabriolet blanc avec intérieur beige et habitacle confortable pour rouler à ciel ouvert.",
+  "listing.mercedes-gls450-white-brown.description": "Grand SUV de luxe blanc avec intérieur marron et habitacle spacieux."
 };

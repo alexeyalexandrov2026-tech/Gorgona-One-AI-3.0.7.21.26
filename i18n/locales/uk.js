@@ -947,5 +947,19 @@ export default {
   "ui.c16bc82bf1f04ede": "Надіслано",
   "ui.031a8f0f659df890": "Помилка надсилання",
   "ui.eb65e75dfa152079": "Пропозицію надіслано на перевірку.",
-  "ui.acdd1e734125f341": "Telegram"
+  "ui.acdd1e734125f341": "Telegram",
+  "listing.maserati-levante-q4-white-red.description": "Білий італійський преміальний SUV із червоним салоном, виразним дизайном і щоденним комфортом.",
+  "listing.range-rover-hse-p400-lwb-white-black.description": "Білий преміальний SUV із подовженою колісною базою, чорним салоном і просторим пасажирським відсіком.",
+  "listing.cadillac-escalade-600-black-brown.description": "Чорний повнорозмірний преміальний SUV із коричневим салоном, величним виглядом і просторою кабіною.",
+  "listing.bmw-x5-brooklyn-grey-brown.description": "Преміальний SUV кольору Brooklyn Grey із коричневим салоном, спортивним дизайном і щоденним комфортом.",
+  "listing.bmw-x5-white-brown.description": "Білий преміальний SUV із коричневим салоном, сучасними технологіями та просторою кабіною.",
+  "listing.bmw-x7-brooklyn-grey-black.description": "Преміальний SUV кольору Brooklyn Grey із чорним салоном, панорамним дахом і просторою кабіною.",
+  "listing.bmw-x7-xdrive40i-white-brown.description": "Білий преміальний SUV із коричневим салоном, просторим пасажирським відсіком і вишуканим комфортом.",
+  "listing.cadillac-escalade-white-black.description": "Білий повнорозмірний преміальний SUV із чорним салоном, виразним виглядом і просторою кабіною.",
+  "listing.cadillac-escalade-600-black-black.description": "Чорний повнорозмірний преміальний SUV із чорним салоном, сучасними технологіями та вишуканим комфортом.",
+  "listing.range-rover-p400-se-white-brown.description": "Білий преміальний SUV із коричневим салоном, стриманим дизайном і зручною кабіною.",
+  "listing.porsche-cayenne-grey-black.description": "Сірий преміальний SUV із чорним салоном, дизайном Porsche та універсальністю на щодень.",
+  "listing.range-rover-sport-dynamic-white-red.description": "Білий преміальний SUV із червоним салоном, спортивним силуетом і вишуканою кабіною.",
+  "listing.mercedes-cle300-white-beige.description": "Білий кабріолет із бежевим салоном, зручною кабіною та можливістю їздити з відкритим верхом.",
+  "listing.mercedes-gls450-white-brown.description": "Білий повнорозмірний преміальний SUV із коричневим салоном і просторою кабіною."
 };
