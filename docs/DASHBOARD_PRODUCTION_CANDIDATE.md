@@ -14,7 +14,7 @@ Remote main remains `5dd85fdc6c643be5383d4f356e79e11e3ee553bf`. The latest produ
 
 ## Release boundary
 
-Follow `OWNER_EMAIL_ACTIVATION.md`: recoverable backup and restore evidence, separately reviewed expansion, compatible foundation server and real booking acceptance before lockdown, then authorized owner grant and publication/storage rollout. Keep provider credentials and the scheduler disabled until queue disposition and the approved canary window are controlled. An encrypted mail key already exists locally; do not create another or reuse the exposed legacy key. Its dependencies and separately authorized remediation remain open.
+Follow `OWNER_EMAIL_ACTIVATION.md`: recoverable backup and restore evidence; reviewed workspace/publication/storage expansions; the complete supported candidate with encrypted server configuration; real booking acceptance before lockdown; then the authorized owner grant and production-safe workspace acceptance. The local SQL rehearsal verifies that publication expansion may precede lockdown and preserves a legacy listing; do not redeploy unsupported Next 14 as an intermediate foundation. Keep provider credentials and the scheduler disabled until queue disposition and the approved canary window are controlled. An encrypted mail key already exists locally; do not create another or reuse the exposed legacy key. Its dependencies and separately authorized remediation remain open.
 
 The normal production entry is `.open-next/worker.js`. The protected staging wrapper/build command is not a production entry. Prepare immutable artifacts with no privileged/provider values in the build environment. Uploading or deploying is a separate operation; secret installation commands can themselves deploy a version.
 
