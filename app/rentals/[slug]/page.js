@@ -13,10 +13,11 @@ import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from 
 export const dynamic = 'force-dynamic';
 
 export default async function RentalDetailPage({ params }) {
+  params = await params;
   const rental = await getRentalBySlug(params.slug,{editorial:true});
   if (!rental) notFound();
 
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
   const copy = getWorldsCopy(locale);
   const category = copy.categories[rental.category] || rental.category;
   const photos = [rental.image, ...(rental.gallery || []).filter((src) => src !== rental.image)];

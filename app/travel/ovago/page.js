@@ -56,8 +56,8 @@ export const metadata = {
   description: 'Ovago flight deals - last minute flights, cheap flights, and business class fares.'
 };
 
-export default function OvagoProfilePage() {
-  const { t } = getServerTranslation();
+export default async function OvagoProfilePage() {
+  const { t } = await getServerTranslation();
 
   return (
     <main className="flex-1 py-10">

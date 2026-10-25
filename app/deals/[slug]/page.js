@@ -12,11 +12,12 @@ import { camelize } from '../../components/g1/DealsParts';
 
 export const dynamic = 'force-dynamic';
 
-export default function DealDetailPage({ params }) {
+export default async function DealDetailPage({ params }) {
+  params = await params;
   const deal = getDealBySlug(params.slug);
   if (!deal) notFound();
 
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
   const copy = getDealsCopy(locale);
   const category = t.categories[camelize(deal.category)] || deal.category;
   const ends = deal.expirationDate

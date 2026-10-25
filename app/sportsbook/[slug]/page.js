@@ -96,13 +96,14 @@ const PROFILE_FEATURES = [
 ];
 
 export default async function SportsbookProfilePage({ params }) {
+  params = await params;
   const sportsbook = await getSportsbookBySlug(params.slug);
 
   if (!sportsbook) {
     notFound();
   }
 
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
 
   // Approved prototype rollout, extended to every sportsbook with a
   // hero style defined above. Falls through to the original layout below

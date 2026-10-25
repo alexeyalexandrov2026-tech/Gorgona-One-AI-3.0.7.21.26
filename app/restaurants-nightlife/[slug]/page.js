@@ -12,11 +12,12 @@ export const dynamic = 'force-dynamic';
 
 // A venue page. Tables are requested through the concierge, who confirms
 // the date, time and minimum spend with the guest.
-export default function VenueDetailPage({ params }) {
+export default async function VenueDetailPage({ params }) {
+  params = await params;
   const venue = getVenueBySlug(params.slug);
   if (!venue) notFound();
 
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
   const copy = getDealsCopy(locale);
   const kind = venue.category === 'restaurant' ? t.restaurantsNightlife.restaurants : t.restaurantsNightlife.nightlife;
 

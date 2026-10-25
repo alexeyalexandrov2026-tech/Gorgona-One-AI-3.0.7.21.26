@@ -11,10 +11,11 @@ import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from 
 export const dynamic = 'force-dynamic';
 
 export default async function YachtDetailPage({ params }) {
+  params = await params;
   const yacht = await getYachtBySlug(params.slug,{editorial:true});
   if (!yacht) notFound();
 
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
   const copy = getWorldsCopy(locale);
   const more = (await getYachts({editorial:true})).filter((y) => y.slug !== yacht.slug).slice(0, 3);
 

@@ -3,7 +3,7 @@ import { LocalizedText } from "../components/LocalizedText";
 import GamblingNotice from '../components/GamblingNotice';
 import { getServerLocale } from '../../lib/serverLocale';
 
-export default function SportsBettingPromosPage() {
+export default async function SportsBettingPromosPage() {
   return (
     <main className="flex-1 py-10">
       <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium">
@@ -11,7 +11,7 @@ export default function SportsBettingPromosPage() {
         <h1 className="mt-2 text-3xl font-semibold text-white"><LocalizedText source="Sports betting promos and sportsbook offers" /></h1>
         <p className="mt-4 text-zinc-400"><LocalizedText source="Discover premium sportsbook-related content, state availability, and responsible-gambling guidance." /></p>
       </div>
-      <GamblingNotice locale={getServerLocale()} className="mt-6" />
+      <GamblingNotice locale={await getServerLocale()} className="mt-6" />
     </main>
   );
 }

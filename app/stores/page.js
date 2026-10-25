@@ -9,8 +9,8 @@ import { CategoryChips, DealGrid } from '../components/g1/DealsParts';
 
 export const dynamic = 'force-dynamic';
 
-export default function StoresPage() {
-  const { t, locale } = getServerTranslation();
+export default async function StoresPage() {
+  const { t, locale } = await getServerTranslation();
   const copy = getDealsCopy(locale);
   const deals = getStoreDeals();
 

@@ -13,10 +13,11 @@ import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from 
 export const dynamic = 'force-dynamic';
 
 export default async function VacationRentalDetailPage({ params }) {
+  params = await params;
   const stay = await getVacationRentalBySlug(params.slug,{editorial:true});
   if (!stay) notFound();
 
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
   const copy = getWorldsCopy(locale);
   const more = (await getVacationRentals({editorial:true})).filter((s) => s.slug !== stay.slug).slice(0, 3);
 

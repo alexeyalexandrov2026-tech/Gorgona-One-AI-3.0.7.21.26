@@ -5,16 +5,17 @@ export const dynamic = 'force-dynamic';
 
 // The Restaurants category of Stores shows the dining and nightlife guide
 // instead of a coupon list. This static route shadows /stores/[category].
-export function generateMetadata() {
-  const { t } = getServerTranslation();
+export async function generateMetadata() {
+  const { t } = await getServerTranslation();
   return {
     title: `${t.categories.restaurants} | MIAMI ELIO`,
     description: t.categoryDescriptions.restaurants
   };
 }
 
-export default function RestaurantsSectionPage({ searchParams }) {
-  const { t } = getServerTranslation();
+export default async function RestaurantsSectionPage({ searchParams }) {
+  searchParams = await searchParams;
+  const { t } = await getServerTranslation();
   return (
     <VenueDirectory
       basePath="/stores/restaurants"

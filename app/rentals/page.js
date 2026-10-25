@@ -11,8 +11,9 @@ export const dynamic = 'force-dynamic';
 
 // Our own fleet: filter by body type with ?type=, so it works without JS.
 export default async function RentalsPage({ searchParams }) {
+  searchParams = await searchParams;
   const rentals = await getRentals({editorial:true});
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
   const copy = getWorldsCopy(locale);
   const types = [...new Set(rentals.map((car) => car.category))];
   const type = types.includes(searchParams?.type) ? searchParams.type : null;

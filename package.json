@@ -13,20 +13,31 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.110.1",
     "autoprefixer": "^10.5.2",
-    "framer-motion": "^11.11.17",
-    "next": "14.2.35",
-    "postcss": "^8.5.16",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "framer-motion": "11.18.2",
+    "next": "15.5.28",
+    "postcss": "8.5.31",
+    "react": "19.0.9",
+    "react-dom": "19.0.9",
     "resend": "^6.18.1",
     "tailwindcss": "^3.4.13"
   },
   "devDependencies": {
     "@babel/parser": "7.29.9",
     "@electric-sql/pglite": "0.5.11",
-    "@opennextjs/cloudflare": "1.15.1",
+    "@opennextjs/cloudflare": "1.20.13",
     "@playwright/test": "^1.61.1",
-    "concurrently": "^10.0.3",
+    "concurrently": "10.0.6",
     "playwright": "^1.61.1"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "$postcss"
+    },
+    "@node-minify/core": {
+      "glob": "10.5.0"
+    },
+    "miniflare": {
+      "undici": "7.30.1"
+    }
   }
 }

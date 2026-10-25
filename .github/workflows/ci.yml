@@ -21,6 +21,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm audit --audit-level=high
       - run: npm run i18n:check
       - run: node --test tests/content/*.test.mjs tests/i18n/*.test.mjs tests/dashboard/*.test.mjs
       # Only the Next.js build: the full `npm run build` also packages the

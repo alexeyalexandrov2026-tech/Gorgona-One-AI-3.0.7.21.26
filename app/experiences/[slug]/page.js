@@ -7,14 +7,15 @@ import BookingForm from '../../components/BookingForm';
 
 export const dynamic = 'force-dynamic';
 
-export default function ExperienceDetailPage({ params }) {
+export default async function ExperienceDetailPage({ params }) {
+  params = await params;
   const experience = getExperienceBySlug(params.slug);
 
   if (!experience) {
     notFound();
   }
 
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
 
   return (
     <main className="flex-1 py-10">

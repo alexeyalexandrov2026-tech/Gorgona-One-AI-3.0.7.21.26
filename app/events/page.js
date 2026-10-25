@@ -18,8 +18,8 @@ const ArrowIcon = ({ className }) => (
   </svg>
 );
 
-export default function EventsMarketplacePage() {
-  const { t } = getServerTranslation();
+export default async function EventsMarketplacePage() {
+  const { t } = await getServerTranslation();
 
   const eventCategories = [
     {
