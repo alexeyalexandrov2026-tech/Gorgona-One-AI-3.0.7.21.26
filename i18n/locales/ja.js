@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "送信済み",
   "ui.031a8f0f659df890": "送信失敗",
   "ui.eb65e75dfa152079": "掲載内容を審査に提出しました。",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "白いイタリア製高級SUV。赤い内装と個性的なデザインに、日常の快適さを兼ね備えています。",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "白いロングホイールベースの高級SUV。黒い内装とゆとりある乗員スペースが特徴です。",
-  "listing.cadillac-escalade-600-black-brown.description": "黒いフルサイズ高級SUV。茶色い内装、堂々とした外観、広い室内を備えています。",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "Brooklyn Greyの高級SUV。茶色い内装にスポーティーなデザインと日常の快適さを組み合わせています。",
-  "listing.bmw-x5-white-brown.description": "白い高級SUV。茶色い内装、現代的なテクノロジー、広い室内を備えています。",
-  "listing.bmw-x7-brooklyn-grey-black.description": "Brooklyn Greyの高級SUV。黒い内装、パノラマルーフ、広い室内を備えています。",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "白い高級SUV。茶色い内装とゆとりある乗員スペースで、上質な快適さを提供します。",
-  "listing.cadillac-escalade-white-black.description": "白いフルサイズ高級SUV。黒い内装、存在感ある外観、広い室内が特徴です。",
-  "listing.cadillac-escalade-600-black-black.description": "黒いフルサイズ高級SUV。黒い内装に先進的な室内テクノロジーと上質な快適さを備えています。",
-  "listing.range-rover-p400-se-white-brown.description": "白い高級SUV。茶色い内装、控えめなデザイン、快適な室内を備えています。",
-  "listing.porsche-cayenne-grey-black.description": "グレーの高級SUV。黒い内装にPorscheらしいデザインと日常の使いやすさを兼ね備えています。",
-  "listing.range-rover-sport-dynamic-white-red.description": "白い高級SUV。赤い内装にスポーティーなシルエットと上質な室内を組み合わせています。",
-  "listing.mercedes-cle300-white-beige.description": "白いコンバーチブル。ベージュの内装と快適な室内で、オープンエアのドライブを楽しめます。",
-  "listing.mercedes-gls450-white-brown.description": "白いフルサイズ高級SUV。茶色い内装と広い室内を備えています。"
+  "ui.acdd1e734125f341": "Telegram"
 };

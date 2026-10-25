@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "Gesendet",
   "ui.031a8f0f659df890": "Versand fehlgeschlagen",
   "ui.eb65e75dfa152079": "Angebot zur Prüfung eingereicht.",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "Weißes italienisches Luxus-SUV mit rotem Interieur, markantem Design und Komfort für den Alltag.",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "Weißes Luxus-SUV mit langem Radstand, schwarzem Interieur und großzügigem Platz für die Passagiere.",
-  "listing.cadillac-escalade-600-black-brown.description": "Schwarzes Luxus-SUV in voller Größe mit braunem Interieur, imposanter Präsenz und geräumiger Kabine.",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "Luxus-SUV in Brooklyn Grey mit braunem Interieur, sportlichem Design und Alltagskomfort.",
-  "listing.bmw-x5-white-brown.description": "Weißes Luxus-SUV mit braunem Interieur, moderner Technik und geräumiger Kabine.",
-  "listing.bmw-x7-brooklyn-grey-black.description": "Luxus-SUV in Brooklyn Grey mit schwarzem Interieur, Panoramadach und geräumiger Kabine.",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "Weißes Luxus-SUV mit braunem Interieur, viel Platz für die Passagiere und kultiviertem Komfort.",
-  "listing.cadillac-escalade-white-black.description": "Weißes Luxus-SUV in voller Größe mit schwarzem Interieur, markanter Präsenz und geräumiger Kabine.",
-  "listing.cadillac-escalade-600-black-black.description": "Schwarzes Luxus-SUV in voller Größe mit schwarzem Interieur, moderner Kabinentechnik und kultiviertem Komfort.",
-  "listing.range-rover-p400-se-white-brown.description": "Weißes Luxus-SUV mit braunem Interieur, dezentem Design und komfortabler Kabine.",
-  "listing.porsche-cayenne-grey-black.description": "Graues Luxus-SUV mit schwarzem Interieur, Porsche-Design und Vielseitigkeit im Alltag.",
-  "listing.range-rover-sport-dynamic-white-red.description": "Weißes Luxus-SUV mit rotem Interieur, sportlicher Silhouette und edler Kabine.",
-  "listing.mercedes-cle300-white-beige.description": "Weißes Cabriolet mit beigem Interieur und komfortabler Kabine für Fahrten unter freiem Himmel.",
-  "listing.mercedes-gls450-white-brown.description": "Weißes Luxus-SUV in voller Größe mit braunem Interieur und geräumiger Kabine."
+  "ui.acdd1e734125f341": "Telegram"
 };

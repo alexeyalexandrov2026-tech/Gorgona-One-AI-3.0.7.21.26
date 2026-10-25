@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "Wysłano",
   "ui.031a8f0f659df890": "Nie udało się wysłać",
   "ui.eb65e75dfa152079": "Oferta została przesłana do weryfikacji.",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "Biały włoski luksusowy SUV z czerwonym wnętrzem, łączący wyrazisty styl i codzienny komfort.",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "Biały luksusowy SUV z długim rozstawem osi, czarnym wnętrzem i dużą przestrzenią dla pasażerów.",
-  "listing.cadillac-escalade-600-black-brown.description": "Czarny pełnowymiarowy luksusowy SUV z brązowym wnętrzem, imponującą sylwetką i przestronną kabiną.",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "Luksusowy SUV w kolorze Brooklyn Grey z brązowym wnętrzem, sportowym stylem i codziennym komfortem.",
-  "listing.bmw-x5-white-brown.description": "Biały luksusowy SUV z brązowym wnętrzem, nowoczesną technologią i przestronną kabiną.",
-  "listing.bmw-x7-brooklyn-grey-black.description": "Luksusowy SUV w kolorze Brooklyn Grey z czarnym wnętrzem, panoramicznym dachem i przestronną kabiną.",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "Biały luksusowy SUV z brązowym wnętrzem, dużą przestrzenią dla pasażerów i wyrafinowanym komfortem.",
-  "listing.cadillac-escalade-white-black.description": "Biały pełnowymiarowy luksusowy SUV z czarnym wnętrzem, wyrazistą sylwetką i przestronną kabiną.",
-  "listing.cadillac-escalade-600-black-black.description": "Czarny pełnowymiarowy luksusowy SUV z czarnym wnętrzem, zaawansowaną technologią i wyrafinowanym komfortem.",
-  "listing.range-rover-p400-se-white-brown.description": "Biały luksusowy SUV z brązowym wnętrzem, stonowanym stylem i wygodną kabiną.",
-  "listing.porsche-cayenne-grey-black.description": "Szary luksusowy SUV z czarnym wnętrzem, stylem Porsche i wszechstronnością na co dzień.",
-  "listing.range-rover-sport-dynamic-white-red.description": "Biały luksusowy SUV z czerwonym wnętrzem, sportową sylwetką i elegancką kabiną.",
-  "listing.mercedes-cle300-white-beige.description": "Biały kabriolet z beżowym wnętrzem i wygodną kabiną do jazdy pod gołym niebem.",
-  "listing.mercedes-gls450-white-brown.description": "Biały pełnowymiarowy luksusowy SUV z brązowym wnętrzem i przestronną kabiną."
+  "ui.acdd1e734125f341": "Telegram"
 };

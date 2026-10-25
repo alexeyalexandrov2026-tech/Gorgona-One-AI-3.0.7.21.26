@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "Gönderildi",
   "ui.031a8f0f659df890": "Gönderilemedi",
   "ui.eb65e75dfa152079": "İlan incelemeye gönderildi.",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "Kırmızı iç mekânlı beyaz İtalyan lüks SUV; özgün tasarımı günlük konforla birleştirir.",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "Siyah iç mekânlı, uzun aks mesafeli beyaz lüks SUV; yolculara geniş alan sunar.",
-  "listing.cadillac-escalade-600-black-brown.description": "Kahverengi iç mekânlı siyah büyük boy lüks SUV; güçlü görünümü ve geniş kabiniyle öne çıkar.",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "Kahverengi iç mekânlı Brooklyn Grey lüks SUV; sportif tasarımı günlük konforla birleştirir.",
-  "listing.bmw-x5-white-brown.description": "Kahverengi iç mekânlı beyaz lüks SUV; modern teknoloji ve geniş bir kabin sunar.",
-  "listing.bmw-x7-brooklyn-grey-black.description": "Siyah iç mekânlı Brooklyn Grey lüks SUV; panoramik tavan ve geniş bir kabin sunar.",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "Kahverengi iç mekânlı beyaz lüks SUV; yolculara geniş alan ve seçkin konfor sunar.",
-  "listing.cadillac-escalade-white-black.description": "Siyah iç mekânlı beyaz büyük boy lüks SUV; dikkat çekici görünümü ve geniş kabiniyle öne çıkar.",
-  "listing.cadillac-escalade-600-black-black.description": "Siyah iç mekânlı siyah büyük boy lüks SUV; gelişmiş kabin teknolojisi ve seçkin konfor sunar.",
-  "listing.range-rover-p400-se-white-brown.description": "Kahverengi iç mekânlı beyaz lüks SUV; sade tasarımı konforlu bir kabinle birleştirir.",
-  "listing.porsche-cayenne-grey-black.description": "Siyah iç mekânlı gri lüks SUV; Porsche tasarımını günlük çok yönlülükle birleştirir.",
-  "listing.range-rover-sport-dynamic-white-red.description": "Kırmızı iç mekânlı beyaz lüks SUV; sportif silueti seçkin bir kabinle dengeler.",
-  "listing.mercedes-cle300-white-beige.description": "Bej iç mekânlı beyaz cabriolet; konforlu kabiniyle üstü açık sürüş keyfi sunar.",
-  "listing.mercedes-gls450-white-brown.description": "Kahverengi iç mekânlı beyaz büyük boy lüks SUV; geniş bir kabin sunar."
+  "ui.acdd1e734125f341": "Telegram"
 };

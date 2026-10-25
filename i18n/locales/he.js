@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "נשלח",
   "ui.031a8f0f659df890": "השליחה נכשלה",
   "ui.eb65e75dfa152079": "ההצעה נשלחה לבדיקה.",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "רכב פנאי יוקרתי איטלקי לבן עם תא נוסעים אדום, עיצוב ייחודי ונוחות יומיומית.",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "רכב פנאי יוקרתי לבן עם בסיס גלגלים ארוך, תא נוסעים שחור ומרחב נדיב לנוסעים.",
-  "listing.cadillac-escalade-600-black-brown.description": "רכב פנאי יוקרתי שחור בגודל מלא עם תא נוסעים חום, נוכחות מרשימה ומרחב פנימי גדול.",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "רכב פנאי יוקרתי בגוון Brooklyn Grey עם תא נוסעים חום, עיצוב ספורטיבי ונוחות יומיומית.",
-  "listing.bmw-x5-white-brown.description": "רכב פנאי יוקרתי לבן עם תא נוסעים חום, טכנולוגיה מודרנית ומרחב פנימי גדול.",
-  "listing.bmw-x7-brooklyn-grey-black.description": "רכב פנאי יוקרתי בגוון Brooklyn Grey עם תא נוסעים שחור, גג פנורמי ומרחב פנימי גדול.",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "רכב פנאי יוקרתי לבן עם תא נוסעים חום, מרחב נדיב לנוסעים ונוחות מעודנת.",
-  "listing.cadillac-escalade-white-black.description": "רכב פנאי יוקרתי לבן בגודל מלא עם תא נוסעים שחור, נוכחות בולטת ומרחב פנימי גדול.",
-  "listing.cadillac-escalade-600-black-black.description": "רכב פנאי יוקרתי שחור בגודל מלא עם תא נוסעים שחור, טכנולוגיה מתקדמת ונוחות מעודנת.",
-  "listing.range-rover-p400-se-white-brown.description": "רכב פנאי יוקרתי לבן עם תא נוסעים חום, עיצוב מאופק ונוחות בתא הנוסעים.",
-  "listing.porsche-cayenne-grey-black.description": "רכב פנאי יוקרתי אפור עם תא נוסעים שחור, עיצוב Porsche ושימושיות יומיומית.",
-  "listing.range-rover-sport-dynamic-white-red.description": "רכב פנאי יוקרתי לבן עם תא נוסעים אדום, צללית ספורטיבית וחלל פנימי מעודן.",
-  "listing.mercedes-cle300-white-beige.description": "קבריולה לבנה עם תא נוסעים בז׳ ונוחות בנסיעה תחת כיפת השמיים.",
-  "listing.mercedes-gls450-white-brown.description": "רכב פנאי יוקרתי לבן בגודל מלא עם תא נוסעים חום ומרחב פנימי גדול."
+  "ui.acdd1e734125f341": "Telegram"
 };

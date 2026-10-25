@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "전송됨",
   "ui.031a8f0f659df890": "전송 실패",
   "ui.eb65e75dfa152079": "등록 내용이 검토를 위해 제출되었습니다.",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "흰색 이탈리아 럭셔리 SUV로, 빨간색 실내와 개성 있는 디자인에 일상의 편안함을 더했습니다.",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "흰색 롱 휠베이스 럭셔리 SUV로, 검은색 실내와 넉넉한 승객 공간을 갖췄습니다.",
-  "listing.cadillac-escalade-600-black-brown.description": "검은색 대형 럭셔리 SUV로, 갈색 실내와 당당한 외관, 넓은 실내를 갖췄습니다.",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "Brooklyn Grey 색상의 럭셔리 SUV로, 갈색 실내와 스포티한 디자인에 일상의 편안함을 더했습니다.",
-  "listing.bmw-x5-white-brown.description": "흰색 럭셔리 SUV로, 갈색 실내와 현대적인 기술, 넓은 실내를 갖췄습니다.",
-  "listing.bmw-x7-brooklyn-grey-black.description": "Brooklyn Grey 색상의 럭셔리 SUV로, 검은색 실내와 파노라마 루프, 넓은 실내를 갖췄습니다.",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "흰색 럭셔리 SUV로, 갈색 실내와 넉넉한 승객 공간, 세련된 편안함을 제공합니다.",
-  "listing.cadillac-escalade-white-black.description": "흰색 대형 럭셔리 SUV로, 검은색 실내와 강렬한 존재감, 넓은 실내를 갖췄습니다.",
-  "listing.cadillac-escalade-600-black-black.description": "검은색 대형 럭셔리 SUV로, 검은색 실내와 첨단 실내 기술, 세련된 편안함을 제공합니다.",
-  "listing.range-rover-p400-se-white-brown.description": "흰색 럭셔리 SUV로, 갈색 실내와 절제된 디자인, 편안한 실내를 갖췄습니다.",
-  "listing.porsche-cayenne-grey-black.description": "회색 럭셔리 SUV로, 검은색 실내에 Porsche의 디자인과 일상의 실용성을 더했습니다.",
-  "listing.range-rover-sport-dynamic-white-red.description": "흰색 럭셔리 SUV로, 빨간색 실내와 스포티한 실루엣, 세련된 실내를 갖췄습니다.",
-  "listing.mercedes-cle300-white-beige.description": "흰색 컨버터블로, 베이지색 실내와 편안한 실내 공간에서 오픈 에어 드라이빙을 즐길 수 있습니다.",
-  "listing.mercedes-gls450-white-brown.description": "흰색 대형 럭셔리 SUV로, 갈색 실내와 넓은 실내 공간을 갖췄습니다."
+  "ui.acdd1e734125f341": "Telegram"
 };

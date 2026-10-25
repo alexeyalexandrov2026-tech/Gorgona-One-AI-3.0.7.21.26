@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "Enviado",
   "ui.031a8f0f659df890": "Error de envío",
   "ui.eb65e75dfa152079": "Propuesta enviada para revisión.",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "SUV de lujo italiano blanco con interior rojo, diseño distintivo y confort para el día a día.",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "SUV de lujo blanco de batalla larga, con interior negro y amplio espacio para los pasajeros.",
-  "listing.cadillac-escalade-600-black-brown.description": "SUV de lujo negro de tamaño completo con interior marrón, presencia imponente y habitáculo espacioso.",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "SUV de lujo Brooklyn Grey con interior marrón, estilo deportivo y confort diario.",
-  "listing.bmw-x5-white-brown.description": "SUV de lujo blanco con interior marrón, tecnología moderna y un habitáculo espacioso.",
-  "listing.bmw-x7-brooklyn-grey-black.description": "SUV de lujo Brooklyn Grey con interior negro, techo panorámico y un habitáculo espacioso.",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "SUV de lujo blanco con interior marrón, amplio espacio para los pasajeros y confort refinado.",
-  "listing.cadillac-escalade-white-black.description": "SUV de lujo blanco de tamaño completo con interior negro, presencia llamativa y habitáculo espacioso.",
-  "listing.cadillac-escalade-600-black-black.description": "SUV de lujo negro de tamaño completo con interior negro, tecnología avanzada y confort refinado.",
-  "listing.range-rover-p400-se-white-brown.description": "SUV de lujo blanco con interior marrón, diseño discreto y un habitáculo cómodo.",
-  "listing.porsche-cayenne-grey-black.description": "SUV de lujo gris con interior negro, estilo Porsche y versatilidad para el día a día.",
-  "listing.range-rover-sport-dynamic-white-red.description": "SUV de lujo blanco con interior rojo, silueta deportiva y habitáculo refinado.",
-  "listing.mercedes-cle300-white-beige.description": "Descapotable blanco con interior beige y un habitáculo cómodo para conducir al aire libre.",
-  "listing.mercedes-gls450-white-brown.description": "SUV de lujo blanco de tamaño completo con interior marrón y habitáculo espacioso."
+  "ui.acdd1e734125f341": "Telegram"
 };

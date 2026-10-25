@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "Enviado",
   "ui.031a8f0f659df890": "Falha no envio",
   "ui.eb65e75dfa152079": "Oferta enviada para análise.",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "SUV italiano de luxo branco com interior vermelho, design marcante e conforto para o dia a dia.",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "SUV de luxo branco com distância entre eixos longa, interior preto e amplo espaço para passageiros.",
-  "listing.cadillac-escalade-600-black-brown.description": "SUV de luxo preto de tamanho grande com interior marrom, presença imponente e cabine espaçosa.",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "SUV de luxo Brooklyn Grey com interior marrom, estilo esportivo e conforto no dia a dia.",
-  "listing.bmw-x5-white-brown.description": "SUV de luxo branco com interior marrom, tecnologia moderna e cabine espaçosa.",
-  "listing.bmw-x7-brooklyn-grey-black.description": "SUV de luxo Brooklyn Grey com interior preto, teto panorâmico e cabine espaçosa.",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "SUV de luxo branco com interior marrom, amplo espaço para passageiros e conforto refinado.",
-  "listing.cadillac-escalade-white-black.description": "SUV de luxo branco de tamanho grande com interior preto, presença marcante e cabine espaçosa.",
-  "listing.cadillac-escalade-600-black-black.description": "SUV de luxo preto de tamanho grande com interior preto, tecnologia avançada e conforto refinado.",
-  "listing.range-rover-p400-se-white-brown.description": "SUV de luxo branco com interior marrom, design discreto e cabine confortável.",
-  "listing.porsche-cayenne-grey-black.description": "SUV de luxo cinza com interior preto, estilo Porsche e versatilidade para o dia a dia.",
-  "listing.range-rover-sport-dynamic-white-red.description": "SUV de luxo branco com interior vermelho, silhueta esportiva e cabine refinada.",
-  "listing.mercedes-cle300-white-beige.description": "Conversível branco com interior bege e cabine confortável para dirigir ao ar livre.",
-  "listing.mercedes-gls450-white-brown.description": "SUV de luxo branco de tamanho grande com interior marrom e cabine espaçosa."
+  "ui.acdd1e734125f341": "Telegram"
 };

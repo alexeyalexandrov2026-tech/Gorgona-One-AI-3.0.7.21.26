@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "Sent",
   "ui.031a8f0f659df890": "Failed",
   "ui.eb65e75dfa152079": "Listing submitted for review.",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "White Italian luxury SUV with a red interior, combining distinctive design and everyday comfort.",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "White long-wheelbase luxury SUV with a black interior and generous passenger space.",
-  "listing.cadillac-escalade-600-black-brown.description": "Black full-size luxury SUV with a brown interior, a commanding presence and a spacious cabin.",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "Brooklyn Grey luxury SUV with a brown interior, pairing athletic styling with everyday comfort.",
-  "listing.bmw-x5-white-brown.description": "White luxury SUV with a brown interior, modern technology and a spacious cabin.",
-  "listing.bmw-x7-brooklyn-grey-black.description": "Brooklyn Grey luxury SUV with a black interior, a panoramic roof and a spacious cabin.",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "White luxury SUV with a brown interior, offering generous passenger space and refined comfort.",
-  "listing.cadillac-escalade-white-black.description": "White full-size luxury SUV with a black interior, bringing a bold presence and a spacious cabin.",
-  "listing.cadillac-escalade-600-black-black.description": "Black full-size luxury SUV with a black interior, advanced cabin technology and refined comfort.",
-  "listing.range-rover-p400-se-white-brown.description": "White luxury SUV with a brown interior, combining understated design with a comfortable cabin.",
-  "listing.porsche-cayenne-grey-black.description": "Grey luxury SUV with a black interior, combining Porsche styling with everyday versatility.",
-  "listing.range-rover-sport-dynamic-white-red.description": "White luxury SUV with a red interior, balancing a sporty silhouette with a refined cabin.",
-  "listing.mercedes-cle300-white-beige.description": "White convertible with a beige interior, combining open-air driving with a comfortable cabin.",
-  "listing.mercedes-gls450-white-brown.description": "White full-size luxury SUV with a brown interior and a spacious cabin."
+  "ui.acdd1e734125f341": "Telegram"
 };

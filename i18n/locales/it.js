@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "Inviato",
   "ui.031a8f0f659df890": "Invio non riuscito",
   "ui.eb65e75dfa152079": "Annuncio inviato per la revisione.",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "SUV di lusso italiano bianco con interni rossi, design distintivo e comfort quotidiano.",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "SUV di lusso bianco a passo lungo, con interni neri e ampio spazio per i passeggeri.",
-  "listing.cadillac-escalade-600-black-brown.description": "SUV di lusso nero di grandi dimensioni con interni marroni, presenza imponente e abitacolo spazioso.",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "SUV di lusso Brooklyn Grey con interni marroni, stile sportivo e comfort quotidiano.",
-  "listing.bmw-x5-white-brown.description": "SUV di lusso bianco con interni marroni, tecnologia moderna e abitacolo spazioso.",
-  "listing.bmw-x7-brooklyn-grey-black.description": "SUV di lusso Brooklyn Grey con interni neri, tetto panoramico e abitacolo spazioso.",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "SUV di lusso bianco con interni marroni, ampio spazio per i passeggeri e comfort raffinato.",
-  "listing.cadillac-escalade-white-black.description": "SUV di lusso bianco di grandi dimensioni con interni neri, presenza decisa e abitacolo spazioso.",
-  "listing.cadillac-escalade-600-black-black.description": "SUV di lusso nero di grandi dimensioni con interni neri, tecnologia avanzata e comfort raffinato.",
-  "listing.range-rover-p400-se-white-brown.description": "SUV di lusso bianco con interni marroni, design sobrio e abitacolo confortevole.",
-  "listing.porsche-cayenne-grey-black.description": "SUV di lusso grigio con interni neri, stile Porsche e versatilità quotidiana.",
-  "listing.range-rover-sport-dynamic-white-red.description": "SUV di lusso bianco con interni rossi, silhouette sportiva e abitacolo raffinato.",
-  "listing.mercedes-cle300-white-beige.description": "Cabriolet bianca con interni beige e abitacolo confortevole per guidare a cielo aperto.",
-  "listing.mercedes-gls450-white-brown.description": "SUV di lusso bianco di grandi dimensioni con interni marroni e abitacolo spazioso."
+  "ui.acdd1e734125f341": "Telegram"
 };

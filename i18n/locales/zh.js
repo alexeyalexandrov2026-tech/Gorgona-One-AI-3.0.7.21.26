@@ -947,19 +947,5 @@ export default {
   "ui.c16bc82bf1f04ede": "已发送",
   "ui.031a8f0f659df890": "发送失败",
   "ui.eb65e75dfa152079": "信息已提交审核。",
-  "ui.acdd1e734125f341": "Telegram",
-  "listing.maserati-levante-q4-white-red.description": "白色意大利豪华SUV，配红色内饰，兼具独特设计与日常舒适性。",
-  "listing.range-rover-hse-p400-lwb-white-black.description": "白色长轴距豪华SUV，配黑色内饰，为乘客提供宽敞空间。",
-  "listing.cadillac-escalade-600-black-brown.description": "黑色全尺寸豪华SUV，配棕色内饰，气势出众，座舱宽敞。",
-  "listing.bmw-x5-brooklyn-grey-brown.description": "Brooklyn Grey色豪华SUV，配棕色内饰，兼具运动造型与日常舒适性。",
-  "listing.bmw-x5-white-brown.description": "白色豪华SUV，配棕色内饰、现代科技和宽敞座舱。",
-  "listing.bmw-x7-brooklyn-grey-black.description": "Brooklyn Grey色豪华SUV，配黑色内饰、全景天窗和宽敞座舱。",
-  "listing.bmw-x7-xdrive40i-white-brown.description": "白色豪华SUV，配棕色内饰，乘坐空间宽敞，舒适精致。",
-  "listing.cadillac-escalade-white-black.description": "白色全尺寸豪华SUV，配黑色内饰，造型醒目，座舱宽敞。",
-  "listing.cadillac-escalade-600-black-black.description": "黑色全尺寸豪华SUV，配黑色内饰，座舱科技先进，舒适精致。",
-  "listing.range-rover-p400-se-white-brown.description": "白色豪华SUV，配棕色内饰，设计低调，座舱舒适。",
-  "listing.porsche-cayenne-grey-black.description": "灰色豪华SUV，配黑色内饰，兼具Porsche造型与日常实用性。",
-  "listing.range-rover-sport-dynamic-white-red.description": "白色豪华SUV，配红色内饰，运动轮廓与精致座舱相得益彰。",
-  "listing.mercedes-cle300-white-beige.description": "白色敞篷车，配米色内饰，兼具敞篷驾驶乐趣与舒适座舱。",
-  "listing.mercedes-gls450-white-brown.description": "白色全尺寸豪华SUV，配棕色内饰和宽敞座舱。"
+  "ui.acdd1e734125f341": "Telegram"
 };
