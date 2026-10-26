@@ -1,0 +1,12 @@
+# Local CLI identifier; this does not select or link a remote project.
+project_id = "miami-elio-controlled-release"
+
+# The shared production database uses an explicitly reviewed staged release:
+# compatible additions -> supported application -> acceptance -> lockdown.
+# Do not automatically replay this repository's partial migration history.
+[db.migrations]
+enabled = false
+
+# Production data must never be populated by an implicit seed step.
+[db.seed]
+enabled = false
