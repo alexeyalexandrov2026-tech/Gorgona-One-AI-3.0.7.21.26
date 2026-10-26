@@ -9,6 +9,8 @@ import { getServerTranslations } from '../../../../lib/serverLocale';
 export const dynamic = 'force-dynamic';
 
 export default async function LeaguePage({ params, searchParams }) {
+  params = await params;
+  searchParams = await searchParams;
   const league = getLeagueBySlug(params.league);
 
   if (!league) {

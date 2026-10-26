@@ -6,9 +6,9 @@ import { getServerTranslation } from '../../lib/serverLocale';
 
 export const dynamic = 'force-dynamic';
 
-export default function ExperiencesPage() {
+export default async function ExperiencesPage() {
   const experiences = getExperiences();
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
 
   return (
     <main className="flex-1 py-10">

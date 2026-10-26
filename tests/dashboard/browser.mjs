@@ -9,6 +9,7 @@ import '../../lib/savedServerCatalog.js';
 import { savedSource } from '../../lib/savedCopy.js';
 
 const output=process.env.DASHBOARD_QA_OUTPUT||'/tmp/miami-workspaces-qa';fs.mkdirSync(output,{recursive:true});
+const backendPort=Number(process.env.DASHBOARD_QA_BACKEND_PORT||3037),appPort=Number(process.env.DASHBOARD_QA_APP_PORT||3036);
 const db=await fixture(),backend=provider(db),results=[];
 const seed=await rpc(db,'dashboard_submit',{p_key:crypto.randomUUID(),p_fingerprint:'browser-fixture',p_rate:'browser-fixture',p_user:ids.customer,
   p_input:{name:'Demo customer',email:'customer@example.com',phone:'+13055550123',dates:'Nov 1 – Nov 3, 2026',itemSlug:'demo-charter',itemTitle:'Demo charter',kind:'yacht'}});
@@ -21,11 +22,11 @@ const backendServer=http.createServer(async(req,res)=>{
     res.writeHead(result.status,Object.fromEntries(result.headers));res.end(Buffer.from(await result.arrayBuffer()));
   }catch(error){res.writeHead(500);res.end('Fixture failure');}
 });
-await new Promise(resolve=>backendServer.listen(3037,'127.0.0.1',resolve));
+await new Promise(resolve=>backendServer.listen(backendPort,'127.0.0.1',resolve));
 const log=fs.openSync(path.join(output,'server.log'),'a');
-const server=spawn(process.execPath,['--require',path.resolve('tests/dashboard/server-fixtures.cjs'),'node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port','3036'],
+const server=spawn(process.execPath,['--require',path.resolve('tests/dashboard/server-fixtures.cjs'),'node_modules/next/dist/bin/next','start','--hostname','127.0.0.1','--port',String(appPort)],
   {cwd:process.env.DASHBOARD_APP_DIR||process.cwd(),stdio:['ignore',log,log],env:{...process.env,...fixtureEnv,DASHBOARD_QA_FIXTURE:'1',RESEND_API_KEY:'',TELEGRAM_BOT_TOKEN:'',ADMIN_EMAIL:''}});
-const base='http://127.0.0.1:3036';
+const base='http://127.0.0.1:'+appPort;
 let ready=false;
 for(let i=0;i<100;i++){try{if((await fetch(base,{signal:AbortSignal.timeout(1000)})).ok){ready=true;break;}}catch{}await new Promise(r=>setTimeout(r,250));}
 if(!ready){server.kill();backendServer.close();await db.close();throw new Error('QA server did not start');}
@@ -60,13 +61,53 @@ async function role(name,viewport,locale,task){
 }
 const text=(locale,value)=>savedSource(locale,value);
 try{
+  await role('other',{width:390,height:844},'ru',async page=>{
+    await page.goto(base+'/profile',{waitUntil:'domcontentloaded'});
+    const token=await page.evaluate(()=>JSON.parse(localStorage.getItem('sb-placeholder-auth-token')).access_token);
+    await page.goto(base+'/account/setup#'+new URLSearchParams({access_token:token,refresh_token:'fixture-only',expires_in:'7200',token_type:'bearer',type:'recovery'}),{waitUntil:'domcontentloaded'});
+    const t=(await import('../../lib/i18n.js')).getTranslation('ru').auth,form=page.locator('main form');
+    await form.getByLabel(t.password,{exact:true}).fill('FixturePassword2026!');
+    await expect.poll(()=>new URL(page.url()).hash).toBe('');
+    await form.getByLabel(t.confirmPassword,{exact:true}).fill('different');
+    let updates=0;page.on('request',r=>{if(new URL(r.url()).pathname==='/auth/v1/user'&&r.method()==='PUT')updates++;});
+    await form.getByRole('button',{name:text('ru','Save'),exact:true}).click();
+    await expect(form.getByRole('alert')).toHaveText(text('ru','Passwords do not match'));expect(updates).toBe(0);
+    await form.getByLabel(t.password,{exact:true}).fill('short');await form.getByLabel(t.confirmPassword,{exact:true}).fill('short');
+    await form.getByRole('button',{name:text('ru','Save'),exact:true}).click();
+    await expect(form.getByRole('alert')).toHaveText(text('ru','Password must be at least 6 characters'));expect(updates).toBe(0);
+    await form.getByLabel(t.password,{exact:true}).fill('FixturePassword2026!');await form.getByLabel(t.confirmPassword,{exact:true}).fill('FixturePassword2026!');
+    const updated=page.waitForResponse(r=>new URL(r.url()).pathname==='/auth/v1/user'&&r.request().method()==='PUT');
+    await form.getByRole('button',{name:text('ru','Save'),exact:true}).click();expect((await updated).status()).toBe(200);
+    await expect(page).toHaveURL(base+'/profile');expect(updates).toBe(1);
+  });
   await role('customer',{width:1440,height:1000},'ru',async page=>{
-    await page.goto(base+'/profile',{waitUntil:'domcontentloaded'});await expect(page.getByRole('button',{name:'Demo charter',exact:true})).toBeVisible();
+    await page.goto(base+'/',{waitUntil:'domcontentloaded'});
+    const account=page.locator('header[dir="ltr"]').getByRole('link',{name:text('ru','User Profile'),exact:true});
+    await expect(account).toHaveAttribute('href','/profile');await account.click();
+    await expect(page).toHaveURL(base+'/profile');await expect(page.getByRole('button',{name:'Demo charter',exact:true})).toBeVisible();
     await page.getByRole('button',{name:'Demo charter',exact:true}).click();await expect(page.getByText(text('ru','History'),{exact:true})).toBeVisible();
     await page.getByRole('heading',{name:text('ru','Requests'),exact:true}).evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
   });
   await role('admin',{width:1440,height:1000},'ru',async page=>{
-    await page.goto(base+'/admin',{waitUntil:'domcontentloaded'});await expect(page.getByRole('heading',{name:'Dashboard QA listing',exact:true})).toBeVisible();await page.getByRole('button',{name:'Demo charter',exact:true}).click();
+    await page.goto(base+'/',{waitUntil:'domcontentloaded'});
+    const account=page.locator('header[dir="ltr"]').getByRole('link',{name:text('ru','Admin Portal'),exact:true});
+    await expect(account).toHaveAttribute('href','/admin');await account.click();await expect(page).toHaveURL(base+'/admin');
+    await expect(page.getByRole('heading',{name:(await import('../../lib/partnerListingCopy.mjs')).getPartnerListingCopy('ru').queue,exact:true})).toBeVisible();
+    await page.evaluate(()=>document.fonts.ready);
+    for(const width of [320,390,768,1024,1280,1440]){
+      await page.setViewportSize({width,height:1000});await expect(account).toBeVisible();
+      expect(await page.locator('header[dir="ltr"]').evaluate(el=>el.scrollWidth-el.clientWidth),'header layout at '+width).toBeLessThanOrEqual(2);
+      const brand=page.locator('header[dir="ltr"]').getByRole('link',{name:text('ru','Miami Elio, home'),exact:true});
+      expect(await brand.evaluate(el=>el.scrollWidth-el.clientWidth),'brand text at '+width).toBeLessThanOrEqual(2);
+      const overlaps=await page.locator('header[dir="ltr"]').evaluate(el=>{
+        const boxes=[...el.querySelectorAll('a,button')].map(node=>node.getBoundingClientRect()).filter(r=>r.width&&r.height);
+        let count=0;for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++){
+          const a=boxes[i],b=boxes[j];if(Math.min(a.right,b.right)-Math.max(a.left,b.left)>2&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>2)count++;
+        }return count;
+      });expect(overlaps,'header control overlaps at '+width).toBe(0);
+      await page.locator('header[dir="ltr"]').screenshot({path:path.join(output,'header-'+width+'.png'),animations:'disabled'});
+    }
+    await page.getByRole('button',{name:'Demo charter',exact:true}).click();
     await expect(page.getByRole('button',{name:text('ru','Start review'),exact:true})).toBeVisible();
     await page.getByRole('button',{name:text('ru','Start review'),exact:true}).click();
     await expect(page.getByRole('button',{name:text('ru','Start review'),exact:true})).toHaveCount(0);
@@ -77,7 +118,13 @@ try{
   });
   await role('partner',{width:390,height:844},'ar',async page=>{
     await page.goto(base+'/admin',{waitUntil:'domcontentloaded'});await expect(page).toHaveURL(base+'/profile');
-    await page.goto(base+'/partner',{waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Demo charter',exact:true}).click();
+    const header=page.locator('header[dir="ltr"]'),account=header.getByRole('link',{name:text('ar','Partner Portal'),exact:true});
+    await expect(account).toHaveAttribute('href','/partner');await expect(header.getByRole('link',{name:text('ar','Admin Portal'),exact:true})).toHaveCount(0);
+    await account.click();await expect(page).toHaveURL(base+'/partner');
+    await header.getByRole('button',{name:text('ar','Menu'),exact:true}).click();
+    await expect(header.getByRole('button',{name:(await import('../../lib/i18n.js')).getTranslation('ar').auth.signOut,exact:true}).last()).toBeVisible();
+    await header.getByRole('button',{name:text('ar','Menu'),exact:true}).click();
+    await page.getByRole('button',{name:'Demo charter',exact:true}).click();
     const reply=page.getByLabel(text('ar','Response'),{exact:true});await reply.fill('Demo partner response.');
     await page.getByRole('button',{name:text('ar','Send response'),exact:true}).click();
     await expect(page.getByText('Demo partner response.',{exact:true})).toBeVisible();
@@ -100,5 +147,14 @@ try{
     await expect(page.locator('main').getByRole('status')).toContainText((await import('../../lib/worldsCopy.js')).getWorldsCopy('ru').form.sentTitle);
     expect(await page.evaluate(()=>Object.keys(sessionStorage).filter(k=>k.startsWith('miami-booking:')))).toEqual([]);
     expect((await db.query("select count(*)::int n from public.bookings where client_email='guest@example.com'")).rows[0].n).toBe(1);
+  });
+  await role('guest',{width:390,height:844},'ru',async page=>{
+    await page.goto(base+'/account/setup',{waitUntil:'domcontentloaded'});await expect(page.locator('main form')).toHaveCount(0);
+    await expect(page.locator('main').getByRole('link',{name:(await import('../../lib/i18n.js')).getTranslation('ru').auth.signInTab,exact:true})).toBeVisible();
+    await page.goto(base+'/',{waitUntil:'domcontentloaded'});
+    const header=page.locator('header[dir="ltr"]');await header.getByRole('button',{name:text('ru','Menu'),exact:true}).click();
+    const signIn=header.getByRole('link',{name:(await import('../../lib/i18n.js')).getTranslation('ru').auth.signInTab,exact:true}).last();
+    await expect(signIn).toBeVisible();await signIn.click();await expect(page).toHaveURL(base+'/login');
+    await expect(header.getByRole('button',{name:text('ru','Menu'),exact:true})).toHaveAttribute('aria-expanded','false');
   });
 }finally{server.kill('SIGTERM');await new Promise(resolve=>backendServer.close(resolve));await db.close();}

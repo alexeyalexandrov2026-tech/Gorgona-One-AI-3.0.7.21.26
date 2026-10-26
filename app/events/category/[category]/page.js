@@ -21,9 +21,10 @@ import { getTicketNetworkCatalogue } from '../../../../lib/ticketnetwork';
 
 export const dynamic = 'force-dynamic';
 
-export default function EventsCategoryPage({ params }) {
+export default async function EventsCategoryPage({ params }) {
+  params = await params;
   const { category: categoryParam } = params;
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
 
   // Determine if we are viewing a group ('sports', 'concerts') or a specific subcategory ('basketball', etc.)
   const group = EVENT_CATEGORY_GROUPS.find(g => g.slug === categoryParam);

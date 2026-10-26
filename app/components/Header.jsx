@@ -58,6 +58,9 @@ export function Header() {
 
   const labelFor = (item) => (item.key && t.nav[item.key]) || item.label;
   const isActive = (href) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+  // Roles come from the protected profile loaded by AuthProvider.
+  const accountHref = auth?.session?.role === 'admin' ? '/admin' : auth?.session?.role === 'partner' ? '/partner' : '/profile';
+  const accountLabel = msg(auth?.session?.role === 'admin' ? 'Admin Portal' : auth?.session?.role === 'partner' ? 'Partner Portal' : 'User Profile');
 
   return (
     <header
@@ -70,7 +73,7 @@ export function Header() {
         scrolled ? "border-g1-rule bg-g1-paper/90" : "border-transparent bg-g1-paper/60"
       }`}
     >
-      <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4">
+      <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4 xl:flex-wrap">
         <div className="flex min-w-0 items-center gap-2">
           {/* Universal back navigation. Available on both mobile and desktop.
               Hidden on the homepage (nothing to go "back" from) and when 
@@ -87,13 +90,13 @@ export function Header() {
               </svg>
             </button>
           )}
-          <Link href="/" aria-label={msg("Miami Elio, home")} className="group flex items-baseline gap-2">
-            <span className="font-g1mono text-[0.72rem] uppercase tracking-[0.3em] text-g1-accent">Miami</span>
+          <Link href="/" aria-label={msg("Miami Elio, home")} className="group flex shrink-0 items-baseline gap-2">
+            <span className="hidden font-g1mono text-[0.72rem] uppercase tracking-[0.3em] text-g1-accent min-[360px]:inline">Miami</span>
             <span className="font-g1display text-2xl font-medium tracking-tight text-g1-ink sm:text-3xl">Elio</span>
           </Link>
         </div>
 
-        <nav className="hidden items-center gap-3.5 lg:flex xl:gap-6">
+        <nav className="hidden items-center gap-3.5 xl:order-last xl:flex xl:w-full xl:justify-between xl:gap-6">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -113,6 +116,21 @@ export function Header() {
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
+          {auth?.session && (
+            <Link
+              href={accountHref}
+              aria-label={accountLabel}
+              title={accountLabel}
+              aria-current={isActive(accountHref) ? 'page' : undefined}
+              onClick={() => setMobileNavOpen(false)}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21v-2a8 8 0 0 1 16 0v2" />
+              </svg>
+            </Link>
+          )}
           {auth?.session ? (
             <button
               type="button"
@@ -121,7 +139,7 @@ export function Header() {
             >
               {t.auth.signOut}
             </button>
-          ) : (
+          ) : !auth?.loading && (
             <Link
               href="/login"
               className="hidden min-h-[40px] items-center rounded-full bg-g1-accent px-4 text-sm font-medium text-g1-on-accent transition hover:brightness-110 sm:inline-flex"
@@ -134,7 +152,7 @@ export function Header() {
             onClick={() => setMobileNavOpen((value) => !value)}
             aria-expanded={mobileNavOpen}
             aria-label={msg("Menu")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink sm:h-10 sm:w-10 lg:hidden"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink sm:h-10 sm:w-10 xl:hidden"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               {mobileNavOpen ? (
@@ -161,7 +179,7 @@ export function Header() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-g1-rule lg:hidden"
+            className="overflow-hidden border-t border-g1-rule xl:hidden"
           >
             <div className="grid grid-cols-2 gap-1 py-3">
               {navItems.map((item) => (
@@ -175,6 +193,24 @@ export function Header() {
                 </Link>
               ))}
             </div>
+            {!auth?.loading && (
+              <div className="flex flex-wrap items-center gap-3 border-t border-g1-rule px-3 py-3">
+                {auth?.session ? (
+                  <>
+                    <Link href={accountHref} onClick={() => setMobileNavOpen(false)} className="min-h-[44px] rounded-full border border-g1-rule px-4 py-2.5 text-sm font-medium text-g1-ink">
+                      {accountLabel}
+                    </Link>
+                    <button type="button" onClick={async () => { if (await auth.signOut()) setMobileNavOpen(false); }} className="min-h-[44px] rounded-full border border-g1-rule px-4 py-2.5 text-sm font-medium text-g1-ink sm:hidden">
+                      {t.auth.signOut}
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/login" onClick={() => setMobileNavOpen(false)} className="inline-flex min-h-[44px] items-center rounded-full bg-g1-accent px-4 text-sm font-medium text-g1-on-accent sm:hidden">
+                    {t.auth.signInTab}
+                  </Link>
+                )}
+              </div>
+            )}
           </motion.nav>
         )}
       </AnimatePresence>

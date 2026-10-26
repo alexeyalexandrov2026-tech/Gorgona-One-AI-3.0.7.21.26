@@ -9,6 +9,7 @@ import { getServerTranslations } from '../../../lib/serverLocale';
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
+  params = await params;
   const event = getEventBySlug(params.slug);
   if (!event) {
     return { title: 'Event not found | MIAMI ELIO' };
@@ -20,6 +21,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function EventDetailPage({ params }) {
+  params = await params;
   const event = getEventBySlug(params.slug);
 
   if (!event) {

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
-import { Miniflare } from 'miniflare';
+import { Miniflare, convertV4MiniflareOptions } from 'miniflare';
 
 // Exercise the real Workers Request implementation: Node accepts redirect:
 // "error", but workerd rejects it before calling the outbound service.
@@ -33,7 +33,7 @@ const urls = [
 
 async function run(redirectAt = -1) {
   const calls = [];
-  const worker = new Miniflare({
+  const worker = new Miniflare(convertV4MiniflareOptions({
     modules: true, script, compatibilityDate: '2026-07-11',
     outboundService(request) {
       const url = new URL(request.url);
@@ -51,7 +51,7 @@ async function run(redirectAt = -1) {
         venue_name: 'TEST venue', venue_city: 'Miami', venue_state_province_short: 'FL'
       } }], facet_counts: [] });
     }
-  });
+  }));
   try {
     const response = await worker.dispatchFetch('https://portal.test/api/events/ticketnetwork');
     const data = await response.json();

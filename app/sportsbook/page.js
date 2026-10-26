@@ -32,9 +32,9 @@ const BrandLogo = ({ slug, name }) => NO_ARTWORK.has(slug) ? (
   />
 );
 
-export default function SportsbookDirectoryFinal() {
+export default async function SportsbookDirectoryFinal() {
   const sportsbooks = SPORTSBOOK_DIRECTORY;
-  const locale = getServerLocale();
+  const locale = await getServerLocale();
 
   return (
     <div className="min-h-screen bg-[#030303] text-white font-sans p-6 md:p-10">

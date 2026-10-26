@@ -52,8 +52,8 @@ export const metadata = {
   description: 'Adrenaline 365 adventure deals - skydiving, indoor skydiving, helicopter tours, and hot air balloon rides.'
 };
 
-export default function Adrenaline365ProfilePage() {
-  const { t } = getServerTranslation();
+export default async function Adrenaline365ProfilePage() {
+  const { t } = await getServerTranslation();
   const categoryLabel = t.categories.entertainment;
 
   return (

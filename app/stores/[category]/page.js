@@ -11,22 +11,24 @@ import { CategoryChips, DealGrid, categoryLabel, camelize } from '../../componen
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
+  params = await params;
   const category = categories.find((entry) => entry.slug === params.category);
   if (!category) {
     return { title: 'Category not found | MIAMI ELIO' };
   }
-  const { t } = getServerTranslation();
+  const { t } = await getServerTranslation();
   return {
     title: `${categoryLabel(t, category)} ${t.category.dealsAndPromoCodes} | MIAMI ELIO`,
     description: t.categoryDescriptions[camelize(category.slug)] || category.description
   };
 }
 
-export default function CategoryPage({ params }) {
+export default async function CategoryPage({ params }) {
+  params = await params;
   const category = categories.find((entry) => entry.slug === params.category);
   if (!category) notFound();
 
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
   const copy = getDealsCopy(locale);
   const label = categoryLabel(t, category);
   const deals = getCategoryDeals(category.slug);

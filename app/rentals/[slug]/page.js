@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getRentals, getRentalBySlug } from '../../../lib/rentalsData';
+import { getRentals, getRentalBySlug } from '../../../lib/data/listings';
 import { rentalDescriptions, getContentText } from '../../../lib/contentTranslations';
 import { getServerTranslation } from '../../../lib/serverLocale';
 import { getWorldsCopy, displayValue } from '../../../lib/worldsCopy';
@@ -7,19 +7,21 @@ import { fill } from '../../../lib/homeCopy';
 import { carThumb } from '../../../lib/homeData';
 import BookingForm from '../../components/BookingForm';
 import Gallery from '../../components/g1/Gallery';
+import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
 
 export const dynamic = 'force-dynamic';
 
-export default function RentalDetailPage({ params }) {
-  const rental = getRentalBySlug(params.slug);
+export default async function RentalDetailPage({ params }) {
+  params = await params;
+  const rental = await getRentalBySlug(params.slug,{editorial:true});
   if (!rental) notFound();
 
-  const { t, locale } = getServerTranslation();
+  const { t, locale } = await getServerTranslation();
   const copy = getWorldsCopy(locale);
   const category = copy.categories[rental.category] || rental.category;
   const photos = [rental.image, ...(rental.gallery || []).filter((src) => src !== rental.image)];
-  const more = getRentals().filter((car) => car.slug !== rental.slug && car.category === rental.category).slice(0, 3);
+  const more = (await getRentals({editorial:true})).filter((car) => car.slug !== rental.slug && car.category === rental.category).slice(0, 3);
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
@@ -41,6 +43,7 @@ export default function RentalDetailPage({ params }) {
             ]}
           />
           <BookingForm rentalSlug={rental.slug} rentalTitle={rental.title} kind="car" />
+          {rental.partner&&<PartnerSpecs specs={rental.specs}/>}
         </div>
       </div>
 

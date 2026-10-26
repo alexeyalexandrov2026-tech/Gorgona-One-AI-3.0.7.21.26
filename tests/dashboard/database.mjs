@@ -3,7 +3,10 @@ import fs from 'node:fs';
 
 export const ids = { customer:'11111111-1111-4111-8111-111111111111', other:'22222222-2222-4222-8222-222222222222',
   partner:'33333333-3333-4333-8333-333333333333', admin:'44444444-4444-4444-8444-444444444444' };
-export async function fixture() {
+export async function fixture({migrationFiles} = {}) {
+  const available=fs.readdirSync(new URL('../../supabase/migrations/',import.meta.url)).sort();
+  const selected=migrationFiles??available;
+  if(!Array.isArray(selected)||selected.some(file=>!available.includes(file)))throw Error('Unknown fixture migration');
   const db = new PGlite();
   await db.exec(`
     create role anon; create role authenticated; create role service_role bypassrls;
@@ -37,7 +40,7 @@ export async function fixture() {
     await db.query('insert into auth.users(id,email) values($1,$2)',[id,name+'@example.com']);
     await db.query('insert into public.profiles(id,email,name,role,company_name) values($1,$2,$3,$4,$5)',[id,name+'@example.com','Demo '+name,['partner','admin'].includes(name)?name:'user',name==='partner'?'Demo Partner Company':null]);
   }
-  for (const file of fs.readdirSync(new URL('../../supabase/migrations/',import.meta.url)).sort()) await db.exec(fs.readFileSync(new URL('../../supabase/migrations/'+file,import.meta.url),'utf8'));
+  for (const file of selected) await db.exec(fs.readFileSync(new URL('../../supabase/migrations/'+file,import.meta.url),'utf8'));
   await db.exec('create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_user()');
   return db;
 }
