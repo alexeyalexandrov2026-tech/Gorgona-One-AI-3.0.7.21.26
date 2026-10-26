@@ -79,6 +79,7 @@ export default function RegisterPartnerPage() {
               >
                 <option value="Villas">{msg("Villas & Estates")}</option>
                 <option value="Yachts">{msg("Yacht Charters")}</option>
+                <option value="Cars">{msg("Cars")}</option>
                 <option value="Events">{msg("Events & Nightlife")}</option>
                 <option value="Transfer">{msg("Premium Transfer")}</option>
               </select>
