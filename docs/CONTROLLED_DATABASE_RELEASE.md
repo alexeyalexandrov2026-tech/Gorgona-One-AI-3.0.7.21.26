@@ -1,6 +1,8 @@
 # Controlled database releases
 
-Status: proposed policy change; not deployed. Application release PR31 is live at
+Policy: database changes require an explicitly reviewed manual release. The owner
+approved this policy and the additional PR after reviewing its two-file scope.
+Application release PR31 is live at
 main `b74b16784e63e18411cbcf26dfdec1291439ca07` with the reviewed source tree
 `1731e4b4e4c683a0518008c594bb5879317db2d8`.
 
