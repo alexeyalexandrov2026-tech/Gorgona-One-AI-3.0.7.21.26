@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {discoverySnapshot,navigationItem} from '../../../lib/ai/session.mjs';
 
 // ===========================================================================
 // Miami Elio AI — session state (Phase 3).
@@ -35,9 +36,8 @@ export function AIProvider({ children }) {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const data = JSON.parse(raw);
-        if (Array.isArray(data.history)) setHistory(data.history);
-        if (Array.isArray(data.saved)) setSaved(data.saved);
+        const data = discoverySnapshot(JSON.parse(raw));
+        setHistory(data.history);setSaved(data.saved);
       }
     } catch {
       /* ignore malformed/blocked storage */
@@ -56,7 +56,7 @@ export function AIProvider({ children }) {
   }, [history, saved, hydrated]);
 
   const recordQuery = useCallback((entry) => {
-    const query = (entry?.query || '').trim();
+    const query = typeof entry?.query==='string'?entry.query.trim().slice(0,4000):'';
     if (!query) return;
     setHistory((prev) => {
       const next = [
@@ -66,7 +66,7 @@ export function AIProvider({ children }) {
           query,
           world: entry.world || null,
           lang: entry.lang || null,
-          results: (entry.results || []).slice(0, 6),
+          results: Array.isArray(entry.results)?entry.results.map(navigationItem).filter(Boolean).slice(0,6):[],
           selected: entry.selected || null
         },
         // drop an immediately-preceding duplicate of the same query
@@ -77,8 +77,8 @@ export function AIProvider({ children }) {
   }, []);
 
   const saveResult = useCallback((entity) => {
-    if (!entity?.id) return;
-    setSaved((prev) => (prev.some((x) => x.id === entity.id) ? prev : [entity, ...prev].slice(0, MAX_SAVED)));
+    const safe=navigationItem(entity);if(!safe?.id)return;
+    setSaved(prev=>prev.some(x=>x.id===safe.id)?prev:[safe,...prev].slice(0,MAX_SAVED));
   }, []);
 
   const removeSaved = useCallback((id) => setSaved((prev) => prev.filter((x) => x.id !== id)), []);

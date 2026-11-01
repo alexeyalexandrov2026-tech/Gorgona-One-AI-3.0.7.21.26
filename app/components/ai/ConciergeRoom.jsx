@@ -6,9 +6,11 @@ import { useSavedText } from "../LocalizedText";
 import Link from 'next/link';
 import { AiConversation } from './AiConversation';
 import { useConciergeChat } from './ChatProvider';
-import { SECTIONS } from '../../../lib/aiSuggestions';
+import { SECTIONS,displayName } from '../../../lib/aiSuggestions';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
+import {useAiDock} from './AiDockProvider';
+import {useAI} from './AIProvider';
 
 // ===========================================================================
 // The Discovery Room — the concierge as a full page.
@@ -23,6 +25,7 @@ import { getTranslation } from '../../../lib/i18n';
 export function ConciergeRoom() {
   const msg = useSavedText();
   const { messages, reset } = useConciergeChat();
+  const {isOpen:dockOpen}=useAiDock(),{roomOpen}=useAI();
   const hasThread = messages.length > 0;
   // Same source of truth as the dock and the homepage bar: the global
   // language switcher drives the page chrome and the concierge alike.
@@ -63,7 +66,7 @@ export function ConciergeRoom() {
         </div>
 
         <div className="min-h-0 flex-1">
-          <AiConversation variant="room" />
+          <AiConversation variant="room" active={!dockOpen&&!roomOpen} />
         </div>
       </section>
 
@@ -78,7 +81,7 @@ export function ConciergeRoom() {
               href={section.href}
               className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
             >
-              {msg(section.label)}
+              {displayName(section.href,locale)||msg(section.label)}
             </Link>
           ))}
         </div>

@@ -7,13 +7,13 @@ import { useLocale } from './LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
 const sections = [
   { key: 'travel', href: '/travel', fallback: 'Travel' },
-  { key: 'shopping', href: '/stores', fallback: 'Shopping' },
+  { key: 'experiences', href: '/experiences', fallback: 'Experiences' },
   { key: 'villas', href: '/vacation-rentals', fallback: 'Villas & Stays' },
   { key: 'yachts', href: '/yachts', fallback: 'Yacht Rentals' },
   { key: 'cars', href: '/rentals', fallback: 'Car Rentals' },
   { key: 'sportsbooks', href: '/sportsbook', fallback: 'Sportsbooks' },
   { key: 'events', href: '/events', fallback: 'Events & Entertainment' },
-  { key: 'discovery', href: '/discovery', fallback: 'Discovery Room' }
+  { key: 'privateJets', href: '/private-jets', fallback: 'Private Jets' }
 ];
 
 const company = [

@@ -26,7 +26,7 @@ const experiences = [
   {
     title: 'Hotels & Stays',
     copy: 'From city landmarks to private villas — verified travel offers.',
-    href: '/stores/travel',
+    href: '/vacation-rentals',
     image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1400&q=80',
     tag: 'Hotels'
   },
@@ -92,7 +92,7 @@ export default function TravelLandingPage() {
             {[
               ['MIA', 'Exclusive destinations', '/experiences', 'Boarding'],
               ['MIA', 'Flights & airfare — Ovago', '/travel/ovago', 'On time'],
-              ['MIA', 'Hotels & stays', '/stores/travel', 'On time'],
+              ['MIA', 'Hotels & stays', '/vacation-rentals', 'On time'],
               ['MIA', 'Dining & nightlife', '/restaurants-nightlife', 'Now seating']
             ].map(([code, dest, href, status]) => (
               <Link

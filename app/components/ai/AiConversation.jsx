@@ -10,6 +10,7 @@ import { AiActionCards } from './AiActionCard';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
+import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 
 // i18n carries per-locale AI copy; this is the English original, used when a
 // locale has not translated the key yet.
@@ -30,7 +31,7 @@ function Message({ role, content }) {
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+        className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed [overflow-wrap:anywhere] ${
           isUser ? 'bg-brand-gold text-black' : 'border border-white/10 bg-white/5 text-zinc-200'
         }`}
       >
@@ -40,15 +41,16 @@ function Message({ role, content }) {
   );
 }
 
-export function AiConversation({ variant = 'dock', onNavigate }) {
+export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // The transcript, cards and backend session live in ChatProvider (mounted
   // in the layout), so this component is a VIEW of the conversation rather
   // than an owner of it - the homepage bar, the sphere dock and the Discovery
   // Room all render the same thread.
-  const { messages, cards, suggestions, isLoading, send } = useConciergeChat();
+  const { messages, cards, suggestions, isLoading, hydrated, send } = useConciergeChat();
   const [input, setInput] = useState('');
   const listRef = useRef(null);
   const voice = useVoice();
+  useEffect(()=>{if(!active||!messages.length)voice.stopListening();},[active,messages.length,voice.stopListening]);
   // Every visible string follows the global switcher, so the surface a guest
   // is reading and the language the concierge answers in never disagree.
   const locale = useLocale();
@@ -65,6 +67,7 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
   async function submit(rawText) {
     const content = String(rawText || '').trim();
     if (!content || isLoading) return;
+    voice.stopListening();
     setInput('');
     await send(content);
   }
@@ -85,8 +88,8 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div ref={listRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
+    <div className="flex h-full min-h-0 min-w-0 flex-col" aria-busy={!hydrated||isLoading}>
+      <div ref={listRef} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
         {messages.length === 0 && (
           <div className="space-y-3">
             <p className="text-sm text-zinc-400">{t.ai?.conciergeIntro || DEFAULT_INTRO}</p>
@@ -95,6 +98,7 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
                 <button
                   key={prompt}
                   type="button"
+                  disabled={!hydrated||isLoading}
                   onClick={() => submit(prompt)}
                   className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-300 transition hover:border-brand-gold/40 hover:text-white"
                 >
@@ -147,6 +151,9 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
         className="mt-3 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] p-1.5 pl-4"
       >
         <input
+          aria-label={t.ai?.askPlaceholder || 'Ask the concierge anything…'}
+          maxLength={4000}
+          disabled={!hydrated||isLoading}
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder={voice.isListening ? `${t.ai?.listening || 'Listening'}…` : (t.ai?.askPlaceholder || 'Ask the concierge anything…')}
@@ -155,6 +162,7 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
         {voice.recognitionSupported && (
           <button
             type="button"
+            disabled={!hydrated||isLoading}
             onClick={handleMicClick}
             aria-label={voice.isListening ? (t.ai?.stopListening || 'Stop listening') : (t.ai?.speakRequest || 'Speak your request')}
             aria-pressed={voice.isListening}
@@ -172,11 +180,13 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
             gone along with the speechSynthesis code behind them. */}
         <button
           type="submit"
+          disabled={!hydrated||isLoading||!input.trim()}
           className="shrink-0 rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold uppercase tracking-wide text-black transition hover:brightness-110"
         >
           {t.ai?.ask || <LocalizedText source={"Ask"} />}
         </button>
       </form>
+      {voice.error&&<p role="alert" className="mt-2 text-xs text-zinc-300">{voiceInputUnavailable(locale)}</p>}
     </div>
   );
 }

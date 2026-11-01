@@ -6,6 +6,9 @@ import {provider,fixtureEnv} from './provider.mjs';
 import {draftListing} from '../../lib/partnerListing.mjs';
 import {GET as requestDetail,POST as requestCommand} from '../../app/api/dashboard/requests/[id]/route.js';
 import {GET as listingDetail} from '../../app/api/dashboard/listings/[id]/route.js';
+import {GET as diningEditorRead,POST as diningEditorCommand} from '../../app/api/dashboard/dining/venues/[slug]/route.js';
+import {venueDraft} from '../../lib/dining/editor.mjs';
+import {getVenueBySlug} from '../../lib/restaurantsNightlifeData.js';
 
 let db,bookingId,listingId,originalFetch;
 const originalEnv=new Map(Object.keys(fixtureEnv).map(k=>[k,process.env[k]]));
@@ -40,4 +43,14 @@ test('listing detail resolves promised route params without exposing another par
  assert.equal(response.status,200);assert.equal((await response.json()).listing.id,listingId);
  const denied=await listingDetail(request('/api/dashboard/listings/'+listingId,ids.customer),{params:Promise.resolve({id:listingId})});
  assert.equal(denied.status,403);
+});
+test('venue editor resolves promised slug params and enforces admin access before draft writes',async()=>{
+ const previous=process.env.DINING_EDITOR_ENABLED,previousWrites=process.env.DINING_EDITOR_WRITES_ENABLED;process.env.DINING_EDITOR_ENABLED='true';process.env.DINING_EDITOR_WRITES_ENABLED='true';
+ try{
+  const context={params:Promise.resolve({slug:'komodo-miami'})};
+  assert.equal((await diningEditorRead(request('/api/dashboard/dining/venues/komodo-miami',ids.customer),context)).status,403);
+  assert.equal((await diningEditorRead(request('/api/dashboard/dining/venues/komodo-miami',ids.admin),context)).status,200);
+  const response=await diningEditorCommand(request('/api/dashboard/dining/venues/komodo-miami',ids.admin,{action:'save',version:0,draft:venueDraft(getVenueBySlug('komodo-miami'))}),context);
+  assert.equal(response.status,200);assert.equal((await response.json()).revision,1);
+ }finally{if(previous===undefined)delete process.env.DINING_EDITOR_ENABLED;else process.env.DINING_EDITOR_ENABLED=previous;if(previousWrites===undefined)delete process.env.DINING_EDITOR_WRITES_ENABLED;else process.env.DINING_EDITOR_WRITES_ENABLED=previousWrites;}
 });

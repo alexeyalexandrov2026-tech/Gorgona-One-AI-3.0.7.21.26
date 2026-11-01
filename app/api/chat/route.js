@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
-import { SYSTEM_PROMPT, matchSuggestions, matchActionCards } from '../../../lib/aiEcosystemContext';
+import { SYSTEM_PROMPT } from '../../../lib/aiEcosystemContext';
 import { askLocalBrain } from '../../../lib/ai/localBrain';
 import { languageDirective, normalizeLocale, unavailableReply } from '../../../lib/ai/locale';
+import {readChatRequest,ChatInputError} from '../../../lib/ai/chatRequest.mjs';
+import {conversationNavigation} from '../../../lib/ai/conversation.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
@@ -44,16 +46,15 @@ function logRouterIssue(...args) {
   console.error('AI router:', ...args);
 }
 
-function reply(text, { latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false } = {}) {
+function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false } = {}) {
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
     // somewhere to go even when no model answered. The guest's own words
     // lead; the reply only reinforces - and on the degraded path it is a
     // canned line, so it is excluded entirely.
-    suggestions: matchSuggestions(latestUserMessage, { reply: error ? '' : text, locale }),
-    cards: matchActionCards(latestUserMessage, { reply: error ? '' : text, locale }),
-    configured: true,
+    ...conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale}),
+    configured: !error,
     ...(source ? { source } : {}),
     // Handle for the local brain's server-side conversation memory. The
     // client echoes it back on the next turn; without it the service would
@@ -126,9 +127,9 @@ async function askRouter(messages, locale) {
 export async function POST(request) {
   let body;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 });
+    body = await readChatRequest(request);
+  } catch(error) {
+    return NextResponse.json({ error: error instanceof ChatInputError?error.message:'Invalid chat request.' }, { status: error instanceof ChatInputError?error.status:400 });
   }
 
   const messages = Array.isArray(body?.messages) ? body.messages.slice(-12) : [];
@@ -147,18 +148,18 @@ export async function POST(request) {
   // (including "switched off"), so no try/catch is needed here.
   const local = await askLocalBrain({ messages, systemPrompt: SYSTEM_PROMPT, sessionId, locale });
   if (local.ok) {
-    return reply(local.reply, { latestUserMessage, source: 'local', sessionId: local.sessionId, locale });
+    return reply(local.reply, { messages, latestUserMessage, source: 'local', sessionId: local.sessionId, locale });
   }
 
   // Link 2 - the hosted router.
   const routed = await askRouter(messages, locale);
   if (routed) {
-    return reply(routed, { latestUserMessage, source: 'router', locale });
+    return reply(routed, { messages, latestUserMessage, source: 'router', locale });
   }
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the
   // widget renders this like any other answer instead of hitting an error path.
-  return reply(unavailableReply(locale), { latestUserMessage, locale, error: true });
+  return reply(unavailableReply(locale), { messages, latestUserMessage, locale, source:'navigation', error: true });
 }
 
 // Non-LLM diagnostics: confirms which engines are wired up without spending a

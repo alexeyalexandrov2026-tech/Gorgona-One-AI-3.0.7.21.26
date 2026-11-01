@@ -1,16 +1,17 @@
+import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
 import { getSportsbooks } from '../lib/sportsbooksData';
-import { categories, allDeals } from '../lib/dealsData';
+import { allDeals } from '../lib/dealsData';
 import { EVENT_CATEGORIES, LEAGUES } from '../lib/mockEventsData';
 import { getAllEvents } from '../lib/eventsData';
 
 export default async function sitemap() {
   const baseUrl = 'https://gorgona-one.com';
   const sportsbooks = await getSportsbooks();
-  const stores = []; // Removed stores as it's handled by dealsData now
 
   const routes = [
     '',
-    '/stores',
+    '/experiences',
+    '/private-jets',
     '/sportsbook',
     '/events',
     '/best-shopping-deals',
@@ -31,19 +32,14 @@ export default async function sitemap() {
     priority: 0.8
   }));
 
-  const dynamicRoutes = [...stores, ...sportsbooks].map((item) => ({
-    url: `${baseUrl}${item.slug ? `/stores/${item.slug}` : `/sportsbook/${item.slug}`}`,
+  const dynamicRoutes = sportsbooks.map((item) => ({
+    url: `${baseUrl}/sportsbook/${item.slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.7
   }));
 
-  const categoryRoutes = categories.map((category) => ({
-    url: `${baseUrl}/stores/${category.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.7
-  }));
+  const categoryRoutes = HEADOUT_COLLECTIONS.map(item=>({url:baseUrl+'/experiences/'+item.slug,changeFrequency:'weekly',priority:0.7}));
 
   const dealRoutes = allDeals.map((deal) => ({
     url: `${baseUrl}/deals/${deal.slug}`,

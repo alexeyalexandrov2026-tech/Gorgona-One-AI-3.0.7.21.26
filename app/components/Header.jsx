@@ -16,13 +16,13 @@ import { useAuth } from './AuthProvider';
 const navItems = [
   { key: 'home', href: '/', label: 'Home' },
   { key: 'travel', href: '/travel', label: 'Travel' },
-  { key: 'stores', href: '/stores', label: 'Shopping' },
+  { key: 'experiences', href: '/experiences', label: 'Experiences' },
   { key: 'villas', href: '/vacation-rentals', label: 'Villas' },
   { key: 'yachts', href: '/yachts', label: 'Yachts' },
   { key: 'cars', href: '/rentals', label: 'Cars' },
   { key: 'sportsbook', href: '/sportsbook', label: 'Sportsbooks' },
   { key: 'events', href: '/events', label: 'Events' },
-  { key: 'discovery', href: '/discovery', label: 'Discovery' }
+  { key: 'privateJets', href: '/private-jets', label: 'Private Jets' }
 ];
 
 export function Header() {
@@ -73,7 +73,7 @@ export function Header() {
         scrolled ? "border-g1-rule bg-g1-paper/90" : "border-transparent bg-g1-paper/60"
       }`}
     >
-      <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4 xl:flex-wrap">
+      <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4 lg:flex-wrap">
         <div className="flex min-w-0 items-center gap-2">
           {/* Universal back navigation. Available on both mobile and desktop.
               Hidden on the homepage (nothing to go "back" from) and when 
@@ -96,7 +96,7 @@ export function Header() {
           </Link>
         </div>
 
-        <nav className="hidden items-center gap-3.5 xl:order-last xl:flex xl:w-full xl:justify-between xl:gap-6">
+        <nav className="hidden items-center gap-3.5 lg:order-last lg:flex lg:w-full lg:flex-wrap lg:justify-between xl:gap-6">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -152,7 +152,7 @@ export function Header() {
             onClick={() => setMobileNavOpen((value) => !value)}
             aria-expanded={mobileNavOpen}
             aria-label={msg("Menu")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink sm:h-10 sm:w-10 xl:hidden"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink sm:h-10 sm:w-10 lg:hidden"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               {mobileNavOpen ? (
@@ -179,7 +179,7 @@ export function Header() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-g1-rule xl:hidden"
+            className="overflow-hidden border-t border-g1-rule lg:hidden"
           >
             <div className="grid grid-cols-2 gap-1 py-3">
               {navItems.map((item) => (

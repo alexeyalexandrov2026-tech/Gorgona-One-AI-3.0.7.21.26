@@ -1,0 +1,2 @@
+const {buildSync}=require('esbuild'),Module=require('node:module'),path=require('node:path');
+module.exports=function load(file){const root=path.resolve(__dirname,'../..'),filename=path.join(root,file),result=buildSync({entryPoints:[filename],bundle:true,write:false,platform:'node',format:'cjs',packages:'external',logLevel:'silent'});const loaded=new Module(filename,module);loaded.filename=filename;loaded.paths=Module._nodeModulePaths(root);loaded._compile(result.outputFiles[0].text,filename);return loaded.exports;};

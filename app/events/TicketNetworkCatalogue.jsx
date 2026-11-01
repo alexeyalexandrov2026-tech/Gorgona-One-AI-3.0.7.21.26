@@ -17,7 +17,7 @@ export function TicketNetworkCatalogue({ category }) {
         </div>
         <a href={getTicketNetworkFallback(category)} target="_blank" rel="noopener noreferrer sponsored" className="border-b border-villa-obsidian pb-1 font-fira text-xs uppercase tracking-[0.12em] text-villa-obsidian transition-opacity hover:opacity-60"><LocalizedText source="Browse on TicketNetwork ↗" /></a>
       </div>
-      <p className="mt-5 max-w-3xl text-sm leading-relaxed text-villa-graphite"><LocalizedText source="Upcoming events start with Miami and nearby South Florida cities. Use the area, date, performer and city filters to adjust the list. Ticket selection, payment and order support are handled by TicketNetwork in a new tab. Resale prices may be above face value. We may earn a commission when you buy through these links." /></p>
+      <p className="mt-5 max-w-3xl text-sm leading-relaxed text-villa-graphite"><LocalizedText source="Upcoming events start with Miami and nearby South Florida cities. Use the area, date, performer and city filters to adjust the list. Ticket selection, payment and order support are handled by TicketNetwork in a new tab. Resale prices may be above face value." /></p>
       <TicketNetworkEvents key={category} category={category} group={catalogue.group} today={ticketNetworkToday()} />
       <noscript><p className="mt-6 text-sm text-villa-graphite"><LocalizedText source="JavaScript is required for the live calendar. Use the TicketNetwork link above to browse tickets." /></p></noscript>
     </section>
