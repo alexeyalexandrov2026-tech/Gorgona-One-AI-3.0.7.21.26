@@ -1,5 +1,11 @@
 # Dining R1–R5 continuation — 1 November 2026
 
+Later acceptance is recorded in [R5 Linux verification](R5_LINUX_VERIFICATION.md):
+18/18 real Chromium editor scenarios and the complete Linux pipeline passed,
+including 230/230 tests, standalone Next, OpenNext and Wrangler dry-run. The
+build/browser limits below describe this earlier stage. Hosted/production
+activation and the full R1–R5 scope remain open.
+
 ## Result and release boundary
 
 Continued the existing `feat/dining-gateway` checkout from `0ee830bf`, preserving

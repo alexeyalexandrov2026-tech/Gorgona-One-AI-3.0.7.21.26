@@ -1,9 +1,10 @@
 # Dining Gateway — verification record
 
-Latest continuation: [R5 venue editor — 1 November](R5_VENUE_EDITOR.md) records
-the new source-only editor, real staging migration/SQL acceptance and current
-build restrictions. Historical release evidence below remains valid for its
-specified source and environment; the complete R1–R5 objective remains open.
+Latest continuation: [R5 Linux verification — 1 November](R5_LINUX_VERIFICATION.md)
+records the editor's staging SQL, 18/18 Chromium scenarios, 230/230 Linux tests,
+standalone Next/OpenNext packaging and Wrangler dry-run. Historical evidence
+below remains valid for its specified source and environment; hosted activation
+and the complete R1–R5 objective remain open.
 
 Date: 2026-10-31. Branch: `feat/dining-gateway`. The catalogue/photo/referral increment was published with the owner's explicit approval. Source commits: `7daad4b3` (dining) and `946fbc6e` (preserves the latest production changes). No Git push, PR, remote CI or live database migration was performed.
 

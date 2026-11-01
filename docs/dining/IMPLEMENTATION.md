@@ -1,11 +1,12 @@
 # Miami Dining Gateway — implementation and release boundary
 
 Latest continuation (2026-11-01): the canonical venue draft/publication editor is
-implemented in source and its migration has passed real dedicated-staging SQL
-acceptance. Its application build and hosted UI remain unaccepted because of
-environment failures. No production change was made. See
-[R5 venue editor](R5_VENUE_EDITOR.md) for exact checks, controls and remaining work;
-the full R1–R5 objective is still open.
+implemented, its migration passed real dedicated-staging SQL acceptance, its
+Chromium editor workflows passed 18/18, and Linux CI passed all 230 tests plus
+standalone Next/OpenNext/Wrangler dry-run. See
+[R5 Linux verification](R5_LINUX_VERIFICATION.md) for the pinned commit, artifact
+and exact limits. Hosted and production activation remain open; the full R1–R5
+objective is still open.
 
 Branch: `feat/dining-gateway`; isolated checkout `miami-elio-dining`, initially based on `ff9878c1` and subsequently merged with the newer production catalogue/navigation/copy source. The catalogue/photo/referral release was published with owner approval. The new inquiry migration and enabled form were subsequently validated in dedicated private staging. Headout sandbox product/date reads now work in the private admin dashboard, and an authorized production-access request was sent. No new agreement, payment, provider reservation or production database migration was performed. See `API_AND_FORM_STAGING.md` and `HEADOUT_SANDBOX_PREVIEW.md` for exact evidence and remaining boundaries.
 
@@ -26,7 +27,7 @@ Branch: `feat/dining-gateway`; isolated checkout `miami-elio-dining`, initially 
 | R2 | 27 source-backed venues, 16 additions, corrected Brickell locations, deduplication, source audit, photographic cards, a split photographic header, compact filters and detail photographs | 27 licensed photographs (8 venue photographs, 19 explicitly marked illustrative/editorial images). Additional current venue photography, expanded culinary offers and tracked Eatwith tools remain unverified |
 | R3 | Verified OpenTable and SevenRooms external booking destinations; explicit provider confirmation/cancellation wording; no-slot availability contract | DIRECT and EMBEDDED are disabled; API approval, authorized widget terms and confirmation channels not available |
 | R4 | Discotech LIV and Tablelist Midline public destinations; VIP/private/guest-list concierge inquiries where offered, with pending request states | Provider APIs, VIP confirmation and signature-verified webhooks unavailable; no invented minimum spend or event inventory |
-| R5 | Customer history/withdrawal, assigned-partner access and inquiry migration verified in dedicated staging; published diagnostics and catalogue/photo/referral release; private Headout sandbox preview; venue draft/publication editor implemented in source with real staging SQL acceptance on 2026-11-01 | Editor build and hosted UI acceptance, production activation, reviewed multilingual prose editing, verified commission reconciliation and live provider events remain open |
+| R5 | Customer history/withdrawal and inquiry migration verified in dedicated staging; published diagnostics/catalogue; private Headout sandbox preview; venue editor with real staging SQL, 18/18 Chromium scenarios and full successful Linux CI on 2026-11-01 | Hosted editor/Auth acceptance, production activation, reviewed multilingual prose editing, verified commission reconciliation and live provider events remain open |
 
 The catalogue, photographic UI, external booking destinations and read-only admin diagnostics were published with owner approval on 2026-10-31; see `VERIFICATION.md` for the exact artifact, checks and rollback target. Structured concierge submissions now work in dedicated staging; production retains both schema/write flags disabled. This is **not** completion of every R1–R5 acceptance criterion. In particular, the operational view is read-only; it is not presented as a venue editor.
 
