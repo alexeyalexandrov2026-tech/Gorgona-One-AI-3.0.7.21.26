@@ -32,6 +32,19 @@ jobs:
         run: node node_modules/next/dist/bin/next build
       - name: Package Cloudflare Worker
         run: node scripts/i18n/build-worker.mjs --config wrangler.dashboard-staging.json
+      - name: Add non-deployable QA wrapper metadata
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          fs.writeFileSync('.open-next/dashboard-staging-release.json', JSON.stringify({
+            verificationOnly: true,
+            commit: process.env.GITHUB_SHA,
+            projectRef: 'qa-only-not-a-supabase-project',
+            tree: null,
+            clientKeyHash: null,
+            artifactHash: null
+          }));
+          NODE
       - name: Wrangler dry-run only
         run: node node_modules/wrangler/bin/wrangler.js deploy --dry-run --config wrangler.dashboard-staging.json --outdir .r5-worker-dry-run
       - name: Mark verification artifact
