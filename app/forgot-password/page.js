@@ -3,12 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from '../components/LocaleProvider';
+import { getTranslation } from '../../lib/i18n';
 import { getPasswordRecoveryCopy } from '../../lib/passwordRecoveryCopy.mjs';
 import { normalizeRecoveryEmail, requestPasswordRecovery } from '../../lib/passwordRecovery.mjs';
 import { supabase } from '../../lib/supabase';
 
 export default function ForgotPasswordPage() {
-  const copy = getPasswordRecoveryCopy(useLocale());
+  const locale = useLocale();
+  const copy = getPasswordRecoveryCopy(locale);
+  const t = getTranslation(locale);
   const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
@@ -40,7 +43,7 @@ export default function ForgotPasswordPage() {
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-16">
       <section className="w-full max-w-md min-w-0 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-premium backdrop-blur-md sm:p-8">
-        <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">Miami Elio</p>
+        <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.auth.pill}</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">{sent ? copy.sentTitle : copy.title}</h1>
         <p className="mt-3 text-zinc-400">{sent ? copy.sentBody : copy.description}</p>
 
