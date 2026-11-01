@@ -24,7 +24,7 @@ test('redirect is limited to the same HTTPS origin and the existing setup page',
   assert.equal(passwordRecoveryRedirect('https://gorgona-one.com'), 'https://gorgona-one.com/account/setup');
   assert.equal(passwordRecoveryRedirect('https://gorgona-one.com:443'), 'https://gorgona-one.com/account/setup');
   assert.equal(passwordRecoveryRedirect('http://localhost:3000'), 'http://localhost:3000/account/setup');
-  for (const unsafe of ['javascript:alert(1)', 'http://evil.example', 'https://evil.example/path', 'https://user:password@evil.example', 'https://gorgona-one.com?next=evil', 'https://gorgona-one.com/#token']) {
+  for (const unsafe of ['javascript:alert(1)', 'http://evil.example', 'https://evil.example', 'https://gorgona-one.com.evil.example', 'https://evil.example/path', 'https://user:password@evil.example', 'https://gorgona-one.com?next=evil', 'https://gorgona-one.com/#token']) {
     assert.throws(() => passwordRecoveryRedirect(unsafe));
   }
 });
