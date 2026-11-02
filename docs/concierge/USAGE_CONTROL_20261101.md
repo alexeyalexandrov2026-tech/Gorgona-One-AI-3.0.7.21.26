@@ -104,7 +104,30 @@ Added `tests/concierge/voice-lifecycle-browser.mjs`, reusing installed esbuild/P
 
 The constructor-failure regression failed against the unchanged implementation with an uncaught `Fixture constructor failure` (exit 1, `outputs/concierge-voice-lifecycle-red.log`). After the fix, four browser cases pass (exit 0, `outputs/concierge-voice-lifecycle-green.log`): constructor, language configuration and start failures each remain contained, ignore stale results and permit subsequent dictation; the real conversation form also recovers through text and produces the yacht recommendation. During expansion of the isolated test to the real form, missing UTF-8 headers and framework-only browser assumptions were corrected in the harness, not application code.
 
-The delayed-language browser regression also passes (exit 0, `outputs/concierge-voice-locale-green.log`). Content/i18n/concierge tests pass **323/323**, zero skipped, exit 0 (`outputs/concierge-voice-full-tests.log`). The test bundles compile the changed hook and actual form with installed esbuild. No fresh Next production build or hosted deployment is claimed for this local fix; the protected hosted release still uses `9cd349f0`. Real microphone hardware, Safari/iOS and the earlier intermittent hydration cause remain unverified.
+The delayed-language browser regression also passes (exit 0, `outputs/concierge-voice-locale-green.log`). Content/i18n/concierge tests pass **323/323**, zero skipped, exit 0 (`outputs/concierge-voice-full-tests.log`). The test bundles compile the changed hook and actual form with installed esbuild. At this checkpoint the fix was local, without a fresh Next build or hosted deployment; the subsequent release below supersedes that local-only status. Real microphone hardware, Safari/iOS and the earlier intermittent hydration cause remain unverified.
+
+## Voice fix: immutable build and protected activation
+
+Application source `d9eacbbd7cf645d9a5bfa595cbcaea0676cbce4a`, tree `38535a31362e0f1e37ca29caab9ea3983b32a3bd`, includes the voice fix and two added hosted cases in `tests/concierge/browser.mjs`. The existing browser fixture now reproduces constructor/configuration errors and verifies text recovery with `/api/chat` explicitly aborted. Both hosted checks failed on the previous application `9cd349f0`, with uncaught errors recorded (`concierge-voice-hosted-red/results.json`, 0/2 passed, exit 1). No failing scenario was removed.
+
+The release reused the established immutable Git materialization, Linux Next/OpenNext packaging, artifact scanner and private Worker configuration. All **13,496 tracked files** matched saved Git objects, with zero mismatches; concurrent uncommitted R5 work was excluded. Next compilation/type validation and OpenNext packaging passed, producing one handler and 108 referenced client assets. Artifact hash: `8eea1f3d3fa97e2b9b8e5ace30782b2aace706ff29e1db30b0df6059664982bd`, built at `2026-11-02T04:49:38.540Z`. Existing missing staging catalogue-table warnings remain visible; the build exited 0.
+
+| Release check | Actual outcome | Evidence in sibling `outputs/` |
+| --- | --- | --- |
+| Immutable Linux content/i18n/concierge tests | PASS: 323/323, zero skipped, exit 0 | `concierge-voice-immutable-tests.log` |
+| Next/OpenNext build and package | PASS: exit 0 | `concierge-voice-build.log` |
+| Artifact identity and credential scan | PASS: 2,210 files scanned, all five protected values excluded, exit 0 | `concierge-voice-validate.log` |
+| Private deployment dry run | PASS: exit 0 | `concierge-voice-dry-run.log` |
+| Candidate versus active private version | PASS: all bindings/runtime settings preserved, exit 0 | `concierge-voice-guard.json` |
+| Private version activation | PASS: exit 0, 100% | `concierge-voice-activation.log` |
+| Hosted voice failure recovery, keyboard/focus, closed panels, malformed storage and all 16 mobile language layouts | PASS: 24/24, exit 0, exact source pinned | `concierge-voice-hosted-acceptance/results.json` |
+| Hosted saved-session cold load, reload and recommendation return across 16 locales | PASS: 48/48, exit 0, exact source pinned | `concierge-voice-hosted-hydration/results.json` |
+
+Independent review reran the isolated lifecycle and delayed-language checks and additionally probed two-hook ownership, failed handoff, late end/error callbacks and synchronous stop results. The reviewer reported no blocker for private activation and made no edits or backend/model calls. Artifact and binding checks were performed separately as recorded above.
+
+Current private Worker version is **`a8bc77f4-4a81-4253-98c3-4364efac3bc5`**, replacing `9fb93531-790d-4ba2-a959-8c4cd30fbcf8`. Access protection and all existing bindings/runtime settings are preserved. Read-only deployment inspection at `2026-11-02T04:52:04.524Z` confirmed public Worker version **`2fb0f528-3310-44ec-b833-26c0bc418e14`** remains at 100% (`concierge-voice-deployments.json`). No production deployment, migration, credential creation or billing change occurred.
+
+No live AI replies were requested in this follow-up: the database day remains at **54 / 153,921 / 20,736** admitted calls/input bytes/reserved output tokens, unchanged from the prior snapshot. Existing booking and notification row counts and full-row digests also still match the table above. The two voice cases abort chat traffic and verify honest offline navigation; they do not claim to verify live model output. The full 44-case browser suite was not rerun; the selected 24 cases and separate 48-case reload audit are the fresh hosted evidence. Voice recognition is simulated for these checks; actual microphone and Safari/iOS acceptance remain open. The rare hydration error did not recur and its cause remains unresolved.
 
 ## Release boundaries
 
@@ -128,6 +151,7 @@ tests/concierge/usage-db.test.mjs
 tests/concierge/usage.test.mjs
 tests/concierge/hydration-browser.mjs
 tests/concierge/voice-lifecycle-browser.mjs
+tests/concierge/browser.mjs
 scripts/concierge/audit-usage.mjs
 scripts/concierge/audit-live-ai.mjs
 docs/concierge/USAGE_CONTROL_20261101.md
