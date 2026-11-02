@@ -10,9 +10,9 @@ const {base,cookie,identity}=await hostedContext(),output=process.env.CONCIERGE_
 assert.ok(output&&path.isAbsolute(output));fs.mkdirSync(output,{recursive:true});
 const browser=await chromium.launch({headless:true,...(process.env.I18N_BROWSER_EXECUTABLE?{executablePath:process.env.I18N_BROWSER_EXECUTABLE}:{})}),results=[],expect=pwExpect.configure({timeout:15000});
 const selected=process.argv.slice(2);
-async function scenario(name,operation,{locale='en',width=1280,session,local,voice}={}){
+async function scenario(name,operation,{locale='en',width=1280,session,local,voice,javaScriptEnabled=true}={}){
  if(selected.length&&!selected.includes(name))return;
- const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
+ const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce',javaScriptEnabled}),page=await context.newPage(),errors=[];
  const navigations=[];
  page.on('framenavigated',frame=>{if(frame===page.mainFrame())navigations.push({url:frame.url(),at:new Date().toISOString()});});
  await context.addCookies([{name:'gorgona-locale',value:locale,url:base}]);
@@ -30,13 +30,14 @@ async function scenario(name,operation,{locale='en',width=1280,session,local,voi
  },{locale,session,local,voice});
  await context.route('**/api/book',route=>route.abort('blockedbyclient'));
  page.on('pageerror',error=>errors.push({message:error.message,stack:error.stack,url:page.url(),navigation:navigations.length,at:new Date().toISOString()}));page.setDefaultNavigationTimeout(30000);
- try{await operation(page,context);await expect(page.locator('html')).toHaveAttribute('lang',locale);await expect(page.locator('html')).toHaveAttribute('dir',['ar','he','fa'].includes(locale)?'rtl':'ltr');assert.deepEqual(errors,[],'JavaScript exceptions');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)<=2,'document overflow');results.push({name,status:'PASS',locale,width});}
+ try{await operation(page,context);await expect(page.locator('html')).toHaveAttribute('lang',locale);if(javaScriptEnabled)await expect(page.locator('html')).toHaveAttribute('dir',['ar','he','fa'].includes(locale)?'rtl':'ltr');assert.deepEqual(errors,[],'JavaScript exceptions');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)<=2,'document overflow');results.push({name,status:'PASS',locale,width,javaScriptEnabled});}
  catch(error){await page.screenshot({path:path.join(output,name+'.png'),animations:'disabled'}).catch(()=>{});results.push({name,status:'FAIL',locale,width,error:error.message,stack:error.stack,jsErrors:errors,navigations});}
  finally{await context.close();}
 }
 const thread=page=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('gorgona-concierge-thread')||'null'));
 async function send(page,text){const form=page.locator('main form');await expect(form.locator('input')).toBeEnabled();await form.locator('input').fill(text);await form.locator('button[type="submit"]').click();await expect.poll(async()=>((await thread(page))?.cards||[]).length).toBeGreaterThan(0);}
 try{
+ await scenario('drawer-trigger-first-paint',async page=>{await page.goto(base+'/discovery');const trigger=page.locator('button.aidock');assert.equal(await trigger.evaluate(el=>getComputedStyle(el).position),'fixed','Trigger must be positioned before hydration');await expect(trigger).toBeDisabled();},{javaScriptEnabled:false});
  await scenario('room-answer',async page=>{await page.goto(base+'/discovery');await send(page,'Find a yacht for 8 guests');const saved=await thread(page);assert.ok(saved.messages.some(m=>m.role==='assistant'&&m.content.trim()),'No visible concierge response');await expect(page.locator('main a[href="/yachts"]').first()).toBeVisible();});
  await scenario('room-card-dock-history-reload',async page=>{
   await page.goto(base+'/discovery');await send(page,'Rent a yacht');await page.locator('main a[href="/yachts"]').first().click();await expect(page).toHaveURL(base+'/yachts');
