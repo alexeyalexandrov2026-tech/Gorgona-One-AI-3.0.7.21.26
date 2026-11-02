@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import path from 'node:path';
 import {build} from 'esbuild';
-import {chromium,expect} from '@playwright/test';
+import {expect} from '@playwright/test';
+import {launchConciergeBrowser} from './browser-engine.mjs';
 const root=process.cwd();
 const entry=`import React,{useEffect} from 'react';
 import {createRoot} from 'react-dom/client';
@@ -26,7 +27,7 @@ const server=http.createServer((req,res)=>{res.setHeader('content-type',req.url=
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 let browser;
 try{
- browser=await chromium.launch({headless:true,...(process.env.I18N_BROWSER_EXECUTABLE?{executablePath:process.env.I18N_BROWSER_EXECUTABLE}:{})});
+ browser=await launchConciergeBrowser();
  const page=await browser.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:'+server.address().port);
  await expect.poll(()=>page.evaluate(()=>!!window.releaseCatalogue&&!!window.probe)).toBe(true).catch(error=>{console.error(JSON.stringify(errors));throw error;});
