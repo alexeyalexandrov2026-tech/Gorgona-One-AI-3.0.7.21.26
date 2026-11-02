@@ -11,7 +11,7 @@ const scripts={ru:/[А-Яа-яЁё]/u,uk:/[А-Яа-яІіЇїЄє]/u,he:/[\u0590
 const results=[];
 async function chat(locale,messages){
  const start=Date.now(),response=await fetch(base+'/api/chat',{method:'POST',redirect:'error',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({locale,messages}),signal:AbortSignal.timeout(30000)});
- const data=await response.json();assert.equal(response.status,200);assert.equal(data.source,'workers-ai','Real cloud inference required');assert.equal(data.configured,true);assert.notEqual(data.error,true);assert.ok(typeof data.reply==='string'&&data.reply.trim()&&data.reply.length<=4000);assert.doesNotMatch(data.reply,/<\/?think\b/i);
+ const data=await response.json();assert.equal(response.status,200);assert.equal(data.source,'workers-ai','Real cloud inference required');assert.equal(data.configured,true);assert.notEqual(data.error,true);assert.ok(typeof data.reply==='string'&&data.reply.trim()&&data.reply.length<=4000);assert.doesNotMatch(data.reply,/<\/?think\b/i);assert.doesNotMatch(data.reply,/\]\(|https?:\/\/|\/(?:yachts|rentals|private-jets|restaurants-nightlife|vacation-rentals|travel|events|experiences|sportsbook)\b/i,'Buttons own navigation; replies use section names');
  if(scripts[locale])assert.match(data.reply,scripts[locale],'Selected language script');
  return {data,ms:Date.now()-start};
 }
