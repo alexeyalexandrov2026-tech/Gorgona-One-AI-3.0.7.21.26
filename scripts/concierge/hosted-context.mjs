@@ -7,7 +7,7 @@ export const stagingBase='https://miami-elio-dashboard-staging.alexey-alexandrov
 export async function hostedContext(){
  assert.equal(process.env.CONCIERGE_HOSTED_ACCEPTANCE,'1');
  const base=process.env.CONCIERGE_TEST_BASE||'https://gorgona-one.com';
- assert.ok(['https://gorgona-one.com','http://127.0.0.1:3058',stagingBase].includes(base));
+ assert.ok(['https://gorgona-one.com','http://127.0.0.1:3058','http://localhost:3058',stagingBase].includes(base));
  if(base!==stagingBase)return {base,headers:{},identity:null,cookie:null};
  const expected=process.env.CONCIERGE_STAGING_EXPECTED_COMMIT;assert.match(expected||'',/^[a-f0-9]{40}$/);
  const directory=fs.realpathSync(process.env.CONCIERGE_PRIVATE_DIR||''),root=fs.realpathSync(fileURLToPath(new URL('../../',import.meta.url)));
