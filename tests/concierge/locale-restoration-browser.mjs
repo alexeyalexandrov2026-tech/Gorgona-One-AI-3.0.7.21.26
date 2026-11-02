@@ -9,7 +9,7 @@ const bundle=await build({stdin:{contents:entry,resolveDir:process.cwd(),loader:
 const server=http.createServer((req,res)=>{res.setHeader('content-type',req.url==='/fixture.js'?'text/javascript; charset=utf-8':'text/html; charset=utf-8');res.end(req.url==='/fixture.js'?bundle.outputFiles[0].text:'<!doctype html><html><body><div id="root"></div><script src="/fixture.js"></script></body></html>');});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base='http://127.0.0.1:'+server.address().port,browser=await launchConciergeBrowser();
 try{
- for(const c of [{cookie:'ru',stored:'ru',path:'/discovery',expected:0},{cookie:'en',stored:'ru',path:'/discovery',expected:1},{cookie:'en',stored:'en',path:'/discovery',expected:0},{cookie:'en',stored:'ru',path:'/yachts',expected:0}]){
+ for(const c of [{cookie:'ru',stored:'ru',path:'/discovery',expected:0},{cookie:'en',stored:'ru',path:'/discovery',expected:1},{cookie:'en',stored:'en',path:'/discovery',expected:0},{cookie:'en',stored:'ru',path:'/yachts',expected:0},{cookie:'ru',stored:'en',path:'/discovery',expected:1}]){
   const context=await browser.newContext(),page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));await context.addCookies([{name:'gorgona-locale',value:c.cookie,url:base}]);
   await context.addInitScript(stored=>{localStorage.setItem('gorgona-locale',stored);window.refreshCount=0;window.fetch=()=>{throw Error('No backend calls');};},c.stored);
