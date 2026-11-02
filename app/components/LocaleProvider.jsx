@@ -75,7 +75,7 @@ export function LocaleProvider({ children }) {
     };
   }, []);
 
-  const setLocale = useCallback(async (code) => {
+  const setLocale = useCallback(async (code, {refresh=true}={}) => {
     const next = isSupportedLanguage(code) ? code : DEFAULT_LANGUAGE;
     const request = ++selection.current;
     setReady(false);
@@ -95,14 +95,17 @@ export function LocaleProvider({ children }) {
     // Refresh merges RSC text while preserving unaffected client state.
     // Protected embed pages render our text from this context instead.
     const activePath = window.location.pathname || currentPathname.current;
-    if (changed && canRefreshForLocale(activePath) && !clientLocaleRoutes.current.has(activePath)) router.refresh();
+    if (refresh && changed && canRefreshForLocale(activePath) && !clientLocaleRoutes.current.has(activePath)) router.refresh();
   }, [router]);
 
   useEffect(() => {
     if (restored.current) return;
     restored.current = true;
     const saved = readSavedLocale();
-    if (saved) setLocale(saved);
+    // Server text already used this cookie. Refresh only when storage disagrees.
+    const cookie=readCookie(LOCALE_COOKIE_KEY);
+    const serverLocale=isSupportedLanguage(cookie)?cookie:DEFAULT_LANGUAGE;
+    if (saved) setLocale(saved,{refresh:saved!==serverLocale});
     else {applyDocumentLocale(DEFAULT_LANGUAGE);setReady(true);}
   }, [setLocale]);
 

@@ -29,6 +29,7 @@ jobs:
       - name: Concierge browser regressions without external services
         run: |
           node tests/concierge/locale-browser.mjs
+          node tests/concierge/locale-restoration-browser.mjs
           node tests/concierge/deferred-hydration-browser.mjs
           node tests/concierge/focus-browser.mjs
           node tests/concierge/voice-lifecycle-browser.mjs
