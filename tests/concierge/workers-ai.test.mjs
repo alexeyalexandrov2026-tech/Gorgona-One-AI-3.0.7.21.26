@@ -36,3 +36,10 @@ test('cloud text uses section names instead of model-authored links and implemen
  assert.equal(result.ok,true);assert.doesNotMatch(result.reply,/\/yachts|\/private-jets|\]\(/);assert.match(result.reply,/Посмотрите/);
  for(const response of ['Visit [Admin](/admin).','Go to /stores.','Visit https://unverified.example/booking.'])assert.equal((await workersAiChat(environment(async()=>({response})),input)).ok,false);
 });
+
+test('section cleanup preserves ordinary slashes and validates complete path tokens',async()=>{
+ for(const response of ['Choose dining and/or nightlife in Miami.','Explore Miami/Orlando experiences.'])assert.equal((await workersAiChat(environment(async()=>({response})),input)).reply,response);
+ for(const response of ['Visit /yachts?date=2026-11-10&guests=8.','Visit /yachts#gallery.','「/yachts」']){const result=await workersAiChat(environment(async()=>({response})),input);assert.equal(result.ok,true);assert.doesNotMatch(result.reply,/\/yachts|date=|#gallery|guests=/);}
+ assert.equal((await workersAiChat(environment(async()=>({response:'Visit /yachts/%2e%2e%2fadmin.'})),input)).ok,false);
+ const discovery=await workersAiChat(environment(async()=>({response:'Open /discovery for more help.'})),input);assert.equal(discovery.ok,true);assert.match(discovery.reply,/Open .{3,} for more help\./);
+});
