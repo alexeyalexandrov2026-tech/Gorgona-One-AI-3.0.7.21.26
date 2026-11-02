@@ -6,6 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "preview_urls": false,
+  "ai": { "binding": "CONCIERGE_AI" },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
@@ -16,6 +17,7 @@
     "STAGING_PROJECT_REF": "kaxslgjbrarapeyoifdh",
     "NEXT_PUBLIC_SUPABASE_URL": "https://kaxslgjbrarapeyoifdh.supabase.co",
     "GORGONA_AI_ENABLED": "off",
+    "CONCIERGE_WORKERS_AI_ENABLED": "true",
     "DINING_SCHEMA_ENABLED": "true",
     "DINING_REQUESTS_ENABLED": "true",
     "HEADOUT_SANDBOX_PREVIEW_ENABLED": "true"

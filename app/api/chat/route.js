@@ -4,22 +4,22 @@ import { askLocalBrain } from '../../../lib/ai/localBrain';
 import { languageDirective, normalizeLocale, unavailableReply } from '../../../lib/ai/locale';
 import {readChatRequest,ChatInputError} from '../../../lib/ai/chatRequest.mjs';
 import {conversationNavigation} from '../../../lib/ai/conversation.mjs';
+import {askWorkersBrain} from '../../../lib/ai/workersBrain.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
 //
 // A thin adapter over a fallback chain, in order of preference:
 //
+//   0. native Workers AI, opt-in on the authenticated QA Worker only
 //   1. the local Miami Elio AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
 //   2. the hosted ai-router on :20128 (OpenAI-compatible)
 //   3. a polite canned reply
 //
 // The contract this route returns NEVER changes shape and the status is
-// ALWAYS 200 for a well-formed request, whatever happens upstream. That is
-// what lets the chat widget stay a pure presentation layer: it renders
-// `reply` and `suggestions` and has no failure branch to style. Swapping,
-// disabling, or breaking a backend changes which engine answers — never the
-// page.
+// ALWAYS 200 for a well-formed request, whatever happens upstream. A degraded
+// answer is explicitly labelled error:true/configured:false, with locally
+// computed navigation buttons still available. Invalid requests return 400/413.
 // ===========================================================================
 
 export const runtime = 'nodejs';
@@ -143,6 +143,9 @@ export async function POST(request) {
   // The language showing in the global switcher. Every engine below is told
   // to answer in it, and the degraded path speaks it too.
   const locale = normalizeLocale(body?.locale);
+
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal});
+  if(cloud.ok)return reply(cloud.reply,{messages,latestUserMessage,source:'workers-ai',locale});
 
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
