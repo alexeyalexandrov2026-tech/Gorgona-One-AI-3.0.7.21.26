@@ -6,6 +6,7 @@ import { chatSnapshot } from '../../../lib/ai/session.mjs';
 import {chatPayload} from '../../../lib/ai/chatRequest.mjs';
 import { useLocale, useLocaleReady } from '../LocaleProvider';
 import { unavailableReply } from '../../../lib/ai/locale';
+import {useHydratedValue} from '../useHydratedValue';
 
 // ===========================================================================
 // Miami Elio — the concierge conversation (one thread, every surface).
@@ -191,5 +192,5 @@ export function ChatProvider({ children }) {
 }
 
 export function useConciergeChat() {
-  return useContext(ChatContext) || NOOP;
+  return useHydratedValue(useContext(ChatContext) || NOOP,NOOP);
 }

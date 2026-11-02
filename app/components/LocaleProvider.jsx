@@ -5,12 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { DEFAULT_LANGUAGE, getLanguageDir, isSupportedLanguage } from '../../lib/languages';
 import { canRefreshForLocale } from '../../lib/localePolicy';
 import { loadSavedLocale } from '../../lib/savedCopy';
+import {useHydratedValue} from './useHydratedValue';
 
 const LOCALE_STORAGE_KEY = 'gorgona-locale';
 const LOCALE_COOKIE_KEY = 'gorgona-locale';
 
 const LocaleContext = createContext(DEFAULT_LANGUAGE);
 const LocaleControllerContext = createContext(null);
+const INITIAL_CONTROLLER={locale:DEFAULT_LANGUAGE,ready:false,setLocale(){},registerClientLocaleRoute(){return()=>{};}};
 
 function readCookie(name) {
   if (typeof document === 'undefined') return null;
@@ -115,11 +117,12 @@ export function LocaleProvider({ children }) {
 }
 
 export function useLocale() {
-  return useContext(LocaleContext);
+  return useHydratedValue(useContext(LocaleContext),DEFAULT_LANGUAGE);
 }
 
 export function useLocaleController() {
-  return useContext(LocaleControllerContext);
+  const value=useContext(LocaleControllerContext);
+  return useHydratedValue(value,value?INITIAL_CONTROLLER:null);
 }
 
 // Session storage can restore before the saved language bundle has loaded.

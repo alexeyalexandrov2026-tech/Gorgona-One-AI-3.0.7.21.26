@@ -24,6 +24,14 @@ jobs:
       - run: npm audit --audit-level=high
       - run: npm run i18n:check
       - run: node --test tests/content/*.test.mjs tests/i18n/*.test.mjs tests/dashboard/*.test.mjs tests/concierge/*.test.mjs
+      - name: Install the supported test browser
+        run: npx playwright install --with-deps chromium
+      - name: Concierge browser regressions without external services
+        run: |
+          node tests/concierge/locale-browser.mjs
+          node tests/concierge/deferred-hydration-browser.mjs
+          node tests/concierge/focus-browser.mjs
+          node tests/concierge/voice-lifecycle-browser.mjs
       # Only the Next.js build: the full `npm run build` also packages the
       # Cloudflare worker and the ai-router, which Workers Builds does on deploy.
       - run: npx next build
