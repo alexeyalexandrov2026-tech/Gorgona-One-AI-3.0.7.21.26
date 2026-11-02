@@ -1,9 +1,18 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import load from './load.cjs';
-const {workersAiChat,WORKERS_AI_MODEL}=load('lib/ai/workersBrain.mjs');
+const {workersAiChat:meteredChat,WORKERS_AI_MODEL}=load('lib/ai/workersBrain.mjs');
+// This authorizer is a test fixture only; production admission uses Postgres.
+const workersAiChat=(env,input,options={})=>meteredChat(env,input,{authorize:async()=>true,...options});
 const input={locale:'ru',messages:[{role:'user',content:'Нужна яхта на 8 гостей'}]};
 const environment=run=>({APP_ENV:'dashboard-staging',CONCIERGE_WORKERS_AI_ENABLED:'true',CONCIERGE_AI:{run}});
+test('native inference cannot start without a successful durable admission',async()=>{
+ let calls=0;const env=environment(async()=>{calls++;return {response:'Fixture'};});
+ assert.equal((await meteredChat(env,input)).kind,'usage_denied');
+ assert.equal((await meteredChat(env,input,{authorize:async()=>false})).kind,'usage_denied');
+ assert.equal((await meteredChat(env,input,{authorize:async()=>{throw Error('Offline database');}})).ok,false);
+ assert.equal(calls,0);
+});
 test('cloud adapter is off without explicit protected-staging configuration',async()=>{
  let calls=0;const env=environment(async()=>{calls++;return {};});
  for(const value of [{...env,CONCIERGE_WORKERS_AI_ENABLED:'off'},{...env,APP_ENV:'production'},{...env,CONCIERGE_AI:null},{}])assert.equal((await workersAiChat(value,input)).ok,false);

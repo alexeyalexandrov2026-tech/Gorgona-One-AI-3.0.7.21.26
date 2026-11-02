@@ -130,7 +130,7 @@ export function ChatProvider({ children }) {
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',...(globalThis.crypto?.randomUUID?{'Idempotency-Key':crypto.randomUUID()}:{}) },
         body: JSON.stringify(chatPayload(nextMessages,{locale,sessionId:sessionIdRef.current})),
         signal: controller.signal
       });

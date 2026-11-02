@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { SYSTEM_PROMPT } from '../../../lib/aiEcosystemContext';
 import { askLocalBrain } from '../../../lib/ai/localBrain';
 import { languageDirective, normalizeLocale, unavailableReply } from '../../../lib/ai/locale';
-import {readChatRequest,ChatInputError} from '../../../lib/ai/chatRequest.mjs';
+import {readChatRequest,validateChatTransport,ChatInputError} from '../../../lib/ai/chatRequest.mjs';
 import {conversationNavigation} from '../../../lib/ai/conversation.mjs';
 import {askWorkersBrain} from '../../../lib/ai/workersBrain.mjs';
 
@@ -127,6 +127,7 @@ async function askRouter(messages, locale) {
 export async function POST(request) {
   let body;
   try {
+    validateChatTransport(request);
     body = await readChatRequest(request);
   } catch(error) {
     return NextResponse.json({ error: error instanceof ChatInputError?error.message:'Invalid chat request.' }, { status: error instanceof ChatInputError?error.status:400 });
@@ -144,8 +145,10 @@ export async function POST(request) {
   // to answer in it, and the degraded path speaks it too.
   const locale = normalizeLocale(body?.locale);
 
-  const cloud=await askWorkersBrain({messages,locale,signal:request.signal});
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request});
   if(cloud.ok)return reply(cloud.reply,{messages,latestUserMessage,source:'workers-ai',locale});
+  // A denied/failed metered engine must not start another unmetered engine.
+  if(cloud.kind!=='disabled')return reply(unavailableReply(locale),{messages,latestUserMessage,locale,source:'navigation',error:true});
 
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
