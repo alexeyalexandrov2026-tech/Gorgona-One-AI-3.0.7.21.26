@@ -33,7 +33,7 @@ export default function AIDock() {
         disabled={!ready}
         className={`aidock ${roomOpen ? "is-open" : ''}`}
         data-ai-theme={theme}
-        onClick={toggleRoom}
+        onClick={(event)=>{event.currentTarget.focus({preventScroll:true});toggleRoom();}}
         aria-label={roomOpen ? msg("Close Miami Elio AI") : msg("Open Miami Elio AI")}
         aria-expanded={roomOpen}
       >

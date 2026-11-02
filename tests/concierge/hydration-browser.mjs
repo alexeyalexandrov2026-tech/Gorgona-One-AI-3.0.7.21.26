@@ -2,7 +2,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-import {chromium,expect as browserExpect} from '@playwright/test';
+import {expect as browserExpect} from '@playwright/test';
+import {launchConciergeBrowser} from './browser-engine.mjs';
 import {SUPPORTED_LANGUAGES,getLanguageDir} from '../../lib/languages.js';
 import {hostedContext,stagingBase} from '../../scripts/concierge/hosted-context.mjs';
 
@@ -11,7 +12,7 @@ const {base,cookie,identity}=await hostedContext();
 const output=process.env.CONCIERGE_HYDRATION_RESULTS;
 assert.ok(output&&path.isAbsolute(output));
 fs.mkdirSync(output,{recursive:true});
-const browser=await chromium.launch({headless:true,...(process.env.I18N_BROWSER_EXECUTABLE?{executablePath:process.env.I18N_BROWSER_EXECUTABLE}:{})});
+const browser=await launchConciergeBrowser();
 const expect=browserExpect.configure({timeout:15000}),results=[];
 const card={id:'yachts',title:'Yacht Rentals',href:'/yachts',type:'category'};
 const query='QA saved yacht request';
@@ -71,7 +72,7 @@ try{
  }
 }finally{
  await browser.close();
- const report={base,identity,at:new Date().toISOString(),browserVersion:browser.version(),modelRequestsBlocked:true,apiPolicy:'Block all API requests except GET listing-media images',results,pass:results.filter(r=>r.status==='PASS').length,fail:results.filter(r=>r.status==='FAIL').length};
+ const report={base,identity,at:new Date().toISOString(),browserEngine:browser.browserType().name(),browserVersion:browser.version(),modelRequestsBlocked:true,apiPolicy:'Block all API requests except GET listing-media images',results,pass:results.filter(r=>r.status==='PASS').length,fail:results.filter(r=>r.status==='FAIL').length};
  fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(report,null,2)+'\n');
  console.log(JSON.stringify({pass:report.pass,fail:report.fail}));
  if(report.fail)process.exitCode=1;

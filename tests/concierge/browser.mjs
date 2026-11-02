@@ -2,13 +2,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-import {chromium,expect as pwExpect} from '@playwright/test';
+import {expect as pwExpect} from '@playwright/test';
+import {launchConciergeBrowser} from './browser-engine.mjs';
 import {SUPPORTED_LANGUAGES} from '../../lib/languages.js';
 import {hostedContext} from '../../scripts/concierge/hosted-context.mjs';
 assert.equal(process.env.CONCIERGE_HOSTED_ACCEPTANCE,'1');
 const {base,cookie,identity}=await hostedContext(),output=process.env.CONCIERGE_BROWSER_RESULTS;
 assert.ok(output&&path.isAbsolute(output));fs.mkdirSync(output,{recursive:true});
-const browser=await chromium.launch({headless:true,...(process.env.I18N_BROWSER_EXECUTABLE?{executablePath:process.env.I18N_BROWSER_EXECUTABLE}:{})}),results=[],expect=pwExpect.configure({timeout:15000});
+const browser=await launchConciergeBrowser(),results=[],expect=pwExpect.configure({timeout:15000});
 const selected=process.argv.slice(2);
 async function scenario(name,operation,{locale='en',width=1280,session,local,voice,javaScriptEnabled=true}={}){
  if(selected.length&&!selected.includes(name))return;
@@ -74,4 +75,4 @@ try{
  await scenario('voice-close-cancels-fixture',async page=>{await page.goto(base+'/discovery');await page.getByRole('button',{name:'Open the Discovery Room concierge',exact:true}).click();const dock=page.getByRole('dialog',{name:'MIAMI ELIO AI Dock',exact:true});await expect(dock.locator('button[aria-pressed]')).toBeEnabled();await dock.locator('button[aria-pressed]').click();await page.keyboard.press('Escape');await page.evaluate(()=>window.__qaSpeechSessions[0].onresult({results:[[{transcript:'Late after closing'}]]}));await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));assert.equal((await thread(page)).messages.length,0);},{voice:'hold'});
  await scenario('voice-reset-cancels-fixture',async page=>{await page.goto(base+'/discovery');await send(page,'Rent a car');await page.locator('main form button[aria-pressed]').click();await page.getByRole('button',{name:'New conversation',exact:true}).click();await page.evaluate(()=>window.__qaSpeechSessions[0].onresult({results:[[{transcript:'Late after reset'}]]}));await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));assert.equal((await thread(page)).messages.length,0);},{voice:'hold'});
  for(const {code:locale} of SUPPORTED_LANGUAGES)await scenario('layout-'+locale,async page=>{await page.goto(base+'/discovery');await expect(page.locator('main form input')).toBeEnabled();},{locale,width:['ar','he','fa'].includes(locale)?320:390});
-}finally{await browser.close();const report={base,identity,at:new Date().toISOString(),isolatedContexts:true,bookingRequestsBlocked:true,results,pass:results.filter(r=>r.status==='PASS').length,fail:results.filter(r=>r.status==='FAIL').length};fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));if(report.fail)process.exitCode=1;}
+}finally{await browser.close();const report={base,identity,at:new Date().toISOString(),browserEngine:browser.browserType().name(),browserVersion:browser.version(),isolatedContexts:true,bookingRequestsBlocked:true,results,pass:results.filter(r=>r.status==='PASS').length,fail:results.filter(r=>r.status==='FAIL').length};fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));if(report.fail)process.exitCode=1;}

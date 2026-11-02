@@ -15,7 +15,7 @@ function AiSphereBase({ size = 60, label = 'Open the Discovery Room concierge', 
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={(event)=>{event.currentTarget.focus({preventScroll:true});toggle();}}
       aria-label={label}
       aria-expanded={isOpen}
       className={`group fixed bottom-6 right-5 z-50 flex items-center justify-center rounded-full transition-transform duration-300 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:bottom-8 sm:right-8 ${className}`}
