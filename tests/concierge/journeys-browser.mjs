@@ -8,11 +8,12 @@ import {launchConciergeBrowser} from './browser-engine.mjs';
 import {hostedContext,stagingBase} from '../../scripts/concierge/hosted-context.mjs';
 import {cases,followups} from './scenarios.mjs';
 import {unavailableReply} from '../../lib/ai/locale.js';
-assert.equal(process.env.CONCIERGE_TEST_BASE,stagingBase,'Private staging only');
+assert.ok(process.env.CONCIERGE_TEST_BASE===stagingBase||(process.env.CONCIERGE_TEST_BASE==='https://gorgona-one.com'&&process.env.CONCIERGE_PUBLIC_READONLY==='1'),'Use protected staging or explicitly opted-in read-only public QA');
 const {base,cookie,identity}=await hostedContext(),output=process.env.CONCIERGE_JOURNEY_RESULTS;
 assert.ok(output&&path.isAbsolute(output));fs.mkdirSync(output,{recursive:true});
 const browser=await launchConciergeBrowser(),expect=browserExpect.configure({timeout:15000});
 const results=[],transport=[],unexpectedWrites=[],destinationStatus=new Map();
+let blockedTelemetry=0;
 const locales=[...new Set(cases.map(c=>c.locale))],selected=process.argv.slice(2);
 assert.ok(selected.every(locale=>locales.includes(locale)),'Unknown test locale');
 const returnMode=process.env.CONCIERGE_JOURNEY_RETURN||'dock';
@@ -22,7 +23,8 @@ try{
  for(const locale of selected.length?selected:locales){
   const context=await browser.newContext({viewport:{width:['ar','he','fa'].includes(locale)?320:390,height:900},reducedMotion:'reduce'});
   const page=await context.newPage(),errors=[];page.setDefaultNavigationTimeout(30000);
-  await context.addCookies([{name:'gorgona-locale',value:locale,url:base},{name:cookie.slice(0,cookie.indexOf('=')),value:cookie.slice(cookie.indexOf('=')+1),url:base,secure:true,httpOnly:true,sameSite:'Lax'}]);
+  await context.addCookies([{name:'gorgona-locale',value:locale,url:base}]);
+  if(cookie)await context.addCookies([{name:cookie.slice(0,cookie.indexOf('=')),value:cookie.slice(cookie.indexOf('=')+1),url:base,secure:true,httpOnly:true,sameSite:'Lax'}]);
   // Locale belongs to our top-level page, not protected supplier iframe storage.
   await context.addInitScript(locale=>{if(window===window.top)localStorage.setItem('gorgona-locale',locale);},locale);
   await context.route(base+'/**',async route=>{
@@ -32,6 +34,9 @@ try{
     transport.push({locale:body.locale,method:req.method(),id:req.headers()['idempotency-key'],latest:body.messages.at(-1)?.content});
     await route.abort('blockedbyclient');return;
    }
+   // Cloudflare's reserved RUM endpoint is telemetry, not an application write.
+   // Keep blocking it so synthetic visits do not submit performance samples.
+   if(req.method()==='POST'&&pathname==='/cdn-cgi/rum'){blockedTelemetry++;await route.abort('blockedbyclient');return;}
    if(!['GET','HEAD'].includes(req.method())){unexpectedWrites.push({pathname,method:req.method()});await route.abort('blockedbyclient');return;}
    await route.continue();
   });
@@ -94,7 +99,7 @@ try{
  results.push({name:'journey setup/transport integrity',status:'FAIL',error:error.message});
 }finally{
  await browser.close();
- const report={base,identity,at:new Date().toISOString(),browserEngine:browser.browserType().name(),browserVersion:browser.version(),returnMode,chatRequestsAborted:transport.length,unexpectedWrites,checkedDestinations:destinationStatus.size,results,pass:results.filter(r=>r.status==='PASS').length,fail:results.filter(r=>r.status==='FAIL').length};
+ const report={base,identity,at:new Date().toISOString(),browserEngine:browser.browserType().name(),browserVersion:browser.version(),returnMode,chatRequestsAborted:transport.length,blockedTelemetry,unexpectedWrites,checkedDestinations:destinationStatus.size,results,pass:results.filter(r=>r.status==='PASS').length,fail:results.filter(r=>r.status==='FAIL').length};
  fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(report,null,2)+'\n');
  console.log(JSON.stringify({pass:report.pass,fail:report.fail,chatRequestsAborted:transport.length}));
  if(report.fail||unexpectedWrites.length)process.exitCode=1;

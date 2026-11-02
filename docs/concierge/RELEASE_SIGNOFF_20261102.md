@@ -1,5 +1,7 @@
 # Release sign-off — November 2, 2026
 
+Publication subsequently completed at `2026-11-02T17:41:22.313217Z`. See the [production publication and post-release results](./PUBLICATION_20261102.md); the preparation evidence below is retained as recorded before activation.
+
 **READY TO ACTIVATE: the existing public Discovery Room / free concierge navigation, referral and supported request functionality.** Preparation and scoped acceptance are complete. No remaining application blocker was found in independent review. This is a release of the tested current functionality, not completion of every R1–R5 provider integration. New direct partner booking and native cloud-AI features remain disabled.
 
 ## Prepared production version

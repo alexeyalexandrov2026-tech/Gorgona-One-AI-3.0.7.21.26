@@ -7,7 +7,7 @@ import {launchConciergeBrowser} from './browser-engine.mjs';
 import {SUPPORTED_LANGUAGES,getLanguageDir} from '../../lib/languages.js';
 import {hostedContext,stagingBase} from '../../scripts/concierge/hosted-context.mjs';
 
-assert.equal(process.env.CONCIERGE_TEST_BASE,stagingBase,'Restricted to private staging');
+assert.ok(process.env.CONCIERGE_TEST_BASE===stagingBase||(process.env.CONCIERGE_TEST_BASE==='https://gorgona-one.com'&&process.env.CONCIERGE_PUBLIC_READONLY==='1'),'Use protected staging or explicitly opted-in read-only public QA');
 const {base,cookie,identity}=await hostedContext();
 const output=process.env.CONCIERGE_HYDRATION_RESULTS;
 assert.ok(output&&path.isAbsolute(output));
@@ -21,7 +21,8 @@ try{
   const context=await browser.newContext({viewport:{width:['ar','he','fa'].includes(locale)?320:390,height:900},reducedMotion:'reduce'});
   const page=await context.newPage(),errors=[],navigations=[],blocked=[];
   page.setDefaultNavigationTimeout(30000);
-  await context.addCookies([{name:'gorgona-locale',value:locale,url:base},{name:cookie.slice(0,cookie.indexOf('=')),value:cookie.slice(cookie.indexOf('=')+1),url:base,secure:true,httpOnly:true,sameSite:'Lax'}]);
+  await context.addCookies([{name:'gorgona-locale',value:locale,url:base}]);
+  if(cookie)await context.addCookies([{name:cookie.slice(0,cookie.indexOf('=')),value:cookie.slice(cookie.indexOf('=')+1),url:base,secure:true,httpOnly:true,sameSite:'Lax'}]);
   await context.addInitScript(({locale,card,query})=>{
    // Seed once, allowing actual app writes to survive later document loads.
    if(sessionStorage.getItem('qa-hydration-seeded'))return;
