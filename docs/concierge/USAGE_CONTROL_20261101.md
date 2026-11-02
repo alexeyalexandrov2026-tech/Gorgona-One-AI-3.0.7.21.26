@@ -82,6 +82,20 @@ Read-only row counts and full-row digests still match the pre-test snapshot:
 
 No live reservation, cancellation or customer notification was created by these probes. A billing-subscription read returned HTTP 403 with the existing token, so provider invoice/subscription state was not independently verified. No billing setting or subscription was modified. Actual native inference and deployment state were verified separately with successful authorized requests.
 
+## Follow-up: saved-session hydration acceptance
+
+Added `tests/concierge/hydration-browser.mjs`, a private-staging-only audit reusing the established `hostedContext`, installed Playwright, supported-language list and application storage contracts. No application code, dependency, database or deployment changed. Acceptance is explicit: saved conversation and Discovery history/cards survive cold load, reload and a restored `/yachts` recommendation followed by a fresh `/discovery` load; all 16 locales retain their language/direction; runtime exceptions and hydration warnings fail the check.
+
+The browser fixture seeds each disposable context only once. Later document loads use the application's real persisted writes, rather than re-seeding storage on every reload. All API requests are intercepted and aborted except read-only GETs for listing photographs; any attempted model, booking or other API request fails acceptance. No model or reservation endpoint was invoked.
+
+- **PASS: 48/48 hosted checks, exit 0**, against application source `9cd349f0`. Evidence: `outputs/concierge-hydration-accepted-20261102/results.json` and sibling `.log`.
+- **PASS: 209/209 focused navigation, session, request and voice-copy tests, zero skipped, exit 0**. Evidence: `outputs/concierge-hydration-focused-tests.log`.
+- **PASS: `node --check tests/concierge/hydration-browser.mjs`, exit 0**.
+
+Initial QA setup was not green: the expected Playwright browser revision was absent, so the existing installed Chromium was selected explicitly with `I18N_BROWSER_EXECUTABLE`, without downloading a package/browser. An initial run was interrupted after identifying an exact-text assertion that failed to account for the visible history icon. A subsequent complete run recorded 32 passes and 16 failures because the audit incorrectly treated GET listing photographs as model/booking traffic. Its retained `outputs/concierge-hydration-final-20261102/results.json` records no runtime errors in those failures. The corrected policy allows only those read-only photographs; all side-effect/model boundaries remain blocked. These are QA harness corrections, not application defect fixes.
+
+The prior intermittent React 418 did not recur. This does not establish its cause or prove it resolved. The audit used desktop Chromium with mobile viewports, not real Safari/iOS or microphone hardware. No new production build was required or claimed for these test/documentation-only changes; the deployed application remains the previously validated immutable artifact.
+
 ## Release boundaries
 
 The pilot remains restricted to authenticated staging. Provider-language factual accuracy, a public response policy, public front-door abuse protection, real microphone/Safari/iOS acceptance and the previously observed intermittent hydration issue remain separate readiness items. A usage cap alone does not resolve those items or authorize public publication.
@@ -101,6 +115,7 @@ tests/concierge/route.test.mjs
 tests/concierge/workers-ai.test.mjs
 tests/concierge/usage-db.test.mjs
 tests/concierge/usage.test.mjs
+tests/concierge/hydration-browser.mjs
 scripts/concierge/audit-usage.mjs
 scripts/concierge/audit-live-ai.mjs
 docs/concierge/USAGE_CONTROL_20261101.md
