@@ -67,43 +67,54 @@ export function useVoice() {
       if (!recognitionSupported || !localeReady) return;
       // Only one recognition session may run at a time across the whole page;
       // stop whichever surface currently owns it before claiming it here.
-      stopRecognition(activeRecognition);
+      const previous = activeRecognition;
+      activeRecognition = null;
+      recognitionRef.current = null;
+      stopRecognition(previous);
       setError(null);
 
-      const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognitionImpl();
-      // Bound to the global language switcher, not hardcoded to en-US - that
-      // was why the mic only ever understood English. Read at start() time so
-      // the very next utterance uses the language showing in the UI.
-      recognition.lang = speechLocale(localeRef.current);
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
-      recognition.onresult = (event) => {
-        if(recognitionRef.current!==recognition||activeRecognition!==recognition)return;
-        const text = event?.results?.[0]?.[0]?.transcript;
-        if(typeof text==='string'&&text.trim()&&text.length<=4000)onResult?.(text.trim());
-        else setError('unavailable');
-      };
-      recognition.onend = () => {
-        if(recognitionRef.current!==recognition)return;
-        if (activeRecognition === recognition) activeRecognition = null;
+      let recognition;
+      try {
+        const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognitionImpl();
+        // Bound to the global language switcher, not hardcoded to en-US - that
+        // was why the mic only ever understood English. Read at start() time so
+        // the very next utterance uses the language showing in the UI.
+        recognition.lang = speechLocale(localeRef.current);
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.onresult = (event) => {
+          if(recognitionRef.current!==recognition||activeRecognition!==recognition)return;
+          const text = event?.results?.[0]?.[0]?.transcript;
+          if(typeof text==='string'&&text.trim()&&text.length<=4000)onResult?.(text.trim());
+          else setError('unavailable');
+        };
+        recognition.onend = () => {
+          if(recognitionRef.current!==recognition)return;
+          if (activeRecognition === recognition) activeRecognition = null;
+          setIsListening(false);
+        };
+        recognition.onerror = (event) => {
+          if(recognitionRef.current!==recognition)return;
+          // Covers permission denial, no-speech, network errors, an unsupported
+          // language - all simply return the UI to its resting state rather
+          // than throwing.
+          const owned=activeRecognition===recognition;
+          if (owned) activeRecognition = null;
+          if(owned&&event?.error!=='aborted')setError('unavailable');
+          setIsListening(false);
+        };
+        recognitionRef.current = recognition;
+        activeRecognition = recognition;
+        setIsListening(true);
+        recognition.start();
+      } catch {
+        if(activeRecognition===recognition)activeRecognition=null;
+        recognitionRef.current=null;
+        stopRecognition(recognition);
         setIsListening(false);
-      };
-      recognition.onerror = (event) => {
-        if(recognitionRef.current!==recognition)return;
-        // Covers permission denial, no-speech, network errors, an unsupported
-        // language - all simply return the UI to its resting state rather
-        // than throwing.
-        const owned=activeRecognition===recognition;
-        if (owned) activeRecognition = null;
-        if(owned&&event?.error!=='aborted')setError('unavailable');
-        setIsListening(false);
-      };
-      recognitionRef.current = recognition;
-      activeRecognition = recognition;
-      setIsListening(true);
-      try{recognition.start();}
-      catch{if(activeRecognition===recognition)activeRecognition=null;setIsListening(false);setError('unavailable');}
+        setError('unavailable');
+      }
     },
     [recognitionSupported,localeReady]
   );

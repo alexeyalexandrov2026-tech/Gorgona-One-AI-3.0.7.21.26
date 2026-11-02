@@ -96,6 +96,16 @@ Initial QA setup was not green: the expected Playwright browser revision was abs
 
 The prior intermittent React 418 did not recur. This does not establish its cause or prove it resolved. The audit used desktop Chromium with mobile viewports, not real Safari/iOS or microphone hardware. No new production build was required or claimed for these test/documentation-only changes; the deployed application remains the previously validated immutable artifact.
 
+## Follow-up: recognition initialization failures
+
+Changed `app/components/ai/useVoice.js` to contain exceptions across browser recognition construction, configuration and start, using the existing error state and text fallback. The previous owner is invalidated before stopping it. A failed recognition loses ownership before cleanup, so a delayed result cannot submit a stale request. No new abstraction, dependency, permissions flow or provider was added.
+
+Added `tests/concierge/voice-lifecycle-browser.mjs`, reusing installed esbuild/Playwright and the real voice hook, `ChatProvider` and `AiConversation`. Its recognition API, offline transport and framework router/link are explicitly isolated test fixtures: the form and href are real application output, while framework navigation itself is covered by the separate hosted audit. The fixture opens no microphone and calls no model/booking service.
+
+The constructor-failure regression failed against the unchanged implementation with an uncaught `Fixture constructor failure` (exit 1, `outputs/concierge-voice-lifecycle-red.log`). After the fix, four browser cases pass (exit 0, `outputs/concierge-voice-lifecycle-green.log`): constructor, language configuration and start failures each remain contained, ignore stale results and permit subsequent dictation; the real conversation form also recovers through text and produces the yacht recommendation. During expansion of the isolated test to the real form, missing UTF-8 headers and framework-only browser assumptions were corrected in the harness, not application code.
+
+The delayed-language browser regression also passes (exit 0, `outputs/concierge-voice-locale-green.log`). Content/i18n/concierge tests pass **323/323**, zero skipped, exit 0 (`outputs/concierge-voice-full-tests.log`). The test bundles compile the changed hook and actual form with installed esbuild. No fresh Next production build or hosted deployment is claimed for this local fix; the protected hosted release still uses `9cd349f0`. Real microphone hardware, Safari/iOS and the earlier intermittent hydration cause remain unverified.
+
 ## Release boundaries
 
 The pilot remains restricted to authenticated staging. Provider-language factual accuracy, a public response policy, public front-door abuse protection, real microphone/Safari/iOS acceptance and the previously observed intermittent hydration issue remain separate readiness items. A usage cap alone does not resolve those items or authorize public publication.
@@ -107,6 +117,7 @@ Changed files:
 ```text
 app/api/chat/route.js
 app/components/ai/ChatProvider.jsx
+app/components/ai/useVoice.js
 lib/ai/chatRequest.mjs
 lib/ai/workersBrain.mjs
 lib/server/conciergeUsage.mjs
@@ -116,6 +127,7 @@ tests/concierge/workers-ai.test.mjs
 tests/concierge/usage-db.test.mjs
 tests/concierge/usage.test.mjs
 tests/concierge/hydration-browser.mjs
+tests/concierge/voice-lifecycle-browser.mjs
 scripts/concierge/audit-usage.mjs
 scripts/concierge/audit-live-ai.mjs
 docs/concierge/USAGE_CONTROL_20261101.md
