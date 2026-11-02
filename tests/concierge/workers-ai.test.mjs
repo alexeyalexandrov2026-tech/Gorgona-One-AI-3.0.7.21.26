@@ -40,6 +40,12 @@ test('cloud responses reject known false reservation-confirmation patterns',asyn
  for(const response of ['Your table is confirmed.','Столик забронирован.','Reserva confirmada.','您的预订已确认。','Your table is all set for 8pm.','I have secured your VIP table.','Your reservation is complete.'])assert.equal((await workersAiChat(environment(async()=>({response})),input)).ok,false);
 });
 
+test('availability verification advice is not a completed reservation claim',async()=>{
+ const response='Yacht availability for 8 guests tomorrow should be confirmed through the Yacht Rentals booking channel.';
+ const advice=await workersAiChat(environment(async()=>({response})),input);assert.equal(advice.ok,true);assert.match(advice.reply,/availability.*must be checked through/i);assert.doesNotMatch(advice.reply,/confirmed/i);
+ for(const response of ['Your table is confirmed. Availability must be confirmed through the venue.','Availability of your booked table should be confirmed through the venue.'])assert.equal((await workersAiChat(environment(async()=>({response})),input)).ok,false);
+});
+
 test('cloud text uses section names instead of model-authored links and implementation paths',async()=>{
  const result=await workersAiChat(environment(async()=>({response:'Посмотрите [Yachts](/yachts) или /private-jets.'})),input);
  assert.equal(result.ok,true);assert.doesNotMatch(result.reply,/\/yachts|\/private-jets|\]\(/);assert.match(result.reply,/Посмотрите/);
