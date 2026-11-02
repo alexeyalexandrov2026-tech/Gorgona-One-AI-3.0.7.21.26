@@ -43,6 +43,7 @@ export function readSavedLocale() {
 
 export function LocaleProvider({ children }) {
   const [locale, setLocaleState] = useState(DEFAULT_LANGUAGE);
+  const [ready, setReady] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const currentLocale = useRef(DEFAULT_LANGUAGE);
@@ -75,14 +76,16 @@ export function LocaleProvider({ children }) {
   const setLocale = useCallback(async (code) => {
     const next = isSupportedLanguage(code) ? code : DEFAULT_LANGUAGE;
     const request = ++selection.current;
+    setReady(false);
     // Fetch only the selected, saved language bundle. Concurrent selections
     // resolve in the visitor's order of intent, never network arrival order.
     try { await loadSavedLocale(next); }
-    catch { return; }
+    catch { if(request===selection.current)setReady(true);return; }
     if (request !== selection.current) return;
     const changed = next !== currentLocale.current;
     currentLocale.current = next;
     setLocaleState(next);
+    setReady(true);
     try { window.localStorage.setItem(LOCALE_STORAGE_KEY, next); }
     catch { /* Persist the cookie and keep the current session usable. */ }
     writeCookie(LOCALE_COOKIE_KEY, next);
@@ -98,11 +101,11 @@ export function LocaleProvider({ children }) {
     restored.current = true;
     const saved = readSavedLocale();
     if (saved) setLocale(saved);
-    else applyDocumentLocale(DEFAULT_LANGUAGE);
+    else {applyDocumentLocale(DEFAULT_LANGUAGE);setReady(true);}
   }, [setLocale]);
 
   const localeValue = useMemo(() => locale, [locale]);
-  const controllerValue = useMemo(() => ({ locale, setLocale, registerClientLocaleRoute }), [locale, setLocale, registerClientLocaleRoute]);
+  const controllerValue = useMemo(() => ({ locale, ready, setLocale, registerClientLocaleRoute }), [locale, ready, setLocale, registerClientLocaleRoute]);
 
   return (
     <LocaleContext.Provider value={localeValue}>
@@ -117,6 +120,12 @@ export function useLocale() {
 
 export function useLocaleController() {
   return useContext(LocaleControllerContext);
+}
+
+// Session storage can restore before the saved language bundle has loaded.
+// Language-sensitive interactions wait for both instead of using English briefly.
+export function useLocaleReady() {
+  return useLocaleController()?.ready ?? true;
 }
 
 // Client-only route text (such as 404) needs no RSC refresh. Keep the

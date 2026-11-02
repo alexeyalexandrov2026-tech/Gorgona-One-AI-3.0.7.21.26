@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocale } from '../LocaleProvider';
+import { useLocale, useLocaleReady } from '../LocaleProvider';
 import { speechLocale } from '../../../lib/ai/locale';
 
 // ===========================================================================
@@ -37,6 +37,7 @@ function stopRecognition(recognition){try{recognition?.stop();}catch{/* Already 
 
 export function useVoice() {
   const locale = useLocale();
+  const localeReady = useLocaleReady();
   const [isListening, setIsListening] = useState(false);
   const [error,setError]=useState(null);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -63,7 +64,7 @@ export function useVoice() {
 
   const startListening = useCallback(
     (onResult) => {
-      if (!recognitionSupported) return;
+      if (!recognitionSupported || !localeReady) return;
       // Only one recognition session may run at a time across the whole page;
       // stop whichever surface currently owns it before claiming it here.
       stopRecognition(activeRecognition);
@@ -104,7 +105,7 @@ export function useVoice() {
       try{recognition.start();}
       catch{if(activeRecognition===recognition)activeRecognition=null;setIsListening(false);setError('unavailable');}
     },
-    [recognitionSupported]
+    [recognitionSupported,localeReady]
   );
 
   const stopListening = useCallback(() => {
@@ -114,6 +115,8 @@ export function useVoice() {
     setError(null);
     setIsListening(false);
   }, []);
+
+  useEffect(()=>{if(!localeReady)stopListening();},[localeReady,stopListening]);
 
   // Stop any recognition this hook instance owns if its component unmounts
   // mid-session (e.g. the user navigates away from the page while listening).
@@ -127,7 +130,7 @@ export function useVoice() {
   );
 
   return {
-    recognitionSupported,
+    recognitionSupported: recognitionSupported && localeReady,
     isListening,
     error,
     startListening,

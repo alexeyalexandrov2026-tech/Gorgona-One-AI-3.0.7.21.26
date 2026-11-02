@@ -1,7 +1,7 @@
 'use client';
-import {useEffect} from 'react';
+import {useLayoutEffect} from 'react';
 export function useDialogFocus(open,ref){
- useEffect(()=>{
+ useLayoutEffect(()=>{
   if(!open||!ref.current)return;
   const panel=ref.current,previous=document.activeElement;
   const controls=()=>[...panel.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(node=>node.getClientRects().length&&!node.closest('[inert]'));

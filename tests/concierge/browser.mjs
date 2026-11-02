@@ -9,8 +9,12 @@ assert.equal(process.env.CONCIERGE_HOSTED_ACCEPTANCE,'1');
 const {base,cookie,identity}=await hostedContext(),output=process.env.CONCIERGE_BROWSER_RESULTS;
 assert.ok(output&&path.isAbsolute(output));fs.mkdirSync(output,{recursive:true});
 const browser=await chromium.launch({headless:true,...(process.env.I18N_BROWSER_EXECUTABLE?{executablePath:process.env.I18N_BROWSER_EXECUTABLE}:{})}),results=[],expect=pwExpect.configure({timeout:15000});
+const selected=process.argv.slice(2);
 async function scenario(name,operation,{locale='en',width=1280,session,local,voice}={}){
+ if(selected.length&&!selected.includes(name))return;
  const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
+ const navigations=[];
+ page.on('framenavigated',frame=>{if(frame===page.mainFrame())navigations.push({url:frame.url(),at:new Date().toISOString()});});
  await context.addCookies([{name:'gorgona-locale',value:locale,url:base}]);
  if(cookie)await context.addCookies([{name:cookie.slice(0,cookie.indexOf('=')),value:cookie.slice(cookie.indexOf('=')+1),url:base,secure:true,httpOnly:true,sameSite:'Lax'}]);
  await context.addInitScript(({locale,session,local,voice})=>{
@@ -25,9 +29,9 @@ async function scenario(name,operation,{locale='en',width=1280,session,local,voi
   }
  },{locale,session,local,voice});
  await context.route('**/api/book',route=>route.abort('blockedbyclient'));
- page.on('pageerror',error=>errors.push({message:error.message,stack:error.stack}));page.setDefaultNavigationTimeout(30000);
+ page.on('pageerror',error=>errors.push({message:error.message,stack:error.stack,url:page.url(),navigation:navigations.length,at:new Date().toISOString()}));page.setDefaultNavigationTimeout(30000);
  try{await operation(page,context);await expect(page.locator('html')).toHaveAttribute('lang',locale);await expect(page.locator('html')).toHaveAttribute('dir',['ar','he','fa'].includes(locale)?'rtl':'ltr');assert.deepEqual(errors,[],'JavaScript exceptions');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)<=2,'document overflow');results.push({name,status:'PASS',locale,width});}
- catch(error){await page.screenshot({path:path.join(output,name+'.png'),animations:'disabled'}).catch(()=>{});results.push({name,status:'FAIL',locale,width,error:error.message,jsErrors:errors});}
+ catch(error){await page.screenshot({path:path.join(output,name+'.png'),animations:'disabled'}).catch(()=>{});results.push({name,status:'FAIL',locale,width,error:error.message,stack:error.stack,jsErrors:errors,navigations});}
  finally{await context.close();}
 }
 const thread=page=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('gorgona-concierge-thread')||'null'));

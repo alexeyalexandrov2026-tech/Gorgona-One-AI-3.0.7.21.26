@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { conversationNavigation } from '../../../lib/ai/conversation.mjs';
 import { chatSnapshot } from '../../../lib/ai/session.mjs';
 import {chatPayload} from '../../../lib/ai/chatRequest.mjs';
-import { useLocale } from '../LocaleProvider';
+import { useLocale, useLocaleReady } from '../LocaleProvider';
 import { unavailableReply } from '../../../lib/ai/locale';
 
 // ===========================================================================
@@ -59,11 +59,13 @@ export function ChatProvider({ children }) {
   // and used for the offline fallback line - a guest browsing in Japanese
   // must not be told in English that the concierge is unavailable.
   const locale = useLocale();
+  const localeReady = useLocaleReady();
   const [messages, setMessages] = useState([]);
   const [cards, setCards] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
+  const [storageReady, setHydrated] = useState(false);
+  const hydrated = storageReady && localeReady;
 
   // Transport bookkeeping, not view state - a ref so updating it never
   // re-renders three surfaces.

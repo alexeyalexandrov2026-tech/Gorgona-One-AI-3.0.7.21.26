@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAI } from './AIProvider';
 import { useAITheme } from '../ThemeProvider';
-import { useLocale } from '../LocaleProvider';
+import { useLocale, useLocaleReady } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { useBodyScrollLock } from '../useBodyScrollLock';
 import {useAiDock} from './AiDockProvider';
@@ -32,6 +32,7 @@ export default function DiscoveryRoom() {
   const { theme } = useAITheme();
   const router = useRouter();
   const locale = useLocale();
+  const localeReady = useLocaleReady();
   const t = getTranslation(locale);
 
   const [q, setQ] = useState('');
@@ -64,7 +65,7 @@ export default function DiscoveryRoom() {
   async function onAsk(e) {
     e.preventDefault();
     const query = q.trim();
-    if (!query||query.length>4000||busy) return;
+    if (!localeReady||!query||query.length>4000||busy) return;
     const id=++operation.current;
     setBusy(true);
     setFailed(false);setSearched(true);setAskResults([]);
@@ -99,12 +100,13 @@ export default function DiscoveryRoom() {
           <input
             className="dr__input"
             maxLength={4000}
+            disabled={!localeReady||busy}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={t.ai?.askAnywhere || "Ask from anywhere…"}
             aria-label={t.ai?.askPlaceholder || "Ask Miami Elio AI"}
           />
-          <button type="submit" className="dr__go" disabled={busy}>{busy ? '…' : (t.ai?.ask || <LocalizedText source={"Ask"} />)}</button>
+          <button type="submit" className="dr__go" disabled={!localeReady||busy}>{busy ? '…' : (t.ai?.ask || <LocalizedText source={"Ask"} />)}</button>
         </form>
 
         <div className="dr__body">
