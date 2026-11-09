@@ -1,5 +1,10 @@
 # Sunset Exotics catalogue integration
 
+Published and checked on the main domain on November 8, 2026. See
+[PUBLISHED.md](./PUBLISHED.md) for the immutable source, deployed version, fresh
+hosted outcomes and remaining verification boundaries. The preparation record
+below and `report.json` retain their original pre-publication state.
+
 Prepared November 8, 2026 (America/New_York) on `feat/sunset-fleet`, based on
 `bae43b74`. The actual production baseline was checked read-only: Worker version
 `31762a75-2b42-41d0-8dad-97a4cb268907` at 100%. The baseline application's source
