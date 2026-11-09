@@ -917,5 +917,6 @@ export default {
   "listing.midline.description": "Musik, Cocktails und eine Nacht in Miami.",
   "ui.b21d564daaa86897": "Eatwith",
   "ui.9b864ba64f10a3b4": "Der Kaufabschluss erfolgt bei TicketNetwork.",
-  "ui.7ab18ba3fd0d9837": "Zunächst werden kommende Veranstaltungen in Miami und benachbarten Städten Südfloridas angezeigt. Passen Sie die Liste mit den Filtern für Gebiet, Datum, Künstler und Stadt an. Ticketauswahl, Zahlung und Bestellsupport übernimmt TicketNetwork in einem neuen Tab. Wiederverkaufspreise können über dem Nennwert liegen."
+  "ui.7ab18ba3fd0d9837": "Zunächst werden kommende Veranstaltungen in Miami und benachbarten Städten Südfloridas angezeigt. Passen Sie die Liste mit den Filtern für Gebiet, Datum, Künstler und Stadt an. Ticketauswahl, Zahlung und Bestellsupport übernimmt TicketNetwork in einem neuen Tab. Wiederverkaufspreise können über dem Nennwert liegen.",
+  "worlds.categories.Sports": "Sportwagen"
 };

@@ -7,7 +7,7 @@ import { getVenues } from '../../lib/restaurantsNightlifeData.js';
 // Our checked-in material only. Event feeds, supplier documents and user
 // submissions are deliberately absent from this inventory.
 export const OWNED_RECORDS = [
-  ...getRentals().map(record => ({ world:'cars', record })),
+  ...getRentals().filter(record => record.supplier !== 'Sunset Exotics').map(record => ({ world:'cars', record })),
   ...getYachts().map(record => ({ world:'yachts', record })),
   ...getVacationRentals().map(record => ({ world:'stays', record })),
   ...getExperiences().filter(record => record.supplier !== 'Headout').map(record => ({ world:'experiences', record })),

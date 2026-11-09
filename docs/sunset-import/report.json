@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "source": "https://sunsetexoticsmiami.com/inventory?type=cars",
+  "capturedAt": "2026-11-09T02:02:52.565Z",
+  "generatedAt": "2026-11-09T02:18:59.272527+00:00",
+  "cars": 260,
+  "sourcePhotos": 3004,
+  "importedPhotos": 3039,
+  "originalBytes": 9959515871,
+  "missingLocations": [
+    "cadillac-escalade",
+    "tesla-cybertruck-2",
+    "range-rover-1",
+    "chevrolet-corvette-stingray",
+    "mclaren-720s-1",
+    "acura-nsx",
+    "2024-mercedes-g63-amg-2",
+    "rolls-royce-cullinan-2",
+    "porsche-taycan",
+    "tesla-model-3"
+  ],
+  "failedPhotos": [],
+  "bookingMode": "manual-confirmation-and-payment",
+  "productionPublished": false
+}
