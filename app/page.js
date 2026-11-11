@@ -93,8 +93,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-[clamp(26px,4vw,56px)] py-[clamp(36px,5vw,72px)] md:grid-cols-2">
-        <div>
+      {(HOME_YACHTS.length > 0 || HOME_STAYS.length > 0) && <section className="grid gap-[clamp(26px,4vw,56px)] py-[clamp(36px,5vw,72px)] md:grid-cols-2">
+        {HOME_YACHTS.length > 0 && <div>
           <SectionHead title={copy.water} href="/yachts" cta={copy.seeAll} />
           <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2">
             {HOME_YACHTS.map((yacht) => (
@@ -109,8 +109,8 @@ export default function HomePage() {
               />
             ))}
           </div>
-        </div>
-        <div>
+        </div>}
+        {HOME_STAYS.length > 0 && <div>
           <SectionHead title={copy.stays} href="/vacation-rentals" cta={copy.seeAll} />
           <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2">
             {HOME_STAYS.map((stay) => (
@@ -126,8 +126,8 @@ export default function HomePage() {
               />
             ))}
           </div>
-        </div>
-      </section>
+        </div>}
+      </section>}
 
       <ConciergeBand copy={copy} locale={locale} />
 
