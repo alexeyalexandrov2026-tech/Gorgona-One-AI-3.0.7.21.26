@@ -6,8 +6,11 @@ import { useSavedText } from "./components/LocalizedText";
 import Link from 'next/link';
 import { getTranslation } from '../lib/i18n';
 import { useLocale } from './components/LocaleProvider';
-import { getHomeCopy, fill } from '../lib/homeCopy';
-import { BRAND_COUNT, FLEET, YACHTS, STAYS, HOME_YACHTS, HOME_STAYS, HOME_BOOKS, carThumb } from '../lib/homeData';
+import { getHomeCopy } from '../lib/homeCopy';
+import {getHeadoutCopy} from '../lib/headoutCopy.mjs';
+import {getPrivateJetsCopy} from '../lib/privateJetsCopy.mjs';
+import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
+import { FLEET, HOME_YACHTS, HOME_STAYS, HOME_BOOKS, carThumb } from '../lib/homeData';
 import HomeHero from './components/home/HomeHero';
 import SeasonShelf from './components/home/SeasonShelf';
 import A1ALine from './components/home/A1ALine';
@@ -17,17 +20,17 @@ import Icon from './components/g1/icons';
 import GamblingNotice from './components/GamblingNotice';
 
 const WORLDS = [
-  { id: 'deals', href: '/stores', img: 'deals-bags', count: (c) => fill(c.brands, { n: BRAND_COUNT }) },
-  { id: 'travel', href: '/travel', img: 'travel-wing', count: (c) => c.flights },
-  { id: 'stays', href: '/vacation-rentals', img: 'stay-miami-beach', count: (c) => fill(c.homes, { n: STAYS.length }) },
-  { id: 'yachts', href: '/yachts', img: 'yacht-princess', count: (c) => fill(c.charters, { n: YACHTS.length }) },
-  { id: 'cars', href: '/rentals', img: null, count: (c) => fill(c.cars, { n: FLEET.length }) },
-  { id: 'events', href: '/events', img: 'events-stage', count: (c) => c.tickets },
+  { id: 'experiences', href: '/experiences', image: HEADOUT_COLLECTIONS[0].image },
+  { id: 'travel', href: '/travel', img: 'travel-wing' },
+  { id: 'stays', href: '/vacation-rentals', img: 'stay-miami-beach' },
+  { id: 'yachts', href: '/yachts', img: 'yacht-princess' },
+  { id: 'cars', href: '/rentals', img: null },
+  { id: 'events', href: '/events', img: 'events-stage' },
   // appHidden: left out of the iOS app (data-app-hidden in globals.css).
-  { id: 'sportsbooks', href: '/sportsbook', img: 'sports-arena', count: (c) => fill(c.operators, { n: HOME_BOOKS.length }), appHidden: true },
-  { id: 'concierge', href: '/discovery', img: 'deco-street', count: (c) => c.ai }
+  { id: 'sportsbooks', href: '/sportsbook', img: 'sports-arena', appHidden: true },
+  { id: 'privateJets', href: '/private-jets', img: 'travel-wing' }
 ];
-const worldImage = (world) => (world.img ? `/images/home/worlds/${world.img}.jpg` : carThumb(FLEET[0]));
+const worldImage = (world) => world.image || (world.img ? `/images/home/worlds/${world.img}.jpg` : carThumb(FLEET[0]));
 
 export default function HomePage() {
   const msg = useSavedText();
@@ -57,14 +60,16 @@ export default function HomePage() {
         <SectionHead title={copy.worlds} sub={copy.worldsSub} />
         <ul className="border-b border-g1-rule">
           {WORLDS.map((world) => {
-            const [name, desc] = copy.worldItems[world.id];
+            const experienceCopy = getHeadoutCopy(locale);
+            const jetCopy = getPrivateJetsCopy(locale);
+            const [name, description] = world.id === 'experiences' ? [experienceCopy.nav, experienceCopy.parks] : world.id === 'privateJets' ? [jetCopy.nav, jetCopy.description] : copy.worldItems[world.id];
+            const desc = world.id === 'sportsbooks' ? copy.books : description;
             return (
               <li key={world.id} data-app-hidden={world.appHidden ? '' : undefined} className="border-t border-g1-rule">
                 <Link href={world.href} className="g1-dir-row">
                   <img className="g1-dir-thumb" src={worldImage(world)} alt="" loading="lazy" />
                   <span className="g1-dir-name">{name}</span>
                   <span className="g1-dir-desc text-[0.98rem] text-g1-soft">{desc}</span>
-                  <span className="g1-dir-count whitespace-nowrap font-g1mono text-[0.9rem] text-g1-soft">{world.count(copy.counts)}</span>
                   <span className="g1-dir-arrow"><Icon name="arrow" className="g1-flip h-5 w-5" /></span>
                 </Link>
               </li>
@@ -74,7 +79,7 @@ export default function HomePage() {
       </section>
 
       <section className="py-[clamp(36px,5vw,72px)]">
-        <SectionHead title={copy.fleet} sub={fill(copy.fleetSub, { n: FLEET.length })} href="/rentals" cta={copy.seeAll} />
+        <SectionHead title={copy.fleet} sub={copy.worldItems.cars[1]} href="/rentals" cta={copy.seeAll} />
         <div className="g1-shelf" tabIndex={0} aria-label={copy.fleet}>
           {FLEET.slice(0, 8).map((car) => (
             <ListingCard
@@ -128,7 +133,7 @@ export default function HomePage() {
       <ConciergeBand copy={copy} locale={locale} />
 
       <section data-app-hidden="" className="py-[clamp(36px,5vw,72px)]">
-        <SectionHead title={copy.books} sub={copy.booksSub} href="/sportsbook" cta={copy.seeAll} />
+        <SectionHead title={copy.books} href="/sportsbook" cta={copy.seeAll} />
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-5">
           {HOME_BOOKS.map((book) => (
             <li key={book.slug}>

@@ -4,13 +4,17 @@ import { LocalizedText } from "../LocalizedText";
 import { localizeOwnedResult } from '../../../lib/ownedContent';
 import { useSavedText } from "../LocalizedText";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAI } from './AIProvider';
 import { useAITheme } from '../ThemeProvider';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { useBodyScrollLock } from '../useBodyScrollLock';
+import {useAiDock} from './AiDockProvider';
+import {useDialogFocus} from './useDialogFocus';
+import {loadProvider} from '../../../lib/ai/loadProvider';
+import {unavailableReply} from '../../../lib/ai/locale';
 
 // ===========================================================================
 // The Discovery Room (Phase 3).
@@ -21,12 +25,6 @@ import { useBodyScrollLock } from '../useBodyScrollLock';
 // AIProvider (mounted in the layout), leaving the room to browse the site and
 // returning later preserves everything. Theme-aware (Light = V1, Dark = V2).
 // ===========================================================================
-
-let providerPromise = null;
-function loadProvider() {
-  if (!providerPromise) providerPromise = import('../../../lib/ai/provider');
-  return providerPromise;
-}
 
 export default function DiscoveryRoom() {
   const msg = useSavedText();
@@ -39,6 +37,12 @@ export default function DiscoveryRoom() {
   const [q, setQ] = useState('');
   const [askResults, setAskResults] = useState([]);
   const [busy, setBusy] = useState(false);
+  const [failed,setFailed]=useState(false),[searched,setSearched]=useState(false);
+  const panel=useRef(null),operation=useRef(0);
+  const {close:closeDock}=useAiDock();
+  useDialogFocus(roomOpen,panel);
+  useEffect(()=>{if(roomOpen)closeDock();else{operation.current++;setBusy(false);}},[roomOpen]);
+  useEffect(()=>()=>{operation.current++;},[]);
 
   // Prevents the mobile scroll-jump this dialog's own text input used to
   // trigger - see useBodyScrollLock for the root cause.
@@ -60,13 +64,18 @@ export default function DiscoveryRoom() {
   async function onAsk(e) {
     e.preventDefault();
     const query = q.trim();
-    if (!query) return;
+    if (!query||query.length>4000||busy) return;
+    const id=++operation.current;
     setBusy(true);
-    const { askEcosystem } = await loadProvider();
-    const res = await askEcosystem({ query, locale });
-    setAskResults(res.results);
-    recordQuery({ query, world: res.world, lang: res.lang, results: res.results });
-    setBusy(false);
+    setFailed(false);setSearched(true);setAskResults([]);
+    try{
+      const { askEcosystem } = await loadProvider();
+      const res = await askEcosystem({ query, locale });
+      if(id!==operation.current)return;
+      setAskResults(res.results);
+      recordQuery({ query, world: res.world, lang: res.lang, results: res.results });
+    }catch{if(id===operation.current)setFailed(true);}
+    finally{if(id===operation.current)setBusy(false);}
   }
 
   function returnToAI() {
@@ -75,9 +84,9 @@ export default function DiscoveryRoom() {
   }
 
   return (
-    <div className={`dr ${roomOpen ? "is-open" : ''}`} data-ai-theme={theme} aria-hidden={!roomOpen}>
+    <div className={`dr ${roomOpen ? "is-open" : ''}`} data-ai-theme={theme} aria-hidden={!roomOpen} inert={roomOpen?undefined:true}>
       <div className="dr__scrim" onClick={closeRoom} />
-      <aside className="dr__panel" role="dialog" aria-modal="true" aria-label={msg("Discovery Room")}>
+      <aside ref={panel} className="dr__panel" role="dialog" aria-modal="true" aria-label={msg("Discovery Room")}>
         <header className="dr__head">
           <div>
             <p className="dr__eyebrow">{msg("Miami Elio AI")}</p>
@@ -89,6 +98,7 @@ export default function DiscoveryRoom() {
         <form className="dr__ask" onSubmit={onAsk} role="search">
           <input
             className="dr__input"
+            maxLength={4000}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder={t.ai?.askAnywhere || "Ask from anywhere…"}
@@ -98,6 +108,8 @@ export default function DiscoveryRoom() {
         </form>
 
         <div className="dr__body">
+          {failed&&<p role="alert" className="dr__empty">{unavailableReply(locale)}</p>}
+          {searched&&!busy&&!failed&&!askResults.length&&<p role="status" className="dr__empty">{t.search.noResults}</p>}
           {askResults.length > 0 && (
             <Section title={t.ai?.results || "Results"}>
               {askResults.map((r) => (

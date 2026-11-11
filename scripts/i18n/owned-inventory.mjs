@@ -10,7 +10,7 @@ export const OWNED_RECORDS = [
   ...getRentals().map(record => ({ world:'cars', record })),
   ...getYachts().map(record => ({ world:'yachts', record })),
   ...getVacationRentals().map(record => ({ world:'stays', record })),
-  ...getExperiences().map(record => ({ world:'experiences', record })),
+  ...getExperiences().filter(record => record.supplier !== 'Headout').map(record => ({ world:'experiences', record })),
   ...getVenues().map(record => ({ world:'venues', record }))
 ];
 export function ownedMessages() {

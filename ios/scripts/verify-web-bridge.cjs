@@ -69,7 +69,7 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   check('app: marker survives hydration', (await page.evaluate(() => document.documentElement.getAttribute('data-app'))) === 'ios');
   check('app: concierge sphere is hidden', !(await visible(page, 'button[data-app-hidden]:not(.aidock)')));
   check('app: AI pill is hidden', !(await visible(page, 'button.aidock')));
-  check('app: hero lede, sample requests and figures are hidden', (await page.locator('main [data-app-hidden]:visible').count()) === 0);
+  check('app: hero lede and sample requests are hidden', (await page.locator('main [data-app-hidden]:visible').count()) === 0);
   check('app: section rail lists nine sections', (await page.locator('ul.g1-rail a:visible').count()) === 9);
   check('app: hero search is still there', await visible(page, '#g1-hero-q'));
   check('app: sportsbook row is hidden', !(await visible(page, 'li[data-app-hidden] a[href="/sportsbook"]')));

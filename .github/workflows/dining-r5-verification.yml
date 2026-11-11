@@ -1,0 +1,57 @@
+name: Dining R5 Linux verification
+
+on:
+  push:
+    branches: [codex/dining-r5-verification-20261101]
+    paths-ignore: ['docs/**', '**/*.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      NEXT_PRIVATE_STANDALONE: 'true'
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: fixture-anon
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run i18n:check
+      - run: node --test --test-concurrency=2 tests/content/*.test.mjs tests/i18n/*.test.mjs tests/dashboard/*.test.mjs
+      - name: Build standalone Next.js
+        run: node node_modules/next/dist/bin/next build
+      - name: Package Cloudflare Worker
+        run: node scripts/i18n/build-worker.mjs --config wrangler.dashboard-staging.json
+      - name: Add non-deployable QA wrapper metadata
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          fs.writeFileSync('.open-next/dashboard-staging-release.json', JSON.stringify({
+            verificationOnly: true,
+            commit: process.env.GITHUB_SHA,
+            projectRef: 'qa-only-not-a-supabase-project',
+            tree: null,
+            clientKeyHash: null,
+            artifactHash: null
+          }));
+          NODE
+      - name: Wrangler dry-run only
+        run: node node_modules/wrangler/bin/wrangler.js deploy --dry-run --config wrangler.dashboard-staging.json --outdir .r5-worker-dry-run
+      - name: Mark verification artifact
+        run: echo 'QA ONLY. Synthetic public configuration. Not a production or approved staging deployment.' > .open-next/QA-ONLY.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dining-r5-qa-worker
+          path: .open-next
+          include-hidden-files: true
+          retention-days: 7

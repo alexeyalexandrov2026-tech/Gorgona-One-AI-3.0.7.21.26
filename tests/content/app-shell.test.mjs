@@ -51,8 +51,7 @@ test('the app leaves out the parts of the hero its own tabs already cover', () =
   const hero = read('app/components/home/HomeHero.jsx');
   assert.match(hero, /<p data-app-hidden=""[^>]*>\s*\{copy\.lede\}/);
   assert.match(hero, /<div data-app-hidden=""[^>]*aria-label=\{copy\.chipsLabel\}>/);
-  assert.match(hero, /<div data-app-hidden=""[^>]*>\s*\{stats\.map/);
-  assert.equal(hero.match(/data-app-hidden=""/g).length, 3);
+  assert.equal(hero.match(/data-app-hidden=""/g).length, 2);
 });
 
 test('sportsbook entry points are left out of the app', () => {

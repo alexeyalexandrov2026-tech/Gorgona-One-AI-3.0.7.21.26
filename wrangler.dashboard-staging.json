@@ -15,7 +15,10 @@
     "APP_ENV": "dashboard-staging",
     "STAGING_PROJECT_REF": "kaxslgjbrarapeyoifdh",
     "NEXT_PUBLIC_SUPABASE_URL": "https://kaxslgjbrarapeyoifdh.supabase.co",
-    "GORGONA_AI_ENABLED": "off"
+    "GORGONA_AI_ENABLED": "off",
+    "DINING_SCHEMA_ENABLED": "true",
+    "DINING_REQUESTS_ENABLED": "true",
+    "HEADOUT_SANDBOX_PREVIEW_ENABLED": "true"
   },
   "observability": { "enabled": false }
 }
