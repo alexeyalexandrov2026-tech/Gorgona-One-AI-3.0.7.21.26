@@ -7,14 +7,14 @@ import { getLanguageDir, isSupportedLanguage } from '../../../lib/languages';
 import { btn } from '../g1/ui';
 import Icon from '../g1/icons';
 
-// Sample conversations in the five core languages. Every car, yacht and
-// venue named here is in the site's listings.
+// Sample conversations in the five core languages. Every car and venue
+// named here is in the site's listings.
 const SAMPLES = {
-  EN: { me: 'Landing at MIA on Friday at 3 PM, four of us. Something fun for Saturday?', them: 'Welcome to Miami! I can meet you at MIA in the Mercedes-Maybach GLS, then take you out on the Azimut 68 Fly from Star Island on Saturday afternoon. Shall I add a dinner table after?', plan: ['Maybach GLS · MIA', 'Azimut 68 Fly · Sat', 'Table request'] },
-  ES: { me: 'Llegamos el viernes, somos cuatro. ¿Un yate el sábado?', them: '¡Perfecto! El Azimut 68 Fly sale de Star Island y lleva a tu grupo con comodidad. ¿Reservo también una mesa en Komodo para la noche?', plan: ['Azimut 68 Fly · sáb', 'Komodo · 20:30'] },
-  PT: { me: 'Chegamos na sexta, somos quatro. Um iate no sábado?', them: 'Perfeito! O Azimut 68 Fly sai de Star Island e acomoda bem o seu grupo. Reservo também uma mesa no Komodo à noite?', plan: ['Azimut 68 Fly · sáb', 'Komodo · 20:30'] },
-  RU: { me: 'Прилетаем в пятницу, нас четверо. Хотим яхту в субботу и ужин.', them: 'Отличный план. В субботу предлагаю Azimut 68 Fly от Star Island, а вечером стол в Komodo в Брикелле. Встретить вас в аэропорту на Maybach GLS?', plan: ['Maybach GLS · аэропорт', 'Azimut 68 Fly · сб', 'Komodo · 20:30'] },
-  HE: { me: 'נוחתים ביום שישי, ארבעה אנשים. יאכטה בשבת?', them: 'בשמחה! ה־Azimut 68 Fly יוצאת מ־Star Island ומתאימה לקבוצה שלכם. להזמין גם שולחן לארוחת ערב ב־Komodo?', plan: ['Azimut 68 Fly · שבת', 'Komodo · 20:30'] }
+  EN: { me: 'Landing at MIA on Friday at 3 PM, four of us. Something fun for Saturday?', them: 'Welcome to Miami! I can meet you at MIA in the Mercedes-Maybach GLS, then take you out on a private yacht from Star Island on Saturday afternoon. Shall I add a dinner table after?', plan: ['Maybach GLS · MIA', 'Yacht · Sat', 'Table request'] },
+  ES: { me: 'Llegamos el viernes, somos cuatro. ¿Un yate el sábado?', them: '¡Perfecto! Un yate privado sale de Star Island y lleva a tu grupo con comodidad. ¿Reservo también una mesa en Komodo para la noche?', plan: ['Yate · sáb', 'Komodo · 20:30'] },
+  PT: { me: 'Chegamos na sexta, somos quatro. Um iate no sábado?', them: 'Perfeito! Um iate privado sai de Star Island e acomoda bem o seu grupo. Reservo também uma mesa no Komodo à noite?', plan: ['Iate · sáb', 'Komodo · 20:30'] },
+  RU: { me: 'Прилетаем в пятницу, нас четверо. Хотим яхту в субботу и ужин.', them: 'Отличный план. В субботу предлагаю яхту от Star Island, а вечером стол в Komodo в Брикелле. Встретить вас в аэропорту на Maybach GLS?', plan: ['Maybach GLS · аэропорт', 'Яхта · сб', 'Komodo · 20:30'] },
+  HE: { me: 'נוחתים ביום שישי, ארבעה אנשים. יאכטה בשבת?', them: 'בשמחה! יאכטה פרטית יוצאת מ־Star Island ומתאימה לקבוצה שלכם. להזמין גם שולחן לארוחת ערב ב־Komodo?', plan: ['יאכטה · שבת', 'Komodo · 20:30'] }
 };
 
 const sampleCode = locale => isSupportedLanguage(locale) ? locale.toUpperCase() : 'EN';

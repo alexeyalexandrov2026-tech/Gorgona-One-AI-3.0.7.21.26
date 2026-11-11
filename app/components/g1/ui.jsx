@@ -77,9 +77,9 @@ export function WorldHero({ eyebrow, title, lede, img, alt, children }) {
         <p className="max-w-[58ch] text-[clamp(1.06rem,0.35vw+1rem,1.22rem)] text-g1-soft [text-wrap:pretty]">{lede}</p>
         {children}
       </div>
-      <figure className="aspect-[3/2] overflow-hidden rounded-[26px] bg-g1-rule">
+      {img && <figure className="aspect-[3/2] overflow-hidden rounded-[26px] bg-g1-rule">
         <img src={img} alt={alt} width="1600" height="1067" fetchPriority="high" className="h-full w-full object-cover" />
-      </figure>
+      </figure>}
     </header>
   );
 }
