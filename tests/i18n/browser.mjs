@@ -279,7 +279,7 @@ for (const [name, viewport] of [
     const selected=document.cookie.match(/(?:^|; )gorgona-locale=([^;]*)/)?.[1]||'en';
     localStorage.setItem('gorgona-locale',decodeURIComponent(selected));
   });
-  const samples={'/rentals/[slug]':'/rentals/'+getRentals()[0].slug,'/yachts/[slug]':'/yachts/'+getYachts()[0].slug,'/vacation-rentals/[slug]':'/vacation-rentals/'+getVacationRentals()[0].slug,'/experiences/[slug]':'/experiences/'+getExperiences()[0].slug,'/restaurants-nightlife/[slug]':'/restaurants-nightlife/'+getVenues()[0].slug,'/deals/[slug]':'/deals/'+allDeals[0].slug,'/stores/[category]':'/stores/'+categories[0].slug,'/sportsbook/[slug]':'/sportsbook/hard-rock-bet','/events/category/[category]':'/events/category/nba','/events/league/[league]':'/events/league/nba','/events/[slug]':'/events/i18n-no-published-event'};
+  const samples={'/rentals/[slug]':'/rentals/'+getRentals()[0].slug,'/yachts/[slug]':getYachts()[0]&&'/yachts/'+getYachts()[0].slug,'/vacation-rentals/[slug]':getVacationRentals()[0]&&'/vacation-rentals/'+getVacationRentals()[0].slug,'/experiences/[slug]':'/experiences/'+getExperiences()[0].slug,'/restaurants-nightlife/[slug]':'/restaurants-nightlife/'+getVenues()[0].slug,'/deals/[slug]':'/deals/'+allDeals[0].slug,'/stores/[category]':'/stores/'+categories[0].slug,'/sportsbook/[slug]':'/sportsbook/hard-rock-bet','/events/category/[category]':'/events/category/nba','/events/league/[league]':'/events/league/nba','/events/[slug]':'/events/i18n-no-published-event'};
   const matrix=[], failures=[];
   const normalize=text=>text.replace(/\s+/g,' ').trim();
   const prose=Object.values(SAVED_MESSAGES.en).filter(text=>
@@ -287,6 +287,7 @@ for (const [name, viewport] of [
   for(const file of appFiles().filter(f=>f.endsWith('/page.js'))){
     const template=file.slice(3,-8)||'/';
     if(process.env.I18N_ROUTE_TEMPLATE && !process.env.I18N_ROUTE_TEMPLATE.split(',').includes(template))continue;
+    if(template in samples&&!samples[template])continue;
     const route=samples[template]||template;
     console.log('CHECK '+template);
     let completedLocales=0;

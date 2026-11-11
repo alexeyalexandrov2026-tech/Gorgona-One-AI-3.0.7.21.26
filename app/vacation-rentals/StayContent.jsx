@@ -21,11 +21,11 @@ export default function StayContent({ stays }) {
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
       <WorldHero
-        eyebrow={fill(copy.stays.eyebrow, { n: stays.length })}
+        eyebrow={stays.length ? fill(copy.stays.eyebrow, { n: stays.length }) : fill(copy.stays.eyebrow, { n: '' }).split(' · ').filter(Boolean).join(' · ')}
         title={copy.stays.title}
         lede={copy.stays.lede}
-        img={largeImage(hero.image)}
-        alt={savedListing(locale, hero, 'title')}
+        img={hero ? largeImage(hero.image) : null}
+        alt={hero ? savedListing(locale, hero, 'title') : ''}
       />
 
       <section className="border-t border-g1-rule py-[clamp(36px,5vw,72px)]" aria-label={stay22.title}>
