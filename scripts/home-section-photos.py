@@ -25,9 +25,9 @@ PHOTOS = {
     "experiences": ("public/images/adrenaline365/helicopter-tour.png", (0.5, 0.5)),
     "events": ("public/images/home/worlds/events-stage.jpg", (0.5, 0.5)),
     "dining": ("public/images/home/worlds/deco-street.jpg", (0.5, 0.6)),
-    "flights": ("public/images/home/worlds/travel-wing.jpg", (0.5, 0.5)),
+    "flights": ("public/images/experiences/miami-aerial.webp", (0.45, 0.5)),
+    "jets": ("public/images/home/worlds/travel-wing.jpg", (0.5, 0.5)),
     "travel": ("public/images/home/deco-hotel.jpg", (0.5, 0.55)),
-    "shopping": ("public/images/home/worlds/deals-bags.jpg", (0.4, 0.5)),
 }
 
 OUT.mkdir(parents=True, exist_ok=True)

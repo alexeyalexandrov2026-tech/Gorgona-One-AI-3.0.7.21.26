@@ -71,6 +71,7 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   check('app: AI pill is hidden', !(await visible(page, 'button.aidock')));
   check('app: hero lede and sample requests are hidden', (await page.locator('main [data-app-hidden]:visible').count()) === 0);
   check('app: section rail lists nine sections', (await page.locator('ul.g1-rail a:visible').count()) === 9);
+  check('app: the rail has private jets beside flights', (await visible(page, 'ul.g1-rail a[href="/private-jets"]')) && (await visible(page, 'ul.g1-rail a[href="/travel/ovago"]')));
   check('app: hero search is still there', await visible(page, '#g1-hero-q'));
   check('app: sportsbook row is hidden', !(await visible(page, 'li[data-app-hidden] a[href="/sportsbook"]')));
   check('app: sportsbook section is hidden', !(await visible(page, 'section[data-app-hidden]')));
@@ -97,19 +98,20 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   await shot(page, 'app-home.png');
 
   // A sportsbook link that is still on a page must be stopped and handed over.
-  await page.goto(base + '/stores', { waitUntil: 'networkidle' });
-  const link = page.locator('a[href^="/sportsbook"]:visible').first();
-  const present = await link.count();
-  if (present) {
-    await page.evaluate(() => { window.__messages.length = 0; });
-    await link.click();
-    await page.waitForTimeout(800);
-    const opened = await page.evaluate(() => window.__messages.filter((m) => m.open).map((m) => m.open));
-    check('app: sportsbook link is intercepted', opened.length === 1 && opened[0] === base + '/sportsbook', JSON.stringify(opened));
-    check('app: page did not navigate to the sportsbook', new URL(page.url()).pathname === '/stores', page.url());
-  } else {
-    check('app: found a sportsbook link on /stores to test interception', false, 'none visible');
-  }
+  // The site no longer shows one inside the app, so the page is given one.
+  await page.goto(base + '/experiences', { waitUntil: 'networkidle' });
+  check('app: /experiences shows no sportsbook link', (await page.locator('a[href^="/sportsbook"]:visible').count()) === 0);
+  await page.evaluate(() => {
+    window.__messages.length = 0;
+    const link = Object.assign(document.createElement('a'), { href: '/sportsbook', id: 'bridge-test-link', textContent: 'sportsbook' });
+    link.style.cssText = 'position:fixed;top:120px;left:20px;z-index:99999;padding:12px;background:#fff';
+    document.body.appendChild(link);
+  });
+  await page.locator('#bridge-test-link').click();
+  await page.waitForTimeout(800);
+  const opened = await page.evaluate(() => window.__messages.filter((m) => m.open).map((m) => m.open));
+  check('app: sportsbook link is intercepted', opened.length === 1 && opened[0] === base + '/sportsbook', JSON.stringify(opened));
+  check('app: page did not navigate to the sportsbook', new URL(page.url()).pathname === '/experiences', page.url());
 
   // An ordinary link still works.
   await page.goto(base + '/', { waitUntil: 'networkidle' });

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { HERO_CAR, carThumb } from '../../../lib/homeData';
 import { useAskConcierge } from './shared';
 import {useConciergeChat} from '../ai/ChatProvider';
+import { getPrivateJetsCopy } from '../../../lib/privateJetsCopy.mjs';
 import { btn, chipClass } from '../g1/ui';
 import Icon from '../g1/icons';
 
@@ -21,12 +22,14 @@ const SECTIONS = [
   { id: 'experiences', href: '/experiences', name: (t) => t.experiences.pill },
   { id: 'events', href: '/events', name: (t) => t.nav.events },
   { id: 'dining', href: '/restaurants-nightlife', name: (t) => t.discovery.restaurants },
+  // Two different things: tickets on scheduled flights (Ovago) and a whole
+  // aircraft on charter (PrivateJetFinder).
   { id: 'flights', href: '/travel/ovago', name: (t) => t.discovery.flights },
-  { id: 'travel', href: '/travel', name: (t) => t.nav.travel },
-  { id: 'shopping', href: '/stores', name: (t) => t.discovery.shopping }
+  { id: 'jets', href: '/private-jets', name: (t, locale) => getPrivateJetsCopy(locale).nav },
+  { id: 'travel', href: '/travel', name: (t) => t.nav.travel }
 ];
 
-function SectionRail({ t }) {
+function SectionRail({ t, locale }) {
   return (
     // On a phone it runs to both edges of the screen and scrolls sideways;
     // the cut-off picture at the end is what says there is more. On a wide
@@ -43,7 +46,7 @@ function SectionRail({ t }) {
               loading={i < 5 ? 'eager' : 'lazy'}
               decoding="async"
             />
-            <span>{section.name(t)}</span>
+            <span>{section.name(t, locale)}</span>
           </Link>
         </li>
       ))}
@@ -69,7 +72,7 @@ function ValetTag({ copy }) {
   );
 }
 
-export default function HomeHero({ copy, t }) {
+export default function HomeHero({ copy, t, locale }) {
   const msg = useSavedText();
   const ask = useAskConcierge();
   const {hydrated,isLoading}=useConciergeChat();
@@ -83,7 +86,7 @@ export default function HomeHero({ copy, t }) {
 
   return (
     <section className="pb-[clamp(44px,6vw,90px)] pt-[clamp(18px,3vw,40px)]">
-      <SectionRail t={t} />
+      <SectionRail t={t} locale={locale} />
       <div className="mt-[clamp(26px,4vw,56px)] grid items-center gap-[clamp(30px,5vw,76px)] lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
         <div className="grid min-w-0 grid-cols-1 gap-[clamp(18px,2.4vw,28px)]">
           <h1 className="g1-display min-w-0 font-g1display text-[clamp(2.2rem,4.4vw+1.1rem,5.4rem)] font-medium leading-[1.02] tracking-[-0.035em] text-g1-ink [overflow-wrap:anywhere] [text-wrap:balance]">

@@ -41,7 +41,7 @@ export default function HomePage() {
 
   return (
     <main className="g1-modern flex-1 font-g1sans text-g1-ink">
-      <HomeHero copy={copy} t={t} />
+      <HomeHero copy={copy} t={t} locale={locale} />
 
       <section className="py-[clamp(36px,5vw,72px)]">
         <SectionHead title={copy.season} sub={copy.seasonSub} href="/events" cta={t.nav.events} />
