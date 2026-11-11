@@ -1,5 +1,12 @@
 
 import { LocalizedText } from "../components/LocalizedText";
+import { pageMetadata } from '../../lib/seo.mjs';
+
+export const metadata = pageMetadata({
+  title: 'Caesars Sportsbook promos and operator details',
+  description: 'A dedicated page for Caesars Sportsbook offers and future-ready promo code information.',
+  path: '/caesars-sportsbook-promos'
+});
 import GamblingNotice from '../components/GamblingNotice';
 import { getServerLocale } from '../../lib/serverLocale';
 

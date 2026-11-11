@@ -6,8 +6,15 @@ import { fill } from '../../lib/homeCopy';
 import { getServerTranslation } from '../../lib/serverLocale';
 import { WorldHero, SectionHead, sectionY } from '../components/g1/ui';
 import { CategoryChips, DealGrid } from '../components/g1/DealsParts';
+import { pageMetadata } from '../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata() {
+  const { t, locale } = await getServerTranslation();
+  const copy = getDealsCopy(locale);
+  return pageMetadata({ title: `${t.nav.stores} · ${copy.storesTitle}`, description: copy.storesLede, path: '/stores' });
+}
 
 export default async function StoresPage() {
   const { t, locale } = await getServerTranslation();

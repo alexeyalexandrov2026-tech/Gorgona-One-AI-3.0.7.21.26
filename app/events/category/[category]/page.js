@@ -18,8 +18,21 @@ import { LiveShowsBanner } from '../../LiveShowsBanner';
 import { TicketProviders } from '../../TicketProviders';
 import { TicketNetworkCatalogue } from '../../TicketNetworkCatalogue';
 import { getTicketNetworkCatalogue } from '../../../../lib/ticketnetwork';
+import { pageMetadata } from '../../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  params = await params;
+  const entry = EVENT_CATEGORY_GROUPS.find((group) => group.slug === params.category) || getEventCategoryBySlug(params.category);
+  if (!entry) return {};
+  const { t, locale } = await getServerTranslation();
+  return pageMetadata({
+    title: `${savedSource(locale, entry.label)} · ${t.events.marketplaceTitle}`,
+    description: t.events.marketplaceSubtitle,
+    path: `/events/category/${entry.slug}`
+  });
+}
 
 export default async function EventsCategoryPage({ params }) {
   params = await params;

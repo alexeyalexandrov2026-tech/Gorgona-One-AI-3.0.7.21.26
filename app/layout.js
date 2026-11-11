@@ -15,6 +15,8 @@ import { ChatProvider } from './components/ai/ChatProvider';
 import { AiSphere } from './components/ai/AiSphere';         
 import { AiDock } from './components/ai/AiDock';             
 import { InstallPrompt } from './components/InstallPrompt';   
+import JsonLd from './components/JsonLd';
+import { SITE_URL, languageAlternates, organizationJsonLd, websiteJsonLd } from '../lib/seo.mjs';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const interTight = Inter_Tight({
@@ -40,30 +42,23 @@ const dmMono = DM_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '
 
 const fontVariables = [inter, interTight, spaceMono, firaMono, playfair, bodoni, jost, dmMono].map((f) => f.variable).join(' ');
 
-const baseUrl = 'https://gorgona-one.com';
-
-// Site content is served from a single URL per page (language is chosen via
-// cookie/localStorage, not a URL prefix), so every hreflang variant points
-// at the same canonical URL - a valid pattern for search engines when
-// language is determined client-side rather than through distinct routes.
-const HREFLANG_CODES = ['en-US', 'ru', 'es', 'he-IL', 'zh', 'pt', 'uk', 'ja', 'ko', 'de', 'ar', 'tr', 'fa', 'it', 'fr', 'pl'];
-
+// Pages that set their own metadata override all of this. For the rest,
+// './' resolves against the page being rendered, so each page names its own
+// address as canonical instead of the home page. Every language is served
+// from that one address (the language is a cookie, not a URL prefix).
 export const metadata = {
   title: 'MIAMI ELIO | Yachts, villas, cars, events and shopping in Miami',
   description: 'Yachts, villas, cars, events and shopping in Miami, with one AI concierge in your language.',
   keywords: ['Miami', 'yacht charters', 'car rentals', 'villas', 'events', 'AI concierge'],
-  metadataBase: new URL(baseUrl),
+  metadataBase: new URL(SITE_URL),
   alternates: {
-    canonical: baseUrl,
-    languages: {
-      ...Object.fromEntries(HREFLANG_CODES.map((code) => [code, baseUrl])),
-      'x-default': baseUrl
-    }
+    canonical: './',
+    languages: languageAlternates('./')
   },
   openGraph: {
     title: 'MIAMI ELIO',
     description: 'Yachts, villas, cars, tickets and an AI concierge in Miami.',
-    url: 'https://gorgona-one.com',
+    url: './',
     siteName: 'MIAMI ELIO',
     images: [{ url: '/og-image.svg', width: 1200, height: 630 }],
     type: 'website'
@@ -85,6 +80,7 @@ export default function RootLayout({ children }) {
     // Dark palette until every page is on the new design system.
     <html lang="en" data-theme="dark" className={`scroll-smooth ${fontVariables}`}>
       <body className="min-h-screen bg-g1-paper font-sans text-zinc-100 antialiased">
+        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <LocaleProvider>
           <AuthProvider>
             <ThemeProvider>

@@ -1,5 +1,12 @@
 
 import { LocalizedText } from "../components/LocalizedText";
+import { pageMetadata } from '../../lib/seo.mjs';
+
+export const metadata = pageMetadata({
+  title: 'Best shopping deals curated for premium savings',
+  description: 'Discover the latest verified offers across fashion, electronics, home, travel, and beauty.',
+  path: '/best-shopping-deals'
+});
 import Link from 'next/link';
 
 export default function BestShoppingDealsPage() {

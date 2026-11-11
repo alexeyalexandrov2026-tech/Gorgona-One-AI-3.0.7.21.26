@@ -1,5 +1,6 @@
 import { getServerTranslation } from '../../../lib/serverLocale';
 import VenueDirectory from '../../components/g1/VenueDirectory';
+import { pageMetadata } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,10 +8,11 @@ export const dynamic = 'force-dynamic';
 // instead of a coupon list. This static route shadows /stores/[category].
 export async function generateMetadata() {
   const { t } = await getServerTranslation();
-  return {
-    title: `${t.categories.restaurants} | MIAMI ELIO`,
-    description: t.categoryDescriptions.restaurants
-  };
+  return pageMetadata({
+    title: t.categories.restaurants,
+    description: t.categoryDescriptions.restaurants,
+    path: '/stores/restaurants'
+  });
 }
 
 export default async function RestaurantsSectionPage({ searchParams }) {

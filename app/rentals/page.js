@@ -6,8 +6,15 @@ import { getWorldsCopy, displayValue } from '../../lib/worldsCopy';
 import { fill } from '../../lib/homeCopy';
 import { carThumb } from '../../lib/homeData';
 import { WorldHero, ListingCard, Steps, chipClass } from '../components/g1/ui';
+import { pageMetadata } from '../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata() {
+  const { t, locale } = await getServerTranslation();
+  const copy = getWorldsCopy(locale);
+  return pageMetadata({ title: `${t.nav.cars} · ${copy.cars.title}`, description: copy.cars.lede, path: '/rentals', image: '/images/rentals/lamborghini-urus-se/cover.jpg' });
+}
 
 // Our own fleet: filter by body type with ?type=, so it works without JS.
 export default async function RentalsPage({ searchParams }) {

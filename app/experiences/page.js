@@ -3,8 +3,14 @@ import { LocalizedListing } from '../components/LocalizedText';
 import Link from 'next/link';
 import { getExperiences } from '../../lib/experiencesData';
 import { getServerTranslation } from '../../lib/serverLocale';
+import { pageMetadata } from '../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata() {
+  const { t } = await getServerTranslation();
+  return pageMetadata({ title: `${t.experiences.pill} · ${t.experiences.title}`, description: t.experiences.subtitle, path: '/experiences' });
+}
 
 export default async function ExperiencesPage() {
   const experiences = getExperiences();

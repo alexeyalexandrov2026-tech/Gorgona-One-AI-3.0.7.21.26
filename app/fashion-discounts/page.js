@@ -1,5 +1,12 @@
 
 import { LocalizedText } from "../components/LocalizedText";
+import { pageMetadata } from '../../lib/seo.mjs';
+
+export const metadata = pageMetadata({
+  title: 'Fashion discounts for premium brands and seasonal drops',
+  description: 'Browse fashion offers that combine style, quality, and limited-time promotions.',
+  path: '/fashion-discounts'
+});
 export default function FashionDiscountsPage() {
   return (
     <main className="flex-1 py-10">

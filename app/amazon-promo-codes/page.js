@@ -1,5 +1,12 @@
 
 import { LocalizedText } from "../components/LocalizedText";
+import { pageMetadata } from '../../lib/seo.mjs';
+
+export const metadata = pageMetadata({
+  title: 'Amazon promo codes and hidden savings',
+  description: 'Find curated Amazon deals, free shipping offers, and verified discount opportunities.',
+  path: '/amazon-promo-codes'
+});
 export default function AmazonPromoCodesPage() {
   return (
     <main className="flex-1 py-10">

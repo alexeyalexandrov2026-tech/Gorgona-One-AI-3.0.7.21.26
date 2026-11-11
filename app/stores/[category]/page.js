@@ -7,6 +7,7 @@ import { fill } from '../../../lib/homeCopy';
 import { getServerTranslation } from '../../../lib/serverLocale';
 import { Crumbs, btn, eyebrowClass, sectionY } from '../../components/g1/ui';
 import { CategoryChips, DealGrid, categoryLabel, camelize } from '../../components/g1/DealsParts';
+import { pageMetadata } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,10 +18,11 @@ export async function generateMetadata({ params }) {
     return { title: 'Category not found | MIAMI ELIO' };
   }
   const { t } = await getServerTranslation();
-  return {
-    title: `${categoryLabel(t, category)} ${t.category.dealsAndPromoCodes} | MIAMI ELIO`,
-    description: t.categoryDescriptions[camelize(category.slug)] || category.description
-  };
+  return pageMetadata({
+    title: `${categoryLabel(t, category)} ${t.category.dealsAndPromoCodes}`,
+    description: t.categoryDescriptions[camelize(category.slug)] || category.description,
+    path: `/stores/${category.slug}`
+  });
 }
 
 export default async function CategoryPage({ params }) {

@@ -4,7 +4,13 @@ import React from 'react';
 import Link from 'next/link';
 import GamblingNotice, { SportsbookAvailability } from '../components/GamblingNotice';
 import { SPORTSBOOK_DIRECTORY } from '../../lib/sportsbookDirectory';
-import { getServerLocale } from '../../lib/serverLocale';
+import { getServerLocale, getServerTranslation } from '../../lib/serverLocale';
+import { pageMetadata } from '../../lib/seo.mjs';
+
+export async function generateMetadata() {
+  const { t } = await getServerTranslation();
+  return pageMetadata({ title: t.sportsbookPage.title, description: t.sportsbookPage.subtitle, path: '/sportsbook' });
+}
 
 // Per-brand CSS corrections for source artwork that doesn't read well on the
 // dark gradient cards. Applied only to the named brands; every other logo

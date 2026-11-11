@@ -1,5 +1,12 @@
 
 import { LocalizedText } from "../components/LocalizedText";
+import { pageMetadata } from '../../lib/seo.mjs';
+
+export const metadata = pageMetadata({
+  title: 'DraftKings promos and sportsbook updates',
+  description: 'A dedicated page for DraftKings-related offers and operator information.',
+  path: '/draftkings-promos'
+});
 import GamblingNotice from '../components/GamblingNotice';
 import { getServerLocale } from '../../lib/serverLocale';
 

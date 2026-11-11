@@ -1,11 +1,14 @@
 
 import { LocalizedText, LocalizedElement } from "../../components/LocalizedText";
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getSportsbookBySlug } from '../../../lib/sportsbooksData';
 import { sportsbookDescriptions, getContentText } from '../../../lib/contentTranslations';
 import { getServerTranslation } from '../../../lib/serverLocale';
 import GamblingNotice, { SportsbookAvailability } from '../../components/GamblingNotice';
+import JsonLd from '../../components/JsonLd';
+import { pageMetadata, listingJsonLd, breadcrumbJsonLd } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -95,15 +98,32 @@ const PROFILE_FEATURES = [
   { title: 'Secure & Safe', sub: 'Your privacy matters', d: 'M4 11h16v10H4zM8 11V7a4 4 0 0 1 8 0v4' }
 ];
 
+// One database read per request, shared by the metadata and the page.
+const loadSportsbook = cache((slug) => getSportsbookBySlug(slug));
+
+export async function generateMetadata({ params }) {
+  params = await params;
+  const sportsbook = await loadSportsbook(params.slug);
+  if (!sportsbook) return {};
+  const { t, locale } = await getServerTranslation();
+  return pageMetadata({
+    title: `${sportsbook.name} · ${t.sportsbookPage.pill}`,
+    description: getContentText(sportsbookDescriptions, locale, sportsbook.slug, sportsbook.description),
+    path: `/sportsbook/${sportsbook.slug}`
+  });
+}
+
 export default async function SportsbookProfilePage({ params }) {
   params = await params;
-  const sportsbook = await getSportsbookBySlug(params.slug);
+  const sportsbook = await loadSportsbook(params.slug);
 
   if (!sportsbook) {
     notFound();
   }
 
   const { t, locale } = await getServerTranslation();
+  const path = `/sportsbook/${sportsbook.slug}`;
+  const structuredData = <JsonLd data={[listingJsonLd('sportsbook', sportsbook, path), breadcrumbJsonLd([[t.sportsbookPage.pill, '/sportsbook'], [sportsbook.name, path]])]} />;
 
   // Approved prototype rollout, extended to every sportsbook with a
   // hero style defined above. Falls through to the original layout below
@@ -114,6 +134,7 @@ export default async function SportsbookProfilePage({ params }) {
   if (heroStyle) {
     return (
       <main className="flex-1 py-10">
+        {structuredData}
         <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-premium">
           <div
             className="sportsbook-banner relative flex flex-col items-center gap-10 px-8 py-12 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left lg:px-14 lg:py-16"
@@ -181,6 +202,7 @@ export default async function SportsbookProfilePage({ params }) {
 
   return (
     <main className="flex-1 py-10">
+      {structuredData}
       <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">

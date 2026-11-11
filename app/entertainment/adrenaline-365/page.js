@@ -2,6 +2,7 @@
 import { LocalizedText, LocalizedElement } from "../../components/LocalizedText";
 import Link from 'next/link';
 import { getServerTranslation } from '../../../lib/serverLocale';
+import { pageMetadata } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,10 +48,11 @@ const ADRENALINE_DEALS = [
   }
 ];
 
-export const metadata = {
-  title: 'Adrenaline 365 Deals | MIAMI ELIO',
-  description: 'Adrenaline 365 adventure deals - skydiving, indoor skydiving, helicopter tours, and hot air balloon rides.'
-};
+export const metadata = pageMetadata({
+  title: 'Adrenaline 365 Deals',
+  description: 'Adrenaline 365 adventure deals - skydiving, indoor skydiving, helicopter tours, and hot air balloon rides.',
+  path: '/entertainment/adrenaline-365'
+});
 
 export default async function Adrenaline365ProfilePage() {
   const { t } = await getServerTranslation();

@@ -1,7 +1,13 @@
 import { getServerTranslation } from '../../lib/serverLocale';
 import VenueDirectory from '../components/g1/VenueDirectory';
+import { pageMetadata } from '../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata() {
+  const { t } = await getServerTranslation();
+  return pageMetadata({ title: t.restaurantsNightlife.title, description: t.restaurantsNightlife.subtitle, path: '/restaurants-nightlife' });
+}
 
 export default async function RestaurantsNightlifePage({ searchParams }) {
   searchParams = await searchParams;

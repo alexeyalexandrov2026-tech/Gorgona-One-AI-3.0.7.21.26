@@ -5,8 +5,21 @@ import { Logo } from '../../../components/Logo';
 import { EventGrid } from '../../EventGrid';
 import { EventPagination } from '../../EventPagination';
 import { getServerTranslations } from '../../../../lib/serverLocale';
+import { pageMetadata } from '../../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  params = await params;
+  const league = getLeagueBySlug(params.league);
+  if (!league) return {};
+  const { t } = await getServerTranslations();
+  return pageMetadata({
+    title: `${league.name} · ${t.events.marketplaceTitle}`,
+    description: t.events.marketplaceSubtitle,
+    path: `/events/league/${league.slug}`
+  });
+}
 
 export default async function LeaguePage({ params, searchParams }) {
   params = await params;

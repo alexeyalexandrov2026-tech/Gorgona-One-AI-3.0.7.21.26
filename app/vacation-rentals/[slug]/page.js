@@ -1,7 +1,8 @@
+import { cache } from 'react';
 import { savedListing } from '../../../lib/savedCopy';
 import { LocalizedListing } from '../../components/LocalizedText';
 import { notFound } from 'next/navigation';
-import { getVacationRentals, getVacationRentalBySlug } from '../../../lib/data/listings';
+import { getVacationRentals } from '../../../lib/data/listings';
 import { getServerTranslation } from '../../../lib/serverLocale';
 import { getWorldsCopy, displayValue, largeImage } from '../../../lib/worldsCopy';
 import BookingForm from '../../components/BookingForm';
@@ -9,20 +10,41 @@ import Gallery from '../../components/g1/Gallery';
 import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import BookedStatus from '../../components/g1/BookedStatus';
 import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
+import JsonLd from '../../components/JsonLd';
+import { pageMetadata, listingJsonLd, breadcrumbJsonLd } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
+// One inventory read per request, shared by the metadata and the page.
+const loadStays = cache(() => getVacationRentals({editorial:true}));
+
+export async function generateMetadata({ params }) {
+  params = await params;
+  const stay = (await loadStays()).find((s) => s.slug === params.slug);
+  if (!stay) return {};
+  const { t, locale } = await getServerTranslation();
+  return pageMetadata({
+    title: `${savedListing(locale, stay, 'title')} · ${t.nav.villas} · ${stay.location}`,
+    description: savedListing(locale, stay),
+    path: `/vacation-rentals/${stay.slug}`,
+    image: stay.image
+  });
+}
+
 export default async function VacationRentalDetailPage({ params }) {
   params = await params;
-  const stay = await getVacationRentalBySlug(params.slug,{editorial:true});
+  const stays = await loadStays();
+  const stay = stays.find((s) => s.slug === params.slug);
   if (!stay) notFound();
 
   const { t, locale } = await getServerTranslation();
   const copy = getWorldsCopy(locale);
-  const more = (await getVacationRentals({editorial:true})).filter((s) => s.slug !== stay.slug).slice(0, 3);
+  const more = stays.filter((s) => s.slug !== stay.slug).slice(0, 3);
+  const path = `/vacation-rentals/${stay.slug}`;
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
+      <JsonLd data={[listingJsonLd('stay', stay, path), breadcrumbJsonLd([[t.nav.villas, '/vacation-rentals'], [savedListing(locale, stay, 'title'), path]])]} />
       <Crumbs items={[[t.nav.villas, '/vacation-rentals'], [savedListing(locale, stay, 'title')]]} />
 
       <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">

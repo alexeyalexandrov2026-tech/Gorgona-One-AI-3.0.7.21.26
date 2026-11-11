@@ -9,8 +9,23 @@ import DealTicket from '../../components/g1/DealTicket';
 import GamblingNotice from '../../components/GamblingNotice';
 import { Crumbs, Specs, eyebrowClass } from '../../components/g1/ui';
 import { camelize } from '../../components/g1/DealsParts';
+import JsonLd from '../../components/JsonLd';
+import { pageMetadata, listingJsonLd, breadcrumbJsonLd } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  params = await params;
+  const deal = getDealBySlug(params.slug);
+  if (!deal) return {};
+  const { t, locale } = await getServerTranslation();
+  const offer = savedSource(locale, deal.discount);
+  return pageMetadata({
+    title: `${deal.name} · ${offer}`,
+    description: [fill(getDealsCopy(locale).dealLede, { offer, name: deal.name }), t.categoryDescriptions[camelize(deal.category)]].filter(Boolean).join(' '),
+    path: `/deals/${deal.slug}`
+  });
+}
 
 export default async function DealDetailPage({ params }) {
   params = await params;
@@ -23,9 +38,11 @@ export default async function DealDetailPage({ params }) {
   const ends = deal.expirationDate
     ? new Intl.DateTimeFormat(intlLocale(locale), { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(`${deal.expirationDate}T12:00:00`))
     : '';
+  const path = `/deals/${deal.slug}`;
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
+      <JsonLd data={[listingJsonLd('deal', deal, path), breadcrumbJsonLd([[t.nav.stores, '/stores'], [category, `/stores/${deal.category}`], [deal.name, path]])]} />
       <Crumbs items={[[t.nav.stores, '/stores'], [category, `/stores/${deal.category}`], [deal.name]]} />
 
       <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-8 lg:grid-cols-2">
