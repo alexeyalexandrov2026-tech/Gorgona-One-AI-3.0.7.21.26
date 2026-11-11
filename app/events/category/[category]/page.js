@@ -56,10 +56,7 @@ export default async function EventsCategoryPage({ params }) {
         <div className="lux-hero__bg">
           <Parallax distance={50} className="h-full">
             <img
-              src={currentGroupSlug === 'concerts'
-                ? '/images/events/concerts-hero.svg'
-                : 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=2400&q=80'
-              }
+              src={currentGroupSlug === 'concerts' ? '/images/events/concerts-pass.jpg' : '/images/events/sports-pass.jpg'}
               alt=""
               className="lux-kenburns h-[115%] w-full object-cover"
             />

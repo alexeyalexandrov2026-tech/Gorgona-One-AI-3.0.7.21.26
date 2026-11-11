@@ -1,9 +1,10 @@
 
 import { LocalizedText, LocalizedElement } from "../components/LocalizedText";
-import Link from 'next/link';
 import { getServerTranslation } from '../../lib/serverLocale';
 import { Reveal, Stagger, StaggerItem, Parallax } from '../components/Motion';
 import { TicketNetworkCatalogue } from './TicketNetworkCatalogue';
+import { EventPass } from './EventPass';
+import { getEventCategoriesByGroup } from '../../lib/mockEventsData';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,31 +13,27 @@ export const metadata = {
   description: 'Sports tickets and concert tickets from trusted providers, all in one place.'
 };
 
-const ArrowIcon = ({ className }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <path d="M5 12h14M13 6l6 6-6 6" />
-  </svg>
-);
-
 export default async function EventsMarketplacePage() {
   const { t } = await getServerTranslation();
 
+  // Both photos ship with the build, so neither ticket depends on an outside
+  // address. `group` is the Events pillar whose subcategories fill the stub.
   const eventCategories = [
     {
       title: 'Sport Tickets',
       copy: 'Access the most exclusive seating for premium sporting events worldwide.',
       href: '/events/category/sports',
-      image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=1400&q=80',
-      tag: 'Sports'
+      image: '/images/events/sports-pass.jpg',
+      tag: 'Sports',
+      group: 'sports'
     },
     {
       title: 'Concert and Events Tickets',
       copy: 'Premium VIP access to sold-out concerts, festivals, and cultural events.',
       href: '/events/category/concerts',
-      // Ships with the build. The Unsplash photo this used to point at stopped
-      // resolving, which left the Concerts tile blank while Sports kept its art.
-      image: '/images/events/concerts-hero.svg',
-      tag: 'Concerts'
+      image: '/images/events/concerts-pass.jpg',
+      tag: 'Concerts',
+      group: 'concerts'
     }
   ];
 
@@ -84,24 +81,15 @@ export default async function EventsMarketplacePage() {
           <p className="font-mono text-2xl font-medium uppercase leading-none tracking-[0.3em] text-white/25 sm:text-4xl"><LocalizedText source="Categories" /></p>
           <h2 className="lux-display mt-6 max-w-2xl text-4xl sm:text-5xl"><LocalizedText source="Select your next experience." /></h2>
         </Reveal>
-        <Stagger className="mt-12 grid gap-4 md:grid-cols-2" gap={0.08}>
-          {eventCategories.map((item) => (
-            <StaggerItem key={item.title}>
-              <Link href={item.href} className="lux-tile group flex h-[360px] flex-col justify-end p-7">
-                <div className="lux-tile__media">
-                  <LocalizedElement as="img" src={item.image} alt={item.title} className="h-full w-full object-cover" />
-                </div>
-                <div className="lux-tile__scrim" />
-                <div className="lux-tile__glow" />
-                <div className="relative">
-                  <p className="lux-caption-upper"><LocalizedText source={item.tag} /></p>
-                  <div className="mt-2 flex items-center justify-between gap-3">
-                    <h3 className="font-serif text-3xl italic text-white"><LocalizedText source={item.title} /></h3>
-                    <ArrowIcon className="h-5 w-5 shrink-0 text-white/70 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
-                  </div>
-                  <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-300/90"><LocalizedText source={item.copy} /></p>
-                </div>
-              </Link>
+        <Stagger className="mt-12 grid gap-5 md:grid-cols-2" gap={0.08}>
+          {eventCategories.map((item, index) => (
+            <StaggerItem key={item.title} className="min-w-0">
+              <EventPass
+                item={item}
+                index={index}
+                total={eventCategories.length}
+                categories={getEventCategoriesByGroup(item.group)}
+              />
             </StaggerItem>
           ))}
         </Stagger>
