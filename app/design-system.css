@@ -254,6 +254,56 @@
 .g1-display em { font-style: italic; color: var(--g1-accent); }
 :root[lang="he"] .g1-display em { font-style: normal; }
 
+/* Home page, new look: headings in the text family (Jost) instead of the
+   didone serif - one geometric family for the whole page, large and tightly
+   set. Everything that asks for the display font inside .g1-modern gets it;
+   the wordmark in the header is outside and keeps its Bodoni. */
+.g1-modern { --font-g1-display: var(--font-g1-sans); }
+.g1-modern .g1-display em,
+.g1-modern .g1-dir-row:hover .g1-dir-name { font-style: normal; }
+.g1-modern .g1-dir-name { letter-spacing: -0.03em; }
+
+/* Section rail: every main section as a small poster, in one row that
+   scrolls sideways. */
+.g1-rail {
+  display: flex; gap: 10px; overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity; scroll-padding-inline: 16px; scrollbar-width: none;
+}
+.g1-rail::-webkit-scrollbar { display: none; }
+.g1-rail > li { flex: none; scroll-snap-align: start; }
+.g1-rail-card {
+  position: relative; display: block; width: 96px; height: 124px; overflow: hidden;
+  border-radius: 18px; background: var(--g1-card); color: #fff; text-decoration: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: transform 0.25s var(--g1-ease);
+}
+.g1-rail-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s var(--g1-ease); }
+/* Darkens the foot of the picture so the name stays legible on any photo. */
+.g1-rail-card::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 38%, rgba(0, 0, 0, 0.78) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+.g1-rail-card span {
+  position: absolute; inset-inline: 9px; bottom: 9px; z-index: 1;
+  font: 500 0.74rem/1.15 var(--font-g1-sans), system-ui, sans-serif; letter-spacing: 0.01em;
+  overflow-wrap: anywhere; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+.g1-rail-card:hover img, .g1-rail-card:focus-visible img { transform: scale(1.06); }
+.g1-rail-card:active { transform: scale(0.97); }
+.g1-rail-card:focus-visible { outline: 2px solid var(--g1-accent); outline-offset: 3px; }
+@media (min-width: 640px) {
+  .g1-rail { gap: 12px; }
+  .g1-rail-card { width: 112px; height: 144px; border-radius: 20px; }
+  .g1-rail-card span { font-size: 0.82rem; inset-inline: 11px; bottom: 11px; }
+}
+@media (min-width: 1024px) {
+  .g1-rail { overflow: visible; }
+  .g1-rail > li { flex: 1 1 0; min-width: 0; }
+  .g1-rail-card { width: 100%; height: auto; aspect-ratio: 96 / 124; }
+  .g1-rail-card span { font-size: 0.9rem; inset-inline: 13px; bottom: 13px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .g1-motion { transition: none !important; animation: none !important; }
   .g1-hero-voucher, .g1-hero-tag { animation: none !important; }

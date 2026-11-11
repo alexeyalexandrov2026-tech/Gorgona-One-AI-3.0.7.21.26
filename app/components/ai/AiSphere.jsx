@@ -15,6 +15,8 @@ function AiSphereBase({ size = 60, label = 'Open the Discovery Room concierge', 
   return (
     <button
       type="button"
+      // The iOS app has its own Concierge tab; see data-app-hidden in globals.css.
+      data-app-hidden=""
       onClick={toggle}
       aria-label={label}
       aria-expanded={isOpen}

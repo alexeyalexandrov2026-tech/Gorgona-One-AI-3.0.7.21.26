@@ -1,0 +1,153 @@
+{
+  "_readme": [
+    "Source of every string the native iOS screens show.",
+    "Run `node ios/scripts/build-strings.mjs` after editing; it writes ios/MiamiElio/Resources/<language>.lproj/.",
+    "An entry takes its 16 translations from the website wherever the website already has the phrase:",
+    "  site.lib      - a path in lib/i18n.js           (e.g. nav.yachts)",
+    "  site.catalog  - a key in i18n/locales/<lang>.js (e.g. ui.d8b8392e2c542950)",
+    "  site.starter  - an index into STARTER_PROMPTS in lib/ai/conciergePrompts.js",
+    "Only phrases the website does not have carry their own `translations` here."
+  ],
+  "localizable": {
+    "tab.home": { "en": "Home", "site": { "lib": "nav.home" } },
+    "tab.concierge": { "en": "Concierge", "site": { "catalog": "home.conciergeEyebrow" } },
+    "tab.search": { "en": "Search", "site": { "lib": "buttons.search" } },
+    "tab.account": { "en": "Profile", "site": { "catalog": "ui.d696a35bdd1883da" } },
+
+    "concierge.title": { "en": "Your private concierge", "site": { "lib": "ai.conciergeTitle" } },
+    "concierge.placeholder": { "en": "Ask Miami Elio AI", "site": { "lib": "ai.askPlaceholder" } },
+    "concierge.send": { "en": "Ask", "site": { "lib": "ai.ask" } },
+    "concierge.new": { "en": "New conversation", "site": { "lib": "ai.newConversation" } },
+    "concierge.open": { "en": "Open", "site": { "lib": "ai.open" } },
+    "concierge.starter.1": { "en": "Plan a weekend in Miami", "site": { "starter": 0 } },
+    "concierge.starter.2": { "en": "Find a yacht for 8 guests", "site": { "starter": 1 } },
+    "concierge.starter.3": { "en": "Book a table for a birthday dinner", "site": { "starter": 2 } },
+
+    "search.empty": { "en": "No results found for your search.", "site": { "lib": "search.noResults" } },
+    "search.popular": { "en": "Popular Searches", "site": { "lib": "buttons.popularSearches" } },
+
+    "world.yachts": { "en": "Yachts", "site": { "lib": "nav.yachts" } },
+    "world.cars": { "en": "Cars", "site": { "lib": "nav.cars" } },
+    "world.villas": { "en": "Villas", "site": { "lib": "nav.villas" } },
+    "world.events": { "en": "Events", "site": { "lib": "nav.events" } },
+    "world.travel": { "en": "Travel", "site": { "lib": "nav.travel" } },
+    "world.shopping": { "en": "Stores", "site": { "lib": "nav.stores" } },
+    "world.dining": { "en": "Restaurants & nightlife", "site": { "lib": "search.popular.restaurantsNightlife" } },
+    "world.experiences": { "en": "Miami experiences", "site": { "lib": "search.popular.miamiExperiences" } },
+
+    "error.generic": { "en": "Something went wrong", "site": { "catalog": "ui.ab827e3fe17da220" } },
+    "action.retry": { "en": "Try again", "site": { "catalog": "ui.d8b8392e2c542950" } },
+    "action.cancel": { "en": "Cancel", "site": { "catalog": "ui.19766ed6ccb2f4a3" } },
+    "state.loading": { "en": "Loading...", "site": { "catalog": "ui.47d2a515ef2f05b8" } },
+
+    "action.ok": {
+      "en": "OK",
+      "translations": {
+        "ru": "ОК", "es": "Aceptar", "he": "אישור", "zh": "好", "pt": "OK", "uk": "ОК", "ja": "OK",
+        "ko": "확인", "de": "OK", "ar": "موافق", "tr": "Tamam", "fa": "تأیید", "it": "OK", "fr": "OK", "pl": "OK"
+      }
+    },
+    "offline.title": {
+      "en": "No internet connection",
+      "translations": {
+        "ru": "Нет подключения к интернету",
+        "es": "Sin conexión a internet",
+        "he": "אין חיבור לאינטרנט",
+        "zh": "没有网络连接",
+        "pt": "Sem ligação à internet",
+        "uk": "Немає підключення до інтернету",
+        "ja": "インターネットに接続されていません",
+        "ko": "인터넷에 연결되어 있지 않습니다",
+        "de": "Keine Internetverbindung",
+        "ar": "لا يوجد اتصال بالإنترنت",
+        "tr": "İnternet bağlantısı yok",
+        "fa": "اتصال اینترنت برقرار نیست",
+        "it": "Nessuna connessione a internet",
+        "fr": "Pas de connexion internet",
+        "pl": "Brak połączenia z internetem"
+      }
+    },
+    "offline.message": {
+      "en": "Check your connection and try again.",
+      "translations": {
+        "ru": "Проверьте подключение и попробуйте снова.",
+        "es": "Comprueba tu conexión e inténtalo de nuevo.",
+        "he": "בדקו את החיבור ונסו שוב.",
+        "zh": "请检查网络连接后重试。",
+        "pt": "Verifique a ligação e tente novamente.",
+        "uk": "Перевірте підключення та спробуйте ще раз.",
+        "ja": "接続を確認して、もう一度お試しください。",
+        "ko": "연결 상태를 확인한 후 다시 시도해 주세요.",
+        "de": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+        "ar": "تحقق من اتصالك ثم حاول مرة أخرى.",
+        "tr": "Bağlantınızı kontrol edip tekrar deneyin.",
+        "fa": "اتصال خود را بررسی کنید و دوباره تلاش کنید.",
+        "it": "Controlla la connessione e riprova.",
+        "fr": "Vérifiez votre connexion et réessayez.",
+        "pl": "Sprawdź połączenie i spróbuj ponownie."
+      }
+    }
+  },
+  "infoPlist": {
+    "NSCameraUsageDescription": {
+      "en": "Miami Elio uses the camera when you choose to take a photo for a listing or your profile.",
+      "translations": {
+        "ru": "Miami Elio использует камеру, когда вы решаете сделать фото для объявления или профиля.",
+        "es": "Miami Elio usa la cámara cuando decides tomar una foto para un anuncio o tu perfil.",
+        "he": "Miami Elio משתמשת במצלמה כשאתם בוחרים לצלם תמונה למודעה או לפרופיל.",
+        "zh": "当您选择为房源或个人资料拍照时，Miami Elio 会使用相机。",
+        "pt": "A Miami Elio usa a câmara quando decide tirar uma foto para um anúncio ou para o seu perfil.",
+        "uk": "Miami Elio використовує камеру, коли ви вирішуєте зробити фото для оголошення або профілю.",
+        "ja": "掲載情報やプロフィール用の写真を撮影するときに、Miami Elio はカメラを使用します。",
+        "ko": "등록 정보나 프로필에 사용할 사진을 촬영할 때 Miami Elio가 카메라를 사용합니다.",
+        "de": "Miami Elio verwendet die Kamera, wenn Sie ein Foto für ein Angebot oder Ihr Profil aufnehmen möchten.",
+        "ar": "يستخدم Miami Elio الكاميرا عندما تختار التقاط صورة لإعلان أو لملفك الشخصي.",
+        "tr": "Miami Elio, bir ilan veya profiliniz için fotoğraf çekmeyi seçtiğinizde kamerayı kullanır.",
+        "fa": "Miami Elio هنگامی از دوربین استفاده می‌کند که بخواهید برای یک آگهی یا نمایهٔ خود عکس بگیرید.",
+        "it": "Miami Elio usa la fotocamera quando scegli di scattare una foto per un annuncio o per il tuo profilo.",
+        "fr": "Miami Elio utilise l’appareil photo lorsque vous choisissez de prendre une photo pour une annonce ou votre profil.",
+        "pl": "Miami Elio używa aparatu, gdy chcesz zrobić zdjęcie do oferty lub swojego profilu."
+      }
+    },
+    "NSMicrophoneUsageDescription": {
+      "en": "Miami Elio uses the microphone when you speak a request to the concierge or record a video.",
+      "translations": {
+        "ru": "Miami Elio использует микрофон, когда вы диктуете запрос консьержу или записываете видео.",
+        "es": "Miami Elio usa el micrófono cuando dictas una solicitud al conserje o grabas un vídeo.",
+        "he": "Miami Elio משתמשת במיקרופון כשאתם מכתיבים בקשה לקונסיירז' או מקליטים וידאו.",
+        "zh": "当您向礼宾口述需求或录制视频时，Miami Elio 会使用麦克风。",
+        "pt": "A Miami Elio usa o microfone quando dita um pedido ao concierge ou grava um vídeo.",
+        "uk": "Miami Elio використовує мікрофон, коли ви диктуєте запит консьєржу або записуєте відео.",
+        "ja": "コンシェルジュへの依頼を音声で伝えるときや動画を撮影するときに、Miami Elio はマイクを使用します。",
+        "ko": "컨시어지에게 음성으로 요청하거나 동영상을 촬영할 때 Miami Elio가 마이크를 사용합니다.",
+        "de": "Miami Elio verwendet das Mikrofon, wenn Sie dem Concierge eine Anfrage diktieren oder ein Video aufnehmen.",
+        "ar": "يستخدم Miami Elio الميكروفون عندما تُملي طلبًا على الكونسيرج أو تسجّل فيديو.",
+        "tr": "Miami Elio, konsiyerje sesli bir istek ilettiğinizde veya video kaydettiğinizde mikrofonu kullanır.",
+        "fa": "Miami Elio هنگامی از میکروفون استفاده می‌کند که درخواستی را برای کانسیرژ بیان کنید یا ویدیو ضبط کنید.",
+        "it": "Miami Elio usa il microfono quando detti una richiesta al concierge o registri un video.",
+        "fr": "Miami Elio utilise le micro lorsque vous dictez une demande au concierge ou enregistrez une vidéo.",
+        "pl": "Miami Elio używa mikrofonu, gdy dyktujesz prośbę do konsjerża lub nagrywasz wideo."
+      }
+    },
+    "NSSpeechRecognitionUsageDescription": {
+      "en": "Miami Elio turns your spoken request into text for the concierge.",
+      "translations": {
+        "ru": "Miami Elio преобразует ваш голосовой запрос в текст для консьержа.",
+        "es": "Miami Elio convierte tu solicitud hablada en texto para el conserje.",
+        "he": "Miami Elio ממירה את הבקשה הקולית שלכם לטקסט עבור הקונסיירז'.",
+        "zh": "Miami Elio 会将您的语音需求转换为文字发送给礼宾。",
+        "pt": "A Miami Elio converte o seu pedido falado em texto para o concierge.",
+        "uk": "Miami Elio перетворює ваш голосовий запит на текст для консьєржа.",
+        "ja": "Miami Elio は音声による依頼をテキストに変換してコンシェルジュに伝えます。",
+        "ko": "Miami Elio가 음성 요청을 텍스트로 변환해 컨시어지에게 전달합니다.",
+        "de": "Miami Elio wandelt Ihre gesprochene Anfrage in Text für den Concierge um.",
+        "ar": "يحوّل Miami Elio طلبك المنطوق إلى نص للكونسيرج.",
+        "tr": "Miami Elio, sesli isteğinizi konsiyerj için metne dönüştürür.",
+        "fa": "Miami Elio درخواست گفتاری شما را برای کانسیرژ به متن تبدیل می‌کند.",
+        "it": "Miami Elio trasforma la tua richiesta vocale in testo per il concierge.",
+        "fr": "Miami Elio transforme votre demande vocale en texte pour le concierge.",
+        "pl": "Miami Elio zamienia Twoją wypowiedzianą prośbę na tekst dla konsjerża."
+      }
+    }
+  }
+}
