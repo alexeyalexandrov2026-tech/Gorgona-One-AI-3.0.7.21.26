@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { SYSTEM_PROMPT } from '../../../lib/aiEcosystemContext';
+import { isAppRequest, appSystemPrompt } from '../../../lib/ai/appPersona.mjs';
+import { isAppRestricted } from '../../../lib/appRestrictedPaths';
 import { askLocalBrain } from '../../../lib/ai/localBrain';
 import { languageDirective, normalizeLocale, unavailableReply } from '../../../lib/ai/locale';
 import {readChatRequest,ChatInputError} from '../../../lib/ai/chatRequest.mjs';
@@ -46,14 +48,21 @@ function logRouterIssue(...args) {
   console.error('AI router:', ...args);
 }
 
-function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false } = {}) {
+function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, inApp = false } = {}) {
+  const navigation = conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale});
+  // The iOS app is not offered sections it does not carry.
+  if (inApp) {
+    for (const key of ['suggestions', 'cards']) {
+      if (Array.isArray(navigation[key])) navigation[key] = navigation[key].filter((item) => !isAppRestricted(item?.href));
+    }
+  }
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
     // somewhere to go even when no model answered. The guest's own words
     // lead; the reply only reinforces - and on the degraded path it is a
     // canned line, so it is excluded entirely.
-    ...conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale}),
+    ...navigation,
     configured: !error,
     ...(source ? { source } : {}),
     // Handle for the local brain's server-side conversation memory. The
@@ -67,11 +76,11 @@ function reply(text, { messages = [], latestUserMessage = '', source = null, ses
 // --- Link 2: the hosted ai-router -----------------------------------------
 
 // Returns the reply text, or null when the router cannot answer. Never throws.
-async function askRouter(messages, locale) {
+async function askRouter(messages, locale, systemPrompt = SYSTEM_PROMPT) {
   const openaiMessages = [
     // The router path owns its system prompt, so the language instruction
     // goes where it belongs: appended to the persona.
-    { role: 'system', content: `${SYSTEM_PROMPT}${languageDirective(locale)}` },
+    { role: 'system', content: `${systemPrompt}${languageDirective(locale)}` },
     ...messages
       .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
       .map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) }))
@@ -143,23 +152,26 @@ export async function POST(request) {
   // The language showing in the global switcher. Every engine below is told
   // to answer in it, and the degraded path speaks it too.
   const locale = normalizeLocale(body?.locale);
+  // The iOS app gets a persona without the sportsbook section.
+  const inApp = isAppRequest(request);
+  const systemPrompt = inApp ? appSystemPrompt(SYSTEM_PROMPT) : SYSTEM_PROMPT;
 
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
-  const local = await askLocalBrain({ messages, systemPrompt: SYSTEM_PROMPT, sessionId, locale });
+  const local = await askLocalBrain({ messages, systemPrompt, sessionId, locale });
   if (local.ok) {
-    return reply(local.reply, { messages, latestUserMessage, source: 'local', sessionId: local.sessionId, locale });
+    return reply(local.reply, { messages, latestUserMessage, source: 'local', sessionId: local.sessionId, locale, inApp });
   }
 
   // Link 2 - the hosted router.
-  const routed = await askRouter(messages, locale);
+  const routed = await askRouter(messages, locale, systemPrompt);
   if (routed) {
-    return reply(routed, { messages, latestUserMessage, source: 'router', locale });
+    return reply(routed, { messages, latestUserMessage, source: 'router', locale, inApp });
   }
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the
   // widget renders this like any other answer instead of hitting an error path.
-  return reply(unavailableReply(locale), { messages, latestUserMessage, locale, source:'navigation', error: true });
+  return reply(unavailableReply(locale), { messages, latestUserMessage, locale, source:'navigation', error: true, inApp });
 }
 
 // Non-LLM diagnostics: confirms which engines are wired up without spending a

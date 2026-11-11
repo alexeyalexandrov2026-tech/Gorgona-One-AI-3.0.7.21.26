@@ -8,6 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { SUPPORTED_LANGUAGES, RTL_LANGUAGES } from '../../lib/languages.js';
 import { APP_RESTRICTED_PATHS, isAppRestricted } from '../../lib/appRestrictedPaths.js';
 import { STARTER_PROMPTS } from '../../lib/ai/conciergePrompts.js';
+import { isAppRequest, appSystemPrompt } from '../../lib/ai/appPersona.mjs';
 
 const read = (file) => fs.readFileSync(new URL(`../../${file}`, import.meta.url), 'utf8');
 const swiftStrings = (source, declaration) => {
@@ -119,6 +120,31 @@ test('the web concierge offers no sportsbook inside the app', () => {
   for (const prompts of Object.values(STARTER_PROMPTS)) {
     assert.ok(prompts.slice(0, 3).every((prompt) => !/sportsbook|betting|apuesta|ставк/i.test(prompt)));
   }
+});
+
+test('the concierge answers the app without the sportsbook section', () => {
+  const [, systemPrompt] = read('lib/aiEcosystemContext.js').match(/export const SYSTEM_PROMPT = `([\s\S]*?)`;/);
+  const appPrompt = appSystemPrompt(systemPrompt);
+  assert.match(systemPrompt, /\/sportsbook/);
+  assert.doesNotMatch(appPrompt, /\/sportsbook/);
+  assert.match(appPrompt, /\/yachts/);
+  assert.match(appPrompt, /never mention, recommend or link to sportsbooks/);
+
+  const from = (agent) => ({ headers: new Headers(agent ? { 'user-agent': agent } : {}) });
+  // The app's own screens send the bare token; its web view appends it.
+  assert.ok(isAppRequest(from('MiamiElioApp/1.0')));
+  assert.ok(isAppRequest(from('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MiamiElioApp/1.0')));
+  assert.ok(!isAppRequest(from('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1')));
+  assert.ok(!isAppRequest(from(null)));
+  // The token the app sends is the one the site looks for.
+  assert.match(read('ios/MiamiElioKit/Sources/MiamiElioKit/AppConfig.swift'), /userAgentToken: String = "MiamiElioApp\/1\.0"/);
+
+  const route = read('app/api/chat/route.js');
+  assert.match(route, /const inApp = isAppRequest\(request\);/);
+  assert.match(route, /const systemPrompt = inApp \? appSystemPrompt\(SYSTEM_PROMPT\) : SYSTEM_PROMPT;/);
+  assert.match(route, /askLocalBrain\(\{ messages, systemPrompt, sessionId, locale \}\)/);
+  assert.match(route, /askRouter\(messages, locale, systemPrompt\)/);
+  assert.match(route, /filter\(\(item\) => !isAppRestricted\(item\?\.href\)\)/);
 });
 
 test('the app knows the same languages as the site', () => {
