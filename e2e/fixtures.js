@@ -4,10 +4,10 @@ import { test as base, expect } from '@playwright/test';
 // fonts and the database are blocked, so a run never depends on another
 // company's server and never sends anything out.
 export const test = base.extend({
-  page: async ({ page, baseURL }, use) => {
+  page: async ({ page, baseURL }, runTest) => {
     const own = new URL(baseURL).host;
     await page.route((url) => url.host !== own, (route) => route.abort());
-    await use(page);
+    await runTest(page);
   }
 });
 
