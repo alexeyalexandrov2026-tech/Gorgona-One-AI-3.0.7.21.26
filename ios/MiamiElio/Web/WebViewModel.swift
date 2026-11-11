@@ -259,9 +259,16 @@ final class WebViewModel: NSObject {
         (function () {
           var hosts = [\(hostList)];
           if (hosts.indexOf(location.hostname) === -1) { return; }
-          var root = document.documentElement;
-          if (!root) { return; }
-          root.setAttribute('data-app', 'ios');
+
+          // WebKit runs this once the root element exists; other engines may
+          // run it a moment earlier, so wait for the element if it is not there.
+          function whenRoot(run) {
+            if (document.documentElement) { run(document.documentElement); return; }
+            var waiting = new MutationObserver(function () {
+              if (document.documentElement) { waiting.disconnect(); run(document.documentElement); }
+            });
+            waiting.observe(document, { childList: true });
+          }
 
           function post(message) {
             try { window.webkit.messageHandlers.\(messageChannel).postMessage(message); } catch (e) {}
@@ -276,11 +283,14 @@ final class WebViewModel: NSObject {
             }
           } catch (e) {}
 
-          function report() { post({ locale: root.lang || '' }); }
-          try {
-            new MutationObserver(report).observe(root, { attributes: true, attributeFilter: ['lang'] });
-          } catch (e) {}
-          document.addEventListener('DOMContentLoaded', report);
+          whenRoot(function (root) {
+            root.setAttribute('data-app', 'ios');
+            function report() { post({ locale: root.lang || '' }); }
+            try {
+              new MutationObserver(report).observe(root, { attributes: true, attributeFilter: ['lang'] });
+            } catch (e) {}
+            document.addEventListener('DOMContentLoaded', report);
+          });
 
           var restricted = [\(restrictedList)];
           function isRestricted(pathname) {
