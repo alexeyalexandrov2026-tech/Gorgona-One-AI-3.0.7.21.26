@@ -19,6 +19,7 @@ final class AppServices {
         self.router = router
         self.concierge = ConciergeStore(
             client: ConciergeClient(config: config, policy: policy),
+            planClient: PlanClient(config: config),
             // Answer in whatever language the guest last chose on the site.
             locale: { explore.currentSiteLocale() }
         )

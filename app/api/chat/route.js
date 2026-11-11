@@ -6,6 +6,7 @@ import { askLocalBrain } from '../../../lib/ai/localBrain';
 import { languageDirective, normalizeLocale, unavailableReply } from '../../../lib/ai/locale';
 import {readChatRequest,ChatInputError} from '../../../lib/ai/chatRequest.mjs';
 import {conversationNavigation} from '../../../lib/ai/conversation.mjs';
+import {conversationPlan} from '../../../lib/server/planCatalog.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
@@ -48,7 +49,7 @@ function logRouterIssue(...args) {
   console.error('AI router:', ...args);
 }
 
-function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, inApp = false } = {}) {
+function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, inApp = false, plan = null } = {}) {
   const navigation = conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale});
   // The iOS app is not offered sections it does not carry.
   if (inApp) {
@@ -63,6 +64,8 @@ function reply(text, { messages = [], latestUserMessage = '', source = null, ses
     // lead; the reply only reinforces - and on the degraded path it is a
     // canned line, so it is excluded entirely.
     ...navigation,
+    // Real catalogue items for a multi-section request; independent of the model.
+    ...(plan ? { plan } : {}),
     configured: !error,
     ...(source ? { source } : {}),
     // Handle for the local brain's server-side conversation memory. The
@@ -155,23 +158,25 @@ export async function POST(request) {
   // The iOS app gets a persona that stays off betting (lib/ai/appPersona.mjs).
   const inApp = isAppRequest(request);
   const systemPrompt = inApp ? appSystemPrompt(SYSTEM_PROMPT) : SYSTEM_PROMPT;
+  // Started alongside the model call; it never throws and never blocks a reply on its own.
+  const planning = conversationPlan(messages, { locale });
 
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
   const local = await askLocalBrain({ messages, systemPrompt, sessionId, locale });
   if (local.ok) {
-    return reply(local.reply, { messages, latestUserMessage, source: 'local', sessionId: local.sessionId, locale, inApp });
+    return reply(local.reply, { messages, latestUserMessage, source: 'local', sessionId: local.sessionId, locale, inApp, plan: await planning });
   }
 
   // Link 2 - the hosted router.
   const routed = await askRouter(messages, locale, systemPrompt);
   if (routed) {
-    return reply(routed, { messages, latestUserMessage, source: 'router', locale, inApp });
+    return reply(routed, { messages, latestUserMessage, source: 'router', locale, inApp, plan: await planning });
   }
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the
   // widget renders this like any other answer instead of hitting an error path.
-  return reply(unavailableReply(locale), { messages, latestUserMessage, locale, source:'navigation', error: true, inApp });
+  return reply(unavailableReply(locale), { messages, latestUserMessage, locale, source:'navigation', error: true, inApp, plan: await planning });
 }
 
 // Non-LLM diagnostics: confirms which engines are wired up without spending a

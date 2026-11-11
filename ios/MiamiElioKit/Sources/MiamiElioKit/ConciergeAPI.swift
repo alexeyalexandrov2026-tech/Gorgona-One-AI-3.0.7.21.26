@@ -84,17 +84,20 @@ public struct ConciergeReply: Decodable, Equatable, Sendable {
     public let sessionId: String?
     /// True when no AI engine answered and the server sent its polite fallback.
     public let degraded: Bool
+    /// Real catalogue items when the guest named two or more sections (`lib/ai/plan.mjs`).
+    public let plan: ConciergePlan?
 
-    public init(reply: String, suggestions: [ConciergeLink] = [], cards: [ConciergeCard] = [], sessionId: String? = nil, degraded: Bool = false) {
+    public init(reply: String, suggestions: [ConciergeLink] = [], cards: [ConciergeCard] = [], sessionId: String? = nil, degraded: Bool = false, plan: ConciergePlan? = nil) {
         self.reply = reply
         self.suggestions = suggestions
         self.cards = cards
         self.sessionId = sessionId
         self.degraded = degraded
+        self.plan = plan
     }
 
     private enum CodingKeys: String, CodingKey {
-        case reply, suggestions, cards, sessionId, error
+        case reply, suggestions, cards, sessionId, error, plan
     }
 
     public init(from decoder: Decoder) throws {
@@ -107,6 +110,8 @@ public struct ConciergeReply: Decodable, Equatable, Sendable {
         self.cards = container.lossyArray(of: ConciergeCard.self, forKey: .cards)
         self.sessionId = container.text(forKey: .sessionId)
         self.degraded = (try? container.decode(Bool.self, forKey: .error)) ?? false
+        // A malformed plan costs the guest the plan, never the reply.
+        self.plan = try? container.decode(ConciergePlan.self, forKey: .plan)
     }
 }
 
@@ -190,7 +195,8 @@ public struct ConciergeClient: Sendable {
             suggestions: decoded.suggestions.filter { policy.allowsInApp(reference: $0.href) },
             cards: decoded.cards.filter { policy.allowsInApp(reference: $0.href) },
             sessionId: decoded.sessionId,
-            degraded: decoded.degraded
+            degraded: decoded.degraded,
+            plan: decoded.plan?.resolved(config: config, policy: policy)
         )
     }
 

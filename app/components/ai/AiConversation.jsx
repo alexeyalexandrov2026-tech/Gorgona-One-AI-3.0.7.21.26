@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useVoice } from './useVoice';
 import { useConciergeChat } from './ChatProvider';
 import { AiActionCards } from './AiActionCard';
+import { PlanBoard } from './PlanBoard';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
@@ -149,6 +150,9 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
             ))}
           </div>
         )}
+
+        {/* Real catalogue items for a multi-section request, sent as one request. */}
+        <PlanBoard onNavigate={onNavigate} />
       </div>
 
       <form

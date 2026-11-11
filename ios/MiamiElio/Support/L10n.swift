@@ -31,6 +31,32 @@ enum L10n {
     static var worldDining: String { text("world.dining") }
     static var worldExperiences: String { text("world.experiences") }
 
+    // A plan: real catalogue items for a multi-section request, sent as one request.
+    static var planTitle: String { text("plan.title") }
+    static var planLede: String { text("plan.lede") }
+    static var planAnother: String { text("plan.another") }
+    static var planRemove: String { text("plan.remove") }
+    static var planEmpty: String { text("plan.empty") }
+    static var planSend: String { text("plan.send") }
+    static var planFirstDay: String { text("plan.firstDay") }
+    static var planLastDay: String { text("plan.lastDay") }
+    static var planGuests: String { text("plan.guests") }
+    static var planDinnerTime: String { text("plan.dinnerTime") }
+    static var planName: String { text("plan.name") }
+    static var planPhone: String { text("plan.phone") }
+    static var planEmail: String { text("plan.email") }
+    static var planNote: String { text("plan.note") }
+    static var planBadDates: String { text("plan.badDates") }
+    static var planCheck: String { text("plan.check") }
+    static var planFailed: String { text("plan.failed") }
+    static var planSending: String { text("plan.sending") }
+    static var planSubmit: String { text("plan.submit") }
+    static var planCharge: String { text("plan.charge") }
+    static var planSent: String { text("plan.sent") }
+    static var planNew: String { text("plan.new") }
+    static func planAddBack(_ section: String) -> String { text("plan.addBack").replacingOccurrences(of: "{section}", with: section) }
+    static func planSentText(_ count: Int) -> String { text("plan.sentText").replacingOccurrences(of: "{count}", with: String(count)) }
+
     static var errorGeneric: String { text("error.generic") }
     static var offlineTitle: String { text("offline.title") }
     static var offlineMessage: String { text("offline.message") }

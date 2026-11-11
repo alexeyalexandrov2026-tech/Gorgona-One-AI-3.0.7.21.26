@@ -24,6 +24,19 @@ async function api(userId, path, options = {}) {
   return result;
 }
 
+// Items of one plan share a row in the list, in the order the guest chose them.
+function requestEntries(rows){
+  const entries=[],plans=new Map();
+  for(const row of rows){
+    if(!row.plan_id){entries.push({row});continue;}
+    let group=plans.get(row.plan_id);
+    if(!group){group={plan:row.plan_id,rows:[]};plans.set(row.plan_id,group);entries.push(group);}
+    group.rows.push(row);
+  }
+  for(const group of plans.values())group.rows.sort((a,b)=>(a.plan_position||0)-(b.plan_position||0));
+  return entries;
+}
+
 export default function RequestBoard({ scope = 'customer' }) {
   const auth=useAuth(), msg=useSavedText(), locale=useLocale(), copy=getWorldsCopy(locale).form;
   const userId=auth?.session?.id;
@@ -91,10 +104,15 @@ export default function RequestBoard({ scope = 'customer' }) {
     {loading?<p role="status" className="py-8 text-g1-soft">{msg('Loading...')}</p>:error?<p role="alert" className="py-8 text-g1-soft">{msg('Unable to load requests.')}</p>:!page.requests.length?<p className="py-8 text-g1-soft">{msg('No requests yet.')}</p>:<>
       <table className="w-full table-fixed text-start text-sm text-g1-soft">
         <thead><tr className="border-b border-g1-rule text-start"><th className="w-2/3 py-3 text-start font-medium">{msg('Requests')}</th><th className="py-3 text-start font-medium">{msg('Status')}</th></tr></thead>
-        <tbody>{page.requests.map(row=><tr key={row.id} className="border-b border-g1-rule align-top">
-          <td className="py-4 pe-4 [overflow-wrap:anywhere]"><button type="button" className="text-start font-medium text-g1-ink underline decoration-g1-rule underline-offset-4" onClick={()=>setSelected(row.id)} aria-expanded={selected===row.id}>{row.item_title||row.item_slug}</button>
-            <p className="mt-1 text-xs text-g1-soft">{row.id.slice(0,8)} · {date(row.created_at)}</p><p className="mt-2 text-sm">{row.dates}</p></td>
-          <td className="py-4 [overflow-wrap:anywhere]">{labels[row.status]||msg('Unknown')}</td>
+        <tbody>{requestEntries(page.requests).map(entry=>entry.rows?<tr key={entry.plan} className="border-b border-g1-rule align-top" data-plan-row>
+          <td className="py-4 pe-4 [overflow-wrap:anywhere]"><p className="font-medium text-g1-ink">{msg('Plan')} · {entry.rows.length}</p>
+            <p className="mt-1 text-xs text-g1-soft">{entry.plan.slice(0,8)} · {date(entry.rows[0].created_at)}</p>
+            <ul className="mt-2 grid gap-1.5">{entry.rows.map(row=><li key={row.id}><button type="button" className="text-start text-sm text-g1-ink underline decoration-g1-rule underline-offset-4" onClick={()=>setSelected(row.id)} aria-expanded={selected===row.id}>{row.item_title||row.item_slug}</button></li>)}</ul></td>
+          <td className="py-4 [overflow-wrap:anywhere]"><p aria-hidden="true">&nbsp;</p><p className="mt-1 text-xs" aria-hidden="true">&nbsp;</p><ul className="mt-2 grid gap-1.5">{entry.rows.map(row=><li key={row.id} className="text-sm">{labels[row.status]||msg('Unknown')}</li>)}</ul></td>
+        </tr>:<tr key={entry.row.id} className="border-b border-g1-rule align-top">
+          <td className="py-4 pe-4 [overflow-wrap:anywhere]"><button type="button" className="text-start font-medium text-g1-ink underline decoration-g1-rule underline-offset-4" onClick={()=>setSelected(entry.row.id)} aria-expanded={selected===entry.row.id}>{entry.row.item_title||entry.row.item_slug}</button>
+            <p className="mt-1 text-xs text-g1-soft">{entry.row.id.slice(0,8)} · {date(entry.row.created_at)}</p><p className="mt-2 text-sm">{entry.row.dates}</p></td>
+          <td className="py-4 [overflow-wrap:anywhere]">{labels[entry.row.status]||msg('Unknown')}</td>
         </tr>)}</tbody>
       </table>
       <div className="mt-4 flex flex-wrap gap-3">{after&&<button type="button" className={button} onClick={()=>setAfter('')}>{msg('Back')}</button>}{page.nextCursor&&<button type="button" className={button} onClick={()=>setAfter(page.nextCursor)}>{msg('Next page')}</button>}</div>
@@ -105,6 +123,13 @@ export default function RequestBoard({ scope = 'customer' }) {
         <h4 className="text-lg font-medium [overflow-wrap:anywhere]">{detail.request.item_title}</h4>
         <p className="mt-2 text-sm [overflow-wrap:anywhere]">{detail.request.dates}</p>
         <p className="mt-3 text-sm">{msg('Status')}: {labels[detail.request.status]||msg('Unknown')}</p>
+        {detail.plan&&<div className="my-4 grid gap-2 border-s-2 border-g1-rule ps-3 text-sm [overflow-wrap:anywhere]" data-plan-detail>
+          <p className="font-medium text-g1-ink">{msg('Plan')}</p>
+          <p>{msg('Dates')}: {detail.plan.start_date} → {detail.plan.end_date} · {msg('Guests')}: {detail.plan.guests}</p>
+          {detail.plan.note&&<p className="whitespace-pre-wrap">{msg('Wishes')}: {detail.plan.note}</p>}
+          <p className="mt-1 text-g1-soft">{msg('Items in this plan')}</p>
+          <ul className="grid gap-1">{detail.plan.items.map(item=><li key={item.id}>{item.id===selected?<span className="font-medium text-g1-ink">{item.item_title}</span>:<button type="button" className="text-start underline decoration-g1-rule underline-offset-4" onClick={()=>setSelected(item.id)}>{item.item_title}</button>} · {labels[item.status]||msg('Unknown')}</li>)}</ul>
+        </div>}
         {detail.request.hospitality&&<div className="my-4 grid gap-2 text-sm">{detail.request.status!=='closed'&&<p>{dining.pending}</p>}{detail.request.hospitality.note&&<p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{detail.request.hospitality.note}</p>}{scope==='customer'&&detail.request.status!=='closed'&&<button type="button" className={button+' w-fit'} disabled={busy} onClick={()=>command('withdraw')}>{dining.withdraw}</button>}</div>}
         {scope!=='customer'&&<div className="my-4 grid gap-2 text-sm [overflow-wrap:anywhere]"><p>{copy.name}: {detail.request.client_name}</p><p>{copy.email}: {detail.request.client_email}</p><p>{copy.phone}: {detail.request.client_phone}</p></div>}
         <h4 className="mb-3 mt-6 font-medium">{msg('History')}</h4>

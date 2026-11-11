@@ -22,18 +22,46 @@ final class ConciergeStore {
         var cards: [ConciergeCard] = []
     }
 
+    /// The guest's working copy of the latest plan: which option each section
+    /// shows, which sections were taken out, and the receipt once it is sent.
+    struct PlanDraft: Equatable {
+        let plan: ConciergePlan
+        var shown: [String: Int] = [:]
+        var removed: Set<String> = []
+        var receipt: PlanReceipt?
+
+        func item(in section: PlanSection) -> PlanItem {
+            let index = shown[section.href] ?? 0
+            return section.candidates[min(max(index, 0), section.candidates.count - 1)]
+        }
+
+        var items: [PlanItem] {
+            plan.sections.filter { !removed.contains($0.href) }.map { item(in: $0) }
+        }
+
+        var hasRestaurant: Bool {
+            items.contains(where: { $0.isRestaurant })
+        }
+    }
+
     private(set) var entries: [Entry] = []
     private(set) var isSending = false
+    private(set) var plan: PlanDraft?
+    private(set) var isSendingPlan = false
     var draft = ""
 
     private let client: ConciergeClient
+    private let planClient: PlanClient
+    /// The key of the last plan send, reused while its details stay the same.
+    @ObservationIgnored private var planAttempt: (request: PlanRequest, key: UUID)?
     private let locale: @MainActor () -> String
 
     @ObservationIgnored private var sessionId: String?
     @ObservationIgnored private var task: Task<Void, Never>?
 
-    init(client: ConciergeClient, locale: @escaping @MainActor () -> String) {
+    init(client: ConciergeClient, planClient: PlanClient = PlanClient(), locale: @escaping @MainActor () -> String) {
         self.client = client
+        self.planClient = planClient
         self.locale = locale
     }
 
@@ -66,6 +94,65 @@ final class ConciergeStore {
         entries = []
         sessionId = nil
         isSending = false
+        plan = nil
+        planAttempt = nil
+    }
+
+    // MARK: - Plan
+
+    func showAnotherOption(_ section: PlanSection) {
+        guard var current = plan, current.receipt == nil, section.candidates.count > 1 else { return }
+        current.shown[section.href] = ((current.shown[section.href] ?? 0) + 1) % section.candidates.count
+        plan = current
+    }
+
+    func removeFromPlan(_ section: PlanSection) {
+        guard var current = plan, current.receipt == nil else { return }
+        current.removed.insert(section.href)
+        plan = current
+    }
+
+    func restoreToPlan(_ section: PlanSection) {
+        guard var current = plan, current.receipt == nil else { return }
+        current.removed.remove(section.href)
+        plan = current
+    }
+
+    func clearPlan() {
+        plan = nil
+        planAttempt = nil
+    }
+
+    /// Sends every item left in the plan as one request. Returns nil when it
+    /// went through, otherwise the line to show the guest.
+    func sendPlan(_ request: PlanRequest) async -> String? {
+        guard !isSendingPlan, let sent = plan, sent.receipt == nil else { return nil }
+        guard request.isComplete else {
+            return request.end < request.start ? L10n.planBadDates : L10n.planCheck
+        }
+        let key: UUID
+        if let previous = planAttempt, previous.request == request {
+            key = previous.key
+        } else {
+            key = UUID()
+        }
+        planAttempt = (request, key)
+        isSendingPlan = true
+        defer { isSendingPlan = false }
+        do {
+            let receipt = try await planClient.send(request, key: key)
+            planAttempt = nil
+            // A new plan that arrived meanwhile is left untouched.
+            if plan?.plan == sent.plan {
+                plan?.receipt = receipt
+            }
+            return nil
+        } catch APIError.status(400) {
+            planAttempt = nil
+            return L10n.planCheck
+        } catch {
+            return L10n.planFailed
+        }
     }
 
     private func request() {
@@ -105,6 +192,11 @@ final class ConciergeStore {
                 sessionId = handle
             }
             entries.append(Entry(kind: .concierge, text: reply.reply, suggestions: reply.suggestions, cards: reply.cards))
+            // A reply without a plan keeps the current one and the guest's edits.
+            if let next = reply.plan {
+                plan = PlanDraft(plan: next)
+                planAttempt = nil
+            }
         case .failure:
             entries.append(Entry(kind: .failed, text: L10n.errorGeneric))
         }

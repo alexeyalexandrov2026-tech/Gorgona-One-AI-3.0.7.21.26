@@ -14,7 +14,7 @@ export function provider(db) {
       if(url.pathname.startsWith('/rest/v1/rpc/')){
         if(token!==fixtureEnv.SUPABASE_SERVICE_ROLE_KEY)return Response.json({error:'denied'},{status:403});
         const name=url.pathname.split('/').at(-1),args=await request.json();
-        if(!['dashboard_submit','dashboard_command','dashboard_claim','dashboard_settle','dashboard_delivery_status','dashboard_reserve_email','partner_listing_command','partner_listing_media_register','partner_listing_media_access','dining_venue_read','dining_venue_command'].includes(name))throw new Error('Unexpected RPC');
+        if(!['dashboard_submit','dashboard_submit_plan','dashboard_command','dashboard_claim','dashboard_settle','dashboard_delivery_status','dashboard_reserve_email','partner_listing_command','partner_listing_media_register','partner_listing_media_access','dining_venue_read','dining_venue_command'].includes(name))throw new Error('Unexpected RPC');
         if(name==='dashboard_claim'){
           await db.exec('set role service_role');
           try{return Response.json((await db.query('select * from public.dashboard_claim($1,$2)',[args.p_channels,args.p_limit])).rows);}finally{await db.exec('reset role');}
@@ -24,12 +24,12 @@ export function provider(db) {
       const table=url.pathname.split('/').at(-1);
       const service=token===fixtureEnv.SUPABASE_SERVICE_ROLE_KEY;
       if(!userId&&!service&&!['partner_publications','dining_publications'].includes(table))return Response.json({error:'unauthorized'},{status:401});
-      if(!['profiles','bookings','request_events','partner_listings','partner_publications','dining_publications'].includes(table)||!['GET','HEAD'].includes(request.method))return Response.json({error:'Fixture mutation denied'},{status:403});
+      if(!['profiles','bookings','booking_plans','request_events','partner_listings','partner_publications','dining_publications'].includes(table)||!['GET','HEAD'].includes(request.method))return Response.json({error:'Fixture mutation denied'},{status:403});
       const columns=url.searchParams.get('select')||'*';
       // These are fixture query builders, with the same RLS roles as PostgREST.
       if(!/^[a-z_,*]+$/.test(columns))return Response.json([]);
       const where=[],params=[];
-      for(const key of ['id','role','customer_user_id','assigned_partner_id','status','booking_id','partner_id','review_state','published_version','kind','request_key']){
+      for(const key of ['id','role','customer_user_id','assigned_partner_id','status','booking_id','partner_id','review_state','published_version','kind','request_key','plan_id']){
         const value=url.searchParams.get(key);if(!value)continue;
         if(key==='id'&&value.startsWith('in.(')&&value.endsWith(')')){
           const ids=value.slice(4,-1).split(',');if(!ids.length||ids.some(id=>!/^[0-9a-f-]{36}$/i.test(id)))throw new Error('Invalid fixture ID list');
@@ -44,6 +44,7 @@ export function provider(db) {
       const order=url.searchParams.get('order');
       if(order==='created_at.desc,id.desc')sql+=' order by created_at desc,id desc';
       else if(order==='id.asc')sql+=' order by id asc';
+      else if(order==='plan_position.asc')sql+=' order by plan_position asc';
       else if(order?.includes('created_at'))sql+=' order by created_at '+(order.includes('.asc')?'asc':'desc');
       else if(order?.includes('company_name'))sql+=' order by company_name asc nulls last,id asc';
       let result;

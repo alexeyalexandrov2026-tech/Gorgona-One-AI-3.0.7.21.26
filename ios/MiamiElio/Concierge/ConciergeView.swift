@@ -28,6 +28,11 @@ struct ConciergeView: View {
                             )
                             .arrives()
                         }
+                        // Real catalogue items for a multi-section request, sent as one request.
+                        if let plan = store.plan {
+                            PlanBoardView(draft: plan) { router.open(reference: $0) }
+                                .arrives()
+                        }
                         if store.isSending {
                             TypingIndicator()
                                 .arrives()

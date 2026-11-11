@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { conversationNavigation } from '../../../lib/ai/conversation.mjs';
-import { chatSnapshot } from '../../../lib/ai/session.mjs';
+import { chatSnapshot, planSnapshot } from '../../../lib/ai/session.mjs';
 import {chatPayload} from '../../../lib/ai/chatRequest.mjs';
 import { useLocale } from '../LocaleProvider';
 import { unavailableReply } from '../../../lib/ai/locale';
@@ -48,10 +48,13 @@ const NOOP = {
   messages: [],
   cards: [],
   suggestions: [],
+  plan: null,
   isLoading: false,
   hydrated: false,
   send() {},
-  reset() {}
+  reset() {},
+  updatePlan() {},
+  clearPlan() {}
 };
 
 export function ChatProvider({ children }) {
@@ -62,6 +65,9 @@ export function ChatProvider({ children }) {
   const [messages, setMessages] = useState([]);
   const [cards, setCards] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  // Catalogue items for a multi-section request (lib/ai/plan.mjs) and the
+  // guest edits to them. A reply without a plan keeps the current one.
+  const [plan, setPlan] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -79,7 +85,7 @@ export function ChatProvider({ children }) {
       const raw = sessionStorage.getItem(STORAGE_KEY);
       if (raw) {
         const data = chatSnapshot(JSON.parse(raw));
-        setMessages(data.messages);setCards(data.cards);setSuggestions(data.suggestions);
+        setMessages(data.messages);setCards(data.cards);setSuggestions(data.suggestions);setPlan(planSnapshot(JSON.parse(raw).plan));
         sessionIdRef.current = data.sessionId;
       }
     } catch {
@@ -94,12 +100,12 @@ export function ChatProvider({ children }) {
     try {
       sessionStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ messages, cards, suggestions, sessionId: sessionIdRef.current })
+        JSON.stringify({ messages, cards, suggestions, plan, sessionId: sessionIdRef.current })
       );
     } catch {
       /* storage full or blocked - non-fatal, the thread just won't survive a reload */
     }
-  }, [messages, cards, suggestions, hydrated]);
+  }, [messages, cards, suggestions, plan, hydrated]);
 
   const send = useCallback(async (rawText) => {
     const content = String(rawText || '').trim();
@@ -123,7 +129,7 @@ export function ChatProvider({ children }) {
     // reaches the server, these are the cards the guest still gets. The
     // matcher is multilingual, so this holds for any of the 16 UI languages.
     const navigation=conversationNavigation(nextMessages,{locale});
-    let nextCards=navigation.cards,nextSuggestions=navigation.suggestions;
+    let nextCards=navigation.cards,nextSuggestions=navigation.suggestions,nextPlan=null;
 
     try {
       const response = await fetch('/api/chat', {
@@ -146,6 +152,7 @@ export function ChatProvider({ children }) {
       const safe=chatSnapshot(data);
       if (safe.cards.length) nextCards = safe.cards;
       if (safe.suggestions.length) nextSuggestions = safe.suggestions;
+      nextPlan = planSnapshot(data?.plan);
       if (generation===generationRef.current&&safe.sessionId)sessionIdRef.current=safe.sessionId;
     } catch {
       /* aborted, offline, or blocked - the locally matched cards stand */
@@ -160,6 +167,7 @@ export function ChatProvider({ children }) {
     setMessages(prev=>[...prev,{role:'assistant',content:answer}].slice(-MAX_MESSAGES));
     setCards(nextCards);
     setSuggestions(nextSuggestions);
+    if (nextPlan) setPlan(nextPlan);
     setIsLoading(false);
     inFlightRef.current = false;
 
@@ -172,6 +180,7 @@ export function ChatProvider({ children }) {
     setMessages([]);
     setCards([]);
     setSuggestions([]);
+    setPlan(null);
     sessionIdRef.current = null;
     try {
       sessionStorage.removeItem(STORAGE_KEY);
@@ -180,9 +189,13 @@ export function ChatProvider({ children }) {
     }
   }, []);
 
+  // Every edit passes back through the same sanitizer as storage and the server.
+  const updatePlan = useCallback((change) => setPlan((current) => (current ? planSnapshot(change(current)) : current)), []);
+  const clearPlan = useCallback(() => setPlan(null), []);
+
   const value = useMemo(
-    () => ({ messages, cards, suggestions, isLoading, hydrated, send, reset }),
-    [messages, cards, suggestions, isLoading, hydrated, send, reset]
+    () => ({ messages, cards, suggestions, plan, isLoading, hydrated, send, reset, updatePlan, clearPlan }),
+    [messages, cards, suggestions, plan, isLoading, hydrated, send, reset, updatePlan, clearPlan]
   );
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
