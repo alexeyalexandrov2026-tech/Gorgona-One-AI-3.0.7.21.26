@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { AiConversation } from './AiConversation';
 import { useConciergeChat } from './ChatProvider';
 import { SECTIONS } from '../../../lib/aiSuggestions';
+import { isAppRestricted } from '../../../lib/appRestrictedPaths';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 
@@ -76,6 +77,8 @@ export function ConciergeRoom() {
             <Link
               key={section.href}
               href={section.href}
+              // Sections the iOS app does not carry are not offered there (globals.css).
+              data-app-hidden={isAppRestricted(section.href) ? '' : undefined}
               className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
             >
               {msg(section.label)}

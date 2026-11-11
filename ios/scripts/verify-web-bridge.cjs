@@ -131,6 +131,36 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   const kept = (await app.cookies(base)).find((c) => c.name === 'gorgona-locale')?.value;
   check('app: a language the guest chose is kept', kept === 'es', kept);
 
+  // The web concierge (the hero search opens it) offers no sportsbook in the
+  // app. The English starters have one, so this runs in English. Cards come
+  // from the local matcher, so the AI backend does not have to answer.
+  const sportsbookStarter = 'main button:has-text("sportsbook")';
+  const askConcierge = async (target) => {
+    const input = target.locator('main form input').first();
+    await input.fill('best sportsbook bonus and a yacht');
+    await input.press('Enter');
+    await target.locator('main a[href="/yachts"].group').first().waitFor({ timeout: 20000 }).catch(() => {});
+  };
+  const plainConcierge = await browser.newContext(iphone);
+  const webAi = await plainConcierge.newPage();
+  await webAi.goto(base + '/discovery', { waitUntil: 'networkidle' });
+  check('browser: concierge offers the sportsbook starter', await visible(webAi, sportsbookStarter));
+  await askConcierge(webAi);
+  check('browser: concierge shows a sportsbook card', await visible(webAi, 'main a[href="/sportsbook"]'));
+  await plainConcierge.close();
+
+  const appEn = await browser.newContext({ ...iphone, userAgent: iphone.userAgent.replace('Safari/604.1', 'MiamiElioApp/1.0') });
+  await appEn.addInitScript(() => { window.webkit = { messageHandlers: { miamiElio: { postMessage: () => {} } } }; });
+  await appEn.addInitScript(script('en'));
+  const appAi = await appEn.newPage();
+  await appAi.goto(base + '/discovery', { waitUntil: 'networkidle' });
+  check('app: concierge still offers the other starters', await visible(appAi, 'main button:has-text("yacht")'));
+  check('app: concierge hides the sportsbook starter', !(await visible(appAi, sportsbookStarter)));
+  await askConcierge(appAi);
+  check('app: concierge still shows the yacht card', await visible(appAi, 'main a[href="/yachts"].group'));
+  check('app: concierge page hides every sportsbook link', (await appAi.locator('main a[href^="/sportsbook"]:visible').count()) === 0);
+  await shot(appAi, 'app-concierge.png');
+
   await browser.close();
   const failed = results.filter((r) => !r.ok);
   console.log(`\n${results.length - failed.length}/${results.length} checks passed`);

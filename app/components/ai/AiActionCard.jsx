@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
+import { isAppRestricted } from '../../../lib/appRestrictedPaths';
 
 // ===========================================================================
 // Navigation frame rendered under a concierge reply.
@@ -28,6 +29,8 @@ export function AiActionCard({ card, onNavigate }) {
   return (
     <Link
       href={card.href}
+      // Sections the iOS app does not carry are not offered there (globals.css).
+      data-app-hidden={isAppRestricted(card.href) ? '' : undefined}
       onClick={onNavigate}
       aria-label={`${card.title || card.label} — ${card.cta || t.ai.open}`}
       className="group block rounded-2xl border border-brand-gold/25 bg-gradient-to-br from-brand-gold/[0.09] to-white/[0.02] p-4 transition hover:border-brand-gold/70 hover:from-brand-gold/[0.16] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black"

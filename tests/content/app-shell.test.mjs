@@ -6,6 +6,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { SUPPORTED_LANGUAGES, RTL_LANGUAGES } from '../../lib/languages.js';
+import { APP_RESTRICTED_PATHS, isAppRestricted } from '../../lib/appRestrictedPaths.js';
+import { STARTER_PROMPTS } from '../../lib/ai/conciergePrompts.js';
 
 const read = (file) => fs.readFileSync(new URL(`../../${file}`, import.meta.url), 'utf8');
 const swiftStrings = (source, declaration) => {
@@ -86,6 +88,38 @@ test('the app refuses every sportsbook route the site has', () => {
     assert.ok(restricted.includes(route), `${route} is a sportsbook route the iOS app does not block`);
   }
   assert.ok(restricted.includes('/stores/betting'));
+});
+
+test('the site and the app keep the same list of sections the app does not carry', () => {
+  const restricted = swiftStrings(read('ios/MiamiElioKit/Sources/MiamiElioKit/RoutePolicy.swift'), 'defaultRestrictedPaths');
+  assert.deepEqual(APP_RESTRICTED_PATHS, restricted);
+
+  assert.ok(isAppRestricted('/sportsbook'));
+  assert.ok(isAppRestricted('/sportsbook/'));
+  assert.ok(isAppRestricted('/sportsbook?ref=ai#top'));
+  assert.ok(isAppRestricted('/stores/betting/draftkings'));
+  assert.ok(!isAppRestricted('/stores'));
+  assert.ok(!isAppRestricted('/sportsbooks-guide'));
+  assert.ok(!isAppRestricted('https://example.com/sportsbook'));
+  assert.ok(!isAppRestricted(undefined));
+});
+
+test('the web concierge offers no sportsbook inside the app', () => {
+  const conversation = read('app/components/ai/AiConversation.jsx');
+  // Starter prompts that lead into a restricted section...
+  assert.match(conversation, /data-app-hidden=\{leadsOutOfApp\(prompt\) \? '' : undefined\}/);
+  // ...and the chips and cards under a reply.
+  assert.match(conversation, /data-app-hidden=\{isAppRestricted\(s\.href\) \? '' : undefined\}/);
+  assert.match(read('app/components/ai/AiActionCard.jsx'), /data-app-hidden=\{isAppRestricted\(card\.href\) \? '' : undefined\}/);
+  // The Discovery Room's row of sections under the conversation.
+  assert.match(read('app/components/ai/ConciergeRoom.jsx'), /data-app-hidden=\{isAppRestricted\(section\.href\) \? '' : undefined\}/);
+
+  // The English sportsbook starter is the one the app has to leave out; the
+  // native concierge uses only the first three starters of every language.
+  assert.ok(STARTER_PROMPTS.en.slice(3).some((prompt) => /sportsbook/i.test(prompt)));
+  for (const prompts of Object.values(STARTER_PROMPTS)) {
+    assert.ok(prompts.slice(0, 3).every((prompt) => !/sportsbook|betting|apuesta|ставк/i.test(prompt)));
+  }
 });
 
 test('the app knows the same languages as the site', () => {

@@ -10,6 +10,8 @@ import { AiActionCards } from './AiActionCard';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
+import { matchSuggestions } from '../../../lib/aiSuggestions';
+import { isAppRestricted } from '../../../lib/appRestrictedPaths';
 
 // i18n carries per-locale AI copy; this is the English original, used when a
 // locale has not translated the key yet.
@@ -54,6 +56,10 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
   const locale = useLocale();
   const t = getTranslation(locale);
   const starters = STARTER_PROMPTS[locale] || STARTER_PROMPTS.en;
+  // A starter that leads into a section the iOS app does not carry (the
+  // English list has a sportsbook one) is left out there: data-app-hidden,
+  // see globals.css. The browser shows every starter.
+  const leadsOutOfApp = (prompt) => isAppRestricted(matchSuggestions(prompt, { limit: 1 })[0]?.href);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
@@ -95,6 +101,7 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
                 <button
                   key={prompt}
                   type="button"
+                  data-app-hidden={leadsOutOfApp(prompt) ? '' : undefined}
                   onClick={() => submit(prompt)}
                   className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-300 transition hover:border-brand-gold/40 hover:text-white"
                 >
@@ -129,6 +136,7 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
               <Link
                 key={s.href}
                 href={s.href}
+                data-app-hidden={isAppRestricted(s.href) ? '' : undefined}
                 onClick={onNavigate}
                 className="rounded-full border border-brand-gold/40 bg-brand-gold/10 px-3 py-1.5 text-xs text-brand-gold transition hover:bg-brand-gold hover:text-black"
               >
