@@ -165,6 +165,20 @@ export default function TicketCarousel({ copy, locale }) {
       </div>
 
       <div className="g1-tkt-controls">
+        {/* Pause comes first: the floating concierge button sits over the
+            far end of this row on a phone. */}
+        {motion && (
+          <button
+            type="button"
+            className="g1-tkt-toggle"
+            aria-label={stopped ? text.play : text.pause}
+            onClick={() => setStopped((value) => !value)}
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="h-3.5 w-3.5">
+              {stopped ? <path d="M8 5.5v13l10.5-6.5L8 5.5Z" /> : <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />}
+            </svg>
+          </button>
+        )}
         <div className="g1-tkt-bars">
           {HOME_TICKETS.map((ticket, index) => (
             <button
@@ -187,18 +201,6 @@ export default function TicketCarousel({ copy, locale }) {
             </button>
           ))}
         </div>
-        {motion && (
-          <button
-            type="button"
-            className="g1-tkt-toggle"
-            aria-label={stopped ? text.play : text.pause}
-            onClick={() => setStopped((value) => !value)}
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="h-3.5 w-3.5">
-              {stopped ? <path d="M8 5.5v13l10.5-6.5L8 5.5Z" /> : <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />}
-            </svg>
-          </button>
-        )}
       </div>
     </div>
   );
