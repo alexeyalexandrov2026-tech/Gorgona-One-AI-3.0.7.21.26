@@ -47,8 +47,8 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   check('browser: AI pill is shown', await visible(web, 'button.aidock'));
   check('browser: hero lede and sample requests are shown', (await visible(web, 'main p[data-app-hidden]')) && (await visible(web, 'main div[data-app-hidden] button')));
   check('browser: section rail lists nine sections', (await web.locator('ul.g1-rail a').count()) === 9);
-  check('browser: sportsbook row is shown', await visible(web, 'li[data-app-hidden] a[href="/sportsbook"]'));
-  check('browser: sportsbook section is shown', await visible(web, 'section[data-app-hidden]'));
+  check('browser: no sportsbook link anywhere on the home page', (await web.locator('a[href^="/sportsbook"]').count()) === 0);
+  check('browser: the directory lists dining and private jets', (await visible(web, 'a.g1-dir-row[href="/restaurants-nightlife"]')) && (await visible(web, 'a.g1-dir-row[href="/private-jets"]')));
   const plainHeight = await web.evaluate(() => document.documentElement.scrollHeight);
   await shot(web, 'web-home.png');
   await plain.close();
@@ -73,11 +73,10 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   check('app: section rail lists nine sections', (await page.locator('ul.g1-rail a:visible').count()) === 9);
   check('app: the rail has private jets beside flights', (await visible(page, 'ul.g1-rail a[href="/private-jets"]')) && (await visible(page, 'ul.g1-rail a[href="/travel/ovago"]')));
   check('app: hero search is still there', await visible(page, '#g1-hero-q'));
-  check('app: sportsbook row is hidden', !(await visible(page, 'li[data-app-hidden] a[href="/sportsbook"]')));
-  check('app: sportsbook section is hidden', !(await visible(page, 'section[data-app-hidden]')));
+  check('app: no sportsbook link anywhere on the home page', (await page.locator('a[href^="/sportsbook"]').count()) === 0);
   check('app: other world rows remain', await visible(page, 'a.g1-dir-row[href="/yachts"]'));
   const appHeight = await page.evaluate(() => document.documentElement.scrollHeight);
-  check('app: page is shorter without the hidden section', appHeight < plainHeight, `${appHeight} < ${plainHeight}`);
+  check('app: page is shorter without the hidden pieces', appHeight < plainHeight, `${appHeight} < ${plainHeight}`);
 
   const cookies = await app.cookies(base);
   const locale = cookies.find((c) => c.name === 'gorgona-locale');
@@ -88,17 +87,18 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   const reported = await page.evaluate(() => window.__messages.filter((m) => m.locale).map((m) => m.locale));
   check('app: page reported its language to the app', reported.includes('ru'), JSON.stringify(reported));
 
-  // Menu: sportsbook entry hidden, others present.
+  // Menu: the sections are there, and no sportsbook among them.
   await page.locator('header button[aria-expanded]').last().click();
   await page.waitForTimeout(600);
   check('app: menu shows Yachts', await visible(page, 'header nav a[href="/yachts"]:visible'));
-  check('app: menu hides Sportsbooks', !(await visible(page, 'header nav a[href="/sportsbook"]:visible')));
+  check('app: menu has no Sportsbooks', !(await visible(page, 'header nav a[href="/sportsbook"]:visible')));
   await shot(page, 'app-menu.png');
   await page.locator('header button[aria-expanded]').last().click();
   await shot(page, 'app-home.png');
 
-  // A sportsbook link that is still on a page must be stopped and handed over.
-  // The site no longer shows one inside the app, so the page is given one.
+  // The site has no sportsbook section any more, but the app still refuses
+  // those addresses (RoutePolicy.swift). The page is given such a link to
+  // check that it is stopped and handed over.
   await page.goto(base + '/experiences', { waitUntil: 'networkidle' });
   check('app: /experiences shows no sportsbook link', (await page.locator('a[href^="/sportsbook"]:visible').count()) === 0);
   await page.evaluate(() => {
@@ -133,10 +133,9 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   const kept = (await app.cookies(base)).find((c) => c.name === 'gorgona-locale')?.value;
   check('app: a language the guest chose is kept', kept === 'es', kept);
 
-  // The web concierge (the hero search opens it) offers no sportsbook in the
-  // app. The English starters have one, so this runs in English. Cards come
-  // from the local matcher, so the AI backend does not have to answer.
-  const sportsbookStarter = 'main button:has-text("sportsbook")';
+  // The concierge, in a browser and in the app: asked about betting, it
+  // offers the sections the site has and nothing else. Cards come from the
+  // local matcher, so the AI backend does not have to answer.
   const askConcierge = async (target) => {
     const input = target.locator('main form input').first();
     await input.fill('best sportsbook bonus and a yacht');
@@ -146,9 +145,10 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   const plainConcierge = await browser.newContext(iphone);
   const webAi = await plainConcierge.newPage();
   await webAi.goto(base + '/discovery', { waitUntil: 'networkidle' });
-  check('browser: concierge offers the sportsbook starter', await visible(webAi, sportsbookStarter));
+  check('browser: concierge has no sportsbook starter', !(await visible(webAi, 'main button:has-text("sportsbook")')));
   await askConcierge(webAi);
-  check('browser: concierge shows a sportsbook card', await visible(webAi, 'main a[href="/sportsbook"]'));
+  check('browser: concierge shows the yacht card', await visible(webAi, 'main a[href="/yachts"].group'));
+  check('browser: concierge page has no sportsbook link', (await webAi.locator('main a[href^="/sportsbook"]').count()) === 0);
   await plainConcierge.close();
 
   const appEn = await browser.newContext({ ...iphone, userAgent: iphone.userAgent.replace('Safari/604.1', 'MiamiElioApp/1.0') });
@@ -156,12 +156,16 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   await appEn.addInitScript(script('en'));
   const appAi = await appEn.newPage();
   await appAi.goto(base + '/discovery', { waitUntil: 'networkidle' });
-  check('app: concierge still offers the other starters', await visible(appAi, 'main button:has-text("yacht")'));
-  check('app: concierge hides the sportsbook starter', !(await visible(appAi, sportsbookStarter)));
+  check('app: concierge offers its starters', await visible(appAi, 'main button:has-text("yacht")'));
   await askConcierge(appAi);
-  check('app: concierge still shows the yacht card', await visible(appAi, 'main a[href="/yachts"].group'));
-  check('app: concierge page hides every sportsbook link', (await appAi.locator('main a[href^="/sportsbook"]:visible').count()) === 0);
+  check('app: concierge shows the yacht card', await visible(appAi, 'main a[href="/yachts"].group'));
+  check('app: concierge page has no sportsbook link', (await appAi.locator('main a[href^="/sportsbook"]').count()) === 0);
   await shot(appAi, 'app-concierge.png');
+
+  // Old sportsbook addresses lead home.
+  const old = await appEn.newPage();
+  const response = await old.goto(base + '/sportsbook/draftkings', { waitUntil: 'domcontentloaded' }).catch(() => null);
+  check('old sportsbook addresses redirect to the home page', new URL(old.url()).pathname === '/' , `${old.url()} ${response ? response.status() : ''}`);
 
   await browser.close();
   const failed = results.filter((r) => !r.ok);

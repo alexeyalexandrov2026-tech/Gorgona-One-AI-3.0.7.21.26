@@ -64,7 +64,7 @@ open MiamiElio.xcodeproj
 
 ## Букмекерский раздел
 
-В приложении его нет: разделы `/sportsbook`, `/sports-betting-promos`, `/*-promos` букмекеров и `/stores/betting` не показываются, а прямой переход открывается в Safari. Причина — правило App Store 5.3: приложениям, продвигающим ставки на деньги, нужна лицензия. Сайт не затронут. Список — `defaultRestrictedPaths` в `MiamiElioKit/Sources/MiamiElioKit/RoutePolicy.swift`; тест `tests/content/app-shell.test.mjs` не даст добавить на сайт новый букмекерский маршрут, не добавив его сюда.
+Раздела букмекеров на сайте больше нет: страницы удалены, старые адреса (`/sportsbook`, `/sports-betting-promos`, `/*-promos`) перенаправляют на главную. Приложение на всякий случай по-прежнему отказывается открывать эти адреса у себя (правило App Store 5.3: приложениям, продвигающим ставки на деньги, нужна лицензия) — список `defaultRestrictedPaths` в `MiamiElioKit/Sources/MiamiElioKit/RoutePolicy.swift`, тот же список на сайте — `lib/appRestrictedPaths.js`. Консьерж в приложении получает указание не обсуждать ставки (`lib/ai/appPersona.mjs`).
 
 ## Публикация в TestFlight и App Store
 
