@@ -74,7 +74,7 @@ export function InstallPrompt() {
   if (dismissed || (!deferredPrompt && !showIosHint)) return null;
 
   return (
-    <div className="fixed inset-x-4 bottom-24 z-50 mx-auto max-w-sm rounded-2xl border border-brand-gold/30 bg-[#0a0a0a]/95 p-4 shadow-premium backdrop-blur-xl sm:left-8 sm:right-auto sm:bottom-8">
+    <div data-app-hidden="" className="fixed inset-x-4 bottom-24 z-50 mx-auto max-w-sm rounded-2xl border border-brand-gold/30 bg-[#0a0a0a]/95 p-4 shadow-premium backdrop-blur-xl sm:left-8 sm:right-auto sm:bottom-8">
       <div className="flex items-start gap-3">
         <div className="relative h-9 w-9 shrink-0">
           <span className="ai-sphere__glow" aria-hidden="true" />

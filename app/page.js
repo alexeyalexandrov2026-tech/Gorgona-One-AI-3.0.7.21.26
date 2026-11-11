@@ -23,7 +23,8 @@ const WORLDS = [
   { id: 'yachts', href: '/yachts', img: 'yacht-princess', count: (c) => fill(c.charters, { n: YACHTS.length }) },
   { id: 'cars', href: '/rentals', img: null, count: (c) => fill(c.cars, { n: FLEET.length }) },
   { id: 'events', href: '/events', img: 'events-stage', count: (c) => c.tickets },
-  { id: 'sportsbooks', href: '/sportsbook', img: 'sports-arena', count: (c) => fill(c.operators, { n: HOME_BOOKS.length }) },
+  // appHidden: left out of the iOS app (data-app-hidden in globals.css).
+  { id: 'sportsbooks', href: '/sportsbook', img: 'sports-arena', count: (c) => fill(c.operators, { n: HOME_BOOKS.length }), appHidden: true },
   { id: 'concierge', href: '/discovery', img: 'deco-street', count: (c) => c.ai }
 ];
 const worldImage = (world) => (world.img ? `/images/home/worlds/${world.img}.jpg` : carThumb(FLEET[0]));
@@ -58,7 +59,7 @@ export default function HomePage() {
           {WORLDS.map((world) => {
             const [name, desc] = copy.worldItems[world.id];
             return (
-              <li key={world.id} className="border-t border-g1-rule">
+              <li key={world.id} data-app-hidden={world.appHidden ? '' : undefined} className="border-t border-g1-rule">
                 <Link href={world.href} className="g1-dir-row">
                   <img className="g1-dir-thumb" src={worldImage(world)} alt="" loading="lazy" />
                   <span className="g1-dir-name">{name}</span>
@@ -126,7 +127,7 @@ export default function HomePage() {
 
       <ConciergeBand copy={copy} locale={locale} />
 
-      <section className="py-[clamp(36px,5vw,72px)]">
+      <section data-app-hidden="" className="py-[clamp(36px,5vw,72px)]">
         <SectionHead title={copy.books} sub={copy.booksSub} href="/sportsbook" cta={copy.seeAll} />
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-5">
           {HOME_BOOKS.map((book) => (
