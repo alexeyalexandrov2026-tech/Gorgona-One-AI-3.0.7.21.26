@@ -65,6 +65,9 @@ export function TicketNetworkEvents({ category, group, today }) {
         setPhase('error');
       })
       .finally(() => clearTimeout(timeout));
+    // `sequence` is a request counter, not a DOM node: advancing it here is
+    // what makes a late answer from this request get ignored.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => { ++sequence.current; controller.abort(); clearTimeout(timeout); };
   }, [category, filters, page, revision]);
 
