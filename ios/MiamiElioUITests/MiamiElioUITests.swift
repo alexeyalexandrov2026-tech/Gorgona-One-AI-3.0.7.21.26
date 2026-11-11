@@ -17,8 +17,7 @@ final class MiamiElioUITests: XCTestCase {
     }
 
     func testTheFourTabs() throws {
-        let tabs = app.tabBars.firstMatch
-        XCTAssertTrue(tabs.waitForExistence(timeout: 60), "The tab bar never appeared")
+        let tabs = waitForTheAppToOpen()
         XCTAssertEqual(tabs.buttons.count, 4)
         for title in ["Home", "Concierge", "Search", "Profile"] {
             XCTAssertTrue(tabs.buttons[title].exists, "Missing tab: \(title)")
@@ -34,7 +33,8 @@ final class MiamiElioUITests: XCTestCase {
         let title = app.staticTexts["concierge.title"]
         XCTAssertTrue(title.waitForExistence(timeout: 15))
         XCTAssertEqual(title.label, "Your private concierge")
-        XCTAssertEqual(app.buttons.matching(identifier: "concierge.starter").count, 3)
+        // The prompts arrive one after another, a moment behind the title.
+        waitForCount(3, of: app.buttons.matching(identifier: "concierge.starter"))
         let input = app.descendants(matching: .any)["concierge.input"]
         XCTAssertTrue(input.exists)
         XCTAssertFalse(app.buttons["concierge.send"].isEnabled, "Send must be off while the draft is empty")
@@ -56,8 +56,11 @@ final class MiamiElioUITests: XCTestCase {
         let yachts = app.buttons["world./yachts"]
         XCTAssertTrue(yachts.waitForExistence(timeout: 15))
         XCTAssertEqual(yachts.label, "Yachts")
-        let tiles = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'world./'")).allElementsBoundByIndex
-        XCTAssertEqual(tiles.count, 8)
+        let tileQuery = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'world./'"))
+        waitForCount(8, of: tileQuery)
+        // Measure the pictures where they come to rest, not on their way in.
+        Thread.sleep(forTimeInterval: 1.5)
+        let tiles = tileQuery.allElementsBoundByIndex
         assertTilesAreLaidOut(tiles.map(\.frame), in: app.windows.firstMatch.frame)
         attach("3-search")
         app.swipeUp()
@@ -81,18 +84,40 @@ final class MiamiElioUITests: XCTestCase {
     }
 
     func testOpeningASectionFromSearchReturnsToHome() throws {
-        let tabs = app.tabBars.firstMatch
-        XCTAssertTrue(tabs.waitForExistence(timeout: 60))
+        let tabs = waitForTheAppToOpen()
+        XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 30))
 
         tabs.buttons["Search"].tap()
         let yachts = app.buttons["world./yachts"]
-        XCTAssertTrue(yachts.waitForExistence(timeout: 15))
+        if !yachts.waitForExistence(timeout: 10) {
+            // This is the first test to run, on a simulator that has only just
+            // booted, and there the tap on the tab has gone astray before.
+            // Keep a picture of what was on screen instead, then tap again.
+            attach("0-search-tab-missed")
+            tabs.buttons["Search"].tap()
+        }
+        XCTAssertTrue(yachts.waitForExistence(timeout: 15), "The Search tab never showed its sections")
         yachts.tap()
 
         let onHome = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isSelected == true"), object: tabs.buttons["Home"])
         XCTAssertEqual(XCTWaiter.wait(for: [onHome], timeout: 10), .completed, "A section should open in the Home tab")
         Thread.sleep(forTimeInterval: 12)
         attach("6-yachts")
+    }
+
+    /// The app opens under a brief splash; nothing can be tapped until it lifts.
+    private func waitForTheAppToOpen(file: StaticString = #filePath, line: UInt = #line) -> XCUIElement {
+        let tabs = app.tabBars.firstMatch
+        XCTAssertTrue(tabs.waitForExistence(timeout: 60), "The tab bar never appeared", file: file, line: line)
+        let splash = app.descendants(matching: .any)["splash"]
+        let lifted = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: splash)
+        XCTAssertEqual(XCTWaiter.wait(for: [lifted], timeout: 20), .completed, "The splash never lifted", file: file, line: line)
+        return tabs
+    }
+
+    private func waitForCount(_ count: Int, of query: XCUIElementQuery, file: StaticString = #filePath, line: UInt = #line) {
+        let reached = XCTNSPredicateExpectation(predicate: NSPredicate(format: "count == %d", count), object: query)
+        XCTAssertEqual(XCTWaiter.wait(for: [reached], timeout: 10), .completed, "Expected \(count) elements, found \(query.count)", file: file, line: line)
     }
 
     /// Picture tiles: each a real size, none on top of another, all inside

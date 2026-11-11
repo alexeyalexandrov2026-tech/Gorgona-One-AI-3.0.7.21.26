@@ -48,3 +48,12 @@ if copied == 0:
     print("No named screenshots found in the manifest; copied all images instead.")
 
 print(f"Kept {copied} screenshots of {len(records)} attachments in {destination}")
+
+# When a test fails, Xcode saves a text outline of what was on screen. Print
+# it: the log is the one part of a run that can be read from anywhere.
+for record in records:
+    exported = source / str(record.get("exportedFileName", ""))
+    if str(record.get("suggestedHumanReadableName", "")).startswith("App UI hierarchy") and exported.is_file():
+        lines = exported.read_text(errors="replace").splitlines()
+        print(f"\n--- On screen when a test failed ({len(lines)} lines, first 150) ---")
+        print("\n".join(line[:220] for line in lines[:150]))

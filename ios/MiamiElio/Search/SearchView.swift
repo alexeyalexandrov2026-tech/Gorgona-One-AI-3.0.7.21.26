@@ -46,14 +46,19 @@ struct SearchView: View {
                 .accessibilityLabel(L10n.stateLoading)
         case .results(let results):
             LazyVStack(spacing: 0) {
-                ForEach(results) { result in
-                    Button {
-                        router.open(reference: result.href)
-                    } label: {
-                        SearchResultRow(result: result, imageURL: store.imageURL(for: result))
+                ForEach(Array(results.enumerated()), id: \.element.id) { index, result in
+                    VStack(spacing: 0) {
+                        Button {
+                            router.open(reference: result.href)
+                        } label: {
+                            SearchResultRow(result: result, imageURL: store.imageURL(for: result))
+                        }
+                        .buttonStyle(PressableStyle())
+                        Hairline()
                     }
-                    .buttonStyle(PressableStyle())
-                    Hairline()
+                    // Only the first screenful is staggered; rows further
+                    // down are already there by the time they scroll in.
+                    .arrives(min(index, 7))
                 }
             }
         case .empty:
@@ -93,25 +98,31 @@ private struct WorldGrid: View {
             Text(L10n.searchPopular)
                 .eyebrow()
                 .padding(.bottom, 4)
+                .arrives(0)
 
             // One wide picture, three pairs, one wide picture: the rhythm of
             // a magazine spread rather than a grid of equal boxes.
             WorldTile(world: World(title: L10n.worldCars, photo: "WorldCars", path: "/rentals"), format: .wide, open: open)
+                .arrives(1)
 
             HStack(spacing: gap) {
                 WorldTile(world: World(title: L10n.worldYachts, photo: "WorldYachts", path: "/yachts"), format: .tall, open: open)
                 WorldTile(world: World(title: L10n.worldVillas, photo: "WorldVillas", path: "/vacation-rentals"), format: .tall, open: open)
             }
+            .arrives(2)
             HStack(spacing: gap) {
                 WorldTile(world: World(title: L10n.worldEvents, photo: "WorldEvents", path: "/events"), format: .tall, open: open)
                 WorldTile(world: World(title: L10n.worldDining, photo: "WorldDining", path: "/restaurants-nightlife"), format: .tall, open: open)
             }
+            .arrives(3)
             HStack(spacing: gap) {
                 WorldTile(world: World(title: L10n.worldExperiences, photo: "WorldExperiences", path: "/experiences"), format: .tall, open: open)
                 WorldTile(world: World(title: L10n.worldTravel, photo: "WorldTravel", path: "/travel"), format: .tall, open: open)
             }
+            .arrives(4)
 
             WorldTile(world: World(title: L10n.worldShopping, photo: "WorldShopping", path: "/stores"), format: .banner, open: open)
+                .arrives(5)
         }
     }
 }

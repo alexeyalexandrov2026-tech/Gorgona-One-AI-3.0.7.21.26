@@ -13,7 +13,7 @@ struct MiamiElioApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootTabView()
+            AppRootView()
                 .environment(services.router)
                 .environment(services.concierge)
                 .environment(services.search)

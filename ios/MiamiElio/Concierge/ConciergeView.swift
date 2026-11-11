@@ -26,9 +26,11 @@ struct ConciergeView: View {
                                 open: { router.open(reference: $0) },
                                 retry: { store.retry() }
                             )
+                            .arrives()
                         }
                         if store.isSending {
                             TypingIndicator()
+                                .arrives()
                         }
                         Color.clear
                             .frame(height: 1)
@@ -140,10 +142,12 @@ private struct ConciergeWelcome: View {
             ConciergeMark(diameter: 68, breathes: true)
                 .padding(.top, 28)
                 .padding(.bottom, 30)
+                .arrives(0)
 
             Text(verbatim: "Miami Elio AI")
                 .eyebrow(Theme.accent)
                 .padding(.bottom, 12)
+                .arrives(1)
 
             Text(L10n.conciergeTitle)
                 .font(AppFont.hero)
@@ -152,6 +156,7 @@ private struct ConciergeWelcome: View {
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("concierge.title")
                 .padding(.bottom, 14)
+                .arrives(2)
 
             Text(L10n.conciergeSubtitle)
                 .font(AppFont.body)
@@ -159,12 +164,14 @@ private struct ConciergeWelcome: View {
                 .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, 30)
+                .arrives(3)
 
             // Ready-made requests, listed the way the site lists its sections:
             // one per line between hairlines.
             VStack(spacing: 0) {
-                ForEach(L10n.conciergeStarters, id: \.self) { prompt in
+                ForEach(Array(L10n.conciergeStarters.enumerated()), id: \.element) { index, prompt in
                     Hairline()
+                        .arrives(4 + index)
                     Button {
                         ask(prompt)
                     } label: {
@@ -185,8 +192,10 @@ private struct ConciergeWelcome: View {
                     }
                     .buttonStyle(PressableStyle())
                     .accessibilityIdentifier("concierge.starter")
+                    .arrives(4 + index)
                 }
                 Hairline()
+                    .arrives(4 + L10n.conciergeStarters.count)
             }
         }
     }

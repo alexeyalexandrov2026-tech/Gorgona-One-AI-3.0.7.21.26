@@ -12,7 +12,16 @@ struct RootTabView: View {
                 .tag(AppTab.explore)
 
             ConciergeView()
-                .tabItem { Label(L10n.tabConcierge, systemImage: "sparkles") }
+                .tabItem {
+                    Label {
+                        Text(L10n.tabConcierge)
+                    } icon: {
+                        // The concierge's own orb rather than a symbol: lit
+                        // on its tab, muted while another one is showing.
+                        // Drawn by `ios/scripts/render-tab-orb.py`.
+                        Image(router.selectedTab == .concierge ? "TabOrbSelected" : "TabOrb")
+                    }
+                }
                 .tag(AppTab.concierge)
 
             SearchView()

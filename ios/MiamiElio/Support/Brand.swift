@@ -2,17 +2,22 @@ import SwiftUI
 
 /// "MIAMI Elio", set the way the website header sets it.
 struct Wordmark: View {
+    /// The size of "Elio"; "MIAMI" and the spacing keep their proportion to
+    /// it. The default is the navigation bar's.
+    var size: CGFloat = 26
+
     var body: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 7) {
+        HStack(alignment: .firstTextBaseline, spacing: size * 7 / 26) {
             Text(verbatim: "MIAMI")
-                .font(AppFont.mono(11))
-                .kerning(3.3)
+                .font(AppFont.mono(size * 11 / 26))
+                .kerning(size * 3.3 / 26)
                 .foregroundStyle(Theme.accent)
             Text(verbatim: "Elio")
-                .font(AppFont.wordmark(26))
+                .font(AppFont.wordmark(size))
                 .foregroundStyle(Theme.ink)
         }
-        // It lives in the navigation bar, which has no room to grow.
+        // A fixed mark, not text to read: the navigation bar has no room for
+        // it to grow, and the splash is composed around its size.
         .dynamicTypeSize(...DynamicTypeSize.xLarge)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: "Miami Elio"))

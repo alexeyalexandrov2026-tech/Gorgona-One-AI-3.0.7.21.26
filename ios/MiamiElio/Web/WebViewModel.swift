@@ -18,6 +18,9 @@ final class WebViewModel: NSObject {
     private(set) var progress: Double = 0
     private(set) var isLoading = false
     private(set) var failure: LoadFailure?
+    /// True once the first page is all but drawn, or has failed: either way
+    /// there is now something to look at. The splash waits for this.
+    private(set) var hasSettled = false
 
     let webView: WKWebView
 
@@ -92,7 +95,10 @@ final class WebViewModel: NSObject {
         observations = [
             webView.observe(\.estimatedProgress, options: [.new]) { [weak self] _, change in
                 guard let value = change.newValue else { return }
-                Task { @MainActor [weak self] in self?.progress = value }
+                Task { @MainActor [weak self] in
+                    self?.progress = value
+                    if value >= 0.85 { self?.settle() }
+                }
             },
             webView.observe(\.isLoading, options: [.new]) { [weak self] _, change in
                 guard let value = change.newValue else { return }
@@ -160,6 +166,10 @@ final class WebViewModel: NSObject {
             try? await Task.sleep(for: .seconds(2))
             self?.finishPreparing()
         }
+    }
+
+    private func settle() {
+        if !hasSettled { hasSettled = true }
     }
 
     private func finishPreparing() {
@@ -398,6 +408,7 @@ extension WebViewModel: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        settle()
         webView.scrollView.refreshControl?.endRefreshing()
         readSession { [weak self] signedIn in
             self?.signedInAtLoad = signedIn
@@ -405,6 +416,7 @@ extension WebViewModel: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        settle()
         webView.scrollView.refreshControl?.endRefreshing()
     }
 
@@ -421,6 +433,7 @@ extension WebViewModel: WKNavigationDelegate {
             NSURLErrorCannotFindHost, NSURLErrorCannotConnectToHost, NSURLErrorDNSLookupFailed,
             NSURLErrorInternationalRoamingOff, NSURLErrorDataNotAllowed
         ]
+        settle()
         failure = LoadFailure(
             url: (failed.userInfo[NSURLErrorFailingURLErrorKey] as? URL) ?? webView.url,
             isOffline: failed.domain == NSURLErrorDomain && offlineCodes.contains(failed.code)
