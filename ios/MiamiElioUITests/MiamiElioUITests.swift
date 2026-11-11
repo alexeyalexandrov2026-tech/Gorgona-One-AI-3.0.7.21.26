@@ -105,6 +105,22 @@ final class MiamiElioUITests: XCTestCase {
         attach("6-yachts")
     }
 
+    func testSplashShowsTheBrandThenLifts() throws {
+        // Normally the splash is gone within three seconds, sooner than a
+        // test can look at it; ask this launch to hold it.
+        app.launchArguments += ["-splashHold", "20"]
+        app.launch()
+
+        let splash = app.descendants(matching: .any)["splash"]
+        XCTAssertTrue(splash.waitForExistence(timeout: 20), "The app did not open on its splash")
+        XCTAssertEqual(splash.label, "Miami Elio")
+        attach("0-splash")
+
+        let lifted = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: splash)
+        XCTAssertEqual(XCTWaiter.wait(for: [lifted], timeout: 45), .completed, "The splash never lifted")
+        XCTAssertTrue(app.tabBars.firstMatch.exists)
+    }
+
     /// The app opens under a brief splash; nothing can be tapped until it lifts.
     private func waitForTheAppToOpen(file: StaticString = #filePath, line: UInt = #line) -> XCUIElement {
         let tabs = app.tabBars.firstMatch

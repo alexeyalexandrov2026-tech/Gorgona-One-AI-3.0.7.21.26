@@ -20,6 +20,14 @@ struct AppRootView: View {
             // needs - with a limit, so a slow connection is never held behind
             // it. The page goes on loading underneath either way.
             try? await Task.sleep(for: .seconds(1.2))
+            #if DEBUG
+            // The UI test that photographs the splash asks it to stay a
+            // while: `-splashHold 20`. Release builds ignore the argument.
+            let hold = UserDefaults.standard.double(forKey: "splashHold")
+            if hold > 0 {
+                try? await Task.sleep(for: .seconds(hold))
+            }
+            #endif
             let patience = ContinuousClock.now.advanced(by: .seconds(1.6))
             while !router.explore.hasSettled, ContinuousClock.now < patience {
                 try? await Task.sleep(for: .milliseconds(80))
