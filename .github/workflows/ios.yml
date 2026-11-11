@@ -33,6 +33,11 @@ jobs:
       - name: Strings match the website
         run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON ios/scripts/build-strings.mjs --check
 
+      # Miami's season (the weeks on the concierge screen and its reminders)
+      # is copied from the home page's list; fail if the two have drifted.
+      - name: Season matches the website
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON ios/scripts/build-season.mjs --check
+
       - name: Logic tests (MiamiElioKit)
         working-directory: ios/MiamiElioKit
         run: swift test

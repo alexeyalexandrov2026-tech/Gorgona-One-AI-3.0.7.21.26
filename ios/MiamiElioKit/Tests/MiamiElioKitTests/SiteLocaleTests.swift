@@ -37,4 +37,25 @@ final class SiteLocaleTests: XCTestCase {
         XCTAssertTrue(SiteLocale.isRightToLeft("he"))
         XCTAssertFalse(SiteLocale.isRightToLeft("ru"))
     }
+
+    func testHearsEveryLanguageWithItsRegion() {
+        XCTAssertEqual(Set(SiteLocale.speechLocales.keys), Set(SiteLocale.supported))
+        XCTAssertEqual(SiteLocale.speechLocale("ru"), "ru-RU")
+        XCTAssertEqual(SiteLocale.speechLocale("zh-Hans-CN"), "zh-CN")
+        XCTAssertEqual(SiteLocale.speechLocale("pt"), "pt-BR")
+        XCTAssertEqual(SiteLocale.speechLocale("sv"), "en-US")
+    }
+
+    func testTurnsMicrophoneLoudnessIntoAnOrbLevel() {
+        XCTAssertEqual(VoiceLevel.normalized(rms: 0), 0)
+        // -60 dB: a quiet room.
+        XCTAssertEqual(VoiceLevel.normalized(rms: 0.001), 0)
+        // -40 dB and -20 dB.
+        XCTAssertEqual(VoiceLevel.normalized(rms: 0.01), 0.25, accuracy: 0.0001)
+        XCTAssertEqual(VoiceLevel.normalized(rms: 0.1), 0.75, accuracy: 0.0001)
+        // -10 dB and louder: the orb at its fullest.
+        XCTAssertEqual(VoiceLevel.normalized(rms: 0.32), 1)
+        XCTAssertEqual(VoiceLevel.normalized(rms: 1), 1)
+        XCTAssertEqual(VoiceLevel.normalized(rms: .nan), 0)
+    }
 }

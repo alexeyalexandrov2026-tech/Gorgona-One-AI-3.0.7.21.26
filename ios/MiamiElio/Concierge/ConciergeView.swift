@@ -3,10 +3,13 @@ import MiamiElioKit
 
 /// The AI concierge as a native conversation. It speaks to the same
 /// `/api/chat` the website uses; anything it points to opens in Home.
+/// A request can be typed or spoken; the concierge answers in text.
 struct ConciergeView: View {
     @Environment(AppRouter.self) private var router
     @Environment(ConciergeStore.self) private var store
+    @Environment(\.scenePhase) private var scenePhase
     @FocusState private var composing: Bool
+    @State private var dictation = Dictation()
 
     private static let bottom = "concierge.bottom"
 
@@ -18,11 +21,12 @@ struct ConciergeView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 26) {
                         if store.entries.isEmpty {
-                            ConciergeWelcome { store.send($0) }
+                            ConciergeWelcome(listening: dictation.isListening, level: dictation.level) { send($0) }
                         }
                         ForEach(store.entries) { entry in
                             ConciergeEntryView(
                                 entry: entry,
+                                isNewest: entry.id == store.entries.last?.id,
                                 open: { router.open(reference: $0) },
                                 retry: { store.retry() }
                             )
@@ -71,6 +75,7 @@ struct ConciergeView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        dictation.cancel()
                         store.reset()
                     } label: {
                         Image(systemName: "square.and.pencil")
@@ -88,45 +93,75 @@ struct ConciergeView: View {
                 return .handled
             })
         }
+        // Another tab, or the app put away: the microphone goes off, and
+        // what was heard so far stays in the composer.
+        .onDisappear { dictation.stop() }
+        .onChange(of: scenePhase) {
+            if scenePhase == .background {
+                dictation.stop()
+            }
+        }
+    }
+
+    /// Sends the draft, or a ready-made prompt. A microphone still on is put
+    /// down first, so nothing it hears afterwards refills the composer.
+    private func send(_ prompt: String? = nil) {
+        dictation.cancel()
+        dictation.notice = nil
+        store.send(prompt)
     }
 
     private func composer(draft: Binding<String>) -> some View {
-        HStack(alignment: .bottom, spacing: 10) {
-            TextField(
-                L10n.conciergePlaceholder,
-                text: draft,
-                prompt: Text(L10n.conciergePlaceholder).foregroundStyle(Theme.soft),
-                axis: .vertical
-            )
-            .font(AppFont.body)
-            .lineLimit(1...5)
-            .focused($composing)
-            .foregroundStyle(Theme.ink)
-            .padding(.horizontal, 18)
-            .padding(.vertical, 12)
-            .background(Theme.card, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .stroke(composing ? Theme.accent.opacity(0.6) : Theme.rule, lineWidth: 1)
-            )
-            .animation(.easeOut(duration: 0.2), value: composing)
-            .accessibilityIdentifier("concierge.input")
-
-            Button {
-                store.send()
-            } label: {
-                Image(systemName: "arrow.up")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(store.canSend ? Theme.onAccent : Theme.soft)
-                    .frame(width: 46, height: 46)
-                    .background(store.canSend ? Theme.accent : Theme.card, in: Circle())
-                    .overlay(Circle().stroke(store.canSend ? Color.clear : Theme.rule, lineWidth: 1))
+        VStack(spacing: 10) {
+            if let notice = dictation.notice {
+                SettingsNotice(
+                    text: notice == .denied ? L10n.voiceDenied : L10n.voiceUnavailable,
+                    offersSettings: notice == .denied
+                )
+                .accessibilityIdentifier("voice.notice")
+                .transition(.opacity)
             }
-            .buttonStyle(PressableStyle())
-            .disabled(!store.canSend)
-            .animation(.easeOut(duration: 0.2), value: store.canSend)
-            .accessibilityLabel(L10n.conciergeSend)
-            .accessibilityIdentifier("concierge.send")
+
+            HStack(alignment: .bottom, spacing: 10) {
+                TextField(
+                    L10n.conciergePlaceholder,
+                    text: draft,
+                    prompt: Text(dictation.isListening ? L10n.voiceListening + "…" : L10n.conciergePlaceholder)
+                        .foregroundStyle(Theme.soft),
+                    axis: .vertical
+                )
+                .font(AppFont.body)
+                .lineLimit(1...5)
+                .focused($composing)
+                .foregroundStyle(Theme.ink)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 12)
+                .background(Theme.card, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(composing || dictation.isListening ? Theme.accent.opacity(0.6) : Theme.rule, lineWidth: 1)
+                )
+                .animation(.easeOut(duration: 0.2), value: composing)
+                .accessibilityIdentifier("concierge.input")
+
+                microphone
+
+                Button {
+                    send()
+                } label: {
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(store.canSend ? Theme.onAccent : Theme.soft)
+                        .frame(width: 46, height: 46)
+                        .background(store.canSend ? Theme.accent : Theme.card, in: Circle())
+                        .overlay(Circle().stroke(store.canSend ? Color.clear : Theme.rule, lineWidth: 1))
+                }
+                .buttonStyle(PressableStyle())
+                .disabled(!store.canSend)
+                .animation(.easeOut(duration: 0.2), value: store.canSend)
+                .accessibilityLabel(L10n.conciergeSend)
+                .accessibilityIdentifier("concierge.send")
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
@@ -134,17 +169,65 @@ struct ConciergeView: View {
         .overlay(alignment: .top) {
             Hairline()
         }
+        .animation(.easeOut(duration: 0.2), value: dictation.notice)
+    }
+
+    /// Speak instead of type. While it listens, the button becomes the
+    /// concierge's orb, swelling with the guest's voice; a tap stops it.
+    private var microphone: some View {
+        Button {
+            toggleMicrophone()
+        } label: {
+            ZStack {
+                if dictation.isListening {
+                    ConciergeMark(diameter: 46, activity: .listening, level: dictation.level)
+                    Image(systemName: "stop.fill")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundStyle(Color.black.opacity(0.7))
+                } else {
+                    Image(systemName: "mic")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(Theme.soft)
+                        .frame(width: 46, height: 46)
+                        .overlay(Circle().stroke(Theme.rule, lineWidth: 1))
+                }
+            }
+            .frame(width: 46, height: 46)
+            .contentShape(Circle())
+        }
+        .buttonStyle(PressableStyle())
+        .sensoryFeedback(.impact(weight: .light), trigger: dictation.isListening)
+        .accessibilityLabel(dictation.isListening ? L10n.voiceStop : L10n.voiceSpeak)
+        .accessibilityIdentifier("concierge.mic")
+    }
+
+    private func toggleMicrophone() {
+        if dictation.isListening {
+            dictation.stop()
+            return
+        }
+        composing = false
+        // What is heard joins whatever the guest had already typed.
+        let store = self.store
+        let typed = store.draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        let lead = typed.isEmpty ? "" : typed + " "
+        dictation.start(language: store.language) { words in
+            store.draft = lead + words
+        }
     }
 }
 
 // MARK: - Empty conversation
 
 private struct ConciergeWelcome: View {
+    /// The microphone is on: the large orb listens too.
+    var listening = false
+    var level: Double = 0
     let ask: (String) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            ConciergeMark(diameter: 68, breathes: true)
+            ConciergeMark(diameter: 68, breathes: true, activity: listening ? .listening : .resting, level: level)
                 .padding(.top, 28)
                 .padding(.bottom, 30)
                 .arrives(0)
@@ -195,6 +278,10 @@ private struct ConciergeWelcome: View {
                 Hairline()
                     .arrives(3 + L10n.conciergeStarters.count)
             }
+
+            // The weeks that sell out first, each a request and a reminder away.
+            SeasonListView(ask: ask, order: 4 + L10n.conciergeStarters.count)
+                .padding(.top, 40)
         }
     }
 }
@@ -203,6 +290,8 @@ private struct ConciergeWelcome: View {
 
 private struct ConciergeEntryView: View {
     let entry: ConciergeStore.Entry
+    /// The latest reply: its orb lights up as it arrives.
+    let isNewest: Bool
     let open: (String) -> Void
     let retry: () -> Void
 
@@ -227,7 +316,7 @@ private struct ConciergeEntryView: View {
             // The concierge speaks in plain type beside its orb, like an
             // editor's reply, rather than from a second chat bubble.
             HStack(alignment: .top, spacing: 12) {
-                ConciergeMark(diameter: 22)
+                ConciergeMark(diameter: 22, glintsOnArrival: isNewest)
                     .padding(.top, 2)
 
                 VStack(alignment: .leading, spacing: 16) {
@@ -345,27 +434,14 @@ private struct ConciergeCardView: View {
     }
 }
 
+/// A reply on its way: the orb turns a light across itself, where three
+/// dots used to blink.
 private struct TypingIndicator: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var lit = false
-
     var body: some View {
-        HStack(spacing: 12) {
-            ConciergeMark(diameter: 22)
-            HStack(spacing: 6) {
-                ForEach(0..<3, id: \.self) { index in
-                    Circle()
-                        .fill(Theme.gold)
-                        .frame(width: 6, height: 6)
-                        .opacity(lit ? 1 : 0.25)
-                        .animation(
-                            reduceMotion ? nil : .easeInOut(duration: 0.6).repeatForever().delay(Double(index) * 0.2),
-                            value: lit
-                        )
-                }
-            }
+        HStack(spacing: 0) {
+            ConciergeMark(diameter: 28, activity: .thinking)
+            Spacer(minLength: 0)
         }
-        .onAppear { lit = true }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.stateLoading)
     }

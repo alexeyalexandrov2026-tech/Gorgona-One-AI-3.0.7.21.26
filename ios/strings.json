@@ -113,6 +113,122 @@
         "fr": "Vérifiez votre connexion et réessayez.",
         "pl": "Sprawdź połączenie i spróbuj ponownie."
       }
+    },
+
+    "season.title": { "en": "Miami season", "site": { "catalog": "home.season" } },
+    "season.lede": { "en": "The weeks that sell out first. Plan them before everyone else does.", "site": { "catalog": "home.seasonSub" } },
+    "season.plan": { "en": "Plan this week", "site": { "catalog": "home.plan" } },
+    "season.ask": { "en": "{name}, {dates}. Help me plan it: a car, a place to stay, dinner and tickets.", "site": { "catalog": "home.seasonAsk" } },
+    "season.onNow": { "en": "On now", "site": { "catalog": "home.onNow" } },
+    "season.tomorrow": { "en": "Tomorrow", "site": { "catalog": "home.tomorrow" } },
+    "season.empty": { "en": "Next season’s dates are on their way.", "site": { "catalog": "home.seasonEmpty" } },
+    "season.remind": {
+      "en": "Remind me",
+      "translations": {
+        "ru": "Напомнить", "es": "Recordármelo", "he": "תזכירו לי", "zh": "提醒我", "pt": "Lembrar-me", "uk": "Нагадати",
+        "ja": "リマインダーを設定", "ko": "알림 받기", "de": "Erinnern", "ar": "ذكّرني", "tr": "Hatırlat", "fa": "یادآوری کن",
+        "it": "Ricordamelo", "fr": "Me le rappeler", "pl": "Przypomnij mi"
+      }
+    },
+    "season.reminderOff": {
+      "en": "Cancel the reminder",
+      "translations": {
+        "ru": "Отменить напоминание", "es": "Cancelar el recordatorio", "he": "ביטול התזכורת", "zh": "取消提醒",
+        "pt": "Cancelar o lembrete", "uk": "Скасувати нагадування", "ja": "リマインダーを取り消す", "ko": "알림 취소",
+        "de": "Erinnerung aufheben", "ar": "إلغاء التذكير", "tr": "Hatırlatmayı iptal et", "fa": "لغو یادآوری",
+        "it": "Annulla il promemoria", "fr": "Annuler le rappel", "pl": "Anuluj przypomnienie"
+      }
+    },
+    "season.reminderOn": {
+      "en": "Reminder on {date}",
+      "translations": {
+        "ru": "Напомним {date}",
+        "es": "Te lo recordaremos el {date}",
+        "he": "נזכיר לך ב־{date}",
+        "zh": "将于{date}提醒您",
+        "pt": "Vamos lembrar em {date}",
+        "uk": "Нагадаємо {date}",
+        "ja": "{date}にお知らせします",
+        "ko": "{date}에 알려 드릴게요",
+        "de": "Erinnerung am {date}",
+        "ar": "سنذكّرك في {date}",
+        "tr": "{date} tarihinde hatırlatacağız",
+        "fa": "در {date} یادآوری می‌کنیم",
+        "it": "Te lo ricorderemo il {date}",
+        "fr": "Rappel le {date}",
+        "pl": "Przypomnimy {date}"
+      }
+    },
+    "season.blocked": {
+      "en": "Notifications for Miami Elio are off. Turn them on in Settings to get reminders.",
+      "translations": {
+        "ru": "Уведомления Miami Elio выключены. Включите их в Настройках, чтобы получать напоминания.",
+        "es": "Las notificaciones de Miami Elio están desactivadas. Actívalas en Ajustes para recibir recordatorios.",
+        "he": "ההתראות של Miami Elio כבויות. הפעילו אותן בהגדרות כדי לקבל תזכורות.",
+        "zh": "Miami Elio 的通知已关闭。请在“设置”中开启，以便接收提醒。",
+        "pt": "As notificações do Miami Elio estão desativadas. Ative-as em Ajustes para receber lembretes.",
+        "uk": "Сповіщення Miami Elio вимкнено. Увімкніть їх у Параметрах, щоб отримувати нагадування.",
+        "ja": "Miami Elio の通知はオフになっています。リマインダーを受け取るには「設定」でオンにしてください。",
+        "ko": "Miami Elio 알림이 꺼져 있습니다. 알림을 받으려면 설정에서 켜 주세요.",
+        "de": "Mitteilungen von Miami Elio sind deaktiviert. Aktivieren Sie sie in den Einstellungen, um Erinnerungen zu erhalten.",
+        "ar": "إشعارات Miami Elio متوقفة. فعّلها من الإعدادات لتصلك التذكيرات.",
+        "tr": "Miami Elio bildirimleri kapalı. Hatırlatma almak için Ayarlar'dan açın.",
+        "fa": "اعلان‌های Miami Elio خاموش است. برای دریافت یادآوری‌ها آن‌ها را در تنظیمات روشن کنید.",
+        "it": "Le notifiche di Miami Elio sono disattivate. Attivale in Impostazioni per ricevere i promemoria.",
+        "fr": "Les notifications de Miami Elio sont désactivées. Activez-les dans Réglages pour recevoir les rappels.",
+        "pl": "Powiadomienia Miami Elio są wyłączone. Włącz je w Ustawieniach, aby otrzymywać przypomnienia."
+      }
+    },
+
+    "voice.speak": { "en": "Speak your request", "site": { "lib": "ai.speakRequest" } },
+    "voice.stop": { "en": "Stop listening", "site": { "lib": "ai.stopListening" } },
+    "voice.listening": { "en": "Listening", "site": { "lib": "ai.listening" } },
+    "voice.denied": {
+      "en": "To speak to the concierge, allow the microphone and speech recognition in Settings.",
+      "translations": {
+        "ru": "Чтобы говорить с консьержем, разрешите микрофон и распознавание речи в Настройках.",
+        "es": "Para hablar con el conserje, permite el micrófono y el reconocimiento de voz en Ajustes.",
+        "he": "כדי לדבר עם הקונסיירז', אפשרו גישה למיקרופון ולזיהוי דיבור בהגדרות.",
+        "zh": "如需与礼宾对话，请在“设置”中允许使用麦克风和语音识别。",
+        "pt": "Para falar com o concierge, permita o microfone e o reconhecimento de fala em Ajustes.",
+        "uk": "Щоб говорити з консьєржем, дозвольте мікрофон і розпізнавання мовлення в Параметрах.",
+        "ja": "コンシェルジュに話しかけるには、「設定」でマイクと音声認識を許可してください。",
+        "ko": "컨시어지에게 말하려면 설정에서 마이크와 음성 인식을 허용해 주세요.",
+        "de": "Um mit dem Concierge zu sprechen, erlauben Sie Mikrofon und Spracherkennung in den Einstellungen.",
+        "ar": "للتحدث إلى الكونسيرج، اسمح باستخدام الميكروفون والتعرّف على الكلام من الإعدادات.",
+        "tr": "Konsiyerjle konuşmak için Ayarlar'da mikrofona ve konuşma tanımaya izin verin.",
+        "fa": "برای صحبت با کانسیرژ، دسترسی به میکروفون و تشخیص گفتار را در تنظیمات مجاز کنید.",
+        "it": "Per parlare con il concierge, consenti il microfono e il riconoscimento vocale in Impostazioni.",
+        "fr": "Pour parler au concierge, autorisez le micro et la reconnaissance vocale dans Réglages.",
+        "pl": "Aby mówić do konsjerża, zezwól na mikrofon i rozpoznawanie mowy w Ustawieniach."
+      }
+    },
+    "voice.unavailable": {
+      "en": "Voice input isn’t available for this language on this iPhone.",
+      "translations": {
+        "ru": "На этом iPhone голосовой ввод для этого языка недоступен.",
+        "es": "La entrada de voz no está disponible para este idioma en este iPhone.",
+        "he": "הקלט קולי אינו זמין לשפה זו במכשיר iPhone זה.",
+        "zh": "此 iPhone 不支持该语言的语音输入。",
+        "pt": "A entrada de voz não está disponível para este idioma neste iPhone.",
+        "uk": "На цьому iPhone голосове введення для цієї мови недоступне.",
+        "ja": "この iPhone では、この言語の音声入力を利用できません。",
+        "ko": "이 iPhone에서는 이 언어의 음성 입력을 사용할 수 없습니다.",
+        "de": "Spracheingabe ist für diese Sprache auf diesem iPhone nicht verfügbar.",
+        "ar": "الإدخال الصوتي غير متاح لهذه اللغة على هذا الـ iPhone.",
+        "tr": "Bu iPhone'da bu dil için sesli giriş kullanılamıyor.",
+        "fa": "ورودی صوتی برای این زبان در این iPhone در دسترس نیست.",
+        "it": "L’input vocale non è disponibile per questa lingua su questo iPhone.",
+        "fr": "La saisie vocale n’est pas disponible pour cette langue sur cet iPhone.",
+        "pl": "Wprowadzanie głosowe nie jest dostępne dla tego języka na tym iPhonie."
+      }
+    },
+    "action.settings": {
+      "en": "Settings",
+      "translations": {
+        "ru": "Настройки", "es": "Ajustes", "he": "הגדרות", "zh": "设置", "pt": "Ajustes", "uk": "Параметри", "ja": "設定",
+        "ko": "설정", "de": "Einstellungen", "ar": "الإعدادات", "tr": "Ayarlar", "fa": "تنظیمات", "it": "Impostazioni", "fr": "Réglages", "pl": "Ustawienia"
+      }
     }
   },
   "infoPlist": {

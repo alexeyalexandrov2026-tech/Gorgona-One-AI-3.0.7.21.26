@@ -49,7 +49,27 @@ final class MiamiElioUITests: XCTestCase {
         let keyboardGone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.keyboards.firstMatch)
         XCTAssertEqual(XCTWaiter.wait(for: [keyboardGone], timeout: 10), .completed, "The keyboard stayed up")
         assertStackedWithoutOverlap(app.buttons.matching(identifier: "concierge.starter").allElementsBoundByIndex.map(\.frame))
+        // A request can be spoken. The test does not tap the microphone: that
+        // would ask the simulator for permissions it has no one to grant.
+        let microphone = app.buttons["concierge.mic"]
+        XCTAssertTrue(microphone.exists)
+        XCTAssertEqual(microphone.label, "Speak your request")
         attach("2-concierge")
+
+        // Under the prompts, Miami's season: the weeks still ahead, each with
+        // a bell for a reminder (left untapped, for the same reason).
+        let season = app.staticTexts["season.title"]
+        XCTAssertTrue(season.waitForExistence(timeout: 10))
+        let weeks = app.buttons.matching(identifier: "season.event")
+        if weeks.count == 0 {
+            XCTAssertTrue(app.staticTexts["season.empty"].exists, "No weeks and no word that dates are coming")
+        } else {
+            assertStackedWithoutOverlap(weeks.allElementsBoundByIndex.map(\.frame))
+        }
+        app.swipeUp()
+        Thread.sleep(forTimeInterval: 1)
+        attach("2-concierge-season")
+        app.swipeDown()
 
         // Search: popular sections first, then live results.
         tabs.buttons["Search"].tap()

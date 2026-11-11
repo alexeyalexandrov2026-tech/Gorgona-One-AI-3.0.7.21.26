@@ -60,12 +60,35 @@ enum L10n {
     static var favoriteSave: String { text("favorite.save") }
     static var favoriteRemove: String { text("favorite.remove") }
 
+    // Miami's season under the concierge's prompts, and its reminders.
+    static var seasonTitle: String { text("season.title") }
+    static var seasonLede: String { text("season.lede") }
+    static var seasonPlan: String { text("season.plan") }
+    static var seasonOnNow: String { text("season.onNow") }
+    static var seasonTomorrow: String { text("season.tomorrow") }
+    static var seasonEmpty: String { text("season.empty") }
+    static var seasonRemind: String { text("season.remind") }
+    static var seasonReminderOff: String { text("season.reminderOff") }
+    static var seasonBlocked: String { text("season.blocked") }
+    static func seasonAsk(name: String, dates: String) -> String {
+        text("season.ask").replacingOccurrences(of: "{name}", with: name).replacingOccurrences(of: "{dates}", with: dates)
+    }
+    static func seasonReminderOn(_ date: String) -> String { text("season.reminderOn").replacingOccurrences(of: "{date}", with: date) }
+
+    // Speaking a request to the concierge. It answers in text only.
+    static var voiceSpeak: String { text("voice.speak") }
+    static var voiceStop: String { text("voice.stop") }
+    static var voiceListening: String { text("voice.listening") }
+    static var voiceDenied: String { text("voice.denied") }
+    static var voiceUnavailable: String { text("voice.unavailable") }
+
     static var errorGeneric: String { text("error.generic") }
     static var offlineTitle: String { text("offline.title") }
     static var offlineMessage: String { text("offline.message") }
     static var actionRetry: String { text("action.retry") }
     static var actionCancel: String { text("action.cancel") }
     static var actionOK: String { text("action.ok") }
+    static var actionSettings: String { text("action.settings") }
     static var stateLoading: String { text("state.loading") }
 
     private static func text(_ key: String) -> String {

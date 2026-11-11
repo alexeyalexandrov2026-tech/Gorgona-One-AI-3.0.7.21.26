@@ -69,6 +69,18 @@ final class ConciergeStore {
         !isSending && !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    /// The language the guest last chose on the site: the concierge answers
+    /// in it, and the microphone listens for it.
+    var language: String {
+        locale()
+    }
+
+    /// Puts a request in the composer for the guest to read and send, as
+    /// when they open a season reminder. Nothing goes until they send it.
+    func prepare(_ text: String) {
+        draft = text
+    }
+
     /// Sends the draft, or a ready-made prompt when one is given.
     func send(_ prompt: String? = nil) {
         let text = (prompt ?? draft).trimmingCharacters(in: .whitespacesAndNewlines)
