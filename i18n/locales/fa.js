@@ -1,6 +1,5 @@
 // Saved display text. No translation service is called when rendering.
 export default {
-  "home.eyebrow": "سفر · اقامت · قایق‌های تفریحی · خودرو · رویدادها",
   "home.titleA": "در هزینه‌های روزمره صرفه‌جویی کنید. ",
   "home.titleEm": "بیشتر خرج کنید",
   "home.titleB": " برای تجربه‌های خاص.",

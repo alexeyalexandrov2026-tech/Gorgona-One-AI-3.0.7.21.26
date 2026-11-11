@@ -1,8 +1,4 @@
 {
-  "home.eyebrow": {
-    "sourceHash": "51e40a68253977a09d49252fdbbf578b21da1e36cec299da16f930008d287d86",
-    "description": "Owned source namespace. Translate complete messages and retain named slots."
-  },
   "home.titleA": {
     "sourceHash": "41c4c2a792735534cc196809418346b23b6e2fefc8f3c51346ec74c27dcc1d0b",
     "description": "Owned source namespace. Translate complete messages and retain named slots."

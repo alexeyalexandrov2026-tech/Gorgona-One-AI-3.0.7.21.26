@@ -1,6 +1,5 @@
 // Saved display text. No translation service is called when rendering.
 export default {
-  "home.eyebrow": "Reisen · Unterkünfte · Yachten · Autos · Events",
   "home.titleA": "Im Alltag sparen. ",
   "home.titleEm": "Sich etwas gönnen",
   "home.titleB": " beim Außergewöhnlichen.",

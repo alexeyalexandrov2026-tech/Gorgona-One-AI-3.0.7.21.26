@@ -29,7 +29,7 @@ test('the homepage has no promo-code copy in any core language', () => {
   const promo = /promo|coupon|code|nike|uber eats|промокод|скидк|código|cupom|קוד|מבצע/i;
   for (const lang of LANGS) {
     const copy = getHomeCopy(lang);
-    for (const text of [copy.eyebrow, copy.lede, ...copy.chips, ...copy.stats]) assert.doesNotMatch(text, promo, `${lang}: ${text}`);
+    for (const text of [copy.titleA, copy.titleEm, copy.titleB, copy.lede, ...copy.chips, ...copy.stats]) assert.doesNotMatch(text, promo, `${lang}: ${text}`);
     assert.equal(copy.stats.length, 3, `${lang} stats`);
     assert.equal(copy.chips.length, 5, `${lang} chips`);
     assert.doesNotMatch(copy.worldItems.deals.join(' '), /promo|coupon|промокод|código|cupom|קוד/i, `${lang} stores row`);

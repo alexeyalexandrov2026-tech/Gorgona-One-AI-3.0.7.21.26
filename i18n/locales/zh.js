@@ -1,6 +1,5 @@
 // Saved display text. No translation service is called when rendering.
 export default {
-  "home.eyebrow": "旅行 · 住宿 · 游艇 · 汽车 · 活动",
   "home.titleA": "日常消费精打细算。",
   "home.titleEm": "尽享奢华",
   "home.titleB": "，让非凡时刻更精彩。",

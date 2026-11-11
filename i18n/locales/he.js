@@ -1,6 +1,5 @@
 // Saved display text. No translation service is called when rendering.
 export default {
-  "home.eyebrow": "נסיעות · לינה · יאכטות · רכבים · אירועים",
   "home.titleA": "חוסכים ביומיום. ",
   "home.titleEm": "מתפנקים",
   "home.titleB": " בחוויות.",

@@ -1,6 +1,5 @@
 // Saved display text. No translation service is called when rendering.
 export default {
-  "home.eyebrow": "여행 · 숙소 · 요트 · 차량 · 이벤트",
   "home.titleA": "일상에서는 알뜰하게. ",
   "home.titleEm": "특별한 순간에는",
   "home.titleB": " 아낌없이 즐기세요.",
