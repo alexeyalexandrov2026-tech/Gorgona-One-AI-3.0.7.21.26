@@ -4,13 +4,15 @@ import Link from 'next/link';
 import { getServerTranslation } from '../../lib/serverLocale';
 import { Reveal, Stagger, StaggerItem, Parallax } from '../components/Motion';
 import { TicketNetworkCatalogue } from './TicketNetworkCatalogue';
+import { pageMetadata } from '../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
-  title: 'Tickets & Events | MIAMI ELIO',
-  description: 'Sports tickets and concert tickets from trusted providers, all in one place.'
-};
+export const metadata = pageMetadata({
+  title: 'Tickets & Events',
+  description: 'Sports tickets and concert tickets from trusted providers, all in one place.',
+  path: '/events'
+});
 
 const ArrowIcon = ({ className }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>

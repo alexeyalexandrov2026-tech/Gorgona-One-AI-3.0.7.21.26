@@ -2,6 +2,7 @@
 import { LocalizedText, LocalizedElement } from "../../components/LocalizedText";
 import Link from 'next/link';
 import { getServerTranslation } from '../../../lib/serverLocale';
+import { pageMetadata } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,10 +52,11 @@ const OVAGO_DEALS = [
   }
 ];
 
-export const metadata = {
-  title: 'Ovago Flight Deals | MIAMI ELIO',
-  description: 'Ovago flight deals - last minute flights, cheap flights, and business class fares.'
-};
+export const metadata = pageMetadata({
+  title: 'Ovago Flight Deals',
+  description: 'Ovago flight deals - last minute flights, cheap flights, and business class fares.',
+  path: '/travel/ovago'
+});
 
 export default async function OvagoProfilePage() {
   const { t } = await getServerTranslation();

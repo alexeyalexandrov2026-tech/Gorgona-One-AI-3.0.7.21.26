@@ -2,11 +2,13 @@
 import { LocalizedText, LocalizedElement } from "../components/LocalizedText";
 import Link from 'next/link';
 import { Reveal, Stagger, StaggerItem, Parallax } from '../components/Motion';
+import { pageMetadata } from '../../lib/seo.mjs';
 
-export const metadata = {
-  title: 'Travel | MIAMI ELIO',
-  description: 'Curated luxury travel — exclusive destinations, hotels, flights, and travel guides.'
-};
+export const metadata = pageMetadata({
+  title: 'Travel',
+  description: 'Curated luxury travel — exclusive destinations, hotels, flights, and travel guides.',
+  path: '/travel'
+});
 
 const experiences = [
   {

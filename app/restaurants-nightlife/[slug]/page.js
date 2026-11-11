@@ -1,4 +1,5 @@
 import { LocalizedListing } from '../../components/LocalizedText';
+import { savedListing } from '../../../lib/savedCopy';
 import { notFound } from 'next/navigation';
 import { getVenueBySlug } from '../../../lib/restaurantsNightlifeData';
 import { getServerTranslation } from '../../../lib/serverLocale';
@@ -7,8 +8,24 @@ import { fill } from '../../../lib/homeCopy';
 import { largeImage } from '../../../lib/worldsCopy';
 import AskButton from '../../components/g1/AskButton';
 import { Crumbs, Specs, eyebrowClass } from '../../components/g1/ui';
+import JsonLd from '../../components/JsonLd';
+import { pageMetadata, listingJsonLd, breadcrumbJsonLd } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  params = await params;
+  const venue = getVenueBySlug(params.slug);
+  if (!venue) return {};
+  const { t, locale } = await getServerTranslation();
+  const kind = venue.category === 'restaurant' ? t.restaurantsNightlife.restaurants : t.restaurantsNightlife.nightlife;
+  return pageMetadata({
+    title: `${venue.name} · ${kind} · ${venue.location}`,
+    description: savedListing(locale, venue),
+    path: `/restaurants-nightlife/${venue.slug}`,
+    image: venue.image
+  });
+}
 
 // A venue page. Tables are requested through the concierge, who confirms
 // the date, time and minimum spend with the guest.
@@ -20,9 +37,11 @@ export default async function VenueDetailPage({ params }) {
   const { t, locale } = await getServerTranslation();
   const copy = getDealsCopy(locale);
   const kind = venue.category === 'restaurant' ? t.restaurantsNightlife.restaurants : t.restaurantsNightlife.nightlife;
+  const path = `/restaurants-nightlife/${venue.slug}`;
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
+      <JsonLd data={[listingJsonLd('venue', venue, path), breadcrumbJsonLd([[t.restaurantsNightlife.pill, '/restaurants-nightlife'], [venue.name, path]])]} />
       <Crumbs items={[[t.restaurantsNightlife.pill, '/restaurants-nightlife'], [venue.name]]} />
 
       <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">

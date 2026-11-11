@@ -5,6 +5,7 @@ import { Logo } from '../../components/Logo';
 import { BuyTicketsButton } from '../BuyTicketsButton';
 import { EventViewTracker } from '../EventViewTracker';
 import { getServerTranslations } from '../../../lib/serverLocale';
+import { pageMetadata } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,10 +15,11 @@ export async function generateMetadata({ params }) {
   if (!event) {
     return { title: 'Event not found | MIAMI ELIO' };
   }
-  return {
-    title: `${event.name} Tickets | ${event.venue}, ${event.city} | MIAMI ELIO`,
-    description: event.description
-  };
+  return pageMetadata({
+    title: `${event.name} Tickets | ${event.venue}, ${event.city}`,
+    description: event.description,
+    path: `/events/${event.slug}`
+  });
 }
 
 export default async function EventDetailPage({ params }) {

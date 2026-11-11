@@ -1,5 +1,6 @@
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
-import { getRentals, getRentalBySlug } from '../../../lib/data/listings';
+import { getRentals } from '../../../lib/data/listings';
 import { rentalDescriptions, getContentText } from '../../../lib/contentTranslations';
 import { getServerTranslation } from '../../../lib/serverLocale';
 import { getWorldsCopy, displayValue } from '../../../lib/worldsCopy';
@@ -9,22 +10,43 @@ import BookingForm from '../../components/BookingForm';
 import Gallery from '../../components/g1/Gallery';
 import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
+import JsonLd from '../../components/JsonLd';
+import { pageMetadata, listingJsonLd, breadcrumbJsonLd } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
+// One inventory read per request, shared by the metadata and the page.
+const loadRentals = cache(() => getRentals({editorial:true}));
+
+export async function generateMetadata({ params }) {
+  params = await params;
+  const rental = (await loadRentals()).find((car) => car.slug === params.slug);
+  if (!rental) return {};
+  const { t, locale } = await getServerTranslation();
+  return pageMetadata({
+    title: `${rental.title} · ${t.nav.cars} · ${rental.location}`,
+    description: getContentText(rentalDescriptions, locale, rental.id, rental.description),
+    path: `/rentals/${rental.slug}`,
+    image: rental.image
+  });
+}
+
 export default async function RentalDetailPage({ params }) {
   params = await params;
-  const rental = await getRentalBySlug(params.slug,{editorial:true});
+  const rentals = await loadRentals();
+  const rental = rentals.find((car) => car.slug === params.slug);
   if (!rental) notFound();
 
   const { t, locale } = await getServerTranslation();
   const copy = getWorldsCopy(locale);
   const category = copy.categories[rental.category] || rental.category;
   const photos = [rental.image, ...(rental.gallery || []).filter((src) => src !== rental.image)];
-  const more = (await getRentals({editorial:true})).filter((car) => car.slug !== rental.slug && car.category === rental.category).slice(0, 3);
+  const more = rentals.filter((car) => car.slug !== rental.slug && car.category === rental.category).slice(0, 3);
+  const path = `/rentals/${rental.slug}`;
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
+      <JsonLd data={[listingJsonLd('car', rental, path), breadcrumbJsonLd([[t.nav.cars, '/rentals'], [rental.title, path]])]} />
       <Crumbs items={[[t.nav.cars, '/rentals'], [rental.title]]} />
 
       <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">

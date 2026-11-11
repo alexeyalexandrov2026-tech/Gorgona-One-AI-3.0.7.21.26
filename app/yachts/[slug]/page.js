@@ -1,26 +1,49 @@
+import { cache } from 'react';
 import { LocalizedListing } from '../../components/LocalizedText';
+import { savedListing } from '../../../lib/savedCopy';
 import { notFound } from 'next/navigation';
-import { getYachts, getYachtBySlug } from '../../../lib/data/listings';
+import { getYachts } from '../../../lib/data/listings';
 import { getServerTranslation } from '../../../lib/serverLocale';
 import { getWorldsCopy, displayValue, largeImage } from '../../../lib/worldsCopy';
 import BookingForm from '../../components/BookingForm';
 import Gallery from '../../components/g1/Gallery';
 import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
+import JsonLd from '../../components/JsonLd';
+import { pageMetadata, listingJsonLd, breadcrumbJsonLd } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
+// One inventory read per request, shared by the metadata and the page.
+const loadYachts = cache(() => getYachts({editorial:true}));
+
+export async function generateMetadata({ params }) {
+  params = await params;
+  const yacht = (await loadYachts()).find((y) => y.slug === params.slug);
+  if (!yacht) return {};
+  const { t, locale } = await getServerTranslation();
+  return pageMetadata({
+    title: `${yacht.title} · ${t.nav.yachts} · ${yacht.location}`,
+    description: savedListing(locale, yacht),
+    path: `/yachts/${yacht.slug}`,
+    image: yacht.image
+  });
+}
+
 export default async function YachtDetailPage({ params }) {
   params = await params;
-  const yacht = await getYachtBySlug(params.slug,{editorial:true});
+  const yachts = await loadYachts();
+  const yacht = yachts.find((y) => y.slug === params.slug);
   if (!yacht) notFound();
 
   const { t, locale } = await getServerTranslation();
   const copy = getWorldsCopy(locale);
-  const more = (await getYachts({editorial:true})).filter((y) => y.slug !== yacht.slug).slice(0, 3);
+  const more = yachts.filter((y) => y.slug !== yacht.slug).slice(0, 3);
+  const path = `/yachts/${yacht.slug}`;
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
+      <JsonLd data={[listingJsonLd('yacht', yacht, path), breadcrumbJsonLd([[t.nav.yachts, '/yachts'], [yacht.title, path]])]} />
       <Crumbs items={[[t.nav.yachts, '/yachts'], [yacht.title]]} />
 
       <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">

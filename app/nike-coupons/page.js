@@ -1,5 +1,12 @@
 
 import { LocalizedText } from "../components/LocalizedText";
+import { pageMetadata } from '../../lib/seo.mjs';
+
+export const metadata = pageMetadata({
+  title: 'Nike coupons and premium athlete essentials',
+  description: 'Explore verified Nike offers, seasonal drops, and premium apparel discounts.',
+  path: '/nike-coupons'
+});
 export default function NikeCouponsPage() {
   return (
     <main className="flex-1 py-10">

@@ -1,5 +1,12 @@
 
 import { LocalizedText } from "../components/LocalizedText";
+import { pageMetadata } from '../../lib/seo.mjs';
+
+export const metadata = pageMetadata({
+  title: 'FanDuel promos and betting updates',
+  description: 'A dedicated page for FanDuel sportsbook promotions and operator details.',
+  path: '/fanduel-promos'
+});
 import GamblingNotice from '../components/GamblingNotice';
 import { getServerLocale } from '../../lib/serverLocale';
 

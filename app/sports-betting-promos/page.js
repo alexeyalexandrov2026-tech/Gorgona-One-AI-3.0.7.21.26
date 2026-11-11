@@ -1,5 +1,12 @@
 
 import { LocalizedText } from "../components/LocalizedText";
+import { pageMetadata } from '../../lib/seo.mjs';
+
+export const metadata = pageMetadata({
+  title: 'Sports betting promos and sportsbook offers',
+  description: 'Discover premium sportsbook-related content, state availability, and responsible-gambling guidance.',
+  path: '/sports-betting-promos'
+});
 import GamblingNotice from '../components/GamblingNotice';
 import { getServerLocale } from '../../lib/serverLocale';
 

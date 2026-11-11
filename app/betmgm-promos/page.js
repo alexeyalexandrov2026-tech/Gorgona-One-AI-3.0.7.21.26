@@ -1,5 +1,12 @@
 
 import { LocalizedText } from "../components/LocalizedText";
+import { pageMetadata } from '../../lib/seo.mjs';
+
+export const metadata = pageMetadata({
+  title: 'BetMGM promos and sportsbook insights',
+  description: 'A dedicated landing page for BetMGM offers, state access, and related information.',
+  path: '/betmgm-promos'
+});
 import GamblingNotice from '../components/GamblingNotice';
 import { getServerLocale } from '../../lib/serverLocale';
 

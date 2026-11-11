@@ -3,7 +3,7 @@ export default function robots() {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin']
+      disallow: ['/admin', '/profile', '/account/', '/draft/']
     },
     sitemap: 'https://gorgona-one.com/sitemap.xml'
   };

@@ -4,8 +4,23 @@ import { notFound } from 'next/navigation';
 import { getExperienceBySlug } from '../../../lib/experiencesData';
 import { getServerTranslation } from '../../../lib/serverLocale';
 import BookingForm from '../../components/BookingForm';
+import JsonLd from '../../components/JsonLd';
+import { pageMetadata, listingJsonLd, breadcrumbJsonLd } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  params = await params;
+  const experience = getExperienceBySlug(params.slug);
+  if (!experience) return {};
+  const { t, locale } = await getServerTranslation();
+  return pageMetadata({
+    title: `${savedListing(locale, experience, 'title')} · ${t.experiences.pill}`,
+    description: savedListing(locale, experience),
+    path: `/experiences/${experience.slug}`,
+    image: experience.image
+  });
+}
 
 export default async function ExperienceDetailPage({ params }) {
   params = await params;
@@ -16,9 +31,11 @@ export default async function ExperienceDetailPage({ params }) {
   }
 
   const { t, locale } = await getServerTranslation();
+  const path = `/experiences/${experience.slug}`;
 
   return (
     <main className="flex-1 py-10">
+      <JsonLd data={[listingJsonLd('experience', experience, path), breadcrumbJsonLd([[t.experiences.pill, '/experiences'], [savedListing(locale, experience, 'title'), path]])]} />
       <div className="market-shell overflow-hidden rounded-[2rem]">
         <img src={experience.image} alt={savedListing(locale, experience, 'title')} className="h-72 w-full object-cover" />
         <div className="p-8">
