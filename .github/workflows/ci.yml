@@ -1,5 +1,6 @@
-# Runs the content tests and a Next.js production build on every pull request
-# and on main, so a broken change shows up red before it reaches production.
+# Runs the linter, the content tests, a Next.js production build and the
+# browser scenarios on every pull request and on main, so a broken change
+# shows up red before it reaches production.
 name: CI
 
 on:
@@ -22,6 +23,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm audit --audit-level=high
+      - run: npm run lint
       - run: npm run i18n:check
       - run: node --test tests/content/*.test.mjs tests/i18n/*.test.mjs tests/dashboard/*.test.mjs
       # Only the Next.js build: the full `npm run build` also packages the
@@ -29,3 +31,7 @@ jobs:
       - run: npx next build
         env:
           NEXT_TELEMETRY_DISABLED: 1
+      # Browser scenarios against the build above: home, language switch,
+      # concierge conversation and booking request. Outside requests are blocked.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e

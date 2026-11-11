@@ -14,13 +14,14 @@ function PasswordSetup(){
   const auth=useAuth(),locale=useLocale(),msg=useSavedText(),router=useRouter(),t=getTranslation(locale).auth;
   const [password,updatePassword]=useState(''),[confirmPassword,updateConfirmation]=useState('');
   const [saving,setSaving]=useState(false),[error,setError]=useState(null);
+  const loading=auth?.loading,sessionId=auth?.session?.id;
   useEffect(()=>{
-    if(auth?.loading||!auth?.session)return;
+    if(loading||!sessionId)return;
     // The SDK consumes the implicit-flow fragment before profile verification.
     // Synchronize Next's canonical URL even when the SDK has already cleared
     // location.hash, so a pending hydration cannot restore the old fragment.
     router.replace(window.location.pathname+window.location.search,{scroll:false});
-  },[auth?.loading,auth?.session?.id,router]);
+  },[loading,sessionId,router]);
   async function submit(event){
     event.preventDefault();if(saving)return;setSaving(true);setError(null);
     try{

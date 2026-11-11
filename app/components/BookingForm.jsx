@@ -68,6 +68,9 @@ function BookingWorkspace({rentalSlug,rentalTitle,kind}) {
       }
     }).catch(() => {}).finally(()=>{if(active)setRecovering(false);});
     return () => { active = false;mounted.current=false; };
+    // Runs once per mount on purpose: BookingForm remounts this component
+    // (through its key) whenever the visitor, the kind or the listing changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setC = (key) => (event) => setContact({ ...contact, [key]: event.target.value });

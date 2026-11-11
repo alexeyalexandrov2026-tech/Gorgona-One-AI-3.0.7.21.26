@@ -1,13 +1,22 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 
-test('homepage loads successfully', async ({ page }) => {
-  // Go to the homepage
+test('the home page opens with its heading, sections and the concierge entry', async ({ page }) => {
+  const failures = [];
+  page.on('pageerror', (error) => failures.push(error.message));
+  const response = await page.goto('/');
+  expect(response.status()).toBe(200);
+  await expect(page.locator('main h1')).toBeVisible();
+  await expect(page.locator('.ai-sphere')).toBeAttached();
+  for (const href of ['/rentals', '/yachts', '/vacation-rentals', '/stores', '/events']) {
+    await expect(page.locator(`main a[href="${href}"]`).first()).toBeAttached();
+  }
+  expect(failures).toEqual([]);
+});
+
+test('a section link from the home page opens that section', async ({ page }) => {
   await page.goto('/');
-
-  // Check if the Discovery Room (AI Assistant) trigger exists on the page
-  // This is a core component of the site
-  const aiTrigger = page.locator('.ai-sphere');
-  
-  // Wait for it to be attached to the DOM (it might be hidden initially, but should be in the DOM)
-  await expect(aiTrigger).toBeAttached({ timeout: 10000 });
+  await page.locator('main a[href="/rentals"]').first().click();
+  await expect(page).toHaveURL(/\/rentals$/);
+  await expect(page.locator('main h1')).toBeVisible();
+  await expect(page.locator('main a[href^="/rentals/"]').first()).toBeAttached();
 });
