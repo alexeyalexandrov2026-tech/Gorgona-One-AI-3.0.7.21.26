@@ -8,6 +8,11 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // Workers AI answers the concierge chat (app/api/chat). No API key: the
+  // model is reached through this binding, billed to this Cloudflare account.
+  "ai": {
+    "binding": "AI"
+  },
   "observability": {
     "enabled": true
   }

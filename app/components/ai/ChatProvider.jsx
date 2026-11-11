@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { matchActionCards, matchSuggestions } from '../../../lib/aiSuggestions';
 import { useLocale } from '../LocaleProvider';
-import { unavailableReply } from '../../../lib/ai/locale';
+import { fallbackReply } from '../../../lib/ai/locale';
 
 // ===========================================================================
 // Miami Elio — the concierge conversation (one thread, every surface).
@@ -115,12 +115,15 @@ export function ChatProvider({ children }) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
 
-    let answer = unavailableReply(locale);
     // Computed up front from the guest's own words: if the request never
     // reaches the server, these are the cards the guest still gets. The
     // matcher is multilingual, so this holds for any of the 16 UI languages.
     let nextCards = matchActionCards(content, { locale });
     let nextSuggestions = matchSuggestions(content, { locale });
+    // Every message gets a reply. If the request never comes back, this is
+    // it: a line that introduces the cards, or says plainly that the
+    // concierge is unavailable when there are none to show.
+    let answer = fallbackReply(locale, nextCards.length > 0);
 
     try {
       const response = await fetch('/api/chat', {
@@ -153,15 +156,7 @@ export function ChatProvider({ children }) {
       clearTimeout(timeout);
     }
 
-    setMessages((prev) => {
-      // If the backend is offline and we only have the canned error line, suppress the text.
-      // The local intent matcher still provides navigation cards, so the widget
-      // degrades gracefully into a silent smart-navigation bar instead of displaying an error.
-      if (answer === unavailableReply(locale)) {
-        return prev;
-      }
-      return [...prev, { role: 'assistant', content: answer }].slice(-MAX_MESSAGES);
-    });
+    setMessages((prev) => [...prev, { role: 'assistant', content: answer }].slice(-MAX_MESSAGES));
     setCards(nextCards);
     setSuggestions(nextSuggestions);
     setIsLoading(false);
