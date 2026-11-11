@@ -42,6 +42,13 @@ final class MiamiElioUITests: XCTestCase {
         _ = app.keyboards.firstMatch.waitForExistence(timeout: 5)
         input.typeText("A villa for six in Miami Beach")
         XCTAssertTrue(app.buttons["concierge.send"].isEnabled)
+        attach("2-concierge-typing")
+
+        // The keyboard covers the tab bar; a tap on the conversation puts it away.
+        title.tap()
+        let keyboardGone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.keyboards.firstMatch)
+        XCTAssertEqual(XCTWaiter.wait(for: [keyboardGone], timeout: 10), .completed, "The keyboard stayed up")
+        assertStackedWithoutOverlap(app.buttons.matching(identifier: "concierge.starter").allElementsBoundByIndex.map(\.frame))
         attach("2-concierge")
 
         // Search: popular sections first, then live results.
@@ -49,13 +56,21 @@ final class MiamiElioUITests: XCTestCase {
         let yachts = app.buttons["world./yachts"]
         XCTAssertTrue(yachts.waitForExistence(timeout: 15))
         XCTAssertEqual(yachts.label, "Yachts")
-        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'world./'")).count, 8)
+        let tiles = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'world./'")).allElementsBoundByIndex
+        XCTAssertEqual(tiles.count, 8)
+        assertTilesAreLaidOut(tiles.map(\.frame), in: app.windows.firstMatch.frame)
         attach("3-search")
+        app.swipeUp()
+        attach("3-search-more")
+        app.swipeDown()
 
         let field = app.searchFields.firstMatch
         XCTAssertTrue(field.waitForExistence(timeout: 10))
         field.tap()
-        field.typeText("yacht")
+        // Return submits the search and puts the keyboard away, uncovering the tab bar.
+        field.typeText("yacht\n")
+        let searchKeyboardGone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: app.keyboards.firstMatch)
+        XCTAssertEqual(XCTWaiter.wait(for: [searchKeyboardGone], timeout: 10), .completed, "The keyboard stayed up")
         Thread.sleep(forTimeInterval: 8)
         attach("4-search-results")
 
@@ -78,6 +93,34 @@ final class MiamiElioUITests: XCTestCase {
         XCTAssertEqual(XCTWaiter.wait(for: [onHome], timeout: 10), .completed, "A section should open in the Home tab")
         Thread.sleep(forTimeInterval: 12)
         attach("6-yachts")
+    }
+
+    /// Picture tiles: each a real size, none on top of another, all inside
+    /// the screen's width. Catches a layout that collapses or piles up.
+    private func assertTilesAreLaidOut(_ frames: [CGRect], in window: CGRect, file: StaticString = #filePath, line: UInt = #line) {
+        for frame in frames {
+            XCTAssertGreaterThan(frame.width, 120, "A tile is too narrow: \(frame)", file: file, line: line)
+            XCTAssertGreaterThan(frame.height, 120, "A tile is too short: \(frame)", file: file, line: line)
+            XCTAssertGreaterThanOrEqual(frame.minX, window.minX, "A tile runs off the left edge: \(frame)", file: file, line: line)
+            XCTAssertLessThanOrEqual(frame.maxX, window.maxX, "A tile runs off the right edge: \(frame)", file: file, line: line)
+        }
+        for (index, first) in frames.enumerated() {
+            for second in frames.dropFirst(index + 1) {
+                XCTAssertFalse(first.insetBy(dx: 1, dy: 1).intersects(second), "Tiles overlap: \(first) and \(second)", file: file, line: line)
+            }
+        }
+        // The lead picture spans the page; the pairs sit side by side.
+        let widest = frames.map(\.width).max() ?? 0
+        XCTAssertGreaterThan(widest, window.width * 0.8, file: file, line: line)
+        XCTAssertEqual(frames.filter { $0.width < window.width * 0.6 }.count, 6, "Expected three pairs of half-width tiles", file: file, line: line)
+    }
+
+    /// Rows listed one under another.
+    private func assertStackedWithoutOverlap(_ frames: [CGRect], file: StaticString = #filePath, line: UInt = #line) {
+        for (upper, lower) in zip(frames, frames.dropFirst()) {
+            XCTAssertGreaterThan(upper.height, 30, file: file, line: line)
+            XCTAssertLessThanOrEqual(upper.maxY, lower.minY + 1, "Rows overlap: \(upper) and \(lower)", file: file, line: line)
+        }
     }
 
     private func attach(_ name: String) {

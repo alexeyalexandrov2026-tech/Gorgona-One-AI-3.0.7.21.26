@@ -52,20 +52,20 @@ private struct LoadFailureView: View {
                 .accessibilityHidden(true)
 
             Text(failure.isOffline ? L10n.offlineTitle : L10n.errorGeneric)
-                .font(.title3.weight(.semibold))
+                .font(AppFont.title)
                 .foregroundStyle(Theme.ink)
                 .multilineTextAlignment(.center)
 
             if failure.isOffline {
                 Text(L10n.offlineMessage)
-                    .font(.subheadline)
+                    .font(AppFont.body)
                     .foregroundStyle(Theme.soft)
                     .multilineTextAlignment(.center)
             }
 
             Button(action: retry) {
                 Text(L10n.actionRetry)
-                    .font(.headline)
+                    .font(AppFont.button)
                     .foregroundStyle(Theme.onAccent)
                     .padding(.horizontal, 28)
                     .padding(.vertical, 12)

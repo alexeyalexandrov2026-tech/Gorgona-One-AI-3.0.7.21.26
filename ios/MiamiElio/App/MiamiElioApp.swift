@@ -6,6 +6,8 @@ struct MiamiElioApp: App {
     @State private var services = AppServices()
 
     init() {
+        // Fonts first: the bar appearance below already asks for them.
+        AppFont.registerBundledFonts()
         Theme.applyAppearance()
     }
 
@@ -15,6 +17,7 @@ struct MiamiElioApp: App {
                 .environment(services.router)
                 .environment(services.concierge)
                 .environment(services.search)
+                .font(AppFont.body)
                 .tint(Theme.accent)
                 .preferredColorScheme(.dark)
                 .onOpenURL { services.router.handle(deepLink: $0) }

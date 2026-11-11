@@ -1,8 +1,8 @@
 import SwiftUI
 import MiamiElioKit
 
-/// Native search over the Miami Elio inventory, with the main sections one
-/// tap away while nothing is typed.
+/// Native search over the Miami Elio inventory. Until something is typed it
+/// is a front door to the main sections, in photographs.
 struct SearchView: View {
     @Environment(AppRouter.self) private var router
     @Environment(SearchStore.self) private var store
@@ -14,12 +14,17 @@ struct SearchView: View {
             ScrollView {
                 content
                     .padding(.horizontal, 16)
-                    .padding(.vertical, 16)
+                    .padding(.top, 12)
+                    .padding(.bottom, 24)
             }
             .scrollDismissesKeyboard(.immediately)
             .background(Theme.paper)
-            .navigationTitle(L10n.tabSearch)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Wordmark()
+                }
+            }
             .searchable(text: $store.query, placement: .navigationBarDrawer(displayMode: .always))
             .autocorrectionDisabled()
             .task(id: store.query) {
@@ -37,28 +42,32 @@ struct SearchView: View {
             ProgressView()
                 .tint(Theme.soft)
                 .frame(maxWidth: .infinity)
-                .padding(.top, 48)
+                .padding(.top, 56)
                 .accessibilityLabel(L10n.stateLoading)
         case .results(let results):
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: 0) {
                 ForEach(results) { result in
                     Button {
                         router.open(reference: result.href)
                     } label: {
                         SearchResultRow(result: result, imageURL: store.imageURL(for: result))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PressableStyle())
+                    Hairline()
                 }
             }
         case .empty:
             SearchMessage(symbol: "magnifyingglass", text: L10n.searchEmpty)
         case .failed:
-            VStack(spacing: 16) {
+            VStack(spacing: 18) {
                 SearchMessage(symbol: "exclamationmark.triangle", text: L10n.errorGeneric)
-                Button(L10n.actionRetry) {
+                Button {
                     Task { await store.run() }
+                } label: {
+                    Text(L10n.actionRetry)
+                        .font(AppFont.button)
+                        .foregroundStyle(Theme.accent)
                 }
-                .font(.headline)
             }
         }
     }
@@ -66,67 +75,114 @@ struct SearchView: View {
 
 // MARK: - Sections
 
-private struct World: Identifiable {
+private struct World {
     let title: String
-    let symbol: String
+    /// Name in the asset catalogue; see `ios/scripts/import-world-photos.py`.
+    let photo: String
+    /// The site's own route (see `navItems` in Header.jsx).
     let path: String
-    var id: String { path }
 }
 
 private struct WorldGrid: View {
     let open: (String) -> Void
 
-    // Paths are the site's own routes (see `navItems` in Header.jsx).
-    private var worlds: [World] {
-        [
-            World(title: L10n.worldYachts, symbol: "sailboat.fill", path: "/yachts"),
-            World(title: L10n.worldCars, symbol: "car.fill", path: "/rentals"),
-            World(title: L10n.worldVillas, symbol: "house.fill", path: "/vacation-rentals"),
-            World(title: L10n.worldEvents, symbol: "ticket.fill", path: "/events"),
-            World(title: L10n.worldDining, symbol: "fork.knife", path: "/restaurants-nightlife"),
-            World(title: L10n.worldExperiences, symbol: "star.fill", path: "/experiences"),
-            World(title: L10n.worldTravel, symbol: "airplane", path: "/travel"),
-            World(title: L10n.worldShopping, symbol: "bag.fill", path: "/stores")
-        ]
-    }
+    private let gap: CGFloat = 12
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: gap) {
             Text(L10n.searchPopular)
-                .font(.footnote.weight(.semibold))
-                .textCase(.uppercase)
-                .kerning(1.2)
-                .foregroundStyle(Theme.soft)
+                .eyebrow()
+                .padding(.bottom, 4)
 
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                ForEach(worlds) { world in
-                    Button {
-                        open(world.path)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 14) {
-                            Image(systemName: world.symbol)
-                                .font(.title2)
-                                .foregroundStyle(Theme.accent)
-                                .accessibilityHidden(true)
-                            Text(world.title)
-                                .font(.headline)
-                                .foregroundStyle(Theme.ink)
-                                .multilineTextAlignment(.leading)
-                                .lineLimit(2)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 84, alignment: .topLeading)
-                        .padding(16)
-                        .background(Theme.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .stroke(Theme.rule, lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("world.\(world.path)")
-                }
+            // One wide picture, three pairs, one wide picture: the rhythm of
+            // a magazine spread rather than a grid of equal boxes.
+            WorldTile(world: World(title: L10n.worldCars, photo: "WorldCars", path: "/rentals"), format: .wide, open: open)
+
+            HStack(spacing: gap) {
+                WorldTile(world: World(title: L10n.worldYachts, photo: "WorldYachts", path: "/yachts"), format: .tall, open: open)
+                WorldTile(world: World(title: L10n.worldVillas, photo: "WorldVillas", path: "/vacation-rentals"), format: .tall, open: open)
+            }
+            HStack(spacing: gap) {
+                WorldTile(world: World(title: L10n.worldEvents, photo: "WorldEvents", path: "/events"), format: .tall, open: open)
+                WorldTile(world: World(title: L10n.worldDining, photo: "WorldDining", path: "/restaurants-nightlife"), format: .tall, open: open)
+            }
+            HStack(spacing: gap) {
+                WorldTile(world: World(title: L10n.worldExperiences, photo: "WorldExperiences", path: "/experiences"), format: .tall, open: open)
+                WorldTile(world: World(title: L10n.worldTravel, photo: "WorldTravel", path: "/travel"), format: .tall, open: open)
+            }
+
+            WorldTile(world: World(title: L10n.worldShopping, photo: "WorldShopping", path: "/stores"), format: .banner, open: open)
+        }
+    }
+}
+
+private struct WorldTile: View {
+    enum Format {
+        /// Full width, the lead picture.
+        case wide
+        /// Half width.
+        case tall
+        /// Full width and shallow, to close the page.
+        case banner
+
+        /// Width divided by height.
+        var proportion: CGFloat {
+            switch self {
+            case .wide: return 1.5
+            case .tall: return 0.9
+            case .banner: return 2.1
             }
         }
+    }
+
+    let world: World
+    let format: Format
+    let open: (String) -> Void
+
+    private let outline = RoundedRectangle(cornerRadius: 20, style: .continuous)
+
+    var body: some View {
+        Button {
+            open(world.path)
+        } label: {
+            // The clear base fixes the tile's shape; the photograph fills it
+            // and is cropped to it, whatever its own proportions.
+            Color.clear
+                .aspectRatio(format.proportion, contentMode: .fit)
+                .overlay {
+                    Image(decorative: world.photo)
+                        .resizable()
+                        .scaledToFill()
+                }
+                .overlay {
+                    // Darken the foot of the picture so the name stays legible.
+                    LinearGradient(
+                        stops: [
+                            .init(color: .clear, location: 0.3),
+                            .init(color: .black.opacity(0.78), location: 1)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
+                .overlay(alignment: .bottomLeading) {
+                    Text(world.title)
+                        .font(format == .tall ? AppFont.cardTitle : AppFont.title)
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(3)
+                        .minimumScaleFactor(0.7)
+                        .shadow(color: .black.opacity(0.45), radius: 8, y: 1)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
+                }
+                .clipShape(outline)
+                .overlay(outline.stroke(Color.white.opacity(0.08), lineWidth: 1))
+                .contentShape(outline)
+        }
+        .buttonStyle(PressableStyle())
+        .accessibilityLabel(world.title)
+        .accessibilityIdentifier("world.\(world.path)")
     }
 }
 
@@ -137,21 +193,22 @@ private struct SearchResultRow: View {
     let imageURL: URL?
 
     var body: some View {
-        HStack(alignment: .top, spacing: 14) {
-            thumbnail
-                .frame(width: 92, height: 72)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        HStack(alignment: .center, spacing: 16) {
+            Color.clear
+                .frame(width: 104, height: 84)
+                .overlay { thumbnail }
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text(result.title)
-                    .font(.headline)
+                    .font(AppFont.cardTitle)
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
 
                 if !result.detailLine.isEmpty {
                     Text(result.detailLine)
-                        .font(.subheadline)
+                        .font(AppFont.detail)
                         .foregroundStyle(Theme.soft)
                         .multilineTextAlignment(.leading)
                         .lineLimit(2)
@@ -159,26 +216,20 @@ private struct SearchResultRow: View {
 
                 if let price = result.price {
                     Text(price)
-                        .font(.subheadline.weight(.semibold))
+                        .font(AppFont.detailMedium)
                         .foregroundStyle(Theme.accent)
                 }
             }
 
             Spacer(minLength: 0)
 
-            Image(systemName: "chevron.forward")
-                .font(.footnote.weight(.semibold))
+            Image(systemName: "arrow.forward")
+                .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Theme.soft)
-                .padding(.top, 4)
                 .accessibilityHidden(true)
         }
-        .padding(12)
+        .padding(.vertical, 14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Theme.rule, lineWidth: 1)
-        )
         .contentShape(Rectangle())
     }
 
@@ -202,9 +253,9 @@ private struct SearchResultRow: View {
 
     private var placeholder: some View {
         ZStack {
-            Theme.rule
+            Theme.card
             Image(systemName: "photo")
-                .foregroundStyle(Theme.soft)
+                .foregroundStyle(Theme.rule)
                 .accessibilityHidden(true)
         }
     }
@@ -215,17 +266,17 @@ private struct SearchMessage: View {
     let text: String
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             Image(systemName: symbol)
-                .font(.system(size: 34, weight: .light))
+                .font(.system(size: 32, weight: .light))
                 .foregroundStyle(Theme.soft)
                 .accessibilityHidden(true)
             Text(text)
-                .font(.body)
+                .font(AppFont.body)
                 .foregroundStyle(Theme.soft)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding(.top, 48)
+        .padding(.top, 56)
     }
 }

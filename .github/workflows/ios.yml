@@ -67,13 +67,15 @@ jobs:
             -derivedDataPath build/DerivedData \
             -resultBundlePath build/UITests.xcresult
 
+      # Keep just the named screenshots the tests took; the result bundle
+      # also holds screen recordings and diagnostics that run to tens of MB.
       - name: Collect screenshots
         if: always()
         working-directory: ios
         run: |
-          if [ -d build/UITests.xcresult ]; then
-            xcrun xcresulttool export attachments --path build/UITests.xcresult --output-path build/screenshots || true
-          fi
+          [ -d build/UITests.xcresult ] || exit 0
+          xcrun xcresulttool export attachments --path build/UITests.xcresult --output-path build/attachments || exit 0
+          python3 scripts/collect-screenshots.py build/attachments build/screenshots
 
       - name: Upload screenshots
         if: always()

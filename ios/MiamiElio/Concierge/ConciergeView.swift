@@ -16,7 +16,7 @@ struct ConciergeView: View {
         NavigationStack {
             ScrollViewReader { proxy in
                 ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 16) {
+                    LazyVStack(alignment: .leading, spacing: 26) {
                         if store.entries.isEmpty {
                             ConciergeWelcome { store.send($0) }
                         }
@@ -34,10 +34,14 @@ struct ConciergeView: View {
                             .frame(height: 1)
                             .id(Self.bottom)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 20)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
                 }
                 .scrollDismissesKeyboard(.interactively)
+                // A tap on the conversation puts the keyboard away, which is
+                // also what uncovers the tab bar.
+                .simultaneousGesture(TapGesture().onEnded { composing = false })
                 .onChange(of: store.entries.count) {
                     withAnimation(.easeOut(duration: 0.25)) {
                         proxy.scrollTo(Self.bottom, anchor: .bottom)
@@ -53,9 +57,11 @@ struct ConciergeView: View {
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 composer(draft: $store.draft)
             }
-            .navigationTitle(L10n.tabConcierge)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Wordmark()
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         store.reset()
@@ -67,6 +73,8 @@ struct ConciergeView: View {
                     .accessibilityIdentifier("concierge.new")
                 }
             }
+            // A light tap under the finger when a message goes or a reply lands.
+            .sensoryFeedback(.impact(weight: .light), trigger: store.entries.count)
             // Links inside a reply follow the same rules as every other link.
             .environment(\.openURL, OpenURLAction { url in
                 router.open(url)
@@ -77,39 +85,47 @@ struct ConciergeView: View {
 
     private func composer(draft: Binding<String>) -> some View {
         HStack(alignment: .bottom, spacing: 10) {
-            TextField(L10n.conciergePlaceholder, text: draft, axis: .vertical)
-                .lineLimit(1...5)
-                .focused($composing)
-                .foregroundStyle(Theme.ink)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 11)
-                .background(Theme.card, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(Theme.rule, lineWidth: 1)
-                )
-                .accessibilityIdentifier("concierge.input")
+            TextField(
+                L10n.conciergePlaceholder,
+                text: draft,
+                prompt: Text(L10n.conciergePlaceholder).foregroundStyle(Theme.soft),
+                axis: .vertical
+            )
+            .font(AppFont.body)
+            .lineLimit(1...5)
+            .focused($composing)
+            .foregroundStyle(Theme.ink)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 12)
+            .background(Theme.card, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(composing ? Theme.accent.opacity(0.6) : Theme.rule, lineWidth: 1)
+            )
+            .animation(.easeOut(duration: 0.2), value: composing)
+            .accessibilityIdentifier("concierge.input")
 
             Button {
                 store.send()
             } label: {
                 Image(systemName: "arrow.up")
                     .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(Theme.onAccent)
-                    .frame(width: 44, height: 44)
-                    .background(store.canSend ? Theme.accent : Theme.rule, in: Circle())
+                    .foregroundStyle(store.canSend ? Theme.onAccent : Theme.soft)
+                    .frame(width: 46, height: 46)
+                    .background(store.canSend ? Theme.accent : Theme.card, in: Circle())
+                    .overlay(Circle().stroke(store.canSend ? Color.clear : Theme.rule, lineWidth: 1))
             }
+            .buttonStyle(PressableStyle())
             .disabled(!store.canSend)
+            .animation(.easeOut(duration: 0.2), value: store.canSend)
             .accessibilityLabel(L10n.conciergeSend)
             .accessibilityIdentifier("concierge.send")
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .background(Theme.paper)
         .overlay(alignment: .top) {
-            Rectangle()
-                .fill(Theme.rule)
-                .frame(height: 1)
+            Hairline()
         }
     }
 }
@@ -120,70 +136,59 @@ private struct ConciergeWelcome: View {
     let ask: (String) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            ConciergeMark()
-                .frame(width: 56, height: 56)
+        VStack(alignment: .leading, spacing: 0) {
+            ConciergeMark(diameter: 68, breathes: true)
+                .padding(.top, 28)
+                .padding(.bottom, 30)
+
+            Text(verbatim: "Miami Elio AI")
+                .eyebrow(Theme.accent)
+                .padding(.bottom, 12)
 
             Text(L10n.conciergeTitle)
-                .font(.system(.largeTitle, design: .serif).weight(.medium))
+                .font(AppFont.hero)
                 .foregroundStyle(Theme.ink)
+                .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("concierge.title")
+                .padding(.bottom, 14)
 
             Text(L10n.conciergeSubtitle)
-                .font(.body)
+                .font(AppFont.body)
                 .foregroundStyle(Theme.soft)
+                .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom, 30)
 
-            VStack(alignment: .leading, spacing: 10) {
+            // Ready-made requests, listed the way the site lists its sections:
+            // one per line between hairlines.
+            VStack(spacing: 0) {
                 ForEach(L10n.conciergeStarters, id: \.self) { prompt in
+                    Hairline()
                     Button {
                         ask(prompt)
                     } label: {
-                        HStack(spacing: 12) {
+                        HStack(alignment: .center, spacing: 14) {
                             Text(prompt)
-                                .font(.callout)
+                                .font(AppFont.prompt)
                                 .foregroundStyle(Theme.ink)
                                 .multilineTextAlignment(.leading)
+                                .fixedSize(horizontal: false, vertical: true)
                             Spacer(minLength: 8)
                             Image(systemName: "arrow.up.forward")
-                                .font(.footnote.weight(.semibold))
+                                .font(.system(size: 15, weight: .medium))
                                 .foregroundStyle(Theme.accent)
                                 .accessibilityHidden(true)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 14)
-                        .background(Theme.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .stroke(Theme.rule, lineWidth: 1)
-                        )
+                        .padding(.vertical, 18)
+                        .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PressableStyle())
                     .accessibilityIdentifier("concierge.starter")
                 }
+                Hairline()
             }
-            .padding(.top, 6)
         }
-        .padding(.top, 12)
-        .padding(.bottom, 8)
-    }
-}
-
-/// The gold orb the website uses for its concierge.
-private struct ConciergeMark: View {
-    var body: some View {
-        Circle()
-            .fill(
-                RadialGradient(
-                    colors: [Theme.gold, Theme.gold.opacity(0.55), Theme.card],
-                    center: UnitPoint(x: 0.35, y: 0.3),
-                    startRadius: 2,
-                    endRadius: 44
-                )
-            )
-            .overlay(Circle().stroke(Theme.gold.opacity(0.5), lineWidth: 1))
-            .shadow(color: Theme.gold.opacity(0.35), radius: 14)
-            .accessibilityHidden(true)
     }
 }
 
@@ -198,44 +203,61 @@ private struct ConciergeEntryView: View {
         switch entry.kind {
         case .guest:
             HStack {
-                Spacer(minLength: 48)
+                Spacer(minLength: 56)
                 Text(entry.text)
-                    .foregroundStyle(Theme.onAccent)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 11)
-                    .background(Theme.accent, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .font(AppFont.body)
+                    .foregroundStyle(Theme.ink)
+                    .padding(.horizontal, 17)
+                    .padding(.vertical, 12)
+                    .background(Theme.accentWash, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                            .stroke(Theme.accent.opacity(0.4), lineWidth: 1)
+                    )
                     .textSelection(.enabled)
             }
         case .concierge:
-            VStack(alignment: .leading, spacing: 12) {
-                Text(Self.formatted(entry.text))
-                    .foregroundStyle(Theme.ink)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Theme.card, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-                    .textSelection(.enabled)
-                    .padding(.trailing, 32)
+            // The concierge speaks in plain type beside its orb, like an
+            // editor's reply, rather than from a second chat bubble.
+            HStack(alignment: .top, spacing: 12) {
+                ConciergeMark(diameter: 22)
+                    .padding(.top, 2)
 
-                ForEach(entry.cards) { card in
-                    ConciergeCardView(card: card) { open(card.href) }
-                }
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(Self.formatted(entry.text))
+                        .font(AppFont.body)
+                        .foregroundStyle(Theme.ink)
+                        .lineSpacing(4)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .textSelection(.enabled)
 
-                if !entry.suggestions.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(entry.suggestions) { link in
-                                Button(link.label) { open(link.href) }
-                                    .font(.subheadline.weight(.medium))
-                                    .foregroundStyle(Theme.ink)
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 8)
-                                    .background(Theme.card, in: Capsule())
-                                    .overlay(Capsule().stroke(Theme.rule, lineWidth: 1))
-                                    .buttonStyle(.plain)
+                    ForEach(entry.cards) { card in
+                        ConciergeCardView(card: card) { open(card.href) }
+                    }
+
+                    if !entry.suggestions.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(entry.suggestions) { link in
+                                    Button {
+                                        open(link.href)
+                                    } label: {
+                                        Text(link.label)
+                                            .font(AppFont.detailMedium)
+                                            .foregroundStyle(Theme.ink)
+                                            .padding(.horizontal, 15)
+                                            .padding(.vertical, 9)
+                                            .overlay(Capsule().stroke(Theme.rule, lineWidth: 1))
+                                            .contentShape(Capsule())
+                                    }
+                                    .buttonStyle(PressableStyle())
+                                }
                             }
+                            .padding(.vertical, 1)
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         case .failed:
             HStack(spacing: 12) {
@@ -243,16 +265,23 @@ private struct ConciergeEntryView: View {
                     .foregroundStyle(Theme.soft)
                     .accessibilityHidden(true)
                 Text(entry.text)
-                    .font(.subheadline)
+                    .font(AppFont.detail)
                     .foregroundStyle(Theme.soft)
                 Spacer(minLength: 8)
-                Button(L10n.actionRetry, action: retry)
-                    .font(.subheadline.weight(.semibold))
-                    .accessibilityIdentifier("concierge.retry")
+                Button(action: retry) {
+                    Text(L10n.actionRetry)
+                        .font(AppFont.detailMedium)
+                        .foregroundStyle(Theme.accent)
+                }
+                .accessibilityIdentifier("concierge.retry")
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.vertical, 14)
             .background(Theme.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Theme.rule, lineWidth: 1)
+            )
         }
     }
 
@@ -264,63 +293,72 @@ private struct ConciergeEntryView: View {
     }
 }
 
+/// A section of the site the concierge is pointing to.
 private struct ConciergeCardView: View {
     let card: ConciergeCard
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(card.title)
-                    .font(.system(.title3, design: .serif).weight(.medium))
+                    .font(AppFont.cardTitle)
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
 
                 if let summary = card.summary {
                     Text(summary)
-                        .font(.subheadline)
+                        .font(AppFont.detail)
                         .foregroundStyle(Theme.soft)
+                        .lineSpacing(2)
                         .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
 
-                HStack(spacing: 6) {
+                HStack(spacing: 8) {
                     Text(card.cta ?? L10n.conciergeOpen)
                     Image(systemName: "arrow.forward")
                         .accessibilityHidden(true)
                 }
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Theme.accent)
-                .padding(.top, 4)
+                .eyebrow(Theme.accent)
+                .padding(.top, 6)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(16)
-            .background(Theme.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .padding(18)
+            .background(Theme.card, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .stroke(Theme.rule, lineWidth: 1)
             )
+            .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressableStyle())
     }
 }
 
 private struct TypingIndicator: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var lit = false
 
     var body: some View {
-        HStack(spacing: 6) {
-            ForEach(0..<3, id: \.self) { index in
-                Circle()
-                    .fill(Theme.soft)
-                    .frame(width: 7, height: 7)
-                    .opacity(lit ? 1 : 0.3)
-                    .animation(.easeInOut(duration: 0.6).repeatForever().delay(Double(index) * 0.2), value: lit)
+        HStack(spacing: 12) {
+            ConciergeMark(diameter: 22)
+            HStack(spacing: 6) {
+                ForEach(0..<3, id: \.self) { index in
+                    Circle()
+                        .fill(Theme.gold)
+                        .frame(width: 6, height: 6)
+                        .opacity(lit ? 1 : 0.25)
+                        .animation(
+                            reduceMotion ? nil : .easeInOut(duration: 0.6).repeatForever().delay(Double(index) * 0.2),
+                            value: lit
+                        )
+                }
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .background(Theme.card, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .onAppear { lit = true }
+        .accessibilityElement(children: .ignore)
         .accessibilityLabel(L10n.stateLoading)
     }
 }
