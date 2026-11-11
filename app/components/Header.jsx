@@ -9,6 +9,9 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { getTranslation } from '../../lib/i18n';
 import { useLocale } from './LocaleProvider';
 import { useAuth } from './AuthProvider';
+import { useAI } from './ai/AIProvider';
+import Icon from './g1/icons';
+import { favouriteKind } from '../../lib/myMiami.mjs';
 
 // Unified MIAMI ELIO ecosystem navigation. `key` maps to an existing
 // translation in lib/i18n when available; `label` is the fallback for the
@@ -58,6 +61,11 @@ export function Header() {
   const labelFor = (item) => (item.key && t.nav[item.key]) || item.label;
   const isActive = (href) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
   // Roles come from the protected profile loaded by AuthProvider.
+  // "My Miami" (the profile page) holds the favourites, so its heart is there
+  // for every guest, signed in or not; the count is read from this device.
+  const { saved, hydrated } = useAI();
+  const favourites = hydrated ? saved.filter((item) => favouriteKind(item.href)).length : 0;
+  const myMiami = msg('My Miami');
   const accountHref = auth?.session?.role === 'admin' ? '/admin' : auth?.session?.role === 'partner' ? '/partner' : '/profile';
   const accountLabel = msg(auth?.session?.role === 'admin' ? 'Admin Portal' : auth?.session?.role === 'partner' ? 'Partner Portal' : 'User Profile');
 
@@ -115,7 +123,21 @@ export function Header() {
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
-          {auth?.session && (
+          {/* data-app-hidden: in the iOS app the Profile tab opens My Miami. */}
+          <Link
+            href="/profile"
+            data-app-hidden=""
+            data-my-miami-link=""
+            aria-label={favourites ? `${myMiami} · ${favourites}` : myMiami}
+            title={myMiami}
+            aria-current={pathname === '/profile' ? 'page' : undefined}
+            onClick={() => setMobileNavOpen(false)}
+            className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            <Icon name="heart" className={`h-5 w-5 ${favourites ? 'fill-g1-accent stroke-g1-accent' : ''}`} />
+            {favourites > 0 && <span aria-hidden="true" className="absolute -end-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-g1-accent px-1 font-g1sans text-[0.68rem] font-semibold leading-none text-g1-on-accent">{favourites > 99 ? '99+' : favourites}</span>}
+          </Link>
+          {auth?.session && accountHref !== '/profile' && (
             <Link
               href={accountHref}
               aria-label={accountLabel}

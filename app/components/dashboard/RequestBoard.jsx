@@ -37,7 +37,22 @@ function requestEntries(rows){
   return entries;
 }
 
-export default function RequestBoard({ scope = 'customer' }) {
+// Where a request is, as four steps: received, in review, answered, closed.
+// The current step is named in text as well, so the order is not only shown
+// by colour; for the guest a line says what happens next.
+const STEPS=['pending','reviewing','responded','closed'];
+function StatusSteps({status,labels,next}){
+  const current=STEPS.indexOf(status);
+  return <div className="mt-4 grid gap-3" data-status-steps={status}>
+    <ol className="grid grid-cols-4 gap-1.5" aria-label={labels[status]||''}>{STEPS.map((step,index)=><li key={step} aria-current={index===current?'step':undefined} className="grid min-w-0 gap-1.5">
+      <span className={`h-1.5 rounded-full ${index<=current?'bg-g1-accent':'bg-g1-rule'}`}/>
+      <span className={`text-[0.78rem] leading-tight [overflow-wrap:anywhere] ${index===current?'font-medium text-g1-ink':'text-g1-soft'}`}>{labels[step]}</span>
+    </li>)}</ol>
+    {next&&<p className="text-sm text-g1-ink">{next}</p>}
+  </div>;
+}
+
+export default function RequestBoard({ scope = 'customer', embedded = false }) {
   const auth=useAuth(), msg=useSavedText(), locale=useLocale(), copy=getWorldsCopy(locale).form;
   const userId=auth?.session?.id;
   const dining=getDiningCopy(locale);
@@ -48,6 +63,7 @@ export default function RequestBoard({ scope = 'customer' }) {
   const [busy,setBusy]=useState(false), [actionError,setActionError]=useState('');
   const attempt=useRef(null), inFlight=useRef(false), mounted=useRef(true);
   const labels={ pending:msg('Pending'), reviewing:msg('In review'), responded:msg('Response sent'), closed:msg('Closed') };
+  const nextStep={ pending:msg('We have your request and will look at it shortly.'), reviewing:msg('We are checking availability and the details.'), responded:msg('We have answered by email or phone.'), closed:msg('This request is closed.') };
   const eventLabels={created:msg('Pending'),review:msg('In review'),respond:msg('Response sent'),close:msg('Closed'),assign:msg('Assign partner'),withdraw:dining.withdraw};
   const refresh=()=>{setAfter('');setReload(value=>value+1);};
 
@@ -90,9 +106,10 @@ export default function RequestBoard({ scope = 'customer' }) {
   }
   const date=value=>new Intl.DateTimeFormat(locale,{dateStyle:'medium',timeZone:'America/New_York'}).format(new Date(value));
   if(!userId)return null;
-  return <section className="my-10 min-w-0 border-t border-g1-rule pt-8" aria-label={msg('Requests')}>
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-      <h2 className="font-display text-3xl text-g1-ink">{msg('Requests')}</h2>
+  // `embedded`: inside a page that already heads the list (My Miami).
+  return <section className={embedded?'min-w-0 pb-8 pt-5':'my-10 min-w-0 border-t border-g1-rule pt-8'} aria-label={msg('Requests')}>
+    <div className={`mb-6 flex flex-wrap items-center gap-4 ${embedded?'justify-end':'justify-between'}`}>
+      {!embedded&&<h2 className="font-display text-3xl text-g1-ink">{msg('Requests')}</h2>}
       <div className="flex min-w-0 flex-wrap gap-2">
         <select aria-label={msg('Status')} className={input} value={filter} onChange={event=>{setFilter(event.target.value);setAfter('');setSelected('');}}>
           <option value="">{msg('All statuses')}</option>
@@ -123,6 +140,7 @@ export default function RequestBoard({ scope = 'customer' }) {
         <h4 className="text-lg font-medium [overflow-wrap:anywhere]">{detail.request.item_title}</h4>
         <p className="mt-2 text-sm [overflow-wrap:anywhere]">{detail.request.dates}</p>
         <p className="mt-3 text-sm">{msg('Status')}: {labels[detail.request.status]||msg('Unknown')}</p>
+        {STEPS.includes(detail.request.status)&&<StatusSteps status={detail.request.status} labels={labels} next={scope==='customer'?nextStep[detail.request.status]:''}/>}
         {detail.plan&&<div className="my-4 grid gap-2 border-s-2 border-g1-rule ps-3 text-sm [overflow-wrap:anywhere]" data-plan-detail>
           <p className="font-medium text-g1-ink">{msg('Plan')}</p>
           <p>{msg('Dates')}: {detail.plan.start_date} → {detail.plan.end_date} · {msg('Guests')}: {detail.plan.guests}</p>

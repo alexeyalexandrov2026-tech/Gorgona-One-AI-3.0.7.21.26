@@ -189,6 +189,27 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   const response = await old.goto(base + '/sportsbook/draftkings', { waitUntil: 'domcontentloaded' }).catch(() => null);
   check('old sportsbook addresses redirect to the home page', new URL(old.url()).pathname === '/' , `${old.url()} ${response ? response.status() : ''}`);
 
+  // My Miami (the Profile tab): a heart on a card saves it on the device,
+  // without an account; the page lists it and offers a plan; the header
+  // heart is left to the app's own tab.
+  const mine = await appEn.newPage();
+  await mine.goto(base + '/', { waitUntil: 'networkidle' });
+  check('app: the header heart is left to the Profile tab', !(await visible(mine, 'a[data-my-miami-link]')));
+  const heart = mine.locator('button[data-save^="fav:/rentals/"]').first();
+  await heart.scrollIntoViewIfNeeded();
+  await heart.click({ force: true });
+  check('app: a heart on a card saves without leaving the page', (await heart.getAttribute('aria-pressed')) === 'true' && new URL(mine.url()).pathname === '/');
+  const yachtHeart = mine.locator('button[data-save^="fav:/yachts/"]').first();
+  await yachtHeart.scrollIntoViewIfNeeded();
+  await yachtHeart.click({ force: true });
+  await mine.goto(base + '/profile', { waitUntil: 'networkidle' });
+  check('app: My Miami lists the favourites', (await mine.locator('[data-favourite]').count()) === 2);
+  check('app: My Miami offers a plan from them', await visible(mine, '[data-plan-from-favourites]'));
+  await mine.locator('[data-plan-from-favourites]').click();
+  await mine.locator('[data-plan]').first().waitFor({ timeout: 20000 }).catch(() => {});
+  check('app: the plan is built from the favourites', (await mine.locator('[data-plan]').count()) > 0);
+  await shot(mine, 'app-my-miami.png');
+
   await browser.close();
   const failed = results.filter((r) => !r.ok);
   console.log(`\n${results.length - failed.length}/${results.length} checks passed`);

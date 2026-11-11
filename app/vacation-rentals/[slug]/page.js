@@ -5,6 +5,7 @@ import { getVacationRentals, getVacationRentalBySlug } from '../../../lib/data/l
 import { getServerTranslation } from '../../../lib/serverLocale';
 import { getWorldsCopy, displayValue, largeImage } from '../../../lib/worldsCopy';
 import BookingForm from '../../components/BookingForm';
+import SaveButton from '../../components/SaveButton';
 import Gallery from '../../components/g1/Gallery';
 import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import BookedStatus from '../../components/g1/BookedStatus';
@@ -34,6 +35,7 @@ export default async function VacationRentalDetailPage({ params }) {
         <div className="grid min-w-0 gap-5 lg:sticky lg:top-24">
           <p className={eyebrowClass}>{stay.location}</p>
           <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{savedListing(locale, stay, 'title')}</h1>
+          <SaveButton href={`/vacation-rentals/${stay.slug}`} title={savedListing(locale, stay, 'title')} image={stay.image} />
           <p className="text-[1.05rem] text-g1-soft"><LocalizedListing itemId={stay.id} source={stay.description} /></p>
           {stay.partner&&<PartnerSpecs specs={stay.specs}/>}
           <Specs
