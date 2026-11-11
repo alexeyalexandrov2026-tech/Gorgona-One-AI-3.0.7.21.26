@@ -47,6 +47,12 @@ jobs:
         id: simulator
         run: echo "udid=$(ios/scripts/pick-simulator.sh)" >> "$GITHUB_OUTPUT"
 
+      # Start it now, so that it boots while the app compiles. UI tests sent
+      # to a simulator that is still starting up have failed before they began
+      # ("Timed out waiting for AX loaded notification") and have missed taps.
+      - name: Start the simulator
+        run: xcrun simctl boot "${{ steps.simulator.outputs.udid }}" || true
+
       - name: Build
         working-directory: ios
         run: |
@@ -56,6 +62,9 @@ jobs:
             -destination "id=${{ steps.simulator.outputs.udid }}" \
             -derivedDataPath build/DerivedData \
             -quiet
+
+      - name: Wait for the simulator to finish booting
+        run: xcrun simctl bootstatus "${{ steps.simulator.outputs.udid }}" -b
 
       - name: UI tests
         working-directory: ios
