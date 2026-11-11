@@ -1,7 +1,7 @@
 // Pieces shared by the Stores, category and Coupons pages.
 import Link from 'next/link';
 import { categories } from '../../../lib/dealsData';
-import { isBettingCategory, getCategoryDeals } from '../../../lib/storeDirectory';
+import { getCategoryDeals } from '../../../lib/storeDirectory';
 import { getHomeCopy, intlLocale } from '../../../lib/homeCopy';
 import DealTicket from './DealTicket';
 import { chipClass } from './ui';
@@ -12,19 +12,17 @@ export function categoryLabel(t, category) {
   return t.categories[camelize(category.slug)] || category.label;
 }
 
-// Every category as a chip with its offer count. Betting points to the
-// sportsbook section, and Restaurants is a venue guide, so neither shows a
-// coupon count; the current category is marked.
+// Every category as a chip with its offer count. Restaurants is a venue
+// guide, so it shows no coupon count; the current category is marked.
 export function CategoryChips({ t, current, label }) {
   return (
     <nav aria-label={label} className="flex flex-wrap gap-2">
       {categories.map((category) => {
-        const betting = isBettingCategory(category.slug);
-        const count = betting || category.slug === 'restaurants' ? null : getCategoryDeals(category.slug).length;
+        const count = category.slug === 'restaurants' ? null : getCategoryDeals(category.slug).length;
         return (
           <Link
             key={category.slug}
-            href={betting ? '/sportsbook' : `/stores/${category.slug}`}
+            href={`/stores/${category.slug}`}
             aria-current={category.slug === current ? 'page' : undefined}
             className={chipClass}
           >

@@ -20,7 +20,6 @@ const navItems = [
   { key: 'villas', href: '/vacation-rentals', label: 'Villas' },
   { key: 'yachts', href: '/yachts', label: 'Yachts' },
   { key: 'cars', href: '/rentals', label: 'Cars' },
-  { key: 'sportsbook', href: '/sportsbook', label: 'Sportsbooks' },
   { key: 'events', href: '/events', label: 'Events' },
   { key: 'privateJets', href: '/private-jets', label: 'Private Jets' }
 ];

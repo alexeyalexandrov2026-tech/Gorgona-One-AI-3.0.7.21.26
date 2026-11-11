@@ -23,7 +23,6 @@ cases.push(...[
  ['en','Find flights to New York','/travel'],['ru','Авиабилеты из Майами в Нью-Йорк','/travel'],
  ['en','Book a hotel','/travel'],['ru','Найти отель в Майами','/travel'],
  ['en','Everglades airboat adventure','/experiences'],['ru','Экскурсия в Эверглейдс','/experiences'],
- ['en','Sportsbook odds and bonuses','/sportsbook'],['ru','Букмекерские ставки','/sportsbook'],
  ['en','Private jet from Miami to New York','/private-jets'],['ru','Частный самолёт из Майами в Нью-Йорк','/private-jets'],
  ['en','VIP nightclub bottle service','/restaurants-nightlife'],['ru','VIP стол в ночном клубе','/restaurants-nightlife'],
  ['en','I need a yacht and a car','/yachts','/rentals'],

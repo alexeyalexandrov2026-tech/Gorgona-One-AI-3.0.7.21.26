@@ -78,7 +78,6 @@ export function discoverMessages() {
   // Editorial feature strips, supplied promotion cards and our draft preview.
   // Only display fields from these reviewed local arrays; URLs and enums stay out.
   const arrays = new Map([
-    ['app/sportsbook/[slug]/page.js',new Map([['PROFILE_FEATURES',['title','sub']]])],
     ['app/travel/ovago/page.js',new Map([['OVAGO_FEATURES',['title','sub']],['OVAGO_DEALS',['name','description']]])],
     ['app/entertainment/adrenaline-365/page.js',new Map([['ADRENALINE_FEATURES',['title','sub']],['ADRENALINE_DEALS',['name']]])]
   ]);

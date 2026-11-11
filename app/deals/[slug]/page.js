@@ -1,12 +1,10 @@
 import { notFound } from 'next/navigation';
 import { getDealBySlug } from '../../../lib/dealsData';
 import { savedSource } from '../../../lib/savedCopy';
-import { isBettingCategory } from '../../../lib/storeDirectory';
 import { getDealsCopy } from '../../../lib/dealsCopy';
 import { getHomeCopy, fill, intlLocale } from '../../../lib/homeCopy';
 import { getServerTranslation } from '../../../lib/serverLocale';
 import DealTicket from '../../components/g1/DealTicket';
-import GamblingNotice from '../../components/GamblingNotice';
 import { Crumbs, Specs, eyebrowClass } from '../../components/g1/ui';
 import { camelize } from '../../components/g1/DealsParts';
 
@@ -53,7 +51,6 @@ export default async function DealDetailPage({ params }) {
             storeLabel={t.buttons.visitStore}
             mapLabel={t.kosher.viewOnMap}
           />
-          {isBettingCategory(deal.category) && <GamblingNotice locale={locale} />}
         </div>
       </div>
     </main>
