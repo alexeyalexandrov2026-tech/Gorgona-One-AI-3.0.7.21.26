@@ -332,9 +332,12 @@ a {
     --notch: 13px;
     position: relative;
     display: grid;
-    grid-template-rows: minmax(0, 1fr) var(--stub);
+    grid-template-rows: 1fr var(--stub);
     min-width: 0;
-    height: 460px;
+    /* A floor, not a fixed height: a long title in another language makes
+       the ticket taller instead of running into the number. */
+    min-height: 460px;
+    height: 100%;
     overflow: hidden;
     border-radius: 1.5rem;
     background: #0b0b0c;
@@ -363,6 +366,7 @@ a {
     flex-direction: column;
     justify-content: flex-end;
     padding: 1.75rem;
+    padding-block-start: 4.25rem;
   }
 
   .ev-pass__media {
@@ -579,11 +583,12 @@ a {
 
   @media (max-width: 640px) {
     .ev-pass {
-      height: 440px;
+      min-height: 440px;
     }
 
     .ev-pass__main {
       padding: 1.35rem;
+      padding-block-start: 4rem;
     }
 
     .ev-pass__no {

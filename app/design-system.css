@@ -230,7 +230,9 @@
 }
 /* Progress: one bar per ticket. The active bar fills in six seconds and
    its animationend turns to the next ticket. */
-.g1-tkt-controls { display: flex; align-items: center; gap: 14px; min-height: 32px; }
+/* The pause button only exists once the page runs in the browser, so its
+   place is kept from the first paint and the bars never shift. */
+.g1-tkt-controls { position: relative; display: flex; align-items: center; min-height: 32px; padding-inline-start: 46px; }
 .g1-tkt-bars { display: flex; flex: 1; gap: 6px; min-width: 0; max-width: 420px; }
 .g1-tkt-bar {
   position: relative; flex: 1; height: 24px; padding: 0; border: 0; background: none; cursor: pointer;
@@ -246,7 +248,8 @@
 .g1-tkt-bar:hover::before { background: var(--g1-ink-soft); }
 .g1-tkt-bar:focus-visible { outline: 2px solid var(--g1-accent); outline-offset: 2px; border-radius: 4px; }
 .g1-tkt-toggle {
-  display: grid; place-items: center; width: 32px; height: 32px; flex: none;
+  position: absolute; inset-inline-start: 0; top: 0;
+  display: grid; place-items: center; width: 32px; height: 32px;
   border: 1px solid var(--g1-rule); border-radius: 999px; background: var(--g1-card); color: var(--g1-ink); cursor: pointer;
 }
 .g1-tkt-toggle:hover { border-color: var(--g1-ink); }
@@ -254,6 +257,7 @@
 @keyframes g1-tkt-run { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @media (prefers-reduced-motion: reduce) {
   .g1-tkt-photo img { transition: none; }
+  .g1-tkt-controls { padding-inline-start: 0; }
   .g1-tkt-bar .g1-tkt-fill[data-run] { animation: none; }
 }
 
