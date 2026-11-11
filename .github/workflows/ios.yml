@@ -1,0 +1,84 @@
+# Builds and tests the iOS app (ios/) on a Mac whenever it changes. The app
+# cannot be compiled anywhere else, so this run is the proof that it builds.
+name: iOS
+
+on:
+  push:
+    paths:
+      - 'ios/**'
+      - '.github/workflows/ios.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      # The translated strings are generated from the website's translations;
+      # fail if someone changed one side without regenerating.
+      - name: Strings match the website
+        run: node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON ios/scripts/build-strings.mjs --check
+
+      - name: Logic tests (MiamiElioKit)
+        working-directory: ios/MiamiElioKit
+        run: swift test
+
+      - name: Generate the Xcode project
+        working-directory: ios
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen
+          xcodegen generate
+
+      - name: Choose a simulator
+        id: simulator
+        run: echo "udid=$(ios/scripts/pick-simulator.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        working-directory: ios
+        run: |
+          xcodebuild build-for-testing \
+            -project MiamiElio.xcodeproj \
+            -scheme MiamiElio \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -derivedDataPath build/DerivedData \
+            -quiet
+
+      - name: UI tests
+        working-directory: ios
+        run: |
+          xcodebuild test-without-building \
+            -project MiamiElio.xcodeproj \
+            -scheme MiamiElio \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -derivedDataPath build/DerivedData \
+            -resultBundlePath build/UITests.xcresult
+
+      - name: Collect screenshots
+        if: always()
+        working-directory: ios
+        run: |
+          if [ -d build/UITests.xcresult ]; then
+            xcrun xcresulttool export attachments --path build/UITests.xcresult --output-path build/screenshots || true
+          fi
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-screenshots
+          path: ios/build/screenshots
+          if-no-files-found: ignore
