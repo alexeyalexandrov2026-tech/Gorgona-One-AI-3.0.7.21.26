@@ -38,7 +38,7 @@ export function Footer() {
         <div>
           <div className="flex items-baseline gap-2">
             <span className="font-g1mono text-[0.75rem] uppercase tracking-[0.3em] text-g1-accent">Miami</span>
-            <span className="font-g1display text-4xl font-medium tracking-tight text-g1-ink">Elio</span>
+            <span className="font-g1wordmark text-4xl font-medium tracking-tight text-g1-ink">Elio</span>
           </div>
           <p className="mt-4 max-w-sm leading-relaxed">
             {t.footer.desc}

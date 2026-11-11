@@ -26,8 +26,8 @@ function AdminWorkspace(){
   })().catch(()=>{if(active)setError(true);});
   return()=>{active=false;};
  },[auth.loading,auth.session,router]);
- if(auth.loading||auth.session?.role!=='admin')return <main role="status" className="theme-villa bg-villa-parchment p-10 text-villa-obsidian">{msg('Loading...')}</main>;
- return <main className="flex-1 theme-villa full-bleed bg-villa-parchment text-villa-obsidian pb-20 pt-16"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+ if(auth.loading||auth.session?.role!=='admin')return <main role="status" className="g1-daylight theme-villa bg-villa-parchment p-10 text-villa-obsidian">{msg('Loading...')}</main>;
+ return <main className="g1-daylight flex-1 theme-villa full-bleed bg-villa-parchment text-villa-obsidian pb-20 pt-16"><div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
   <div className="border-b border-villa-obsidian/20 pb-4 text-sm">{msg('Admin Portal')}</div>
   <h1 className="my-10 font-display text-[clamp(1.8rem,6vw,6rem)] leading-none uppercase [overflow-wrap:anywhere]"><LocalizedTitle source="Admin{break}Console"/></h1>
   {error&&<p role="alert">{msg('Unable to load requests.')}</p>}

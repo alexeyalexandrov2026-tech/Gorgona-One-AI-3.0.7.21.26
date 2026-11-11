@@ -9,7 +9,6 @@ import { useLocale } from './components/LocaleProvider';
 import { getHomeCopy } from '../lib/homeCopy';
 import {getHeadoutCopy} from '../lib/headoutCopy.mjs';
 import {getPrivateJetsCopy} from '../lib/privateJetsCopy.mjs';
-import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
 import { FLEET, HOME_YACHTS, HOME_STAYS, carThumb } from '../lib/homeData';
 import HomeHero from './components/home/HomeHero';
 import SeasonShelf from './components/home/SeasonShelf';
@@ -18,18 +17,18 @@ import ConciergeBand from './components/home/ConciergeBand';
 import { SectionHead, ListingCard, btn } from './components/g1/ui';
 import Icon from './components/g1/icons';
 
+// Desktop directory of every world. On a phone it is hidden: the section
+// rail at the top of the page already opens each of these.
 const WORLDS = [
-  { id: 'experiences', href: '/experiences', image: HEADOUT_COLLECTIONS[0].image },
-  // Its own picture: the wing belongs to Private Jets below.
-  { id: 'travel', href: '/travel', image: '/images/home/deco-hotel.jpg' },
-  { id: 'stays', href: '/vacation-rentals', img: 'stay-miami-beach' },
-  { id: 'yachts', href: '/yachts', img: 'yacht-princess' },
-  { id: 'cars', href: '/rentals', img: null },
-  { id: 'events', href: '/events', img: 'events-stage' },
-  { id: 'dining', href: '/restaurants-nightlife', img: 'deco-street' },
-  { id: 'privateJets', href: '/private-jets', img: 'travel-wing' }
+  { id: 'experiences', href: '/experiences' },
+  { id: 'travel', href: '/travel' },
+  { id: 'stays', href: '/vacation-rentals' },
+  { id: 'yachts', href: '/yachts' },
+  { id: 'cars', href: '/rentals' },
+  { id: 'events', href: '/events' },
+  { id: 'dining', href: '/restaurants-nightlife' },
+  { id: 'privateJets', href: '/private-jets' }
 ];
-const worldImage = (world) => world.image || (world.img ? `/images/home/worlds/${world.img}.jpg` : carThumb(FLEET[0]));
 
 export default function HomePage() {
   const msg = useSavedText();
@@ -39,7 +38,7 @@ export default function HomePage() {
   const rule = 'border-t border-g1-rule';
 
   return (
-    <main className="g1-modern flex-1 font-g1sans text-g1-ink">
+    <main className="flex-1 font-g1sans text-g1-ink">
       <HomeHero copy={copy} t={t} locale={locale} />
 
       <section className="py-[clamp(36px,5vw,72px)]">
@@ -55,7 +54,7 @@ export default function HomePage() {
         <A1ALine copy={copy} locale={locale} />
       </section>
 
-      <section className={`${rule} py-[clamp(52px,7vw,110px)]`}>
+      <section data-worlds className={`${rule} py-[clamp(52px,7vw,110px)] max-md:hidden`}>
         <SectionHead title={copy.worlds} sub={copy.worldsSub} />
         <ul className="border-b border-g1-rule">
           {WORLDS.map((world) => {
@@ -65,7 +64,6 @@ export default function HomePage() {
             return (
               <li key={world.id} className="border-t border-g1-rule">
                 <Link href={world.href} className="g1-dir-row">
-                  <img className="g1-dir-thumb" src={worldImage(world)} alt="" loading="lazy" />
                   <span className="g1-dir-name">{name}</span>
                   <span className="g1-dir-desc text-[0.98rem] text-g1-soft">{description}</span>
                   <span className="g1-dir-arrow"><Icon name="arrow" className="g1-flip h-5 w-5" /></span>

@@ -2,7 +2,7 @@ import './globals.css';
 import './design-system.css';
 import './ai-overlays.css';                              
 import Script from 'next/script';
-import { Inter, Inter_Tight, Space_Mono, Fira_Mono, Playfair_Display, Bodoni_Moda, Jost, DM_Mono } from 'next/font/google';
+import { Bodoni_Moda, Jost, DM_Mono } from 'next/font/google';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { LocaleProvider } from './components/LocaleProvider';
@@ -16,29 +16,19 @@ import { AiSphere } from './components/ai/AiSphere';
 import { AiDock } from './components/ai/AiDock';             
 import { InstallPrompt } from './components/InstallPrompt';   
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
-const interTight = Inter_Tight({
-  subsets: ['latin'],
+// One family for the whole site: Jost for text and headings, DM Mono for
+// small labels and codes. Bodoni Moda is kept only for the word "Elio" in
+// the logo (--font-g1-wordmark).
+const jost = Jost({
+  subsets: ['latin', 'latin-ext', 'cyrillic'],
   weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-display',
+  variable: '--font-g1-sans',
   display: 'swap'
 });
-const spaceMono = Space_Mono({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-mono', display: 'swap' });
-const firaMono = Fira_Mono({ subsets: ['latin'], weight: ['400', '500', '700'], variable: '--font-fira', display: 'swap' });
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  style: ['normal', 'italic'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-serif',
-  display: 'swap'
-});
+const dmMono = DM_Mono({ subsets: ['latin', 'latin-ext'], weight: ['400', '500'], variable: '--font-g1-mono', display: 'swap' });
+const bodoni = Bodoni_Moda({ subsets: ['latin'], weight: ['500'], variable: '--font-g1-wordmark', display: 'swap', adjustFontFallback: false });
 
-// New design system faces.
-const bodoni = Bodoni_Moda({ subsets: ['latin'], style: ['normal', 'italic'], variable: '--font-g1-display', display: 'swap', adjustFontFallback: false });
-const jost = Jost({ subsets: ['latin', 'cyrillic'], weight: ['300', '400', '500', '600'], variable: '--font-g1-sans', display: 'swap' });
-const dmMono = DM_Mono({ subsets: ['latin'], weight: ['400', '500'], variable: '--font-g1-mono', display: 'swap' });
-
-const fontVariables = [inter, interTight, spaceMono, firaMono, playfair, bodoni, jost, dmMono].map((f) => f.variable).join(' ');
+const fontVariables = [jost, dmMono, bodoni].map((f) => f.variable).join(' ');
 
 const baseUrl = 'https://gorgona-one.com';
 

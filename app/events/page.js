@@ -67,7 +67,7 @@ export default async function EventsMarketplacePage() {
             <p className="lux-eyebrow">{t.events.marketplaceTitle}</p>
           </Reveal>
           <Reveal delay={0.08}>
-            <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Experience the{break}{highlight}" values={{ break: <br />, highlight: <span className="text-brand-gold"><LocalizedText source="extraordinary." /></span> }} />
+            <h1 className="mt-6 font-g1display text-[clamp(2.25rem,6vw+1rem,6rem)] font-medium leading-[0.98] tracking-[-0.03em] text-white [overflow-wrap:break-word] [text-wrap:balance]"><LocalizedText source="Experience the{break}{highlight}" values={{ break: <br />, highlight: <span className="text-brand-gold"><LocalizedText source="extraordinary." /></span> }} />
             </h1>
           </Reveal>
           <Reveal delay={0.16}>
@@ -96,7 +96,7 @@ export default async function EventsMarketplacePage() {
                 <div className="relative">
                   <p className="lux-caption-upper"><LocalizedText source={item.tag} /></p>
                   <div className="mt-2 flex items-center justify-between gap-3">
-                    <h3 className="font-serif text-3xl italic text-white"><LocalizedText source={item.title} /></h3>
+                    <h3 className="font-g1display text-3xl font-medium tracking-[-0.01em] text-white"><LocalizedText source={item.title} /></h3>
                     <ArrowIcon className="h-5 w-5 shrink-0 text-white/70 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
                   </div>
                   <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-300/90"><LocalizedText source={item.copy} /></p>

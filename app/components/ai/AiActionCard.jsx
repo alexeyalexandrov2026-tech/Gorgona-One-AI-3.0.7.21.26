@@ -33,15 +33,15 @@ export function AiActionCard({ card, onNavigate }) {
       data-app-hidden={isAppRestricted(card.href) ? '' : undefined}
       onClick={onNavigate}
       aria-label={`${card.title || card.label} — ${card.cta || t.ai.open}`}
-      className="group block rounded-2xl border border-brand-gold/25 bg-gradient-to-br from-brand-gold/[0.09] to-white/[0.02] p-4 transition hover:border-brand-gold/70 hover:from-brand-gold/[0.16] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+      className="group block rounded-2xl border border-brand-gold/25 bg-gradient-to-br from-brand-gold/[0.09] to-g1-card p-4 transition hover:border-brand-gold/70 hover:from-brand-gold/[0.16] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-g1-paper"
     >
       {card.label && (
         <p className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-brand-gold/80">{card.label}</p>
       )}
 
-      <p className="mt-1.5 text-sm font-semibold text-white">{card.title || card.label}</p>
+      <p className="mt-1.5 text-sm font-semibold text-g1-ink">{card.title || card.label}</p>
 
-      {card.summary && <p className="mt-1 text-xs leading-relaxed text-zinc-400">{card.summary}</p>}
+      {card.summary && <p className="mt-1 text-xs leading-relaxed text-g1-soft">{card.summary}</p>}
 
       <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-brand-gold px-3.5 py-1.5 text-[0.7rem] font-semibold uppercase tracking-wide text-black transition group-hover:brightness-110">
         {card.cta || t.ai.open}

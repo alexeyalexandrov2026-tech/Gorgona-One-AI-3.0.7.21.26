@@ -55,7 +55,10 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   check('browser: section rail moves by itself', railBefore - railAfter > 10, `${railBefore.toFixed(1)} -> ${railAfter.toFixed(1)}`);
   check('browser: the second copy of the rail is kept from screen readers and the Tab key', (await web.locator('ul.g1-rail li[data-copy][aria-hidden="true"] a[tabindex="-1"]').count()) === 9);
   check('browser: no sportsbook link anywhere on the home page', (await web.locator('a[href^="/sportsbook"]').count()) === 0);
-  check('browser: the directory lists dining and private jets', (await visible(web, 'a.g1-dir-row[href="/restaurants-nightlife"]')) && (await visible(web, 'a.g1-dir-row[href="/private-jets"]')));
+  // On a phone the worlds directory is not shown: every world in it opens
+  // from the rail above, so it would only repeat it.
+  check('browser: the worlds directory is not shown on a phone', (await web.locator('section[data-worlds]').count()) === 1 && !(await visible(web, 'section[data-worlds]')));
+  check('browser: the rail opens dining and private jets', (await visible(web, 'ul.g1-rail a[href="/restaurants-nightlife"]')) && (await visible(web, 'ul.g1-rail a[href="/private-jets"]')));
   const plainHeight = await web.evaluate(() => document.documentElement.scrollHeight);
   await shot(web, 'web-home.png');
   await plain.close();
@@ -81,7 +84,10 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   check('app: the rail has private jets beside flights', (await visible(page, 'ul.g1-rail a[href="/private-jets"]')) && (await visible(page, 'ul.g1-rail a[href="/travel/ovago"]')));
   check('app: hero search is still there', await visible(page, '#g1-hero-q'));
   check('app: no sportsbook link anywhere on the home page', (await page.locator('a[href^="/sportsbook"]').count()) === 0);
-  check('app: other world rows remain', await visible(page, 'a.g1-dir-row[href="/yachts"]'));
+  check('app: the worlds directory is not shown', !(await visible(page, 'section[data-worlds]')));
+  const worlds = ['/experiences', '/travel', '/vacation-rentals', '/yachts', '/rentals', '/events', '/restaurants-nightlife', '/private-jets'];
+  const railLinks = await page.locator('ul.g1-rail li:not([data-copy]) a').evaluateAll((links) => links.map((a) => a.getAttribute('href')));
+  check('app: every world of the directory opens from the rail', worlds.every((href) => railLinks.includes(href)), JSON.stringify(railLinks));
   const appHeight = await page.evaluate(() => document.documentElement.scrollHeight);
   check('app: page is shorter without the hidden pieces', appHeight < plainHeight, `${appHeight} < ${plainHeight}`);
 
@@ -120,11 +126,11 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   check('app: sportsbook link is intercepted', opened.length === 1 && opened[0] === base + '/sportsbook', JSON.stringify(opened));
   check('app: page did not navigate to the sportsbook', new URL(page.url()).pathname === '/experiences', page.url());
 
-  // An ordinary link still works.
+  // An ordinary link still works: "See all" above the fleet.
   await page.goto(base + '/', { waitUntil: 'networkidle' });
-  await page.locator('a.g1-dir-row[href="/yachts"]').click();
-  await page.waitForURL('**/yachts', { timeout: 15000 });
-  check('app: ordinary links still navigate', new URL(page.url()).pathname === '/yachts');
+  await page.locator('main a[href="/rentals"]:not(.g1-rail-card):visible').first().click();
+  await page.waitForURL('**/rentals', { timeout: 15000 });
+  check('app: ordinary links still navigate', new URL(page.url()).pathname === '/rentals');
   await page.goto(base + '/', { waitUntil: 'networkidle' });
   // The rail never stands still, so the click does not wait for it to.
   await page.locator('ul.g1-rail li:not([data-copy]) a[href="/experiences"]').click({ force: true });
@@ -158,6 +164,14 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   check('browser: concierge shows the yacht card', await visible(webAi, 'main a[href="/yachts"].group'));
   check('browser: concierge page has no sportsbook link', (await webAi.locator('main a[href^="/sportsbook"]').count()) === 0);
   await plainConcierge.close();
+
+  // On a wide screen the worlds directory is still there, with every world.
+  const wide = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const desk = await wide.newPage();
+  await desk.goto(base + '/', { waitUntil: 'networkidle' });
+  check('wide screen: the worlds directory is shown', await visible(desk, 'section[data-worlds]'));
+  check('wide screen: the directory lists eight worlds', (await desk.locator('section[data-worlds] a.g1-dir-row').count()) === 8);
+  await wide.close();
 
   const appEn = await browser.newContext({ ...iphone, userAgent: iphone.userAgent.replace('Safari/604.1', 'MiamiElioApp/1.0') });
   await appEn.addInitScript(() => { window.webkit = { messageHandlers: { miamiElio: { postMessage: () => {} } } }; });

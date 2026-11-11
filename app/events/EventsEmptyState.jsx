@@ -8,7 +8,7 @@ export function EventsEmptyState({ label, hasProviders }) {
   return (
     <div className="mt-16 border-t border-villa-obsidian/15 pt-14">
       <p className="font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash"><LocalizedText source="Programme" /></p>
-      <h3 className="mt-5 max-w-2xl font-serif text-2xl italic leading-snug text-villa-obsidian sm:text-3xl">
+      <h3 className="mt-5 max-w-2xl font-g1display text-2xl font-medium leading-snug text-villa-obsidian sm:text-3xl">
         {label ? `No dated ${label} listings published yet.` : <LocalizedText source="No dated listings published yet." />}
       </h3>
       <p className="mt-5 max-w-xl text-sm leading-relaxed text-villa-graphite"><LocalizedText source="A seat appears here only once it is confirmed with a provider." />{' '}

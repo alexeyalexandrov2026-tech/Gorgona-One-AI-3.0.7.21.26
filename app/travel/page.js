@@ -71,7 +71,7 @@ export default function TravelLandingPage() {
 
         <div className="mx-auto w-full max-w-7xl px-4 pb-24 pt-40 sm:px-6 lg:px-8">
           <p className="lux-eyebrow"><LocalizedText source="Travel · Exclusive destinations" /></p>
-          <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Go somewhere{break}{highlight}" values={{ break: <br />, highlight: <span className="text-travel-lavender"><LocalizedText source="extraordinary." /></span> }} />
+          <h1 className="mt-6 font-g1display text-[clamp(2.25rem,6vw+1rem,6rem)] font-medium leading-[0.98] tracking-[-0.03em] text-white [overflow-wrap:break-word] [text-wrap:balance]"><LocalizedText source="Go somewhere{break}{highlight}" values={{ break: <br />, highlight: <span className="text-travel-lavender"><LocalizedText source="extraordinary." /></span> }} />
           </h1>
           <p className="lux-lede mt-8 text-lg"><LocalizedText source="A cinematic travel concierge — luxury destinations, curated flights, and stays, wrapped in a single premium experience." /></p>
           <div className="mt-10 flex flex-wrap gap-3">
@@ -127,7 +127,7 @@ export default function TravelLandingPage() {
                 <div className="relative">
                   <p className="lux-caption-upper"><LocalizedText source={item.tag} /></p>
                   <div className="mt-2 flex items-center justify-between gap-3">
-                    <h3 className="font-serif text-3xl italic text-white"><LocalizedText source={item.title} /></h3>
+                    <h3 className="font-g1display text-3xl font-medium tracking-[-0.01em] text-white"><LocalizedText source={item.title} /></h3>
                     <ArrowIcon className="h-5 w-5 shrink-0 text-white/70 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-white" />
                   </div>
                   <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-300/90"><LocalizedText source={item.copy} /></p>
@@ -144,7 +144,7 @@ export default function TravelLandingPage() {
           <div className="lux-hero relative overflow-hidden rounded-3xl border border-travel-violet/25 bg-travel-void px-8 py-16 text-center sm:px-16">
             <div className="lux-hero__grain" />
             <p className="lux-eyebrow justify-center"><LocalizedText source="Ovago flight deals" /></p>
-            <h2 className="mx-auto mt-5 max-w-2xl font-serif text-4xl italic text-white"><LocalizedText source="Your next flight, at a better fare." /></h2>
+            <h2 className="mx-auto mt-5 max-w-2xl font-g1display text-3xl font-medium tracking-[-0.02em] text-white [text-wrap:balance] sm:text-4xl"><LocalizedText source="Your next flight, at a better fare." /></h2>
             <p className="lux-lede mx-auto mt-5 text-base"><LocalizedText source="Business class, cheap fares and last-minute routes — curated and affiliate-verified." /></p>
             <div className="mt-8 flex justify-center">
               <Link href="/travel/ovago" className="lux-btn"><LocalizedText source="View Ovago deals " /><ArrowIcon className="h-4 w-4" /></Link>

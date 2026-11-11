@@ -34,7 +34,7 @@ function Message({ role, content }) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed [overflow-wrap:anywhere] ${
-          isUser ? 'bg-brand-gold text-black' : 'border border-white/10 bg-white/5 text-zinc-200'
+          isUser ? 'bg-brand-gold text-black' : 'border border-g1-rule bg-g1-card text-g1-ink'
         }`}
       >
         {content}
@@ -98,7 +98,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
       <div ref={listRef} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
         {messages.length === 0 && (
           <div className="space-y-3">
-            <p className="text-sm text-zinc-400">{t.ai?.conciergeIntro || DEFAULT_INTRO}</p>
+            <p className="text-sm text-g1-soft">{t.ai?.conciergeIntro || DEFAULT_INTRO}</p>
             <div className="flex flex-wrap gap-2">
               {starters.map((prompt) => (
                 <button
@@ -107,7 +107,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
                   data-app-hidden={leadsOutOfApp(prompt) ? '' : undefined}
                   disabled={!hydrated||isLoading}
                   onClick={() => submit(prompt)}
-                  className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-300 transition hover:border-brand-gold/40 hover:text-white"
+                  className="rounded-full border border-g1-rule bg-g1-card px-3 py-1.5 text-xs text-g1-soft transition hover:border-brand-gold/40 hover:text-g1-ink"
                 >
                   {prompt}
                 </button>
@@ -122,7 +122,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+            <div className="flex items-center gap-1.5 rounded-2xl border border-g1-rule bg-g1-card px-4 py-3">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold" />
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:120ms]" />
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:240ms]" />
@@ -156,7 +156,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
           event.preventDefault();
           submit(input);
         }}
-        className="mt-3 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] p-1.5 pl-4"
+        className="mt-3 flex items-center gap-2 rounded-full border border-g1-rule bg-g1-card p-1.5 pl-4"
       >
         <input
           aria-label={t.ai?.askPlaceholder || 'Ask the concierge anything…'}
@@ -165,7 +165,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder={voice.isListening ? `${t.ai?.listening || 'Listening'}…` : (t.ai?.askPlaceholder || 'Ask the concierge anything…')}
-          className="min-w-0 flex-1 bg-transparent py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none"
+          className="min-w-0 flex-1 bg-transparent py-2 text-sm text-g1-ink placeholder:text-g1-soft focus:outline-none"
         />
         {voice.recognitionSupported && (
           <button
@@ -177,7 +177,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition ${
               voice.isListening
                 ? 'border-brand-gold bg-brand-gold text-black'
-                : 'border-white/10 text-zinc-300 hover:border-brand-gold hover:text-brand-gold'
+                : 'border-g1-rule text-g1-soft hover:border-brand-gold hover:text-brand-gold'
             }`}
           >
             <MicIcon className="h-4 w-4" />
@@ -194,7 +194,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
           {t.ai?.ask || <LocalizedText source={"Ask"} />}
         </button>
       </form>
-      {voice.error&&<p role="alert" className="mt-2 text-xs text-zinc-300">{voiceInputUnavailable(locale)}</p>}
+      {voice.error&&<p role="alert" className="mt-2 text-xs text-g1-soft">{voiceInputUnavailable(locale)}</p>}
     </div>
   );
 }

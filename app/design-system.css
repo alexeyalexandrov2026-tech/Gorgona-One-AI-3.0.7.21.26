@@ -5,9 +5,14 @@
    During the migration the site runs in the dark palette (data-theme="dark"
    on <html>), so redesigned parts sit comfortably next to pages that still
    use the old dark styling. When every page is migrated, the light palette
-   becomes the default. */
+   becomes the default. The partner and admin desks stay light: their <main>
+   carries .g1-daylight, which brings the light tokens back for everything
+   inside it, shared components included. */
 
-:root {
+:root, .g1-daylight {
+  /* Headings use the text family (Jost): one geometric face for the whole
+     site, large and tightly set. Bodoni is only in the logo (--font-g1-wordmark). */
+  --font-g1-display: var(--font-g1-sans);
   --g1-paper: #F3F5F4;
   --g1-card: #FFFFFF;
   --g1-ink: #0F1D26;
@@ -31,8 +36,11 @@
   --g1-c-mk: #0F7A63;
   --g1-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
+.g1-daylight { color-scheme: light; }
 
-:root[data-theme="dark"] {
+/* .g1-night brings the site's dark tokens back inside a light desk - the
+   listing preview in ListingWorkspace shows the card as the site does. */
+:root[data-theme="dark"], .g1-night {
   --g1-paper: #0A1218;
   --g1-card: #111D25;
   --g1-ink: #EDF2F3;
@@ -129,7 +137,7 @@
 }
 .g1-plate img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .g1-plate.dark { background: #0F1D26; border-color: #0F1D26; }
-.g1-monogram { font: 600 1.3rem/1 var(--font-g1-display), Georgia, serif; color: #0F1D26; }
+.g1-monogram { font: 600 1.3rem/1 var(--font-g1-display), system-ui, sans-serif; color: #0F1D26; }
 .g1-cat {
   font: 500 0.64rem/1.2 var(--font-g1-sans), system-ui, sans-serif;
   letter-spacing: 0.16em; text-transform: uppercase; color: var(--g1-ink-soft);
@@ -212,7 +220,7 @@
   border-radius: 50%; background: var(--g1-paper); border: 4px solid var(--cc);
   transition: background-color 0.2s, scale 0.25s var(--g1-ease);
 }
-.g1-stop .nm { font: 500 1.05rem/1.12 var(--font-g1-display), Georgia, serif; text-wrap: balance; }
+.g1-stop .nm { font: 500 1.05rem/1.12 var(--font-g1-display), system-ui, sans-serif; text-wrap: balance; }
 .g1-stop .cd { font: 500 0.66rem/1 var(--font-g1-mono), monospace; letter-spacing: 0.1em; color: var(--g1-ink-soft); }
 .g1-stop:hover .nm, .g1-stop:focus-visible .nm, .g1-stop[aria-pressed="true"] .nm { color: var(--g1-accent); }
 .g1-stop:hover .dot, .g1-stop:focus-visible .dot, .g1-stop[aria-pressed="true"] .dot { background: var(--cc); scale: 1.15; }
@@ -223,23 +231,15 @@
   font: 500 0.8em/1 var(--font-g1-sans), system-ui, sans-serif; letter-spacing: -0.01em; vertical-align: 0.07em;
 }
 
-/* Worlds directory: big type rows with a hairline between them. */
+/* Worlds directory: big type rows with a hairline between them. Desktop
+   only - on a phone the section rail above already lists every world. */
 .g1-dir-row {
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr) 28px; align-items: center;
   gap: 8px 24px; padding-block: clamp(14px, 1.6vw, 22px); text-decoration: none; color: var(--g1-ink);
   transition: padding 0.35s var(--g1-ease), color 0.2s;
 }
-.g1-dir-thumb { display: none; }
-.g1-dir-name { font: 500 clamp(1.9rem, 2.6vw + 1rem, 3.6rem)/1 var(--font-g1-display), Georgia, serif; letter-spacing: -0.015em; }
+.g1-dir-name { font: 500 clamp(1.9rem, 2.6vw + 1rem, 3.6rem)/1 var(--font-g1-display), system-ui, sans-serif; letter-spacing: -0.03em; }
 .g1-dir-row:hover, .g1-dir-row:focus-visible { padding-inline-start: 18px; color: var(--g1-accent); }
-.g1-dir-row:hover .g1-dir-name { font-style: italic; }
-@media (max-width: 760px) {
-  .g1-dir-row { grid-template-columns: 56px minmax(0, 1fr); gap: 4px 14px; }
-  .g1-dir-thumb { display: block; grid-row: span 2; width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
-  .g1-dir-name { min-width: 0; font-size: 1.6rem; overflow-wrap: anywhere; }
-  .g1-dir-desc { grid-column: 2; font-size: 0.86rem; }
-  .g1-dir-arrow { display: none; }
-}
 
 /* Concierge band and its sample conversation. */
 /* Paints the band's color out to both screen edges without widening the
@@ -250,17 +250,9 @@
 .g1-bubble.them { background: var(--g1-band-card); border-end-start-radius: 6px; }
 
 [dir="rtl"] .g1-flip { transform: scaleX(-1); }
-.g1-display em { font-style: italic; color: var(--g1-accent); }
-:root[lang="he"] .g1-display em { font-style: normal; }
-
-/* Home page, new look: headings in the text family (Jost) instead of the
-   didone serif - one geometric family for the whole page, large and tightly
-   set. Everything that asks for the display font inside .g1-modern gets it;
-   the wordmark in the header is outside and keeps its Bodoni. */
-.g1-modern { --font-g1-display: var(--font-g1-sans); }
-.g1-modern .g1-display em,
-.g1-modern .g1-dir-row:hover .g1-dir-name { font-style: normal; }
-.g1-modern .g1-dir-name { letter-spacing: -0.03em; }
+/* Only upright Jost is loaded, so headings never slant; the accent color
+   marks the stressed word. */
+.g1-display em { font-style: normal; color: var(--g1-accent); }
 
 /* Section rail: every main section as a small poster, in one row that
    scrolls sideways. */
