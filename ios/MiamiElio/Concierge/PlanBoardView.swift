@@ -150,6 +150,9 @@ private struct PlanItemRow: View {
                 .padding(.top, 4)
             }
             Spacer(minLength: 0)
+            if let favorite = FavoriteRef(item: item) {
+                FavoriteHeart(favorite: favorite)
+            }
         }
         .padding(12)
         .background(Theme.paper, in: RoundedRectangle(cornerRadius: 14, style: .continuous))

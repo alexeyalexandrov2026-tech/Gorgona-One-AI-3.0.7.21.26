@@ -48,12 +48,17 @@ struct SearchView: View {
             LazyVStack(spacing: 0) {
                 ForEach(Array(results.enumerated()), id: \.element.id) { index, result in
                     VStack(spacing: 0) {
-                        Button {
-                            router.open(reference: result.href)
-                        } label: {
-                            SearchResultRow(result: result, imageURL: store.imageURL(for: result))
+                        HStack(spacing: 4) {
+                            Button {
+                                router.open(reference: result.href)
+                            } label: {
+                                SearchResultRow(result: result, imageURL: store.imageURL(for: result))
+                            }
+                            .buttonStyle(PressableStyle())
+                            if let favorite = FavoriteRef(result: result) {
+                                FavoriteHeart(favorite: favorite)
+                            }
                         }
-                        .buttonStyle(PressableStyle())
                         Hairline()
                     }
                     // Only the first screenful is staggered; rows further

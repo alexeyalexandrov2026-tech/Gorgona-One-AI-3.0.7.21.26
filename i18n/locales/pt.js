@@ -943,5 +943,13 @@ export default {
   "ui.3c8e0fde6fcc71e0": "Hóspedes",
   "ui.dcd1d5223f73b3a9": "Nome",
   "ui.b8ed5279e897be5d": "Enviando…",
-  "ui.3a69f897298e727e": "Enviar pedido"
+  "ui.3a69f897298e727e": "Enviar pedido",
+  "ui.22a4b602f7b0fbd8": "Meu Miami",
+  "ui.d2b4588768358d52": "Meus pedidos e planos",
+  "ui.7a1f2a83aca9a081": "Favoritos",
+  "ui.d99b44623137610d": "Salvar nos favoritos",
+  "ui.18720329ca307c79": "Remover dos favoritos",
+  "ui.482ce46efffcd108": "Toque no coração de um iate, villa, carro ou restaurante para guardá-lo aqui.",
+  "ui.98cfb2fd207f322f": "Salvo neste dispositivo. Entre para vê-los no app e em qualquer dispositivo.",
+  "ui.344258fc42f1c336": "Resposta da equipe"
 };

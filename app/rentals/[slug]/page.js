@@ -1,3 +1,4 @@
+import { FavoriteButton } from '../../components/Favorites';
 import { notFound } from 'next/navigation';
 import { getRentals, getRentalBySlug } from '../../../lib/data/listings';
 import { rentalDescriptions, getContentText } from '../../../lib/contentTranslations';
@@ -32,7 +33,7 @@ export default async function RentalDetailPage({ params }) {
 
         <div className="grid min-w-0 gap-5 lg:sticky lg:top-24">
           <p className={eyebrowClass}>{fill(copy.cars.ourFleet, { place: rental.location })}</p>
-          <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{rental.title}</h1>
+          <div className="flex items-start justify-between gap-3"><h1 className="min-w-0 flex-1 font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{rental.title}</h1><FavoriteButton kind="car" slug={rental.slug} title={rental.title} subtitle={rental.category} image={rental.thumbnail || rental.image} /></div>
           <p className="text-[1.05rem] text-g1-soft">{getContentText(rentalDescriptions, locale, rental.id, rental.description)}</p>
           <Specs
             items={[

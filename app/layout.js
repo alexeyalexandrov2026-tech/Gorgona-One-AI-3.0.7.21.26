@@ -7,6 +7,7 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { LocaleProvider } from './components/LocaleProvider';
 import { AuthProvider } from './components/AuthProvider';
+import { FavoritesProvider } from './components/FavoritesProvider';
 import { ThemeProvider } from './components/ThemeProvider';    
 import { AIProvider } from './components/ai/AIProvider';      
 import DiscoveryDock from './components/ai/DiscoveryDock';    
@@ -77,6 +78,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-screen bg-g1-paper font-sans text-zinc-100 antialiased">
         <LocaleProvider>
           <AuthProvider>
+            <FavoritesProvider>
             <ThemeProvider>
               <AIProvider>
                 <AiDockProvider>
@@ -98,6 +100,7 @@ export default function RootLayout({ children }) {
                 </AiDockProvider>
               </AIProvider>
             </ThemeProvider>
+            </FavoritesProvider>
           </AuthProvider>
         </LocaleProvider>
         {process.env.NEXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN && (

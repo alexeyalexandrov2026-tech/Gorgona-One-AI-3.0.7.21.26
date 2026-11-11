@@ -943,5 +943,13 @@ export default {
   "ui.3c8e0fde6fcc71e0": "Misafirler",
   "ui.dcd1d5223f73b3a9": "Ad",
   "ui.b8ed5279e897be5d": "Gönderiliyor…",
-  "ui.3a69f897298e727e": "Talep gönder"
+  "ui.3a69f897298e727e": "Talep gönder",
+  "ui.22a4b602f7b0fbd8": "Benim Miami’m",
+  "ui.d2b4588768358d52": "Taleplerim ve planlarım",
+  "ui.7a1f2a83aca9a081": "Favoriler",
+  "ui.d99b44623137610d": "Favorilere ekle",
+  "ui.18720329ca307c79": "Favorilerden çıkar",
+  "ui.482ce46efffcd108": "Bir yat, villa, araç veya restoranda kalbe dokunun; burada saklansın.",
+  "ui.98cfb2fd207f322f": "Bu cihaza kaydedildi. Uygulamada ve her cihazda görmek için giriş yapın.",
+  "ui.344258fc42f1c336": "Ekibin yanıtı"
 };

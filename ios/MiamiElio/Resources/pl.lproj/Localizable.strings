@@ -12,6 +12,8 @@
 "concierge.starter.3" = "Zarezerwuj stolik na kolację";
 "concierge.title" = "Twój prywatny konsjerż";
 "error.generic" = "Coś poszło nie tak";
+"favorite.remove" = "Usuń z ulubionych";
+"favorite.save" = "Dodaj do ulubionych";
 "offline.message" = "Sprawdź połączenie i spróbuj ponownie.";
 "offline.title" = "Brak połączenia z internetem";
 "plan.addBack" = "Przywróć: {section}";
@@ -41,7 +43,7 @@
 "search.empty" = "Nie znaleziono wyników dla Twojego wyszukiwania.";
 "search.popular" = "Popularne wyszukiwania";
 "state.loading" = "Ładowanie...";
-"tab.account" = "Profil";
+"tab.account" = "Moje Miami";
 "tab.concierge" = "Konsjerż";
 "tab.home" = "Strona główna";
 "tab.search" = "Szukaj";

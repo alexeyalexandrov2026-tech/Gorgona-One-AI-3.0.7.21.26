@@ -17,6 +17,7 @@ struct MiamiElioApp: App {
                 .environment(services.router)
                 .environment(services.concierge)
                 .environment(services.search)
+                .environment(services.favorites)
                 .font(AppFont.body)
                 .tint(Theme.accent)
                 .preferredColorScheme(.dark)

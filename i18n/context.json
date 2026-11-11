@@ -3774,5 +3774,37 @@
   "ui.3a69f897298e727e": {
     "sourceHash": "3a69f897298e727ee81cec46020a2433330da23414dd406a7d1d083383912724",
     "description": "app/components/ai/PlanBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.22a4b602f7b0fbd8": {
+    "sourceHash": "22a4b602f7b0fbd8b70f83b0389f69abe8af10749c28e058bcb7564b3925a9f8",
+    "description": "app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.d2b4588768358d52": {
+    "sourceHash": "d2b4588768358d5279459c299b1c47b4e0005aa65b9be23a0b742f81e4a31c34",
+    "description": "app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.7a1f2a83aca9a081": {
+    "sourceHash": "7a1f2a83aca9a0819f244d5b4a7a0e7f6b779eb709dd4744136b22e724dbb10b",
+    "description": "app/components/Favorites.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.d99b44623137610d": {
+    "sourceHash": "d99b44623137610de8119f9a5d627c9c8948eff90f9c7ff259909093e98b2908",
+    "description": "app/components/Favorites.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.18720329ca307c79": {
+    "sourceHash": "18720329ca307c792fee6c6c1f707145c981d07c2b5a1b7127732ccd6e7203eb",
+    "description": "app/components/Favorites.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.482ce46efffcd108": {
+    "sourceHash": "482ce46efffcd108e0d4687913e0ea1769f8faff186abb589264713da7f33001",
+    "description": "app/components/Favorites.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.98cfb2fd207f322f": {
+    "sourceHash": "98cfb2fd207f322fb1c49ea55eec4e0d980075cfb9a8e3107f3f5696896045a7",
+    "description": "app/components/Favorites.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.344258fc42f1c336": {
+    "sourceHash": "344258fc42f1c3361380d77cc3815176db582ca146198765d47c2b8f2b4ea044",
+    "description": "app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   }
 }

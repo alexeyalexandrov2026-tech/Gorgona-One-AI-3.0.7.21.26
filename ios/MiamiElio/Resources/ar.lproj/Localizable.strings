@@ -12,6 +12,8 @@
 "concierge.starter.3" = "احجز طاولة للعشاء";
 "concierge.title" = "الكونسيرج الخاص بك";
 "error.generic" = "حدث خطأ ما";
+"favorite.remove" = "إزالة من المفضلة";
+"favorite.save" = "إضافة إلى المفضلة";
 "offline.message" = "تحقق من اتصالك ثم حاول مرة أخرى.";
 "offline.title" = "لا يوجد اتصال بالإنترنت";
 "plan.addBack" = "إعادة إضافة: {section}";
@@ -41,7 +43,7 @@
 "search.empty" = "لم يتم العثور على نتائج لبحثك.";
 "search.popular" = "عمليات البحث الشائعة";
 "state.loading" = "جارٍ التحميل...";
-"tab.account" = "الملف الشخصي";
+"tab.account" = "ميامي الخاصة بي";
 "tab.concierge" = "كونسيرج";
 "tab.home" = "الرئيسية";
 "tab.search" = "بحث";

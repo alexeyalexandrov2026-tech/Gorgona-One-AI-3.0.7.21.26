@@ -943,5 +943,13 @@ export default {
   "ui.3c8e0fde6fcc71e0": "Huéspedes",
   "ui.dcd1d5223f73b3a9": "Nombre",
   "ui.b8ed5279e897be5d": "Enviando…",
-  "ui.3a69f897298e727e": "Enviar solicitud"
+  "ui.3a69f897298e727e": "Enviar solicitud",
+  "ui.22a4b602f7b0fbd8": "Mi Miami",
+  "ui.d2b4588768358d52": "Mis solicitudes y planes",
+  "ui.7a1f2a83aca9a081": "Favoritos",
+  "ui.d99b44623137610d": "Guardar en favoritos",
+  "ui.18720329ca307c79": "Quitar de favoritos",
+  "ui.482ce46efffcd108": "Toca el corazón de un yate, una villa, un coche o un restaurante para guardarlo aquí.",
+  "ui.98cfb2fd207f322f": "Guardado en este dispositivo. Inicia sesión para verlo en la app y en cualquier dispositivo.",
+  "ui.344258fc42f1c336": "Respuesta del equipo"
 };

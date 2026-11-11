@@ -943,5 +943,13 @@ export default {
   "ui.3c8e0fde6fcc71e0": "Gäste",
   "ui.dcd1d5223f73b3a9": "Name",
   "ui.b8ed5279e897be5d": "Wird gesendet …",
-  "ui.3a69f897298e727e": "Anfrage senden"
+  "ui.3a69f897298e727e": "Anfrage senden",
+  "ui.22a4b602f7b0fbd8": "Mein Miami",
+  "ui.d2b4588768358d52": "Meine Anfragen und Pläne",
+  "ui.7a1f2a83aca9a081": "Favoriten",
+  "ui.d99b44623137610d": "Zu Favoriten hinzufügen",
+  "ui.18720329ca307c79": "Aus Favoriten entfernen",
+  "ui.482ce46efffcd108": "Tippen Sie auf das Herz bei einer Yacht, Villa, einem Auto oder Restaurant, um es hier zu sammeln.",
+  "ui.98cfb2fd207f322f": "Auf diesem Gerät gespeichert. Melden Sie sich an, um sie in der App und auf jedem Gerät zu sehen.",
+  "ui.344258fc42f1c336": "Antwort des Teams"
 };

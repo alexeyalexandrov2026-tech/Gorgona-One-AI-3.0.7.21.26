@@ -26,6 +26,8 @@ final class WebViewModel: NSObject {
 
     /// Called for every link that should not load in this web view.
     @ObservationIgnored var onRoute: ((URL, RouteDecision) -> Void)?
+    /// The favourites the page reports ("kind:slug"), with the page they came from.
+    @ObservationIgnored var onFavorites: ((Set<String>, WebViewModel) -> Void)?
 
     private let config: AppConfig
     private let policy: RoutePolicy
@@ -123,6 +125,8 @@ final class WebViewModel: NSObject {
             break
         case .ready:
             reloadIfSessionChanged()
+            // A favourite changed in another tab shows up when this one comes back.
+            webView.evaluateJavaScript("window.__miamiFavoritesRefresh && window.__miamiFavoritesRefresh()", completionHandler: nil)
         }
     }
 
@@ -339,6 +343,20 @@ final class WebViewModel: NSObject {
         // The page may only ask for what the policy already refuses to show here.
         if let target = body["open"] as? String, let url = URL(string: target), policy.decide(url) == .restricted {
             onRoute?(url, .restricted)
+        }
+        if let favorites = FavoriteRef.keys(from: body["favorites"]) {
+            onFavorites?(favorites, self)
+        }
+    }
+
+    /// Runs a script only while a Miami Elio page is showing; reports false anywhere else.
+    func runOnSite(_ script: String, completion: @escaping (Bool) -> Void) {
+        guard let host = webView.url?.host?.lowercased(), config.internalHosts.contains(host) else {
+            completion(false)
+            return
+        }
+        webView.evaluateJavaScript(script) { result, _ in
+            completion((result as? Bool) == true)
         }
     }
 

@@ -12,6 +12,8 @@
 "concierge.starter.3" = "预订晚餐餐厅";
 "concierge.title" = "您的私人礼宾";
 "error.generic" = "出错了";
+"favorite.remove" = "取消收藏";
+"favorite.save" = "加入收藏";
 "offline.message" = "请检查网络连接后重试。";
 "offline.title" = "没有网络连接";
 "plan.addBack" = "重新加入：{section}";
@@ -41,7 +43,7 @@
 "search.empty" = "未找到与您的搜索匹配的结果。";
 "search.popular" = "热门搜索";
 "state.loading" = "加载中...";
-"tab.account" = "个人资料";
+"tab.account" = "我的迈阿密";
 "tab.concierge" = "礼宾服务";
 "tab.home" = "首页";
 "tab.search" = "搜索";

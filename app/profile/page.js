@@ -1,8 +1,9 @@
 "use client";
-import { LocalizedTitle, useSavedText } from "../components/LocalizedText";
+import { useSavedText } from "../components/LocalizedText";
 
 import Link from 'next/link';
 import RequestBoard from '../components/dashboard/RequestBoard';
+import { FavoritesBoard } from '../components/Favorites';
 import { btn, eyebrowClass } from '../components/g1/ui';
 import { getTranslation } from '../../lib/i18n';
 import { useLocale } from '../components/LocaleProvider';
@@ -30,6 +31,8 @@ export default function ProfilePage() {
             {t.auth.signInTab}
           </Link>
         </header>
+        {/* Favourites saved on this device before signing in. */}
+        <FavoritesBoard />
       </main>
     );
   }
@@ -41,14 +44,15 @@ export default function ProfilePage() {
           <p className={eyebrowClass}>{msg("User Profile")}</p>
           {auth?.session && <p className="min-w-0 text-[0.9rem] text-g1-soft [overflow-wrap:anywhere]">{t.auth.signedInAs} {auth.session.name} ({auth.session.email})</p>}
         </div>
-        <h1 className={headingClass}><LocalizedTitle source="Concierge{break}Desk" /></h1>
+        <h1 className={headingClass}>{msg('My Miami')}</h1>
       </header>
 
       <nav className="flex flex-wrap gap-5 text-sm text-g1-ink">
         {auth?.session?.role === 'admin' && <Link href="/admin" className="underline decoration-g1-rule underline-offset-4">{msg('Admin Portal')}</Link>}
         {['partner','admin'].includes(auth?.session?.role) && <Link href="/partner" className="underline decoration-g1-rule underline-offset-4">{msg('Partner Portal')}</Link>}
       </nav>
-      {auth?.session && <RequestBoard key={auth.session.id} scope="customer" />}
+      {auth?.session && <RequestBoard key={auth.session.id} scope="customer" title={msg('My requests and plans')} />}
+      <FavoritesBoard />
     </main>
   );
 }

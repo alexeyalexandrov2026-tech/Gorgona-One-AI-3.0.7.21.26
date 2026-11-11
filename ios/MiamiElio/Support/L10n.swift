@@ -57,6 +57,9 @@ enum L10n {
     static func planAddBack(_ section: String) -> String { text("plan.addBack").replacingOccurrences(of: "{section}", with: section) }
     static func planSentText(_ count: Int) -> String { text("plan.sentText").replacingOccurrences(of: "{count}", with: String(count)) }
 
+    static var favoriteSave: String { text("favorite.save") }
+    static var favoriteRemove: String { text("favorite.remove") }
+
     static var errorGeneric: String { text("error.generic") }
     static var offlineTitle: String { text("offline.title") }
     static var offlineMessage: String { text("offline.message") }

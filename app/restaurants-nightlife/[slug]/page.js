@@ -1,3 +1,4 @@
+import { FavoriteButton } from '../../components/Favorites';
 import DiningPhoto from '../../components/dining/DiningPhoto';
 import {LocalizedListing} from '../../components/LocalizedText';
 import {notFound} from 'next/navigation';
@@ -24,7 +25,7 @@ export default async function VenueDetailPage({params}) {
   <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
    <div className="grid min-w-0 gap-5">
     <p className={eyebrowClass}>{kind}</p>
-    <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] tracking-[-0.015em]">{venue.name}</h1>
+    <div className="flex items-start justify-between gap-3"><h1 className="min-w-0 flex-1 font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] tracking-[-0.015em]">{venue.name}</h1><FavoriteButton kind={venue.category === 'nightlife' ? 'nightlife' : 'dining'} slug={venue.slug} title={venue.name} subtitle={venue.neighborhood || venue.location} image={venue.image} /></div>
     {venue.status==='verified'&&<p className="text-[1.05rem] leading-relaxed text-g1-soft"><LocalizedListing itemId={venue.id} source={venue.description}/></p>}
     <p className="text-g1-soft">{venue.address||venue.location}</p>
     <p className="text-sm text-g1-soft">{venue.features.filter(feature=>styles[feature]).map(feature=>styles[feature]).join(' · ')}</p>

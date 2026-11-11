@@ -8,6 +8,7 @@ import { useAuth } from '../AuthProvider';
 import { supabase } from '../../../lib/supabase';
 import { submissionKey } from '../../../lib/bookingSubmission.mjs';
 import { isPlanReceipt } from '../../../lib/planRules.mjs';
+import { FavoriteButton } from '../Favorites';
 
 // ===========================================================================
 // "Your plan" under a concierge reply: one card per section the guest asked
@@ -147,6 +148,7 @@ export function PlanBoard({ onNavigate }) {
                   </div>
                 )}
               </div>
+              <FavoriteButton kind={item.kind} slug={item.slug} title={item.title} subtitle={item.subtitle} image={item.image} />
             </li>
           );
         })}

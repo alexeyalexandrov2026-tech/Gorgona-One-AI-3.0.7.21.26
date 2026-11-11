@@ -943,5 +943,13 @@ export default {
   "ui.3c8e0fde6fcc71e0": "Goście",
   "ui.dcd1d5223f73b3a9": "Imię i nazwisko",
   "ui.b8ed5279e897be5d": "Wysyłanie…",
-  "ui.3a69f897298e727e": "Wyślij zapytanie"
+  "ui.3a69f897298e727e": "Wyślij zapytanie",
+  "ui.22a4b602f7b0fbd8": "Moje Miami",
+  "ui.d2b4588768358d52": "Moje zapytania i plany",
+  "ui.7a1f2a83aca9a081": "Ulubione",
+  "ui.d99b44623137610d": "Dodaj do ulubionych",
+  "ui.18720329ca307c79": "Usuń z ulubionych",
+  "ui.482ce46efffcd108": "Stuknij serce przy jachcie, willi, aucie lub restauracji, aby zachować je tutaj.",
+  "ui.98cfb2fd207f322f": "Zapisano na tym urządzeniu. Zaloguj się, aby widzieć je w aplikacji i na każdym urządzeniu.",
+  "ui.344258fc42f1c336": "Odpowiedź zespołu"
 };

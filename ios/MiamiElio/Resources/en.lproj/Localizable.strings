@@ -12,6 +12,8 @@
 "concierge.starter.3" = "Book a table for a birthday dinner";
 "concierge.title" = "Your private concierge";
 "error.generic" = "Something went wrong";
+"favorite.remove" = "Remove from favorites";
+"favorite.save" = "Save to favorites";
 "offline.message" = "Check your connection and try again.";
 "offline.title" = "No internet connection";
 "plan.addBack" = "Add back: {section}";
@@ -41,7 +43,7 @@
 "search.empty" = "No results found for your search.";
 "search.popular" = "Popular Searches";
 "state.loading" = "Loading...";
-"tab.account" = "Profile";
+"tab.account" = "My Miami";
 "tab.concierge" = "Concierge";
 "tab.home" = "Home";
 "tab.search" = "Search";
