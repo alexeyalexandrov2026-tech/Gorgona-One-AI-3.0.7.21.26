@@ -7,6 +7,7 @@ final class AppServices {
     let router: AppRouter
     let concierge: ConciergeStore
     let search: SearchStore
+    let favorites: FavoritesStore
 
     init(config: AppConfig = .production) {
         let policy = RoutePolicy(config: config)
@@ -24,5 +25,11 @@ final class AppServices {
             locale: { explore.currentSiteLocale() }
         )
         self.search = SearchStore(client: SearchClient(config: config, policy: policy))
+
+        // Both web views share one storage; either may report the list.
+        let favorites = FavoritesStore(page: explore)
+        explore.onFavorites = { [weak favorites] keys, source in favorites?.received(keys, from: source) }
+        account.onFavorites = { [weak favorites] keys, source in favorites?.received(keys, from: source) }
+        self.favorites = favorites
     }
 }

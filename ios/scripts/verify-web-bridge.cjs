@@ -189,17 +189,17 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   const response = await old.goto(base + '/sportsbook/draftkings', { waitUntil: 'domcontentloaded' }).catch(() => null);
   check('old sportsbook addresses redirect to the home page', new URL(old.url()).pathname === '/' , `${old.url()} ${response ? response.status() : ''}`);
 
-  // My Miami (the Profile tab): a heart on a card saves it on the device,
-  // without an account; the page lists it and offers a plan; the header
+  // My Miami (the app's My Miami tab): a heart on a card saves it on the
+  // device, without an account; the page lists it and offers a plan; the header
   // heart is left to the app's own tab.
   const mine = await appEn.newPage();
   await mine.goto(base + '/', { waitUntil: 'networkidle' });
-  check('app: the header heart is left to the Profile tab', !(await visible(mine, 'a[data-my-miami-link]')));
-  const heart = mine.locator('button[data-save^="fav:/rentals/"]').first();
+  check('app: the header heart is left to the My Miami tab', !(await visible(mine, 'a[data-my-miami-link]')));
+  const heart = mine.locator('button[data-save^="car:"]').first();
   await heart.scrollIntoViewIfNeeded();
   await heart.click({ force: true });
   check('app: a heart on a card saves without leaving the page', (await heart.getAttribute('aria-pressed')) === 'true' && new URL(mine.url()).pathname === '/');
-  const yachtHeart = mine.locator('button[data-save^="fav:/yachts/"]').first();
+  const yachtHeart = mine.locator('button[data-save^="yacht:"]').first();
   await yachtHeart.scrollIntoViewIfNeeded();
   await yachtHeart.click({ force: true });
   await mine.goto(base + '/profile', { waitUntil: 'networkidle' });

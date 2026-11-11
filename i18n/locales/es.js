@@ -912,5 +912,7 @@ export default {
   "ui.ee2a1a22039132c5": "Esta solicitud está cerrada.",
   "ui.596719a7b8b06179": "Tus favoritos y tus solicitudes en un solo lugar.",
   "ui.5652aead17dbaeaf": "Mis solicitudes",
-  "ui.59e122517662355b": "Inicia sesión para ver tus solicitudes y en qué punto está cada una."
+  "ui.59e122517662355b": "Inicia sesión para ver tus solicitudes y en qué punto está cada una.",
+  "ui.344258fc42f1c336": "Respuesta del equipo",
+  "ui.98cfb2fd207f322f": "Guardado en este dispositivo. Inicia sesión para verlo en la app y en cualquier dispositivo."
 };

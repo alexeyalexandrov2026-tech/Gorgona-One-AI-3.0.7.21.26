@@ -1,52 +1,53 @@
 "use client";
 
-import { useAI } from './ai/AIProvider';
+import { useFavorites } from './FavoritesProvider';
 import { useSavedText } from './LocalizedText';
 import Icon from './g1/icons';
-import { favourite } from '../../lib/myMiami.mjs';
+import { favouriteRef } from '../../lib/myMiami.mjs';
 
 // The heart that puts a yacht, villa, car or restaurant into "My Miami"
-// (the profile page). `overlay` sits on a card's picture; otherwise it is a
-// small button under a page's heading. Nothing is drawn for pages that
-// cannot be a favourite, or before the saved list has been read from the
-// device (so the heart never flips from empty to full on load).
-export default function SaveButton({ href, title, image, overlay = false, className = '' }) {
+// (the profile page). The list is kept by FavoritesProvider: on this device
+// before signing in, in the account after, and the same list in the iOS app.
+//   overlay - on a card's picture;
+//   compact - a round button beside a title (plan cards, the My Miami list);
+//   default - a small button under a page's heading.
+// Nothing is drawn for pages that cannot be a favourite, or before the list
+// has been read (so the heart never flips from empty to full on load).
+export default function SaveButton({ href, kind, title, subtitle, image, overlay = false, compact = false, className = '' }) {
   const msg = useSavedText();
-  const { hydrated, isSaved, saveResult, removeSaved } = useAI();
-  const item = favourite({ href, title, image });
-  if (!item || !hydrated) return null;
-  const saved = isSaved(item.id);
+  const favorites = useFavorites();
+  const ref = favouriteRef(href, kind);
+  const name = typeof title === 'string' ? title.trim() : '';
+  if (!ref || !name || !favorites.ready) return null;
+  const saved = favorites.has(ref.kind, ref.slug);
   const label = saved ? msg('Remove from My Miami') : msg('Save to My Miami');
   const toggle = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    if (saved) removeSaved(item.id);
-    else saveResult(item);
+    favorites.set({ ...ref, title: name, subtitle, image }, !saved);
   };
-  if (overlay) {
+  const common = { type: 'button', onClick: toggle, 'aria-pressed': saved, 'data-save': `${ref.kind}:${ref.slug}` };
+  const heart = (size) => <Icon name="heart" className={`${size} ${saved ? 'fill-g1-accent stroke-g1-accent' : ''}`} />;
+  if (overlay || compact) {
     return (
       <button
-        type="button"
-        onClick={toggle}
-        aria-pressed={saved}
-        aria-label={`${label}: ${item.title}`}
+        {...common}
+        aria-label={`${label}: ${name}`}
         title={label}
-        data-save={item.id}
-        className={`absolute end-3 top-3 z-20 grid h-11 w-11 place-items-center rounded-full bg-black/45 text-white backdrop-blur-sm transition hover:bg-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${className}`}
+        className={overlay
+          ? `absolute end-3 top-3 z-20 grid h-11 w-11 place-items-center rounded-full bg-black/45 text-white backdrop-blur-sm transition hover:bg-black/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${className}`
+          : `grid h-11 w-11 shrink-0 place-items-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${className}`}
       >
-        <Icon name="heart" className={`h-[22px] w-[22px] ${saved ? 'fill-g1-accent stroke-g1-accent' : ''}`} />
+        {heart(overlay ? 'h-[22px] w-[22px]' : 'h-5 w-5')}
       </button>
     );
   }
   return (
     <button
-      type="button"
-      onClick={toggle}
-      aria-pressed={saved}
-      data-save={item.id}
+      {...common}
       className={`inline-flex min-h-[44px] w-fit items-center gap-2 rounded-full border border-g1-rule px-4 text-[0.92rem] font-medium text-g1-ink transition hover:border-g1-ink ${className}`}
     >
-      <Icon name="heart" className={`h-5 w-5 ${saved ? 'fill-g1-accent stroke-g1-accent' : ''}`} />
+      {heart('h-5 w-5')}
       {saved ? msg('Saved to My Miami') : msg('Save to My Miami')}
     </button>
   );

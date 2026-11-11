@@ -12,6 +12,8 @@
 "concierge.starter.3" = "Забронируй столик на день рождения";
 "concierge.title" = "Ваш личный консьерж";
 "error.generic" = "Что-то пошло не так";
+"favorite.remove" = "Убрать из «Моего Майами»";
+"favorite.save" = "В «Мой Майами»";
 "offline.message" = "Проверьте подключение и попробуйте снова.";
 "offline.title" = "Нет подключения к интернету";
 "plan.addBack" = "Вернуть: {section}";
@@ -41,7 +43,7 @@
 "search.empty" = "По вашему запросу ничего не найдено.";
 "search.popular" = "Популярные запросы";
 "state.loading" = "Загрузка...";
-"tab.account" = "Профиль";
+"tab.account" = "Мой Майами";
 "tab.concierge" = "Консьерж";
 "tab.home" = "Главная";
 "tab.search" = "Поиск";

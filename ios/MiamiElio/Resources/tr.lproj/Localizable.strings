@@ -12,6 +12,8 @@
 "concierge.starter.3" = "Akşam yemeği için masa ayırt";
 "concierge.title" = "Özel konsiyerjiniz";
 "error.generic" = "Bir sorun oluştu";
+"favorite.remove" = "Benim Miami’mden kaldır";
+"favorite.save" = "Benim Miami’me kaydet";
 "offline.message" = "Bağlantınızı kontrol edip tekrar deneyin.";
 "offline.title" = "İnternet bağlantısı yok";
 "plan.addBack" = "Geri ekle: {section}";
@@ -41,7 +43,7 @@
 "search.empty" = "Aramanızla eşleşen sonuç bulunamadı.";
 "search.popular" = "Popüler Aramalar";
 "state.loading" = "Yükleniyor...";
-"tab.account" = "Profil";
+"tab.account" = "Benim Miami’m";
 "tab.concierge" = "Concierge";
 "tab.home" = "Ana Sayfa";
 "tab.search" = "Ara";

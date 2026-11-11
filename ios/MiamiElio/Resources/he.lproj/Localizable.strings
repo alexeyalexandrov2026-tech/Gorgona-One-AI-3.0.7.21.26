@@ -12,6 +12,8 @@
 "concierge.starter.3" = "הזמן שולחן לארוחת ערב";
 "concierge.title" = "הקונסיירז׳ הפרטי שלכם";
 "error.generic" = "משהו השתבש";
+"favorite.remove" = "הסרה מהמיאמי שלי";
+"favorite.save" = "שמירה במיאמי שלי";
 "offline.message" = "בדקו את החיבור ונסו שוב.";
 "offline.title" = "אין חיבור לאינטרנט";
 "plan.addBack" = "להחזיר: {section}";
@@ -41,7 +43,7 @@
 "search.empty" = "לא נמצאו תוצאות עבור החיפוש שלך.";
 "search.popular" = "חיפושים פופולריים";
 "state.loading" = "טוען...";
-"tab.account" = "פרופיל";
+"tab.account" = "המיאמי שלי";
 "tab.concierge" = "קונסיירז׳";
 "tab.home" = "בית";
 "tab.search" = "חיפוש";

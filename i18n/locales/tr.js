@@ -912,5 +912,7 @@ export default {
   "ui.ee2a1a22039132c5": "Bu talep kapatıldı.",
   "ui.596719a7b8b06179": "Favorileriniz ve talepleriniz tek bir yerde.",
   "ui.5652aead17dbaeaf": "Taleplerim",
-  "ui.59e122517662355b": "Taleplerinizi ve her birinin durumunu görmek için giriş yapın."
+  "ui.59e122517662355b": "Taleplerinizi ve her birinin durumunu görmek için giriş yapın.",
+  "ui.344258fc42f1c336": "Ekibin yanıtı",
+  "ui.98cfb2fd207f322f": "Bu cihaza kaydedildi. Uygulamada ve her cihazda görmek için giriş yapın."
 };

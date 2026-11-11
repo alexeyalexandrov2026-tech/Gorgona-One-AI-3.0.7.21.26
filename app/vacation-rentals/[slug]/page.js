@@ -35,7 +35,7 @@ export default async function VacationRentalDetailPage({ params }) {
         <div className="grid min-w-0 gap-5 lg:sticky lg:top-24">
           <p className={eyebrowClass}>{stay.location}</p>
           <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{savedListing(locale, stay, 'title')}</h1>
-          <SaveButton href={`/vacation-rentals/${stay.slug}`} title={savedListing(locale, stay, 'title')} image={stay.image} />
+          <SaveButton href={`/vacation-rentals/${stay.slug}`} title={savedListing(locale, stay, 'title')} subtitle={stay.location} image={stay.image} />
           <p className="text-[1.05rem] text-g1-soft"><LocalizedListing itemId={stay.id} source={stay.description} /></p>
           {stay.partner&&<PartnerSpecs specs={stay.specs}/>}
           <Specs

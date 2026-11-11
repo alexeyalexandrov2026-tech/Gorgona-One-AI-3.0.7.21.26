@@ -9,9 +9,8 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { getTranslation } from '../../lib/i18n';
 import { useLocale } from './LocaleProvider';
 import { useAuth } from './AuthProvider';
-import { useAI } from './ai/AIProvider';
+import { useFavorites } from './FavoritesProvider';
 import Icon from './g1/icons';
-import { favouriteKind } from '../../lib/myMiami.mjs';
 
 // Unified MIAMI ELIO ecosystem navigation. `key` maps to an existing
 // translation in lib/i18n when available; `label` is the fallback for the
@@ -62,9 +61,10 @@ export function Header() {
   const isActive = (href) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
   // Roles come from the protected profile loaded by AuthProvider.
   // "My Miami" (the profile page) holds the favourites, so its heart is there
-  // for every guest, signed in or not; the count is read from this device.
-  const { saved, hydrated } = useAI();
-  const favourites = hydrated ? saved.filter((item) => favouriteKind(item.href)).length : 0;
+  // for every guest, signed in or not; the count is the same list as the
+  // page's (this device, or the account once signed in).
+  const favoriteList = useFavorites();
+  const favourites = favoriteList.ready ? favoriteList.items.length : 0;
   const myMiami = msg('My Miami');
   const accountHref = auth?.session?.role === 'admin' ? '/admin' : auth?.session?.role === 'partner' ? '/partner' : '/profile';
   const accountLabel = msg(auth?.session?.role === 'admin' ? 'Admin Portal' : auth?.session?.role === 'partner' ? 'Partner Portal' : 'User Profile');
@@ -123,7 +123,7 @@ export function Header() {
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
-          {/* data-app-hidden: in the iOS app the Profile tab opens My Miami. */}
+          {/* data-app-hidden: in the iOS app its My Miami tab opens this page. */}
           <Link
             href="/profile"
             data-app-hidden=""

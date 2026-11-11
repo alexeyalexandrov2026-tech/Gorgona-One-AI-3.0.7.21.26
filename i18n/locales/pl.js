@@ -912,5 +912,7 @@ export default {
   "ui.ee2a1a22039132c5": "Ta prośba jest zamknięta.",
   "ui.596719a7b8b06179": "Twoje ulubione i Twoje prośby w jednym miejscu.",
   "ui.5652aead17dbaeaf": "Moje prośby",
-  "ui.59e122517662355b": "Zaloguj się, aby zobaczyć swoje prośby i ich status."
+  "ui.59e122517662355b": "Zaloguj się, aby zobaczyć swoje prośby i ich status.",
+  "ui.344258fc42f1c336": "Odpowiedź zespołu",
+  "ui.98cfb2fd207f322f": "Zapisano na tym urządzeniu. Zaloguj się, aby widzieć je w aplikacji i na każdym urządzeniu."
 };

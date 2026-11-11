@@ -12,7 +12,7 @@
     "tab.home": { "en": "Home", "site": { "lib": "nav.home" } },
     "tab.concierge": { "en": "Concierge", "site": { "catalog": "home.conciergeEyebrow" } },
     "tab.search": { "en": "Search", "site": { "lib": "buttons.search" } },
-    "tab.account": { "en": "Profile", "site": { "catalog": "ui.d696a35bdd1883da" } },
+    "tab.account": { "en": "My Miami", "site": { "catalog": "ui.22a4b602f7b0fbd8" } },
 
     "concierge.title": { "en": "Your private concierge", "site": { "lib": "ai.conciergeTitle" } },
     "concierge.placeholder": { "en": "Ask Miami Elio AI", "site": { "lib": "ai.askPlaceholder" } },
@@ -23,6 +23,8 @@
     "concierge.starter.2": { "en": "Find a yacht for 8 guests", "site": { "starter": 1 } },
     "concierge.starter.3": { "en": "Book a table for a birthday dinner", "site": { "starter": 2 } },
 
+    "favorite.save": { "en": "Save to My Miami", "site": { "catalog": "ui.07bccc90d8b508ba" } },
+    "favorite.remove": { "en": "Remove from My Miami", "site": { "catalog": "ui.43c5a322e4b76af6" } },
     "plan.title": { "en": "Your plan", "site": { "catalog": "ui.d9ab76c650a66141" } },
     "plan.lede": { "en": "Real options from our catalogue. Swap or remove any of them, then send one request.", "site": { "catalog": "ui.a98b932a01547844" } },
     "plan.another": { "en": "Another option", "site": { "catalog": "ui.8b18e96b46316403" } },

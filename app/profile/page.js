@@ -10,8 +10,10 @@ import { useLocale } from '../components/LocaleProvider';
 import { useAuth } from '../components/AuthProvider';
 
 // "My Miami": the guest's own page. Favourites first - they need no account
-// and live on this device - then the requests, with where each one stands,
-// once the guest has signed in. The iOS app's Profile tab opens this page.
+// (kept on this device until the guest signs in, then in the account) - then
+// the requests, with where each one stands, once the guest has signed in.
+// Requests sent without signing in join the account by its confirmed email
+// (RequestBoard). The iOS app's My Miami tab opens this page.
 const headingClass = 'g1-display font-g1display text-[clamp(2.1rem,3.6vw+1rem,4.6rem)] font-medium leading-none tracking-[-0.015em] text-g1-ink [overflow-wrap:break-word] [text-wrap:balance]';
 
 export default function ProfilePage() {

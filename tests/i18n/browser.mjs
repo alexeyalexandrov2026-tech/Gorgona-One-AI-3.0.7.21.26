@@ -211,7 +211,7 @@ async function mockRole(context,role){
     return route.fulfill({json:route.request().headers()['accept']?.includes('application/vnd.pgrst.object+json') && Array.isArray(json) ? json[0] : json,headers:{'content-range':'0-0/1'}});
   });
 }
-for(const[role,route,title]of [['admin','/admin','Admin{break}Console'],['partner','/partner','Partner{break}Desk'],['user','/profile','Concierge{break}Desk']])await scenario('role-'+role,{width:390,height:844},async(page,{context})=>{
+for(const[role,route,title]of [['admin','/admin','Admin{break}Console'],['partner','/partner','Partner{break}Desk'],['user','/profile','My Miami']])await scenario('role-'+role,{width:390,height:844},async(page,{context})=>{
   await mockRole(context,role);await page.goto(baseURL+route,{waitUntil:'domcontentloaded'});
   await expect(page.locator('main h1')).toHaveText(title.replace('{break}',''));
   let input;

@@ -1,59 +1,76 @@
-// "My Miami" (step 3): favourites kept on the device, a plan out of them,
-// and where each request stands.
+// "My Miami" (step 3): favourites (on the device, then in the account), a plan
+// out of them, and where each request stands.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import load from '../concierge/load.cjs';
-import { favourite, favouriteKind, favouriteId, planRequest, FAVOURITE_KINDS } from '../../lib/myMiami.mjs';
+import { favouriteKind, favouriteRef, planRequest, FAVOURITE_KINDS } from '../../lib/myMiami.mjs';
 
 const read = (file) => fs.readFileSync(new URL(`../../${file}`, import.meta.url), 'utf8');
-const { navigationItem, discoverySnapshot } = load('lib/ai/session.mjs');
+const { favoriteItem, favoriteKey } = load('lib/favoriteRules.mjs');
 const { planSections } = load('lib/ai/plan.mjs');
 const { getTranslation } = load('lib/i18n.js');
 const { SUPPORTED_LANGUAGES } = load('lib/languages.js');
+const fav = (href, title, kind) => favoriteItem({ ...favouriteRef(href, kind), title });
 
 test('a favourite comes from a yacht, villa, car or restaurant page only', () => {
   assert.equal(favouriteKind('/yachts/sunseeker-predator-74'), 'yacht');
   assert.equal(favouriteKind('/vacation-rentals/star-island-estate?x=1'), 'stay');
   assert.equal(favouriteKind('/rentals/lamborghini-urus-se'), 'car');
   assert.equal(favouriteKind('/restaurants-nightlife/carbone-miami'), 'dining');
-  for (const href of ['/events/x', '/experiences/x', '/private-jets', '#listing-editor', 'https://example.com/yachts/x', undefined]) {
+  for (const href of ['/events/x', '/experiences/x', '/private-jets', '#listing-editor', 'https://example.com/yachts/x', '//evil.example/yachts/x', undefined]) {
     assert.equal(favouriteKind(href), null, String(href));
+    assert.equal(favouriteRef(href), null, String(href));
   }
-  assert.equal(favourite({ href: '/events/x', title: 'Concert' }), null);
-  assert.equal(favourite({ href: '/yachts/x', title: '  ' }), null);
-  // The card and the page of one yacht are one favourite.
-  assert.equal(favouriteId('/yachts/x'), favouriteId('/yachts/x?from=card#top'));
   assert.deepEqual(Object.values(FAVOURITE_KINDS).sort(), ['car', 'dining', 'stay', 'yacht']);
 });
 
-test('a favourite survives the device store with its picture, and nothing unsafe does', () => {
-  const item = favourite({ href: '/yachts/sunseeker-predator-74', title: 'Sunseeker Predator 74', image: 'https://images.unsplash.com/photo-1' });
-  assert.deepEqual(navigationItem(item), { href: item.href, id: item.id, type: 'yacht', title: item.title, image: item.image });
-  assert.equal(navigationItem({ ...item, image: 'javascript:alert(1)' }).image, undefined);
-  assert.equal(navigationItem({ ...item, image: '/images/../secret' }).image, undefined);
-  assert.equal(navigationItem({ ...item, href: '//evil.example/yachts/x' }), null);
-  const restored = discoverySnapshot({ saved: [item, { ...item, id: '' }, { href: '/admin', title: 'x', id: 'x' }] });
-  assert.deepEqual(restored.saved.map((saved) => saved.id), [item.id]);
+test('the card and the page of one listing are one favourite, kept by kind and slug', () => {
+  assert.deepEqual(favouriteRef('/yachts/sunseeker-predator-74'), { kind: 'yacht', slug: 'sunseeker-predator-74' });
+  assert.deepEqual(favouriteRef('/yachts/sunseeker-predator-74?from=card#top'), favouriteRef('/yachts/sunseeker-predator-74'));
+  assert.deepEqual(favouriteRef('/vacation-rentals/star-island-estate'), { kind: 'stay', slug: 'star-island-estate' });
+  // A restaurant and a club share a link shape; the card says which.
+  assert.deepEqual(favouriteRef('/restaurants-nightlife/liv-miami', 'nightlife'), { kind: 'nightlife', slug: 'liv-miami' });
+  assert.deepEqual(favouriteRef('/restaurants-nightlife/carbone-miami'), { kind: 'dining', slug: 'carbone-miami' });
+  assert.deepEqual(favouriteRef('/yachts/x', 'nightlife'), { kind: 'yacht', slug: 'x' });
+  // Section pages, nested paths and odd slugs are not favourites.
+  for (const href of ['/yachts', '/yachts/', '/yachts/x/gallery', '/yachts/../admin', '/rentals/Lamborghini']) assert.equal(favouriteRef(href), null, href);
+  const item = fav('/rentals/lamborghini-urus-se', 'Lamborghini Urus SE');
+  assert.equal(item.href, '/rentals/lamborghini-urus-se');
+  assert.equal(favoriteKey(item.kind, item.slug), 'car:lamborghini-urus-se');
 });
 
 test('the plan request names each favourite after its section, in every language', () => {
   const items = [
-    favourite({ href: '/yachts/sunseeker-predator-74', title: 'Sunseeker Predator 74' }),
-    favourite({ href: '/rentals/lamborghini-urus-se', title: 'Lamborghini Urus SE' }),
-    favourite({ href: '/restaurants-nightlife/carbone-miami', title: 'Carbone' }),
-    { id: 'q', href: '/events/heat', title: 'Heat tickets' }
+    fav('/yachts/sunseeker-predator-74', 'Sunseeker Predator 74'),
+    fav('/rentals/lamborghini-urus-se', 'Lamborghini Urus SE'),
+    fav('/restaurants-nightlife/carbone-miami', 'Carbone'),
+    fav('/restaurants-nightlife/liv-miami', 'LIV', 'nightlife'),
+    { href: '/events/heat', title: 'Heat tickets' }
   ];
   for (const { code } of SUPPORTED_LANGUAGES) {
     const t = getTranslation(code);
     const sections = { yacht: t.nav.yachts, stay: t.nav.villas, car: t.nav.cars, dining: t.restaurantsNightlife.pill };
     const message = planRequest(items, { template: 'Plan: {items}', sections });
     assert.ok(message.includes(`${t.nav.yachts}: Sunseeker Predator 74`), code);
+    assert.ok(message.includes(`${t.restaurantsNightlife.pill}: LIV`), code);
     assert.ok(!message.includes('Heat tickets'), code);
     const found = planSections(message, code).map((section) => section.href);
     for (const href of ['/yachts', '/rentals', '/restaurants-nightlife']) assert.ok(found.includes(href), `${code}: ${href} not found in ${message}`);
   }
   assert.equal(planRequest([], { template: 'Plan: {items}', sections: {} }), '');
+});
+
+test('one favourites list: the hearts, the header count and My Miami all read FavoritesProvider', () => {
+  for (const file of ['app/components/SaveButton.jsx', 'app/components/MyMiami.jsx', 'app/components/Header.jsx']) {
+    assert.match(read(file), /useFavorites()/, file);
+    assert.doesNotMatch(read(file), /useAI()/, file);
+  }
+  const layout = read('app/layout.js');
+  assert.ok(layout.indexOf('<FavoritesProvider>') < layout.indexOf('<Header />'));
+  assert.ok(!fs.existsSync(new URL('../../app/components/Favorites.jsx', import.meta.url)), 'one heart component only');
+  assert.match(read('app/components/ai/PlanBoard.jsx'), /<SaveButton compact href={item.href} kind={item.kind}/);
+  assert.ok(read('app/components/VenueCard.jsx').includes("kind={venue.category==='nightlife'?'nightlife':'dining'}"));
 });
 
 test('every catalogue card and page carries the heart, the partner preview does not', () => {

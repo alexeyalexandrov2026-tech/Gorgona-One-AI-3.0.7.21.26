@@ -3321,7 +3321,7 @@
   },
   "ui.47d2a515ef2f05b8": {
     "sourceHash": "47d2a515ef2f05b87d688656286a61e4f743da4b878684c7654969db17711c40",
-    "description": "app/account/setup/page.js; app/admin/page.js; app/components/BookingForm.jsx; app/components/MyMiami.jsx; app/components/dashboard/ListingWorkspace.jsx; app/components/dashboard/RequestBoard.jsx; app/components/dining/VenueEditor.jsx; app/partner/page.js; app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/account/setup/page.js; app/admin/page.js; app/components/BookingForm.jsx; app/components/dashboard/ListingWorkspace.jsx; app/components/dashboard/RequestBoard.jsx; app/components/dining/VenueEditor.jsx; app/components/MyMiami.jsx; app/partner/page.js; app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.ea923f45a415c408": {
     "sourceHash": "ea923f45a415c408812651a3b319fc3fbe19d63fe4261add03667a95d2c7292e",
@@ -3609,7 +3609,7 @@
   },
   "ui.43c5a322e4b76af6": {
     "sourceHash": "43c5a322e4b76af6c1294ba9b6f9a6aa6072d8d54c56a43a7d9816ffc37dc7ba",
-    "description": "app/components/MyMiami.jsx; app/components/SaveButton.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/SaveButton.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.9000fd795c188fd9": {
     "sourceHash": "9000fd795c188fd91ec3a1a2774f62a46c5c9e20fc5a1464f5d0594fb22e3941",
@@ -3650,5 +3650,13 @@
   "ui.59e122517662355b": {
     "sourceHash": "59e122517662355b4ec3cb58354c5982ef99228969c07da947db617877aac06e",
     "description": "app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.344258fc42f1c336": {
+    "sourceHash": "344258fc42f1c3361380d77cc3815176db582ca146198765d47c2b8f2b4ea044",
+    "description": "app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.98cfb2fd207f322f": {
+    "sourceHash": "98cfb2fd207f322fb1c49ea55eec4e0d980075cfb9a8e3107f3f5696896045a7",
+    "description": "app/components/MyMiami.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   }
 }

@@ -12,6 +12,8 @@
 "concierge.starter.3" = "Заброньюй столик на вечерю";
 "concierge.title" = "Ваш особистий консьєрж";
 "error.generic" = "Щось пішло не так";
+"favorite.remove" = "Прибрати з «Мого Маямі»";
+"favorite.save" = "До «Мого Маямі»";
 "offline.message" = "Перевірте підключення та спробуйте ще раз.";
 "offline.title" = "Немає підключення до інтернету";
 "plan.addBack" = "Повернути: {section}";
@@ -41,7 +43,7 @@
 "search.empty" = "За вашим запитом нічого не знайдено.";
 "search.popular" = "Популярні запити";
 "state.loading" = "Завантаження...";
-"tab.account" = "Профіль";
+"tab.account" = "Мій Маямі";
 "tab.concierge" = "Консьєрж";
 "tab.home" = "Головна";
 "tab.search" = "Пошук";

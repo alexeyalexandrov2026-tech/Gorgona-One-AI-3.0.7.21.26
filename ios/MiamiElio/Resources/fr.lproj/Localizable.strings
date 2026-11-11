@@ -12,6 +12,8 @@
 "concierge.starter.3" = "Réserve une table pour le dîner";
 "concierge.title" = "Votre concierge privé";
 "error.generic" = "Une erreur s’est produite";
+"favorite.remove" = "Retirer de Mon Miami";
+"favorite.save" = "Ajouter à Mon Miami";
 "offline.message" = "Vérifiez votre connexion et réessayez.";
 "offline.title" = "Pas de connexion internet";
 "plan.addBack" = "Remettre : {section}";
@@ -41,7 +43,7 @@
 "search.empty" = "Aucun résultat trouvé pour votre recherche.";
 "search.popular" = "Recherches populaires";
 "state.loading" = "Chargement...";
-"tab.account" = "Profil";
+"tab.account" = "Mon Miami";
 "tab.concierge" = "Concierge";
 "tab.home" = "Accueil";
 "tab.search" = "Rechercher";

@@ -12,6 +12,8 @@
 "concierge.starter.3" = "ディナーの席を予約して";
 "concierge.title" = "あなた専用のコンシェルジュ";
 "error.generic" = "問題が発生しました";
+"favorite.remove" = "マイ・マイアミから削除";
+"favorite.save" = "マイ・マイアミに保存";
 "offline.message" = "接続を確認して、もう一度お試しください。";
 "offline.title" = "インターネットに接続されていません";
 "plan.addBack" = "戻す：{section}";
@@ -41,7 +43,7 @@
 "search.empty" = "検索結果が見つかりませんでした。";
 "search.popular" = "人気の検索";
 "state.loading" = "読み込み中...";
-"tab.account" = "プロフィール";
+"tab.account" = "マイ・マイアミ";
 "tab.concierge" = "コンシェルジュ";
 "tab.home" = "ホーム";
 "tab.search" = "検索";

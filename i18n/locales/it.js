@@ -912,5 +912,7 @@ export default {
   "ui.ee2a1a22039132c5": "Questa richiesta è chiusa.",
   "ui.596719a7b8b06179": "I tuoi preferiti e le tue richieste in un unico posto.",
   "ui.5652aead17dbaeaf": "Le mie richieste",
-  "ui.59e122517662355b": "Accedi per vedere le tue richieste e a che punto sono."
+  "ui.59e122517662355b": "Accedi per vedere le tue richieste e a che punto sono.",
+  "ui.344258fc42f1c336": "Risposta del team",
+  "ui.98cfb2fd207f322f": "Salvati su questo dispositivo. Accedi per vederli nell’app e su ogni dispositivo."
 };

@@ -19,7 +19,7 @@ final class MiamiElioUITests: XCTestCase {
     func testTheFourTabs() throws {
         let tabs = waitForTheAppToOpen()
         XCTAssertEqual(tabs.buttons.count, 4)
-        for title in ["Home", "Concierge", "Search", "Profile"] {
+        for title in ["Home", "Concierge", "Search", "My Miami"] {
             XCTAssertTrue(tabs.buttons[title].exists, "Missing tab: \(title)")
         }
 
@@ -78,7 +78,7 @@ final class MiamiElioUITests: XCTestCase {
         attach("4-search-results")
 
         // Profile: the site's account page.
-        tabs.buttons["Profile"].tap()
+        tabs.buttons["My Miami"].tap()
         Thread.sleep(forTimeInterval: 12)
         attach("5-profile")
     }

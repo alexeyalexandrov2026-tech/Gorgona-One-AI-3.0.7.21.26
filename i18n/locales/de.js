@@ -912,5 +912,7 @@ export default {
   "ui.ee2a1a22039132c5": "Diese Anfrage ist abgeschlossen.",
   "ui.596719a7b8b06179": "Ihre Favoriten und Anfragen an einem Ort.",
   "ui.5652aead17dbaeaf": "Meine Anfragen",
-  "ui.59e122517662355b": "Melden Sie sich an, um Ihre Anfragen und deren Stand zu sehen."
+  "ui.59e122517662355b": "Melden Sie sich an, um Ihre Anfragen und deren Stand zu sehen.",
+  "ui.344258fc42f1c336": "Antwort des Teams",
+  "ui.98cfb2fd207f322f": "Auf diesem Gerät gespeichert. Melden Sie sich an, um sie in der App und auf jedem Gerät zu sehen."
 };

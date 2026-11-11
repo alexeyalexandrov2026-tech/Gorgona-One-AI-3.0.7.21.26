@@ -912,5 +912,7 @@ export default {
   "ui.ee2a1a22039132c5": "Cette demande est clôturée.",
   "ui.596719a7b8b06179": "Vos favoris et vos demandes au même endroit.",
   "ui.5652aead17dbaeaf": "Mes demandes",
-  "ui.59e122517662355b": "Connectez-vous pour voir vos demandes et où en est chacune."
+  "ui.59e122517662355b": "Connectez-vous pour voir vos demandes et où en est chacune.",
+  "ui.344258fc42f1c336": "Réponse de l’équipe",
+  "ui.98cfb2fd207f322f": "Enregistré sur cet appareil. Connectez-vous pour les retrouver dans l’app et sur tous vos appareils."
 };

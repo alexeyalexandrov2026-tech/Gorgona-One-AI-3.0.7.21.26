@@ -52,6 +52,18 @@ function StatusSteps({status,labels,next}){
   </div>;
 }
 
+// In the list: the same four steps as one short bar, "2/4 · In review".
+function StatusBar({status,labels,msg}){
+  const at=STEPS.indexOf(status);
+  if(at<0)return null;
+  return <div className="mt-3 max-w-xs" role="img" aria-label={msg('Status')+': '+labels[status]}>
+    <div className="grid grid-cols-4 gap-1.5" aria-hidden="true">{STEPS.map((step,i)=><span key={step} className={`block h-1.5 rounded-full ${i<=at?'bg-g1-accent':'bg-g1-rule'}`}/>)}</div>
+    <p className="mt-1.5 text-xs font-medium text-g1-ink" aria-hidden="true">{at+1}/4 · {labels[status]}</p>
+  </div>;
+}
+// A plan is as far along as its least advanced item.
+const planStatus=rows=>STEPS[Math.min(...rows.map(row=>Math.max(0,STEPS.indexOf(row.status))))];
+
 export default function RequestBoard({ scope = 'customer', embedded = false }) {
   const auth=useAuth(), msg=useSavedText(), locale=useLocale(), copy=getWorldsCopy(locale).form;
   const userId=auth?.session?.id;
@@ -68,6 +80,13 @@ export default function RequestBoard({ scope = 'customer', embedded = false }) {
   const refresh=()=>{setAfter('');setReload(value=>value+1);};
 
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
+  // Requests sent without signing in join this account when its email is confirmed (server-checked).
+  useEffect(()=>{
+    if(!userId||scope!=='customer')return;
+    let active=true;
+    api(userId,'/api/dashboard/requests/claim',{method:'POST'}).then(result=>{if(active&&(result.requests>0||result.plans>0))refresh();}).catch(()=>{});
+    return()=>{active=false;};
+  },[userId,scope]);
   useEffect(()=>{
     if(!userId)return;
     const controller=new AbortController();let active=true;
@@ -124,11 +143,14 @@ export default function RequestBoard({ scope = 'customer', embedded = false }) {
         <tbody>{requestEntries(page.requests).map(entry=>entry.rows?<tr key={entry.plan} className="border-b border-g1-rule align-top" data-plan-row>
           <td className="py-4 pe-4 [overflow-wrap:anywhere]"><p className="font-medium text-g1-ink">{msg('Plan')} · {entry.rows.length}</p>
             <p className="mt-1 text-xs text-g1-soft">{entry.plan.slice(0,8)} · {date(entry.rows[0].created_at)}</p>
-            <ul className="mt-2 grid gap-1.5">{entry.rows.map(row=><li key={row.id}><button type="button" className="text-start text-sm text-g1-ink underline decoration-g1-rule underline-offset-4" onClick={()=>setSelected(row.id)} aria-expanded={selected===row.id}>{row.item_title||row.item_slug}</button></li>)}</ul></td>
-          <td className="py-4 [overflow-wrap:anywhere]"><p aria-hidden="true">&nbsp;</p><p className="mt-1 text-xs" aria-hidden="true">&nbsp;</p><ul className="mt-2 grid gap-1.5">{entry.rows.map(row=><li key={row.id} className="text-sm">{labels[row.status]||msg('Unknown')}</li>)}</ul></td>
+            <StatusBar status={planStatus(entry.rows)} labels={labels} msg={msg}/>
+            <ul className="mt-2 grid gap-1.5">{entry.rows.map(row=><li key={row.id}><button type="button" className="text-start text-sm text-g1-ink underline decoration-g1-rule underline-offset-4" onClick={()=>setSelected(row.id)} aria-expanded={selected===row.id}>{row.item_title||row.item_slug}</button> <span className="text-xs text-g1-soft">· {labels[row.status]||msg('Unknown')}</span></li>)}</ul></td>
+          <td className="py-4 [overflow-wrap:anywhere]">{labels[planStatus(entry.rows)]||msg('Unknown')}</td>
         </tr>:<tr key={entry.row.id} className="border-b border-g1-rule align-top">
           <td className="py-4 pe-4 [overflow-wrap:anywhere]"><button type="button" className="text-start font-medium text-g1-ink underline decoration-g1-rule underline-offset-4" onClick={()=>setSelected(entry.row.id)} aria-expanded={selected===entry.row.id}>{entry.row.item_title||entry.row.item_slug}</button>
-            <p className="mt-1 text-xs text-g1-soft">{entry.row.id.slice(0,8)} · {date(entry.row.created_at)}</p><p className="mt-2 text-sm">{entry.row.dates}</p></td>
+            <p className="mt-1 text-xs text-g1-soft">{entry.row.id.slice(0,8)} · {date(entry.row.created_at)}</p><p className="mt-2 text-sm">{entry.row.dates}</p>
+            <StatusBar status={entry.row.status} labels={labels} msg={msg}/>
+            {entry.row.response&&<p className="mt-3 whitespace-pre-wrap text-sm text-g1-ink [overflow-wrap:anywhere]"><span className="text-g1-soft">{msg('Team reply')}:</span> {entry.row.response}</p>}</td>
           <td className="py-4 [overflow-wrap:anywhere]">{labels[entry.row.status]||msg('Unknown')}</td>
         </tr>)}</tbody>
       </table>

@@ -912,5 +912,7 @@ export default {
   "ui.ee2a1a22039132c5": "This request is closed.",
   "ui.596719a7b8b06179": "Your favourites and your requests in one place.",
   "ui.5652aead17dbaeaf": "My requests",
-  "ui.59e122517662355b": "Sign in to see your requests and where each one stands."
+  "ui.59e122517662355b": "Sign in to see your requests and where each one stands.",
+  "ui.344258fc42f1c336": "Team reply",
+  "ui.98cfb2fd207f322f": "Saved on this device. Sign in to see them in the app and on every device."
 };

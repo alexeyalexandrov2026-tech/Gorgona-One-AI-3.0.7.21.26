@@ -912,5 +912,7 @@ export default {
   "ui.ee2a1a22039132c5": "Este pedido está encerrado.",
   "ui.596719a7b8b06179": "Seus favoritos e seus pedidos em um só lugar.",
   "ui.5652aead17dbaeaf": "Meus pedidos",
-  "ui.59e122517662355b": "Entre para ver seus pedidos e a situação de cada um."
+  "ui.59e122517662355b": "Entre para ver seus pedidos e a situação de cada um.",
+  "ui.344258fc42f1c336": "Resposta da equipe",
+  "ui.98cfb2fd207f322f": "Salvo neste dispositivo. Entre para vê-los no app e em qualquer dispositivo."
 };
