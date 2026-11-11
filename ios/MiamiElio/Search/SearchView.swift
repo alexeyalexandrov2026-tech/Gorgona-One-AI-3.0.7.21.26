@@ -179,6 +179,7 @@ private struct WorldTile: View {
                 .overlay(alignment: .bottomLeading) {
                     Text(world.title)
                         .font(format == .tall ? AppFont.cardTitle : AppFont.title)
+                        .tracking(AppFont.headingTracking(format == .tall ? AppFont.cardTitleSize : AppFont.titleSize))
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.leading)
                         .lineLimit(3)
@@ -206,13 +207,13 @@ private struct SearchResultRow: View {
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
             Color.clear
-                .frame(width: 104, height: 84)
+                .frame(width: 92, height: 76)
                 .overlay { thumbnail }
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
 
             VStack(alignment: .leading, spacing: 5) {
                 Text(result.title)
-                    .font(AppFont.cardTitle)
+                    .font(AppFont.rowTitle)
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)

@@ -151,33 +151,26 @@ private struct ConciergeWelcome: View {
 
             Text(L10n.conciergeTitle)
                 .font(AppFont.hero)
+                .tracking(AppFont.headingTracking(AppFont.heroSize))
                 .foregroundStyle(Theme.ink)
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("concierge.title")
-                .padding(.bottom, 14)
+                .padding(.bottom, 28)
                 .arrives(2)
-
-            Text(L10n.conciergeSubtitle)
-                .font(AppFont.body)
-                .foregroundStyle(Theme.soft)
-                .lineSpacing(4)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.bottom, 30)
-                .arrives(3)
 
             // Ready-made requests, listed the way the site lists its sections:
             // one per line between hairlines.
             VStack(spacing: 0) {
                 ForEach(Array(L10n.conciergeStarters.enumerated()), id: \.element) { index, prompt in
                     Hairline()
-                        .arrives(4 + index)
+                        .arrives(3 + index)
                     Button {
                         ask(prompt)
                     } label: {
                         HStack(alignment: .center, spacing: 14) {
                             Text(prompt)
-                                .font(AppFont.prompt)
+                                .font(AppFont.rowTitle)
                                 .foregroundStyle(Theme.ink)
                                 .multilineTextAlignment(.leading)
                                 .fixedSize(horizontal: false, vertical: true)
@@ -187,15 +180,15 @@ private struct ConciergeWelcome: View {
                                 .foregroundStyle(Theme.accent)
                                 .accessibilityHidden(true)
                         }
-                        .padding(.vertical, 18)
+                        .padding(.vertical, 17)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(PressableStyle())
                     .accessibilityIdentifier("concierge.starter")
-                    .arrives(4 + index)
+                    .arrives(3 + index)
                 }
                 Hairline()
-                    .arrives(4 + L10n.conciergeStarters.count)
+                    .arrives(3 + L10n.conciergeStarters.count)
             }
         }
     }
@@ -312,6 +305,7 @@ private struct ConciergeCardView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(card.title)
                     .font(AppFont.cardTitle)
+                    .tracking(AppFont.headingTracking(AppFont.cardTitleSize))
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)

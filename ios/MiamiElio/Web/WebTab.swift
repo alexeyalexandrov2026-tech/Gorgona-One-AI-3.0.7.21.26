@@ -53,6 +53,7 @@ private struct LoadFailureView: View {
 
             Text(failure.isOffline ? L10n.offlineTitle : L10n.errorGeneric)
                 .font(AppFont.title)
+                .tracking(AppFont.headingTracking(AppFont.titleSize))
                 .foregroundStyle(Theme.ink)
                 .multilineTextAlignment(.center)
 

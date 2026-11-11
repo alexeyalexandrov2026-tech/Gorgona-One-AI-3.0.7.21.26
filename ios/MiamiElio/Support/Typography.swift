@@ -4,15 +4,16 @@ import UIKit
 import MiamiElioKit
 
 /// The website's typefaces, so the native screens read as the same product
-/// as the pages beside them: Bodoni Moda for headings, Jost for text and
-/// DM Mono for the wordmark. The files are in `Resources/Fonts`, under the
-/// SIL Open Font License that sits next to them.
+/// as the pages beside them. Headings and text are both set in Jost, as on
+/// the site's home page: one geometric family, with headings large, medium
+/// weight and tightly tracked. Bodoni Moda and DM Mono appear only in the
+/// "MIAMI Elio" wordmark. The files are in `Resources/Fonts`, under the SIL
+/// Open Font License that sits next to them.
 ///
-/// Neither Bodoni Moda nor Jost covers every script the app is translated
-/// into, and a heading set half in Bodoni and half in a substitute face
-/// looks broken. So each family is used only for languages it can set
-/// completely; every other language gets the system serif and sans, which
-/// cover all of them.
+/// Jost does not cover every script the app is translated into, and a line
+/// set half in Jost and half in a substitute face looks broken. So it is
+/// used only for languages it can set completely; every other language gets
+/// the system sans, which covers all of them.
 enum AppFont {
     enum Weight {
         case regular
@@ -21,24 +22,21 @@ enum AppFont {
     }
 
     private enum Face {
-        static let display = "BodoniModa28pt-Medium"
-        static let displayItalic = "BodoniModa28pt-MediumItalic"
+        static let wordmark = "BodoniModa28pt-Medium"
         static let text = "Jost-Regular"
         static let textMedium = "Jost-Medium"
         static let textSemibold = "Jost-SemiBold"
         static let mono = "DMMono-Medium"
 
         /// File names are the same, plus ".ttf".
-        static let all = [display, displayItalic, text, textMedium, textSemibold, mono]
+        static let all = [wordmark, text, textMedium, textSemibold, mono]
     }
 
     /// The language the app's own strings are showing in.
     private static let language = SiteLocale.normalize(Bundle.main.preferredLocalizations.first ?? "") ?? SiteLocale.fallback
-    private static let latinLanguages: Set<String> = ["en", "es", "pt", "de", "tr", "it", "fr", "pl"]
-    /// Bodoni Moda is Latin only.
-    private static let setsHeadings = latinLanguages.contains(language)
-    /// Jost adds Russian. Its Cyrillic lacks the Ukrainian letters.
-    private static let setsText = setsHeadings || language == "ru"
+    /// Jost sets the Latin-script languages and Russian. Its Cyrillic lacks
+    /// the Ukrainian letters.
+    private static let setsText = ["en", "es", "pt", "de", "tr", "it", "fr", "pl", "ru"].contains(language)
 
     // MARK: - Setup
 
@@ -62,12 +60,15 @@ enum AppFont {
 
     // MARK: - Families
 
-    /// Headings.
-    static func display(_ size: CGFloat, italic: Bool = false, relativeTo style: Font.TextStyle = .title) -> Font {
-        if setsHeadings {
-            return .custom(italic ? Face.displayItalic : Face.display, size: size, relativeTo: style)
-        }
-        return system(size, weight: .medium, design: .serif, italic: italic, relativeTo: style)
+    /// Headings: the text family at medium weight. Pair with `headingTracking`.
+    static func display(_ size: CGFloat, relativeTo style: Font.TextStyle = .title) -> Font {
+        text(size, .medium, relativeTo: style)
+    }
+
+    /// How far to pull a heading's letters together, as the site does
+    /// (`letter-spacing: -0.03em`): `Text(...).tracking(AppFont.headingTracking(36))`.
+    static func headingTracking(_ size: CGFloat) -> CGFloat {
+        -0.03 * size
     }
 
     /// Everything that is read rather than looked at.
@@ -75,7 +76,7 @@ enum AppFont {
         if setsText {
             return .custom(face(for: weight), size: size, relativeTo: style)
         }
-        return system(size, weight: systemWeight(for: weight), design: .default, italic: false, relativeTo: style)
+        return system(size, weight: systemWeight(for: weight), relativeTo: style)
     }
 
     /// Latin letters and figures only.
@@ -85,7 +86,7 @@ enum AppFont {
 
     /// The brand name is always written in Latin letters, so always in Bodoni.
     static func wordmark(_ size: CGFloat) -> Font {
-        .custom(Face.display, size: size, relativeTo: .title2)
+        .custom(Face.wordmark, size: size, relativeTo: .title2)
     }
 
     /// The text family for UIKit-drawn chrome: tab bar, navigation bar, search field.
@@ -98,11 +99,15 @@ enum AppFont {
 
     // MARK: - Roles
 
-    static var hero: Font { display(40, relativeTo: .largeTitle) }
-    static var title: Font { display(30, relativeTo: .title) }
-    static var cardTitle: Font { display(23, relativeTo: .title3) }
-    /// A suggested request, set like a pull quote.
-    static var prompt: Font { display(21, italic: true, relativeTo: .title3) }
+    static let heroSize: CGFloat = 36
+    static let titleSize: CGFloat = 27
+    static let cardTitleSize: CGFloat = 20
+
+    static var hero: Font { display(heroSize, relativeTo: .largeTitle) }
+    static var title: Font { display(titleSize, relativeTo: .title) }
+    static var cardTitle: Font { display(cardTitleSize, relativeTo: .title3) }
+    /// A suggested request, or a row's name in a list.
+    static var rowTitle: Font { text(18, .medium, relativeTo: .headline) }
     static var body: Font { text(17) }
     static var bodyMedium: Font { text(17, .medium) }
     static var detail: Font { text(15, relativeTo: .subheadline) }
@@ -130,14 +135,9 @@ enum AppFont {
 
     /// A system font at an exact size that still follows the reader's text
     /// size setting, as the custom fonts do.
-    private static func system(_ size: CGFloat, weight: UIFont.Weight, design: UIFontDescriptor.SystemDesign, italic: Bool, relativeTo style: Font.TextStyle) -> Font {
-        var descriptor = UIFont.systemFont(ofSize: size, weight: weight).fontDescriptor
-        if let designed = descriptor.withDesign(design) {
-            descriptor = designed
-        }
-        let scaled = UIFontMetrics(forTextStyle: uiKitStyle(for: style)).scaledFont(for: UIFont(descriptor: descriptor, size: size))
-        let font = Font(scaled as CTFont)
-        return italic ? font.italic() : font
+    private static func system(_ size: CGFloat, weight: UIFont.Weight, relativeTo style: Font.TextStyle) -> Font {
+        let scaled = UIFontMetrics(forTextStyle: uiKitStyle(for: style)).scaledFont(for: .systemFont(ofSize: size, weight: weight))
+        return Font(scaled as CTFont)
     }
 
     private static func uiKitStyle(for style: Font.TextStyle) -> UIFont.TextStyle {

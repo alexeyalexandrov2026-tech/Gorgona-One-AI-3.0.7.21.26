@@ -15,7 +15,6 @@
     "tab.account": { "en": "Profile", "site": { "catalog": "ui.d696a35bdd1883da" } },
 
     "concierge.title": { "en": "Your private concierge", "site": { "lib": "ai.conciergeTitle" } },
-    "concierge.subtitle": { "en": "Ask for anything across the MIAMI ELIO ecosystem — travel, dining, yachts, villas, cars, events and verified offers — and get there in one tap.", "site": { "lib": "ai.conciergeSubtitle" } },
     "concierge.placeholder": { "en": "Ask Miami Elio AI", "site": { "lib": "ai.askPlaceholder" } },
     "concierge.send": { "en": "Ask", "site": { "lib": "ai.ask" } },
     "concierge.new": { "en": "New conversation", "site": { "lib": "ai.newConversation" } },

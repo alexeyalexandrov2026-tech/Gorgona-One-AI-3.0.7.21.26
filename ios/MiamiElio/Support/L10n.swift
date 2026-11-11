@@ -11,7 +11,6 @@ enum L10n {
     static var tabAccount: String { text("tab.account") }
 
     static var conciergeTitle: String { text("concierge.title") }
-    static var conciergeSubtitle: String { text("concierge.subtitle") }
     static var conciergePlaceholder: String { text("concierge.placeholder") }
     static var conciergeSend: String { text("concierge.send") }
     static var conciergeNew: String { text("concierge.new") }
