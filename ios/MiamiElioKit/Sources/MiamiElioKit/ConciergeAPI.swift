@@ -114,8 +114,11 @@ public struct ConciergeReply: Decodable, Equatable, Sendable {
 public struct ConciergeClient: Sendable {
     /// The server reads at most this many turns; sending more is wasted bytes.
     public static let historyLimit = 12
-    /// The server truncates each turn to this length.
+    /// The server refuses a turn longer than this (lib/ai/chatRequest.mjs).
+    /// It counts the way JavaScript does, in UTF-16 units: an emoji is two.
     public static let maxMessageLength = 4000
+    /// The server refuses a request body larger than this many bytes.
+    public static let maxBodyBytes = 32_768
 
     private let config: AppConfig
     private let policy: RoutePolicy
@@ -128,11 +131,24 @@ public struct ConciergeClient: Sendable {
     }
 
     public func makeRequest(messages: [ChatMessage], sessionId: String?, locale: String) throws -> URLRequest {
-        let recent = messages.suffix(Self.historyLimit).map {
-            ChatMessage(role: $0.role, content: String($0.content.prefix(Self.maxMessageLength)))
+        // The server answers 400 to a blank turn, an over-long one, or a
+        // conversation that does not end on the guest's own words.
+        var recent = messages.suffix(Self.historyLimit).compactMap { message -> ChatMessage? in
+            let text = Self.clipped(message.content.trimmingCharacters(in: .whitespacesAndNewlines))
+            return text.isEmpty ? nil : ChatMessage(role: message.role, content: text)
         }
-        guard !recent.isEmpty, let url = config.resolve("/api/chat") else {
+        guard recent.last?.role == .user, let url = config.resolve("/api/chat") else {
             throw APIError.invalidRequest
+        }
+
+        let language = SiteLocale.normalize(locale) ?? SiteLocale.fallback
+        var body = try JSONEncoder().encode(Payload(messages: recent, sessionId: sessionId, locale: language))
+        // A long conversation in a two-byte script outgrows the body limit
+        // before it reaches twelve turns. The oldest turns go first, as in
+        // the website's own client (chatPayload in lib/ai/chatRequest.mjs).
+        while body.count > Self.maxBodyBytes, recent.count > 1 {
+            recent.removeFirst()
+            body = try JSONEncoder().encode(Payload(messages: recent, sessionId: sessionId, locale: language))
         }
 
         var request = URLRequest(url: url)
@@ -140,10 +156,23 @@ public struct ConciergeClient: Sendable {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(config.userAgentToken, forHTTPHeaderField: "User-Agent")
-        request.httpBody = try JSONEncoder().encode(
-            Payload(messages: recent, sessionId: sessionId, locale: SiteLocale.normalize(locale) ?? SiteLocale.fallback)
-        )
+        request.httpBody = body
         return request
+    }
+
+    /// The start of `text` that fits in `maxMessageLength` UTF-16 units,
+    /// cut between characters so an emoji is never split.
+    static func clipped(_ text: String) -> String {
+        guard text.utf16.count > maxMessageLength else { return text }
+        var units = 0
+        var end = text.startIndex
+        for index in text.indices {
+            let next = text.index(after: index)
+            units += text[index..<next].utf16.count
+            if units > maxMessageLength { break }
+            end = next
+        }
+        return String(text[..<end])
     }
 
     public func send(messages: [ChatMessage], sessionId: String?, locale: String) async throws -> ConciergeReply {

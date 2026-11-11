@@ -53,6 +53,55 @@ final class ConciergeAPITests: XCTestCase {
         XCTAssertEqual(messages.last?["content"]?.count, ConciergeClient.maxMessageLength)
     }
 
+    func testKeepsALongConversationUnderTheServersBodyLimit() throws {
+        let client = ConciergeClient(transport: MockTransport())
+        // Twelve turns of 3,000 Cyrillic letters are about 72 KB of UTF-8.
+        var history: [ChatMessage] = []
+        for index in 1...11 {
+            history.append(ChatMessage(role: index.isMultiple(of: 2) ? .assistant : .user, content: String(repeating: "я", count: 3000)))
+        }
+        history.append(ChatMessage(role: .user, content: "последний вопрос"))
+
+        let request = try client.makeRequest(messages: history, sessionId: "abc", locale: "ru")
+        XCTAssertLessThanOrEqual(try XCTUnwrap(request.httpBody).count, ConciergeClient.maxBodyBytes)
+        let messages = try XCTUnwrap(try body(of: request)["messages"] as? [[String: String]])
+        XCTAssertLessThan(messages.count, ConciergeClient.historyLimit)
+        XCTAssertGreaterThan(messages.count, 1)
+        XCTAssertEqual(messages.last, ["role": "user", "content": "последний вопрос"])
+    }
+
+    func testMeasuresATurnTheWayTheServerDoes() throws {
+        let client = ConciergeClient(transport: MockTransport())
+        let emoji = String(repeating: "😀", count: 3000)
+        let json = try body(of: try client.makeRequest(messages: [ChatMessage(role: .user, content: emoji)], sessionId: nil, locale: "en"))
+        let content = try XCTUnwrap((json["messages"] as? [[String: String]])?.first?["content"])
+        XCTAssertEqual(content.utf16.count, ConciergeClient.maxMessageLength)
+        XCTAssertEqual(content.count, ConciergeClient.maxMessageLength / 2)
+    }
+
+    func testLeavesOutBlankTurnsAndNeedsTheGuestToSpeakLast() throws {
+        let client = ConciergeClient(transport: MockTransport())
+        let json = try body(of: try client.makeRequest(
+            messages: [
+                ChatMessage(role: .user, content: "  Hello  "),
+                ChatMessage(role: .assistant, content: " \n "),
+                ChatMessage(role: .user, content: "A yacht")
+            ],
+            sessionId: nil,
+            locale: "en"
+        ))
+        let messages = try XCTUnwrap(json["messages"] as? [[String: String]])
+        XCTAssertEqual(messages, [["role": "user", "content": "Hello"], ["role": "user", "content": "A yacht"]])
+
+        XCTAssertThrowsError(try client.makeRequest(
+            messages: [ChatMessage(role: .user, content: "Hello"), ChatMessage(role: .assistant, content: "Welcome")],
+            sessionId: nil,
+            locale: "en"
+        )) { error in
+            XCTAssertEqual(error as? APIError, .invalidRequest)
+        }
+    }
+
     func testRefusesAnEmptyConversation() {
         let client = ConciergeClient(transport: MockTransport())
         XCTAssertThrowsError(try client.makeRequest(messages: [], sessionId: nil, locale: "en")) { error in

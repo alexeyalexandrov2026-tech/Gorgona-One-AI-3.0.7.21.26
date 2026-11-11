@@ -27,7 +27,7 @@ enum L10n {
     static var worldVillas: String { text("world.villas") }
     static var worldEvents: String { text("world.events") }
     static var worldTravel: String { text("world.travel") }
-    static var worldShopping: String { text("world.shopping") }
+    static var worldJets: String { text("world.jets") }
     static var worldDining: String { text("world.dining") }
     static var worldExperiences: String { text("world.experiences") }
 

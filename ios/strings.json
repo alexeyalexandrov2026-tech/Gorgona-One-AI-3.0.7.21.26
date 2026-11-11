@@ -31,7 +31,7 @@
     "world.villas": { "en": "Villas", "site": { "lib": "nav.villas" } },
     "world.events": { "en": "Events", "site": { "lib": "nav.events" } },
     "world.travel": { "en": "Travel", "site": { "lib": "nav.travel" } },
-    "world.shopping": { "en": "Stores", "site": { "lib": "nav.stores" } },
+    "world.jets": { "en": "Private Jets", "site": { "lib": "nav.privateJets" } },
     "world.dining": { "en": "Restaurants & nightlife", "site": { "lib": "search.popular.restaurantsNightlife" } },
     "world.experiences": { "en": "Miami experiences", "site": { "lib": "search.popular.miamiExperiences" } },
 

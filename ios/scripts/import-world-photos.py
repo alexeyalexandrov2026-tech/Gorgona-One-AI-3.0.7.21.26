@@ -23,8 +23,8 @@ PHOTOS = {
     "WorldEvents": "public/images/home/worlds/events-stage.jpg",
     "WorldDining": "public/images/home/worlds/deco-street.jpg",
     "WorldExperiences": "public/images/home/hero-tower.jpg",
-    "WorldTravel": "public/images/home/worlds/travel-wing.jpg",
-    "WorldShopping": "public/images/home/worlds/deals-bags.jpg",
+    "WorldTravel": "public/images/home/deco-hotel.jpg",
+    "WorldJets": "public/images/home/worlds/travel-wing.jpg",
 }
 
 for name, source in PHOTOS.items():

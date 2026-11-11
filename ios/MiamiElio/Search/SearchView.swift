@@ -121,7 +121,7 @@ private struct WorldGrid: View {
             }
             .arrives(4)
 
-            WorldTile(world: World(title: L10n.worldShopping, photo: "WorldShopping", path: "/stores"), format: .banner, open: open)
+            WorldTile(world: World(title: L10n.worldJets, photo: "WorldJets", path: "/private-jets"), format: .banner, open: open)
                 .arrives(5)
         }
     }
