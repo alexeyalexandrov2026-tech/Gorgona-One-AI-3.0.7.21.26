@@ -3,6 +3,7 @@ import { LocalizedText, useSavedText } from "../LocalizedText";
 
 import { useState } from 'react';
 import { FLEET, YACHTS, STAYS, HERO_CAR, carThumb } from '../../../lib/homeData';
+import { responsiveImage } from '../../../lib/responsiveImage';
 import { SUPPORTED_LANGUAGES } from '../../../lib/languages';
 import { useAskConcierge } from './shared';
 import { btn, chipClass } from '../g1/ui';
@@ -12,7 +13,7 @@ import Icon from '../g1/icons';
 function ValetTag({ copy }) {
   return (
     <div className="g1-valet" aria-label={HERO_CAR.title}>
-      <img src={carThumb(HERO_CAR)} alt="" width="720" height="480" />
+      <img {...responsiveImage(carThumb(HERO_CAR), '160px')} alt="" width="720" height="480" decoding="async" />
       <span className="font-g1mono text-[0.7rem] font-medium tracking-[0.08em] text-g1-soft">{copy.valet.no} 0417</span>
       <span className="font-g1display text-[1.18rem] font-medium leading-[1.1] text-g1-ink">{HERO_CAR.title}</span>
       <dl>
@@ -92,7 +93,7 @@ export default function HomeHero({ copy }) {
         <div className="relative min-h-[400px] w-full sm:min-h-[440px] lg:aspect-[4/5] lg:min-h-0 lg:max-w-[520px] lg:justify-self-end">
           <figure className="absolute inset-y-0 end-0 start-[18%] overflow-hidden rounded-[26px] bg-g1-rule lg:start-[14%]">
             <img
-              src="/images/home/hero-tower.jpg"
+              {...responsiveImage('/images/home/hero-tower.jpg', '(min-width: 1024px) 450px, 82vw')}
               alt={msg("Lifeguard tower on Miami Beach")}
               width="1600"
               height="2400"

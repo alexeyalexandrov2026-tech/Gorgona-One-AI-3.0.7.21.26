@@ -15,6 +15,7 @@ import ConciergeBand from './components/home/ConciergeBand';
 import { SectionHead, ListingCard, btn } from './components/g1/ui';
 import Icon from './components/g1/icons';
 import GamblingNotice from './components/GamblingNotice';
+import { responsiveImage } from '../lib/responsiveImage';
 
 const WORLDS = [
   { id: 'deals', href: '/stores', img: 'deals-bags', count: (c) => fill(c.brands, { n: BRAND_COUNT }) },
@@ -60,7 +61,7 @@ export default function HomePage() {
             return (
               <li key={world.id} className="border-t border-g1-rule">
                 <Link href={world.href} className="g1-dir-row">
-                  <img className="g1-dir-thumb" src={worldImage(world)} alt="" loading="lazy" />
+                  <img className="g1-dir-thumb" {...responsiveImage(worldImage(world), '56px')} alt="" loading="lazy" decoding="async" width="56" height="56" />
                   <span className="g1-dir-name">{name}</span>
                   <span className="g1-dir-desc text-[0.98rem] text-g1-soft">{desc}</span>
                   <span className="g1-dir-count whitespace-nowrap font-g1mono text-[0.9rem] text-g1-soft">{world.count(copy.counts)}</span>
@@ -150,7 +151,7 @@ export default function HomePage() {
 
       <section className="grid items-center gap-[clamp(26px,4vw,56px)] pb-8 pt-[clamp(52px,7vw,110px)] md:grid-cols-2">
         <figure className="aspect-[4/3] overflow-hidden rounded-[26px] bg-g1-rule">
-          <img src="/images/home/deco-hotel.jpg" alt={msg("Art Deco hotel facade on Ocean Drive")} loading="lazy" width="1600" height="2400" className="h-full w-full object-cover" />
+          <img {...responsiveImage('/images/home/deco-hotel.jpg', '(min-width: 1280px) 600px, (min-width: 768px) 50vw, 100vw')} alt={msg("Art Deco hotel facade on Ocean Drive")} loading="lazy" decoding="async" width="1600" height="2400" className="h-full w-full object-cover" />
         </figure>
         <div className="grid gap-[18px]">
           <p className="font-g1sans text-[0.74rem] font-medium uppercase tracking-[0.2em] text-g1-soft">{copy.partnersEyebrow}</p>

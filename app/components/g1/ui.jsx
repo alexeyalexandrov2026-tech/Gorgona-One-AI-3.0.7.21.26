@@ -5,6 +5,11 @@ import { LocalizedElement } from "../LocalizedText";
 import Link from 'next/link';
 import Icon from './icons';
 import BookedStatus from './BookedStatus';
+import { responsiveImage } from '../../../lib/responsiveImage';
+
+// How wide a card photo and a world-page hero photo are shown.
+const CARD_SIZES = '(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw';
+const HERO_SIZES = '(min-width: 1280px) 600px, (min-width: 768px) 50vw, 100vw';
 
 export const btn = {
   base: 'inline-flex min-h-[46px] items-center justify-center gap-2 rounded-full border border-transparent px-5 font-medium leading-none transition active:translate-y-px',
@@ -44,9 +49,10 @@ export function ListingCard({ href, img, alt = '', title, meta, note, rate, prio
     <article className="group grid min-w-0 content-start gap-3">
       <Link href={href} tabIndex={-1} aria-hidden="true" className="relative block aspect-[3/2] overflow-hidden rounded-2xl bg-g1-rule">
         <img
-          src={img}
+          {...responsiveImage(img, CARD_SIZES)}
           alt={alt}
           loading={priority ? "eager" : "lazy"}
+          decoding="async"
           width="720"
           height="480"
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
@@ -78,7 +84,7 @@ export function WorldHero({ eyebrow, title, lede, img, alt, children }) {
         {children}
       </div>
       <figure className="aspect-[3/2] overflow-hidden rounded-[26px] bg-g1-rule">
-        <img src={img} alt={alt} width="1600" height="1067" fetchPriority="high" className="h-full w-full object-cover" />
+        <img {...responsiveImage(img, HERO_SIZES)} alt={alt} width="1600" height="1067" fetchPriority="high" className="h-full w-full object-cover" />
       </figure>
     </header>
   );
