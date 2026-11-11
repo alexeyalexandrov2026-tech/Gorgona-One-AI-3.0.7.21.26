@@ -20,8 +20,6 @@ const navItems = [
   { key: 'villas', href: '/vacation-rentals', label: 'Villas' },
   { key: 'yachts', href: '/yachts', label: 'Yachts' },
   { key: 'cars', href: '/rentals', label: 'Cars' },
-  // appHidden: left out of the iOS app (data-app-hidden in globals.css).
-  { key: 'sportsbook', href: '/sportsbook', label: 'Sportsbooks', appHidden: true },
   { key: 'events', href: '/events', label: 'Events' },
   { key: 'privateJets', href: '/private-jets', label: 'Private Jets' }
 ];
@@ -102,7 +100,6 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              data-app-hidden={item.appHidden ? '' : undefined}
               aria-current={isActive(item.href) ? "page" : undefined}
               className="group relative whitespace-nowrap py-1 text-[0.9rem] font-medium text-g1-ink transition-colors hover:text-g1-accent"
             >
@@ -188,7 +185,6 @@ export function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  data-app-hidden={item.appHidden ? '' : undefined}
                   onClick={() => setMobileNavOpen(false)}
                   className="rounded-xl px-3 py-2.5 text-base text-g1-ink transition hover:bg-g1-card hover:text-g1-accent"
                 >

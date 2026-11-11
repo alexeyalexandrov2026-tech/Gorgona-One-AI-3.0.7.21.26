@@ -1,28 +1,20 @@
 import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
-import { getSportsbooks } from '../lib/sportsbooksData';
 import { allDeals } from '../lib/dealsData';
 import { EVENT_CATEGORIES, LEAGUES } from '../lib/mockEventsData';
 import { getAllEvents } from '../lib/eventsData';
 
 export default async function sitemap() {
   const baseUrl = 'https://gorgona-one.com';
-  const sportsbooks = await getSportsbooks();
 
   const routes = [
     '',
     '/experiences',
     '/private-jets',
-    '/sportsbook',
     '/events',
     '/best-shopping-deals',
     '/nike-coupons',
     '/amazon-promo-codes',
-    '/fashion-discounts',
-    '/sports-betting-promos',
-    '/draftkings-promos',
-    '/fanduel-promos',
-    '/betmgm-promos',
-    '/caesars-sportsbook-promos'
+    '/fashion-discounts'
   ];
 
   const staticRoutes = routes.map((route) => ({
@@ -30,13 +22,6 @@ export default async function sitemap() {
     lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: 0.8
-  }));
-
-  const dynamicRoutes = sportsbooks.map((item) => ({
-    url: `${baseUrl}/sportsbook/${item.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.7
   }));
 
   const categoryRoutes = HEADOUT_COLLECTIONS.map(item=>({url:baseUrl+'/experiences/'+item.slug,changeFrequency:'weekly',priority:0.7}));
@@ -70,5 +55,5 @@ export default async function sitemap() {
     priority: 0.8
   }));
 
-  return [...staticRoutes, ...dynamicRoutes, ...categoryRoutes, ...dealRoutes, ...eventCategoryRoutes, ...leagueRoutes, ...eventRoutes];
+  return [...staticRoutes, ...categoryRoutes, ...dealRoutes, ...eventCategoryRoutes, ...leagueRoutes, ...eventRoutes];
 }

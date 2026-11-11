@@ -10,24 +10,23 @@ import { getHomeCopy } from '../lib/homeCopy';
 import {getHeadoutCopy} from '../lib/headoutCopy.mjs';
 import {getPrivateJetsCopy} from '../lib/privateJetsCopy.mjs';
 import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
-import { FLEET, HOME_YACHTS, HOME_STAYS, HOME_BOOKS, carThumb } from '../lib/homeData';
+import { FLEET, HOME_YACHTS, HOME_STAYS, carThumb } from '../lib/homeData';
 import HomeHero from './components/home/HomeHero';
 import SeasonShelf from './components/home/SeasonShelf';
 import A1ALine from './components/home/A1ALine';
 import ConciergeBand from './components/home/ConciergeBand';
 import { SectionHead, ListingCard, btn } from './components/g1/ui';
 import Icon from './components/g1/icons';
-import GamblingNotice from './components/GamblingNotice';
 
 const WORLDS = [
   { id: 'experiences', href: '/experiences', image: HEADOUT_COLLECTIONS[0].image },
-  { id: 'travel', href: '/travel', img: 'travel-wing' },
+  // Its own picture: the wing belongs to Private Jets below.
+  { id: 'travel', href: '/travel', image: '/images/home/deco-hotel.jpg' },
   { id: 'stays', href: '/vacation-rentals', img: 'stay-miami-beach' },
   { id: 'yachts', href: '/yachts', img: 'yacht-princess' },
   { id: 'cars', href: '/rentals', img: null },
   { id: 'events', href: '/events', img: 'events-stage' },
-  // appHidden: left out of the iOS app (data-app-hidden in globals.css).
-  { id: 'sportsbooks', href: '/sportsbook', img: 'sports-arena', appHidden: true },
+  { id: 'dining', href: '/restaurants-nightlife', img: 'deco-street' },
   { id: 'privateJets', href: '/private-jets', img: 'travel-wing' }
 ];
 const worldImage = (world) => world.image || (world.img ? `/images/home/worlds/${world.img}.jpg` : carThumb(FLEET[0]));
@@ -62,14 +61,13 @@ export default function HomePage() {
           {WORLDS.map((world) => {
             const experienceCopy = getHeadoutCopy(locale);
             const jetCopy = getPrivateJetsCopy(locale);
-            const [name, description] = world.id === 'experiences' ? [experienceCopy.nav, experienceCopy.parks] : world.id === 'privateJets' ? [jetCopy.nav, jetCopy.description] : copy.worldItems[world.id];
-            const desc = world.id === 'sportsbooks' ? copy.books : description;
+            const [name, description] = world.id === 'experiences' ? [experienceCopy.nav, experienceCopy.parks] : world.id === 'privateJets' ? [jetCopy.nav, jetCopy.description] : world.id === 'dining' ? [t.restaurantsNightlife.pill, t.restaurantsNightlife.title] : copy.worldItems[world.id];
             return (
-              <li key={world.id} data-app-hidden={world.appHidden ? '' : undefined} className="border-t border-g1-rule">
+              <li key={world.id} className="border-t border-g1-rule">
                 <Link href={world.href} className="g1-dir-row">
                   <img className="g1-dir-thumb" src={worldImage(world)} alt="" loading="lazy" />
                   <span className="g1-dir-name">{name}</span>
-                  <span className="g1-dir-desc text-[0.98rem] text-g1-soft">{desc}</span>
+                  <span className="g1-dir-desc text-[0.98rem] text-g1-soft">{description}</span>
                   <span className="g1-dir-arrow"><Icon name="arrow" className="g1-flip h-5 w-5" /></span>
                 </Link>
               </li>
@@ -131,28 +129,6 @@ export default function HomePage() {
       </section>
 
       <ConciergeBand copy={copy} locale={locale} />
-
-      <section data-app-hidden="" className="py-[clamp(36px,5vw,72px)]">
-        <SectionHead title={copy.books} href="/sportsbook" cta={copy.seeAll} />
-        <ul className="grid grid-cols-2 gap-3 md:grid-cols-5">
-          {HOME_BOOKS.map((book) => (
-            <li key={book.slug}>
-              <Link
-                href={`/sportsbook/${book.slug}`}
-                aria-label={book.name}
-                className="grid h-[84px] place-items-center rounded-[14px] border border-g1-rule bg-g1-card p-3 transition-colors hover:border-g1-ink"
-              >
-                {book.logo ? (
-                  <img src={book.logo} alt="" loading="lazy" className="max-h-[54px] max-w-full rounded-lg object-contain" />
-                ) : (
-                  <span className="text-center text-[1.05rem] font-semibold leading-tight tracking-[-0.01em] text-g1-ink">{book.name}</span>
-                )}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <GamblingNotice locale={locale} className="mt-4" />
-      </section>
 
       <section className="grid items-center gap-[clamp(26px,4vw,56px)] pb-8 pt-[clamp(52px,7vw,110px)] md:grid-cols-2">
         <figure className="aspect-[4/3] overflow-hidden rounded-[26px] bg-g1-rule">

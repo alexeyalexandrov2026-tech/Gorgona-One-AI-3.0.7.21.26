@@ -19,8 +19,13 @@ const nextConfig = {
       { source: '/stores/:path*', destination: '/experiences', permanent: true },
       // This legacy card contained BMW X5 photographs and was corrected in place.
       { source: '/rentals/mercedes-g-class-white', destination: '/rentals/bmw-x5-white-brown', permanent: true },
-      // ESPN BET became theScore Bet on December 1, 2025.
-      { source: '/sportsbook/espn-bet', destination: '/sportsbook/thescore-bet', permanent: true },
+      // The sportsbook section was removed; its old addresses lead home.
+      { source: '/sportsbook/:path*', destination: '/', permanent: false },
+      { source: '/sports-betting-promos', destination: '/', permanent: false },
+      { source: '/betmgm-promos', destination: '/', permanent: false },
+      { source: '/caesars-sportsbook-promos', destination: '/', permanent: false },
+      { source: '/draftkings-promos', destination: '/', permanent: false },
+      { source: '/fanduel-promos', destination: '/', permanent: false },
       // Promo codes and offers now live in Stores.
       { source: '/coupons', destination: '/experiences', permanent: false }
     ];

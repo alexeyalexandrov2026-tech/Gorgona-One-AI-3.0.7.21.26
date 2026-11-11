@@ -55,39 +55,30 @@ test('the app leaves out the parts of the hero its own tabs already cover', () =
   assert.equal(hero.match(/data-app-hidden=""/g).length, 2);
 });
 
-test('sportsbook entry points are left out of the app', () => {
-  const header = read('app/components/Header.jsx');
-  assert.match(header, /key: 'sportsbook', href: '\/sportsbook', label: 'Sportsbooks', appHidden: true/);
-  // Both the desktop and the mobile menu render the hook.
-  assert.equal(header.match(/data-app-hidden=\{item\.appHidden \? '' : undefined\}/g).length, 2);
-
-  const footer = read('app/components/Footer.jsx');
-  assert.match(footer, /key: 'sportsbooks', href: '\/sportsbook', fallback: 'Sportsbooks', appHidden: true/);
-  assert.match(footer, /<li key=\{item\.href\} data-app-hidden=\{item\.appHidden \? '' : undefined\}>/);
-
-  const home = read('app/page.js');
-  assert.match(home, /id: 'sportsbooks', href: '\/sportsbook'.*appHidden: true/);
-  assert.match(home, /<li key=\{world\.id\} data-app-hidden=\{world\.appHidden \? '' : undefined\}/);
-  assert.match(home, /<section data-app-hidden=""[^>]*>\s*<SectionHead title=\{copy\.books\}/);
-});
-
-test('no other entry is hidden from the app by accident', () => {
-  for (const file of ['app/components/Header.jsx', 'app/components/Footer.jsx', 'app/page.js']) {
-    assert.equal(read(file).match(/appHidden: true/g).length, 1, file);
-  }
-});
-
-test('the app refuses every sportsbook route the site has', () => {
-  const restricted = swiftStrings(read('ios/MiamiElioKit/Sources/MiamiElioKit/RoutePolicy.swift'), 'defaultRestrictedPaths');
+test('the site has no sportsbook section: no page, no link, old addresses lead home', () => {
   const routes = fs.readdirSync(new URL('../../app', import.meta.url), { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && /sportsbook|betting|betmgm|draftkings|fanduel|caesars/.test(entry.name))
-    .map((entry) => `/${entry.name}`);
+    .filter((entry) => entry.isDirectory() && /sportsbook|betting|betmgm|draftkings|fanduel|caesars/.test(entry.name));
+  assert.deepEqual(routes.map((entry) => entry.name), []);
 
-  assert.ok(routes.includes('/sportsbook'));
-  for (const route of routes) {
-    assert.ok(restricted.includes(route), `${route} is a sportsbook route the iOS app does not block`);
+  for (const file of ['app/components/Header.jsx', 'app/components/Footer.jsx', 'app/page.js', 'app/sitemap.js', 'lib/aiSuggestions.js', 'lib/aiEcosystemContext.js', 'lib/discoveryCategories.js', 'lib/ecosystemData.js', 'lib/dealsData.js']) {
+    assert.doesNotMatch(read(file), /\/sportsbook|betting/i, file);
   }
-  assert.ok(restricted.includes('/stores/betting'));
+  // Every language's starters, not only the English ones.
+  assert.doesNotMatch(Object.values(STARTER_PROMPTS).flat().join(' '), /sportsbook|betting|bookmaker|букмекер/i);
+
+  // Addresses that are still out there (search engines, old messages).
+  const config = read('next.config.js');
+  for (const path of APP_RESTRICTED_PATHS.filter((path) => path !== '/stores/betting')) {
+    const source = path === '/sportsbook' ? '/sportsbook/:path*' : path;
+    assert.ok(config.includes(`{ source: '${source}', destination: '/', permanent: false }`), `${path} is not redirected`);
+  }
+  assert.match(config, /\{ source: '\/stores\/:path\*', destination: '\/experiences', permanent: true \}/);
+});
+
+test('nothing on the home page or in the menus is hidden from the app by a per-item flag', () => {
+  for (const file of ['app/components/Header.jsx', 'app/components/Footer.jsx', 'app/page.js']) {
+    assert.doesNotMatch(read(file), /appHidden/, file);
+  }
 });
 
 test('the site and the app keep the same list of sections the app does not carry', () => {
@@ -104,7 +95,7 @@ test('the site and the app keep the same list of sections the app does not carry
   assert.ok(!isAppRestricted(undefined));
 });
 
-test('the web concierge offers no sportsbook inside the app', () => {
+test('the web concierge leaves out anything the app does not carry', () => {
   const conversation = read('app/components/ai/AiConversation.jsx');
   // Starter prompts that lead into a restricted section...
   assert.match(conversation, /data-app-hidden=\{leadsOutOfApp\(prompt\) \? '' : undefined\}/);
@@ -114,18 +105,12 @@ test('the web concierge offers no sportsbook inside the app', () => {
   // The Discovery Room's row of sections under the conversation.
   assert.match(read('app/components/ai/ConciergeRoom.jsx'), /data-app-hidden=\{isAppRestricted\(section\.href\) \? '' : undefined\}/);
 
-  // The English sportsbook starter is the one the app has to leave out; the
-  // native concierge uses only the first three starters of every language.
-  assert.ok(STARTER_PROMPTS.en.slice(3).some((prompt) => /sportsbook/i.test(prompt)));
-  for (const prompts of Object.values(STARTER_PROMPTS)) {
-    assert.ok(prompts.slice(0, 3).every((prompt) => !/sportsbook|betting|apuesta|ставк/i.test(prompt)));
-  }
 });
 
 test('the concierge answers the app without the sportsbook section', () => {
   const [, systemPrompt] = read('lib/aiEcosystemContext.js').match(/export const SYSTEM_PROMPT = `([\s\S]*?)`;/);
   const appPrompt = appSystemPrompt(systemPrompt);
-  assert.match(systemPrompt, /\/sportsbook/);
+  assert.doesNotMatch(systemPrompt, /sportsbook/i);
   assert.doesNotMatch(appPrompt, /\/sportsbook/);
   assert.match(appPrompt, /\/yachts/);
   assert.match(appPrompt, /never mention, recommend or link to sportsbooks/);

@@ -152,7 +152,7 @@ export async function POST(request) {
   // The language showing in the global switcher. Every engine below is told
   // to answer in it, and the degraded path speaks it too.
   const locale = normalizeLocale(body?.locale);
-  // The iOS app gets a persona without the sportsbook section.
+  // The iOS app gets a persona that stays off betting (lib/ai/appPersona.mjs).
   const inApp = isAppRequest(request);
   const systemPrompt = inApp ? appSystemPrompt(SYSTEM_PROMPT) : SYSTEM_PROMPT;
 

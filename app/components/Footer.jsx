@@ -11,8 +11,6 @@ const sections = [
   { key: 'villas', href: '/vacation-rentals', fallback: 'Villas & Stays' },
   { key: 'yachts', href: '/yachts', fallback: 'Yacht Rentals' },
   { key: 'cars', href: '/rentals', fallback: 'Car Rentals' },
-  // appHidden: left out of the iOS app (data-app-hidden in globals.css).
-  { key: 'sportsbooks', href: '/sportsbook', fallback: 'Sportsbooks', appHidden: true },
   { key: 'events', href: '/events', fallback: 'Events & Entertainment' },
   { key: 'privateJets', href: '/private-jets', fallback: 'Private Jets' }
 ];
@@ -43,7 +41,7 @@ export function Footer() {
             <span className="font-g1display text-4xl font-medium tracking-tight text-g1-ink">Elio</span>
           </div>
           <p className="mt-4 max-w-sm leading-relaxed">
-            {t.footer?.desc || <LocalizedText source={"A luxury ecosystem for travel, shopping, stays, yachts, cars, sportsbooks, events and an AI concierge — verified offers and premium experiences in one destination."} />}
+            {t.footer.desc}
           </p>
         </div>
 
@@ -51,9 +49,9 @@ export function Footer() {
           <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em] text-g1-accent">{t.footer?.ecosystemTitle || <LocalizedText source={"Ecosystem"} />}</p>
           <ul className="mt-4 space-y-2.5">
             {sections.map((item) => (
-              <li key={item.href} data-app-hidden={item.appHidden ? '' : undefined}>
+              <li key={item.href}>
                 <Link href={item.href} className="transition hover:text-g1-ink">
-                  {t.nav?.[({ shopping: 'stores', sportsbooks: 'sportsbook' })[item.key] || item.key] || t.discovery?.[item.key] || item.fallback}
+                  {t.nav?.[({ shopping: 'stores' })[item.key] || item.key] || t.discovery?.[item.key] || item.fallback}
                 </Link>
               </li>
             ))}

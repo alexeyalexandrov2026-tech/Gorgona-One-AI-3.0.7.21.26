@@ -58,9 +58,9 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   const locale = useLocale();
   const t = getTranslation(locale);
   const starters = STARTER_PROMPTS[locale] || STARTER_PROMPTS.en;
-  // A starter that leads into a section the iOS app does not carry (the
-  // English list has a sportsbook one) is left out there: data-app-hidden,
-  // see globals.css. The browser shows every starter.
+  // A starter that leads into a section the iOS app does not carry
+  // (lib/appRestrictedPaths.js) is left out there: data-app-hidden, see
+  // globals.css. The browser shows every starter.
   const leadsOutOfApp = (prompt) => isAppRestricted(matchSuggestions(prompt, { limit: 1 })[0]?.href);
 
   useEffect(() => {
