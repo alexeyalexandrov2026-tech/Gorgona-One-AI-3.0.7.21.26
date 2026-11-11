@@ -167,6 +167,96 @@
 .g1-date .dd { font: 300 2.4rem/1 var(--font-g1-sans), system-ui, sans-serif; letter-spacing: -0.03em; }
 .g1-date .yr { font: 400 0.7rem/1 var(--font-g1-mono), monospace; color: var(--g1-ink-soft); }
 
+/* Home tickets (TicketCarousel.jsx): one wide ticket at a time in a
+   scroll-snap row. Photo, then the tear line, then the stub. On a phone the
+   tear runs across under the photo; from 760px it runs down at --x. Every
+   ticket in the row has the height of the tallest, so the page never jumps
+   when they change. */
+.g1-tkt-track {
+  display: flex; gap: 16px; overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory; scroll-padding-inline: 4px; scrollbar-width: none;
+  padding: 6px 4px 20px; margin-inline: -4px;
+}
+.g1-tkt-track::-webkit-scrollbar { display: none; }
+.g1-tkt-slide { flex: 0 0 calc(100% - 28px); scroll-snap-align: start; scroll-snap-stop: always; }
+.g1-tkt-card {
+  --x: 0px; --y: 200px; --pos: 0px;
+  display: grid; grid-template-rows: var(--y) auto; height: 100%;
+  -webkit-mask:
+    radial-gradient(circle at 0 var(--y), #0000 var(--n), #000 calc(var(--n) + 0.5px)),
+    radial-gradient(circle at 100% var(--y), #0000 var(--n), #000 calc(var(--n) + 0.5px));
+  -webkit-mask-composite: source-in;
+  mask:
+    radial-gradient(circle at 0 var(--y), #0000 var(--n), #000 calc(var(--n) + 0.5px)),
+    radial-gradient(circle at 100% var(--y), #0000 var(--n), #000 calc(var(--n) + 0.5px));
+  mask-composite: intersect;
+}
+.g1-tkt-card::before {
+  inset-block: auto; inset-block-start: calc(var(--y) - 1px);
+  inset-inline: calc(var(--n) + 8px); border-inline-start: 0; border-block-start: 2px dashed var(--g1-rule);
+  z-index: 1;
+}
+.g1-tkt-photo { position: relative; overflow: hidden; background: var(--g1-rule); }
+.g1-tkt-photo img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  transition: transform 1.2s var(--g1-ease);
+}
+.g1-tkt-card:hover .g1-tkt-photo img { transform: scale(1.03); }
+.g1-tkt-stub { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 22px 22px 22px; }
+.g1-tkt-no { font: 500 0.78rem/1 var(--font-g1-mono), monospace; letter-spacing: 0.08em; color: var(--g1-ink-soft); }
+/* The button's hit area covers the whole ticket. */
+.g1-tkt-cta::after { content: ""; position: absolute; inset: 0; z-index: 2; }
+.g1-tkt-cta:focus-visible { outline: 2px solid var(--g1-accent); outline-offset: 3px; }
+@media (min-width: 760px) {
+  .g1-tkt-slide { flex-basis: 100%; }
+  .g1-tkt-card {
+    --x: 58%; --pos: var(--x);
+    grid-template-rows: none; grid-template-columns: var(--x) minmax(0, 1fr); min-height: 360px;
+    -webkit-mask:
+      radial-gradient(circle at var(--pos) 0, #0000 var(--n), #000 calc(var(--n) + 0.5px)),
+      radial-gradient(circle at var(--pos) 100%, #0000 var(--n), #000 calc(var(--n) + 0.5px));
+    -webkit-mask-composite: source-in;
+    mask:
+      radial-gradient(circle at var(--pos) 0, #0000 var(--n), #000 calc(var(--n) + 0.5px)),
+      radial-gradient(circle at var(--pos) 100%, #0000 var(--n), #000 calc(var(--n) + 0.5px));
+    mask-composite: intersect;
+  }
+  [dir="rtl"] .g1-tkt-card { --pos: calc(100% - var(--x)); }
+  .g1-tkt-card::before {
+    inset-block: calc(var(--n) + 8px); inset-inline: calc(var(--x) - 1px) auto;
+    border-block-start: 0; border-inline-start: 2px dashed var(--g1-rule);
+  }
+  .g1-tkt-stub { gap: 14px; padding: 30px 32px 28px 34px; }
+}
+/* Progress: one bar per ticket. The active bar fills in six seconds and
+   its animationend turns to the next ticket. */
+.g1-tkt-controls { display: flex; align-items: center; gap: 14px; min-height: 32px; }
+.g1-tkt-bars { display: flex; flex: 1; gap: 6px; min-width: 0; max-width: 420px; }
+.g1-tkt-bar {
+  position: relative; flex: 1; height: 24px; padding: 0; border: 0; background: none; cursor: pointer;
+}
+.g1-tkt-bar::before, .g1-tkt-fill {
+  content: ""; position: absolute; inset-inline: 0; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 3px;
+}
+.g1-tkt-bar::before { background: var(--g1-rule); }
+.g1-tkt-fill { background: var(--g1-ink); transform: scaleX(0); transform-origin: left; }
+[dir="rtl"] .g1-tkt-fill { transform-origin: right; }
+.g1-tkt-bar[data-done] .g1-tkt-fill, .g1-tkt-bar[aria-current="true"] .g1-tkt-fill { transform: none; }
+.g1-tkt-bar[aria-current="true"] .g1-tkt-fill[data-run] { animation: g1-tkt-run 6s linear both; }
+.g1-tkt-bar:hover::before { background: var(--g1-ink-soft); }
+.g1-tkt-bar:focus-visible { outline: 2px solid var(--g1-accent); outline-offset: 2px; border-radius: 4px; }
+.g1-tkt-toggle {
+  display: grid; place-items: center; width: 32px; height: 32px; flex: none;
+  border: 1px solid var(--g1-rule); border-radius: 999px; background: var(--g1-card); color: var(--g1-ink); cursor: pointer;
+}
+.g1-tkt-toggle:hover { border-color: var(--g1-ink); }
+.g1-tkt-toggle:focus-visible { outline: 2px solid var(--g1-accent); outline-offset: 2px; }
+@keyframes g1-tkt-run { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .g1-tkt-photo img { transition: none; }
+  .g1-tkt-bar .g1-tkt-fill[data-run] { animation: none; }
+}
+
 /* Valet tag hanging over the hero photo. */
 .g1-valet {
   display: grid; gap: 8px; width: 188px; padding: 30px 14px 14px;
