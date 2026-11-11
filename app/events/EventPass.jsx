@@ -22,7 +22,7 @@ export function EventPass({ item, index, total, categories }) {
         <div className="relative grid gap-3">
           <p className="lux-caption-upper ev-pass__tag"><LocalizedText source={item.tag} /></p>
           <h3 className="font-serif text-[2rem] italic leading-[1.05] text-white sm:text-4xl">
-            <Link href={item.href} className="ev-pass__link"><LocalizedText source={item.title} /></Link>
+            <Link id={`ev-pass-${item.group}`} href={item.href} className="ev-pass__link"><LocalizedText source={item.title} /></Link>
           </h3>
           <p className="max-w-md text-sm leading-relaxed text-zinc-200/90"><LocalizedText source={item.copy} /></p>
           <span className="ev-pass__cta mt-2" aria-hidden="true">
@@ -34,7 +34,7 @@ export function EventPass({ item, index, total, categories }) {
         </div>
       </div>
       <div className="ev-pass__stub">
-        <SubcategoryRibbon categories={categories} />
+        <SubcategoryRibbon categories={categories} labelledBy={`ev-pass-${item.group}`} />
       </div>
     </article>
   );

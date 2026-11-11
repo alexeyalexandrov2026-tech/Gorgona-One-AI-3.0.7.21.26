@@ -137,10 +137,13 @@ export default function TicketCarousel({ copy, locale }) {
               <div className="g1-tkt-photo">
                 <img
                   src={ticket.image}
+                  srcSet={ticket.srcSet}
+                  // The photo fills the ticket on a phone and 58% of it from 760px.
+                  sizes="(min-width: 760px) 58vw, 92vw"
                   alt=""
-                  width="1600"
-                  height="1000"
-                  loading={index === 0 ? 'eager' : 'lazy'}
+                  width={ticket.size[0]}
+                  height={ticket.size[1]}
+                  loading="lazy"
                   decoding="async"
                 />
               </div>
@@ -154,7 +157,9 @@ export default function TicketCarousel({ copy, locale }) {
                 </h3>
                 <p className="text-[1rem] leading-[1.5] text-g1-soft [text-wrap:pretty]">{text.lines[ticket.id]}</p>
                 <div className="mt-auto pt-3">
-                  <Link href={ticket.href} className={`g1-tkt-cta ${btn.base} ${btn.primary}`}>
+                  {/* No background fetch: the tickets turn by themselves, so being
+                      on screen says nothing about intent. */}
+                  <Link href={ticket.href} prefetch={false} className={`g1-tkt-cta ${btn.base} ${btn.primary}`}>
                     {text.get} <Icon name="arrow" className="g1-flip h-4 w-4" />
                   </Link>
                 </div>
