@@ -56,6 +56,8 @@ final class WebViewModel: NSObject {
         // sees an iPhone browser and can also tell it is inside the app.
         configuration.applicationNameForUserAgent = "Mobile/15E148 \(config.userAgentToken)"
         configuration.allowsInlineMediaPlayback = true
+        // As in Safari: silent video may start by itself, sound needs a tap.
+        configuration.mediaTypesRequiringUserActionForPlayback = .audio
         configuration.userContentController.addUserScript(
             WKUserScript(
                 source: Self.bootstrapScript(hosts: config.internalHosts, restrictedPaths: policy.restrictedPaths, locale: deviceLocale),
