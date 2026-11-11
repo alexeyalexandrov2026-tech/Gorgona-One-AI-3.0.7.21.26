@@ -26,6 +26,31 @@ test('the site hides web-only chrome only when the app marks the document', () =
 test('the pieces the app replaces carry the hook', () => {
   assert.match(read('app/components/InstallPrompt.jsx'), /<div data-app-hidden=""/);
   assert.match(read('app/components/ai/AiSphere.jsx'), /data-app-hidden=""\s+onClick=\{toggle\}/);
+  // The "AI" pill beside the sphere opens the same web concierge.
+  assert.match(read('app/components/ai/DiscoveryDock.jsx'), /data-app-hidden=""\s+className=\{`aidock /);
+});
+
+test('the home page opens on every main section, each with a page and a picture', () => {
+  const hero = read('app/components/home/HomeHero.jsx');
+  const sections = [...hero.matchAll(/\{ id: '([a-z]+)', href: '([^']+)', name: /g)].map((match) => ({ id: match[1], href: match[2] }));
+  assert.equal(sections.length, 9);
+  for (const { id, href } of sections) {
+    assert.ok(fs.existsSync(new URL(`../../app${href}/page.js`, import.meta.url)), `${href} has no page`);
+    assert.ok(fs.existsSync(new URL(`../../public/images/home/sections/${id}.jpg`, import.meta.url)), `no picture for ${id}`);
+  }
+  // None of them leads into a section the app does not carry.
+  const restricted = swiftStrings(read('ios/MiamiElioKit/Sources/MiamiElioKit/RoutePolicy.swift'), 'defaultRestrictedPaths');
+  for (const { href } of sections) {
+    assert.ok(!restricted.some((path) => href === path || href.startsWith(`${path}/`)), `${href} is blocked in the app`);
+  }
+});
+
+test('the app leaves out the parts of the hero its own tabs already cover', () => {
+  const hero = read('app/components/home/HomeHero.jsx');
+  assert.match(hero, /<p data-app-hidden=""[^>]*>\s*\{copy\.lede\}/);
+  assert.match(hero, /<div data-app-hidden=""[^>]*aria-label=\{copy\.chipsLabel\}>/);
+  assert.match(hero, /<div data-app-hidden=""[^>]*>\s*\{stats\.map/);
+  assert.equal(hero.match(/data-app-hidden=""/g).length, 3);
 });
 
 test('sportsbook entry points are left out of the app', () => {

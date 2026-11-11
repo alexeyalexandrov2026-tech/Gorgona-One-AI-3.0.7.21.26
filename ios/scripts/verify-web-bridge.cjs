@@ -43,7 +43,10 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   const web = await plain.newPage();
   await web.goto(base + '/', { waitUntil: 'networkidle' });
   check('browser: document is not marked', (await web.evaluate(() => document.documentElement.dataset.app)) === undefined);
-  check('browser: concierge sphere is shown', await visible(web, 'button[data-app-hidden]'));
+  check('browser: concierge sphere is shown', await visible(web, 'button[data-app-hidden]:not(.aidock)'));
+  check('browser: AI pill is shown', await visible(web, 'button.aidock'));
+  check('browser: hero lede and sample requests are shown', (await visible(web, 'main p[data-app-hidden]')) && (await visible(web, 'main div[data-app-hidden] button')));
+  check('browser: section rail lists nine sections', (await web.locator('ul.g1-rail a').count()) === 9);
   check('browser: sportsbook row is shown', await visible(web, 'li[data-app-hidden] a[href="/sportsbook"]'));
   check('browser: sportsbook section is shown', await visible(web, 'section[data-app-hidden]'));
   const plainHeight = await web.evaluate(() => document.documentElement.scrollHeight);
@@ -64,7 +67,11 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
 
   check('app: document is marked data-app="ios"', (await page.evaluate(() => document.documentElement.dataset.app)) === 'ios');
   check('app: marker survives hydration', (await page.evaluate(() => document.documentElement.getAttribute('data-app'))) === 'ios');
-  check('app: concierge sphere is hidden', !(await visible(page, 'button[data-app-hidden]')));
+  check('app: concierge sphere is hidden', !(await visible(page, 'button[data-app-hidden]:not(.aidock)')));
+  check('app: AI pill is hidden', !(await visible(page, 'button.aidock')));
+  check('app: hero lede, sample requests and figures are hidden', (await page.locator('main [data-app-hidden]:visible').count()) === 0);
+  check('app: section rail lists nine sections', (await page.locator('ul.g1-rail a:visible').count()) === 9);
+  check('app: hero search is still there', await visible(page, '#g1-hero-q'));
   check('app: sportsbook row is hidden', !(await visible(page, 'li[data-app-hidden] a[href="/sportsbook"]')));
   check('app: sportsbook section is hidden', !(await visible(page, 'section[data-app-hidden]')));
   check('app: other world rows remain', await visible(page, 'a.g1-dir-row[href="/yachts"]'));
@@ -109,6 +116,10 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   await page.locator('a.g1-dir-row[href="/yachts"]').click();
   await page.waitForURL('**/yachts', { timeout: 15000 });
   check('app: ordinary links still navigate', new URL(page.url()).pathname === '/yachts');
+  await page.goto(base + '/', { waitUntil: 'networkidle' });
+  await page.locator('ul.g1-rail a[href="/experiences"]').click();
+  await page.waitForURL('**/experiences', { timeout: 15000 });
+  check('app: a section in the rail opens its page', new URL(page.url()).pathname === '/experiences');
   check('app: marker survives client-side navigation', (await page.evaluate(() => document.documentElement.dataset.app)) === 'ios');
   check('app: no script errors on the pages visited', errors.length === 0, errors.join(' | ').slice(0, 300));
 

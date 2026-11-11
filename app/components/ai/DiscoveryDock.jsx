@@ -27,6 +27,8 @@ export default function AIDock() {
     <>
       <button
         type="button"
+        // The iOS app has its own Concierge tab; see data-app-hidden in globals.css.
+        data-app-hidden=""
         className={`aidock ${roomOpen ? "is-open" : ''}`}
         data-ai-theme={theme}
         onClick={toggleRoom}

@@ -37,8 +37,8 @@ export default function HomePage() {
   const rule = 'border-t border-g1-rule';
 
   return (
-    <main className="flex-1 font-g1sans text-g1-ink">
-      <HomeHero copy={copy} />
+    <main className="g1-modern flex-1 font-g1sans text-g1-ink">
+      <HomeHero copy={copy} t={t} />
 
       <section className="py-[clamp(36px,5vw,72px)]">
         <SectionHead title={copy.season} sub={copy.seasonSub} href="/events" cta={t.nav.events} />
