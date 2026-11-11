@@ -46,7 +46,14 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   check('browser: concierge sphere is shown', await visible(web, 'button[data-app-hidden]:not(.aidock)'));
   check('browser: AI pill is shown', await visible(web, 'button.aidock'));
   check('browser: hero lede and sample requests are shown', (await visible(web, 'main p[data-app-hidden]')) && (await visible(web, 'main div[data-app-hidden] button')));
-  check('browser: section rail lists nine sections', (await web.locator('ul.g1-rail a').count()) === 9);
+  check('browser: section rail lists nine sections', (await web.locator('ul.g1-rail li:not([data-copy]) a').count()) === 9);
+  // The rail drifts by itself: the same card is further along a second later.
+  const railAt = () => web.locator('ul.g1-rail li:not([data-copy]) a').first().evaluate((a) => a.getBoundingClientRect().left);
+  const railBefore = await railAt();
+  await web.waitForTimeout(1200);
+  const railAfter = await railAt();
+  check('browser: section rail moves by itself', railBefore - railAfter > 10, `${railBefore.toFixed(1)} -> ${railAfter.toFixed(1)}`);
+  check('browser: the second copy of the rail is kept from screen readers and the Tab key', (await web.locator('ul.g1-rail li[data-copy][aria-hidden="true"] a[tabindex="-1"]').count()) === 9);
   check('browser: no sportsbook link anywhere on the home page', (await web.locator('a[href^="/sportsbook"]').count()) === 0);
   check('browser: the directory lists dining and private jets', (await visible(web, 'a.g1-dir-row[href="/restaurants-nightlife"]')) && (await visible(web, 'a.g1-dir-row[href="/private-jets"]')));
   const plainHeight = await web.evaluate(() => document.documentElement.scrollHeight);
@@ -70,7 +77,7 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   check('app: concierge sphere is hidden', !(await visible(page, 'button[data-app-hidden]:not(.aidock)')));
   check('app: AI pill is hidden', !(await visible(page, 'button.aidock')));
   check('app: hero lede and sample requests are hidden', (await page.locator('main [data-app-hidden]:visible').count()) === 0);
-  check('app: section rail lists nine sections', (await page.locator('ul.g1-rail a:visible').count()) === 9);
+  check('app: section rail lists nine sections', (await page.locator('ul.g1-rail li:not([data-copy]) a').count()) === 9);
   check('app: the rail has private jets beside flights', (await visible(page, 'ul.g1-rail a[href="/private-jets"]')) && (await visible(page, 'ul.g1-rail a[href="/travel/ovago"]')));
   check('app: hero search is still there', await visible(page, '#g1-hero-q'));
   check('app: no sportsbook link anywhere on the home page', (await page.locator('a[href^="/sportsbook"]').count()) === 0);
@@ -119,7 +126,8 @@ const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); c
   await page.waitForURL('**/yachts', { timeout: 15000 });
   check('app: ordinary links still navigate', new URL(page.url()).pathname === '/yachts');
   await page.goto(base + '/', { waitUntil: 'networkidle' });
-  await page.locator('ul.g1-rail a[href="/experiences"]').click();
+  // The rail never stands still, so the click does not wait for it to.
+  await page.locator('ul.g1-rail li:not([data-copy]) a[href="/experiences"]').click({ force: true });
   await page.waitForURL('**/experiences', { timeout: 15000 });
   check('app: a section in the rail opens its page', new URL(page.url()).pathname === '/experiences');
   check('app: marker survives client-side navigation', (await page.evaluate(() => document.documentElement.dataset.app)) === 'ios');

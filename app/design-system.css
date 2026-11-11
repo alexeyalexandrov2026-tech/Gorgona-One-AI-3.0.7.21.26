@@ -270,6 +270,11 @@
 }
 .g1-rail::-webkit-scrollbar { display: none; }
 .g1-rail > li { flex: none; scroll-snap-align: start; }
+/* While the rail drifts by itself (HomeHero.jsx sets data-auto) it must not
+   catch on the snap points, and the fraction of a pixel it has moved is
+   carried by a transform. */
+.g1-rail[data-auto] { scroll-snap-type: none; }
+.g1-rail[data-auto] > li { transform: translate3d(var(--g1-rail-nudge, 0px), 0, 0); will-change: transform; }
 .g1-rail-card {
   position: relative; display: block; width: 96px; height: 124px; overflow: hidden;
   border-radius: 18px; background: var(--g1-card); color: #fff; text-decoration: none;
@@ -298,12 +303,15 @@
 }
 @media (min-width: 1024px) {
   .g1-rail { overflow: visible; }
+  /* All nine fit: no second copy and nothing to drift. */
+  .g1-rail > li[data-copy] { display: none; }
   .g1-rail > li { flex: 1 1 0; min-width: 0; }
   .g1-rail-card { width: 100%; height: auto; aspect-ratio: 96 / 124; }
   .g1-rail-card span { font-size: 0.9rem; inset-inline: 13px; bottom: 13px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .g1-rail > li[data-copy] { display: none; }
   .g1-motion { transition: none !important; animation: none !important; }
   .g1-hero-voucher, .g1-hero-tag { animation: none !important; }
 }

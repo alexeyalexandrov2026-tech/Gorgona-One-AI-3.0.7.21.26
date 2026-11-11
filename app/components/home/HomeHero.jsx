@@ -1,7 +1,7 @@
 "use client";
 import { LocalizedText, useSavedText } from "../LocalizedText";
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { HERO_CAR, carThumb } from '../../../lib/homeData';
 import { useAskConcierge } from './shared';
@@ -29,27 +29,141 @@ const SECTIONS = [
   { id: 'travel', href: '/travel', name: (t) => t.nav.travel }
 ];
 
+// How fast the rail drifts by itself, in CSS pixels a second: about four
+// seconds for one picture to pass.
+const RAIL_SPEED = 26;
+// How long the rail waits after the guest lets go before it moves again.
+const RAIL_REST_MS = 2500;
+
 function SectionRail({ t, locale }) {
+  const railRef = useRef(null);
+
+  // The rail drifts sideways by itself, without end: the nine sections are
+  // followed by a second copy of themselves, and when the first copy has
+  // gone past, the position steps back by exactly its width - the same
+  // pictures are under the eye, so nothing is seen to jump.
+  //
+  // It stays an ordinary scrolling row. A finger, a mouse wheel or the
+  // keyboard takes over at once; the drift resumes from wherever the guest
+  // left it. Whole pixels go into the scroll position and the fraction into
+  // a transform (--g1-rail-nudge), because Safari only scrolls by whole
+  // pixels and a slow drift in one-pixel steps looks like a stutter.
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return undefined;
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
+    let last = 0;
+    let position = 0;
+    let moving = false;
+    let restUntil = 0;
+    let touching = false;
+    let hovered = false;
+    let focused = false;
+    let onScreen = true;
+
+    // The distance from a section to its own copy; 0 when the copies are
+    // not laid out (a wide screen shows all nine at once, see the CSS).
+    const loopWidth = () => {
+      const first = rail.children[0];
+      const copy = rail.children[SECTIONS.length];
+      return first && copy && copy.offsetParent ? Math.abs(copy.offsetLeft - first.offsetLeft) : 0;
+    };
+    const settle = () => {
+      if (!moving) return;
+      moving = false;
+      rail.removeAttribute('data-auto');
+      rail.style.removeProperty('--g1-rail-nudge');
+    };
+    const tick = (now) => {
+      frame = requestAnimationFrame(tick);
+      const elapsed = Math.min(now - last, 100) / 1000;
+      last = now;
+      const width = loopWidth();
+      if (!width || still.matches || touching || hovered || focused || !onScreen || now < restUntil) {
+        settle();
+        return;
+      }
+      if (!moving) {
+        // Take up from where the guest (or the last run) left the rail.
+        moving = true;
+        position = Math.abs(rail.scrollLeft) % width;
+        rail.setAttribute('data-auto', '');
+      }
+      position = (position + RAIL_SPEED * elapsed) % width;
+      // Read every frame: the page turns right-to-left only once the
+      // guest's language has loaded, after this effect has started. There
+      // the row scrolls towards negative positions.
+      const direction = getComputedStyle(rail).direction === 'rtl' ? -1 : 1;
+      const whole = Math.floor(position);
+      rail.scrollLeft = direction * whole;
+      rail.style.setProperty('--g1-rail-nudge', `${direction * (whole - position)}px`);
+    };
+
+    const rest = () => { restUntil = performance.now() + RAIL_REST_MS; };
+    const onTouchStart = () => { touching = true; };
+    const onTouchEnd = () => { touching = false; rest(); };
+    // A flick keeps the row gliding after the finger has left it.
+    const onScroll = () => { if (!moving) rest(); };
+    const onEnter = (event) => { if (event.pointerType === 'mouse') hovered = true; };
+    const onLeave = () => { hovered = false; };
+    const onFocusIn = () => { focused = true; };
+    const onFocusOut = () => { focused = false; rest(); };
+
+    rail.addEventListener('touchstart', onTouchStart, { passive: true });
+    rail.addEventListener('touchend', onTouchEnd, { passive: true });
+    rail.addEventListener('touchcancel', onTouchEnd, { passive: true });
+    rail.addEventListener('wheel', rest, { passive: true });
+    rail.addEventListener('scroll', onScroll, { passive: true });
+    rail.addEventListener('pointerenter', onEnter);
+    rail.addEventListener('pointerleave', onLeave);
+    rail.addEventListener('focusin', onFocusIn);
+    rail.addEventListener('focusout', onFocusOut);
+    const watcher = new IntersectionObserver(([entry]) => { onScreen = entry.isIntersecting; });
+    watcher.observe(rail);
+    frame = requestAnimationFrame((now) => { last = now; tick(now); });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      watcher.disconnect();
+      settle();
+      rail.removeEventListener('touchstart', onTouchStart);
+      rail.removeEventListener('touchend', onTouchEnd);
+      rail.removeEventListener('touchcancel', onTouchEnd);
+      rail.removeEventListener('wheel', rest);
+      rail.removeEventListener('scroll', onScroll);
+      rail.removeEventListener('pointerenter', onEnter);
+      rail.removeEventListener('pointerleave', onLeave);
+      rail.removeEventListener('focusin', onFocusIn);
+      rail.removeEventListener('focusout', onFocusOut);
+    };
+  }, []);
+
+  const card = (section, i, copy) => (
+    // The second copy only keeps the drift endless: screen readers and the
+    // Tab key meet each section once.
+    <li key={`${section.id}${copy ? '-copy' : ''}`} data-copy={copy ? '' : undefined} aria-hidden={copy ? 'true' : undefined}>
+      <Link href={section.href} className="g1-rail-card" tabIndex={copy ? -1 : undefined}>
+        <img
+          src={`/images/home/sections/${section.id}.jpg`}
+          alt=""
+          width="96"
+          height="124"
+          loading={!copy && i < 5 ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+        <span>{section.name(t, locale)}</span>
+      </Link>
+    </li>
+  );
+
   return (
-    // On a phone it runs to both edges of the screen and scrolls sideways;
-    // the cut-off picture at the end is what says there is more. On a wide
-    // screen all nine share the row.
-    <ul className="g1-rail -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
-      {SECTIONS.map((section, i) => (
-        <li key={section.id}>
-          <Link href={section.href} className="g1-rail-card">
-            <img
-              src={`/images/home/sections/${section.id}.jpg`}
-              alt=""
-              width="96"
-              height="124"
-              loading={i < 5 ? 'eager' : 'lazy'}
-              decoding="async"
-            />
-            <span>{section.name(t, locale)}</span>
-          </Link>
-        </li>
-      ))}
+    // On a phone it runs to both edges of the screen, drifts by itself and
+    // can be scrolled sideways. On a wide screen all nine share the row and
+    // stand still.
+    <ul ref={railRef} className="g1-rail -mx-4 px-4 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0">
+      {SECTIONS.map((section, i) => card(section, i, false))}
+      {SECTIONS.map((section, i) => card(section, i, true))}
     </ul>
   );
 }
