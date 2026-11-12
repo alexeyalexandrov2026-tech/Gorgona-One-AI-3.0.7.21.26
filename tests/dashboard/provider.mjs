@@ -10,11 +10,11 @@ export function provider(db) {
     const request=input instanceof Request?input:new Request(input,options),url=new URL(request.url);
     const token=(request.headers.get('authorization')||'').slice(7),userId=tokenUser(token);
     try {
-      if(url.pathname==='/auth/v1/user')return userId?Response.json({id:userId,aud:'authenticated',role:'authenticated',email:Object.keys(ids).find(k=>ids[k]===userId)+'@example.com',user_metadata:{role:'admin',name:'Demo account'}}):Response.json({error:'unauthorized'},{status:401});
+      if(url.pathname==='/auth/v1/user')return userId?Response.json({id:userId,aud:'authenticated',role:'authenticated',email:Object.keys(ids).find(k=>ids[k]===userId)+'@example.com',email_confirmed_at:'2026-01-01T00:00:00Z',user_metadata:{role:'admin',name:'Demo account'}}):Response.json({error:'unauthorized'},{status:401});
       if(url.pathname.startsWith('/rest/v1/rpc/')){
         if(token!==fixtureEnv.SUPABASE_SERVICE_ROLE_KEY)return Response.json({error:'denied'},{status:403});
         const name=url.pathname.split('/').at(-1),args=await request.json();
-        if(!['dashboard_submit','dashboard_command','dashboard_claim','dashboard_settle','dashboard_delivery_status','dashboard_reserve_email','partner_listing_command','partner_listing_media_register','partner_listing_media_access'].includes(name))throw new Error('Unexpected RPC');
+        if(!['dashboard_submit','dashboard_submit_plan','favorites_change','dashboard_claim_requests','dashboard_command','dashboard_claim','dashboard_settle','dashboard_delivery_status','dashboard_reserve_email','partner_listing_command','partner_listing_media_register','partner_listing_media_access','dining_venue_read','dining_venue_command'].includes(name))throw new Error('Unexpected RPC');
         if(name==='dashboard_claim'){
           await db.exec('set role service_role');
           try{return Response.json((await db.query('select * from public.dashboard_claim($1,$2)',[args.p_channels,args.p_limit])).rows);}finally{await db.exec('reset role');}
@@ -22,13 +22,14 @@ export function provider(db) {
         return Response.json(await rpc(db,name,args));
       }
       const table=url.pathname.split('/').at(-1);
-      if(!userId&&table!=='partner_publications')return Response.json({error:'unauthorized'},{status:401});
-      if(!['profiles','bookings','request_events','partner_listings','partner_publications'].includes(table)||!['GET','HEAD'].includes(request.method))return Response.json({error:'Fixture mutation denied'},{status:403});
+      const service=token===fixtureEnv.SUPABASE_SERVICE_ROLE_KEY;
+      if(!userId&&!service&&!['partner_publications','dining_publications'].includes(table))return Response.json({error:'unauthorized'},{status:401});
+      if(!['profiles','bookings','booking_plans','favorites','request_events','partner_listings','partner_publications','dining_publications'].includes(table)||!['GET','HEAD'].includes(request.method))return Response.json({error:'Fixture mutation denied'},{status:403});
       const columns=url.searchParams.get('select')||'*';
       // These are fixture query builders, with the same RLS roles as PostgREST.
       if(!/^[a-z_,*]+$/.test(columns))return Response.json([]);
       const where=[],params=[];
-      for(const key of ['id','role','customer_user_id','assigned_partner_id','status','booking_id','partner_id','review_state','published_version','kind']){
+      for(const key of ['id','role','customer_user_id','assigned_partner_id','status','booking_id','partner_id','review_state','published_version','kind','request_key','plan_id','user_id']){
         const value=url.searchParams.get(key);if(!value)continue;
         if(key==='id'&&value.startsWith('in.(')&&value.endsWith(')')){
           const ids=value.slice(4,-1).split(',');if(!ids.length||ids.some(id=>!/^[0-9a-f-]{36}$/i.test(id)))throw new Error('Invalid fixture ID list');
@@ -43,10 +44,12 @@ export function provider(db) {
       const order=url.searchParams.get('order');
       if(order==='created_at.desc,id.desc')sql+=' order by created_at desc,id desc';
       else if(order==='id.asc')sql+=' order by id asc';
+      else if(order==='plan_position.asc')sql+=' order by plan_position asc';
       else if(order?.includes('created_at'))sql+=' order by created_at '+(order.includes('.asc')?'asc':'desc');
       else if(order?.includes('company_name'))sql+=' order by company_name asc nulls last,id asc';
       let result;
-      if(userId)result=await asUser(db,userId,sql,params);
+      if(service){await db.exec('set role service_role');try{result=await db.query(sql,params);}finally{await db.exec('reset role');}}
+      else if(userId)result=await asUser(db,userId,sql,params);
       else{await db.exec('set role anon');try{result=await db.query(sql,params);}finally{await db.exec('reset role');}}
       const total=result.rows.length;
       const limit=Number(url.searchParams.get('limit')||1000),offset=Number(url.searchParams.get('offset')||0),rows=result.rows.slice(offset,offset+limit);

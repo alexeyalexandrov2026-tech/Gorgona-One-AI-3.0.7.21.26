@@ -9,6 +9,8 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { getTranslation } from '../../lib/i18n';
 import { useLocale } from './LocaleProvider';
 import { useAuth } from './AuthProvider';
+import { useFavorites } from './FavoritesProvider';
+import Icon from './g1/icons';
 
 // Unified MIAMI ELIO ecosystem navigation. `key` maps to an existing
 // translation in lib/i18n when available; `label` is the fallback for the
@@ -16,13 +18,12 @@ import { useAuth } from './AuthProvider';
 const navItems = [
   { key: 'home', href: '/', label: 'Home' },
   { key: 'travel', href: '/travel', label: 'Travel' },
-  { key: 'stores', href: '/stores', label: 'Shopping' },
+  { key: 'experiences', href: '/experiences', label: 'Experiences' },
   { key: 'villas', href: '/vacation-rentals', label: 'Villas' },
   { key: 'yachts', href: '/yachts', label: 'Yachts' },
   { key: 'cars', href: '/rentals', label: 'Cars' },
-  { key: 'sportsbook', href: '/sportsbook', label: 'Sportsbooks' },
   { key: 'events', href: '/events', label: 'Events' },
-  { key: 'discovery', href: '/discovery', label: 'Discovery' }
+  { key: 'privateJets', href: '/private-jets', label: 'Private Jets' }
 ];
 
 export function Header() {
@@ -59,6 +60,12 @@ export function Header() {
   const labelFor = (item) => (item.key && t.nav[item.key]) || item.label;
   const isActive = (href) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
   // Roles come from the protected profile loaded by AuthProvider.
+  // "My Miami" (the profile page) holds the favourites, so its heart is there
+  // for every guest, signed in or not; the count is the same list as the
+  // page's (this device, or the account once signed in).
+  const favoriteList = useFavorites();
+  const favourites = favoriteList.ready ? favoriteList.items.length : 0;
+  const myMiami = msg('My Miami');
   const accountHref = auth?.session?.role === 'admin' ? '/admin' : auth?.session?.role === 'partner' ? '/partner' : '/profile';
   const accountLabel = msg(auth?.session?.role === 'admin' ? 'Admin Portal' : auth?.session?.role === 'partner' ? 'Partner Portal' : 'User Profile');
 
@@ -73,7 +80,7 @@ export function Header() {
         scrolled ? "border-g1-rule bg-g1-paper/90" : "border-transparent bg-g1-paper/60"
       }`}
     >
-      <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4 xl:flex-wrap">
+      <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4 lg:flex-wrap">
         <div className="flex min-w-0 items-center gap-2">
           {/* Universal back navigation. Available on both mobile and desktop.
               Hidden on the homepage (nothing to go "back" from) and when 
@@ -92,11 +99,11 @@ export function Header() {
           )}
           <Link href="/" aria-label={msg("Miami Elio, home")} className="group flex shrink-0 items-baseline gap-2">
             <span className="hidden font-g1mono text-[0.72rem] uppercase tracking-[0.3em] text-g1-accent min-[360px]:inline">Miami</span>
-            <span className="font-g1display text-2xl font-medium tracking-tight text-g1-ink sm:text-3xl">Elio</span>
+            <span className="font-g1wordmark text-2xl font-medium tracking-tight text-g1-ink sm:text-3xl">Elio</span>
           </Link>
         </div>
 
-        <nav className="hidden items-center gap-3.5 xl:order-last xl:flex xl:w-full xl:justify-between xl:gap-6">
+        <nav className="hidden items-center gap-3.5 lg:order-last lg:flex lg:w-full lg:flex-wrap lg:justify-between xl:gap-6">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -116,7 +123,21 @@ export function Header() {
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <LanguageSwitcher />
-          {auth?.session && (
+          {/* data-app-hidden: in the iOS app its My Miami tab opens this page. */}
+          <Link
+            href="/profile"
+            data-app-hidden=""
+            data-my-miami-link=""
+            aria-label={favourites ? `${myMiami} · ${favourites}` : myMiami}
+            title={myMiami}
+            aria-current={pathname === '/profile' ? 'page' : undefined}
+            onClick={() => setMobileNavOpen(false)}
+            className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            <Icon name="heart" className={`h-5 w-5 ${favourites ? 'fill-g1-accent stroke-g1-accent' : ''}`} />
+            {favourites > 0 && <span aria-hidden="true" className="absolute -end-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-g1-accent px-1 font-g1sans text-[0.68rem] font-semibold leading-none text-g1-on-accent">{favourites > 99 ? '99+' : favourites}</span>}
+          </Link>
+          {auth?.session && accountHref !== '/profile' && (
             <Link
               href={accountHref}
               aria-label={accountLabel}
@@ -152,7 +173,7 @@ export function Header() {
             onClick={() => setMobileNavOpen((value) => !value)}
             aria-expanded={mobileNavOpen}
             aria-label={msg("Menu")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink sm:h-10 sm:w-10 xl:hidden"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-g1-rule text-g1-ink transition hover:border-g1-ink sm:h-10 sm:w-10 lg:hidden"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               {mobileNavOpen ? (
@@ -179,7 +200,7 @@ export function Header() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-g1-rule xl:hidden"
+            className="overflow-hidden border-t border-g1-rule lg:hidden"
           >
             <div className="grid grid-cols-2 gap-1 py-3">
               {navItems.map((item) => (

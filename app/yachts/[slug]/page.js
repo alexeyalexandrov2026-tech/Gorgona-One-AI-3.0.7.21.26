@@ -4,6 +4,7 @@ import { getYachts, getYachtBySlug } from '../../../lib/data/listings';
 import { getServerTranslation } from '../../../lib/serverLocale';
 import { getWorldsCopy, displayValue, largeImage } from '../../../lib/worldsCopy';
 import BookingForm from '../../components/BookingForm';
+import SaveButton from '../../components/SaveButton';
 import Gallery from '../../components/g1/Gallery';
 import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
@@ -31,6 +32,7 @@ export default async function YachtDetailPage({ params }) {
         <div className="grid min-w-0 gap-5 lg:sticky lg:top-24">
           <p className={eyebrowClass}>{yacht.length} · {yacht.location}</p>
           <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{yacht.title}</h1>
+          <SaveButton href={`/yachts/${yacht.slug}`} title={yacht.title} subtitle={yacht.location} image={yacht.image} />
           <p className="text-[1.05rem] text-g1-soft"><LocalizedListing itemId={yacht.id} source={yacht.description} /></p>
           <Specs
             items={[

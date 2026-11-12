@@ -87,15 +87,18 @@ module.exports = {
         }
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['var(--font-display)', 'var(--font-inter)', 'sans-serif'],
-        serif: ['var(--font-serif)', 'Georgia', 'serif'],
-        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-        fira: ['var(--font-fira)', 'ui-monospace', 'monospace'],
-        // New design system. Playfair covers Cyrillic where Bodoni has no glyphs.
-        g1display: ['var(--font-g1-display)', 'var(--font-serif)', 'Georgia', 'serif'],
+        // One family across the site (Jost). The old names point to it too,
+        // so pages that still say font-display or font-serif match the rest.
+        sans: ['var(--font-g1-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['var(--font-g1-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-g1-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-g1-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        fira: ['var(--font-g1-mono)', 'ui-monospace', 'monospace'],
+        g1display: ['var(--font-g1-display)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         g1sans: ['var(--font-g1-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        g1mono: ['var(--font-g1-mono)', 'ui-monospace', 'monospace']
+        g1mono: ['var(--font-g1-mono)', 'ui-monospace', 'monospace'],
+        // Only the word "Elio" in the logo.
+        g1wordmark: ['var(--font-g1-wordmark)', 'Georgia', 'serif']
       },
       letterSpacing: {
         stamp: '0.18em',

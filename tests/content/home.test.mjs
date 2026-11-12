@@ -3,8 +3,7 @@ import '../../lib/savedServerCatalog.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { SPORTSBOOK_DIRECTORY } from '../../lib/sportsbookDirectory.js';
-import { HOME_BOOKS, FLEET, carThumb, HERO_CAR } from '../../lib/homeData.js';
+import { FLEET, carThumb, HERO_CAR } from '../../lib/homeData.js';
 import { SEASON, SEASON_CHECKED_AT, upcomingSeason, daysUntil } from '../../lib/seasonData.js';
 import { STOPS, HOME_STOPS, COUNTIES, getStop } from '../../lib/a1aLine.js';
 import { SUPPORTED_LANGUAGES } from '../../lib/languages.js';
@@ -15,21 +14,11 @@ const LANGS = SUPPORTED_LANGUAGES.map(language => language.code);
 const publicFile = (path) => new URL(`../../public${path}`, import.meta.url);
 const midnight = (iso) => new Date(`${iso}T00:00:00`);
 
-test('the homepage shows the same ten sportsbooks in the same order', () => {
-  assert.deepEqual(HOME_BOOKS.map((b) => b.slug), SPORTSBOOK_DIRECTORY.map((b) => b.slug));
-  assert.equal(HOME_BOOKS[8].name, 'theScore Bet');
-  assert.equal(HOME_BOOKS[8].logo, null);
-  assert.ok(!HOME_BOOKS.some((b) => /espn/i.test(`${b.name} ${b.slug} ${b.logo}`)));
-  for (const book of HOME_BOOKS.filter((b) => b.logo)) {
-    assert.ok(existsSync(publicFile(book.logo)), `missing ${book.logo}`);
-  }
-});
-
 test('the homepage has no promo-code copy in any core language', () => {
   const promo = /promo|coupon|code|nike|uber eats|промокод|скидк|código|cupom|קוד|מבצע/i;
   for (const lang of LANGS) {
     const copy = getHomeCopy(lang);
-    for (const text of [copy.eyebrow, copy.lede, ...copy.chips, ...copy.stats]) assert.doesNotMatch(text, promo, `${lang}: ${text}`);
+    for (const text of [copy.titleA, copy.titleEm, copy.titleB, copy.lede, ...copy.chips, ...copy.stats]) assert.doesNotMatch(text, promo, `${lang}: ${text}`);
     assert.equal(copy.stats.length, 3, `${lang} stats`);
     assert.equal(copy.chips.length, 5, `${lang} chips`);
     assert.doesNotMatch(copy.worldItems.deals.join(' '), /promo|coupon|промокод|código|cupom|קוד/i, `${lang} stores row`);

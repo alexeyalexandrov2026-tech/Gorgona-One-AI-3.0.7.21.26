@@ -74,7 +74,7 @@ export default async function EventsCategoryPage({ params }) {
             <p className="lux-eyebrow"><LocalizedText source="Events · " />{group ? <LocalizedText source="Categories" /> : <LocalizedText source="Tickets" />}</p>
           </Reveal>
           <Reveal delay={0.08}>
-            <h1 className="mt-6 max-w-3xl font-display text-5xl font-light leading-[1.02] tracking-tight text-white [text-shadow:0_4px_44px_rgba(0,0,0,0.5)] sm:text-6xl lg:text-7xl">
+            <h1 className="mt-6 max-w-3xl font-display text-[clamp(2.25rem,4.6vw+1rem,4.5rem)] font-light leading-[1.02] tracking-tight text-white [hyphens:auto] [overflow-wrap:break-word] [text-shadow:0_4px_44px_rgba(0,0,0,0.5)] [text-wrap:balance]">
               {pageTitle}
             </h1>
           </Reveal>

@@ -55,18 +55,6 @@ const FEATURED_DEALS = [
     )
   },
   {
-    title: 'Sportsbook Bonuses',
-    value: 'Top-tier offers',
-    description: 'Verified sportsbook promos and referral-only bonuses.',
-    image: '/images/featured/sportsbook-bonuses-hard-rock-bet.png',
-    href: '/sportsbook',
-    accent: '#a855f7',
-    glow: 'rgba(168, 85, 247, 0.4)',
-    icon: (
-      <path d="M8 3h8v3.5a4 4 0 0 1-8 0V3Zm-2 .5H3v1.8A4.2 4.2 0 0 0 6.8 9.5M18 3.5h3v1.8A4.2 4.2 0 0 1 17.2 9.5M11 14.5h2v3.5h-2zM8 20.5h8l-1.2-2.5H9.2L8 20.5Z" />
-    )
-  },
-  {
     title: 'Vacation Rentals',
     value: 'Luxury stays',
     description: 'Short-term stays, villas, and premium residences in key markets.',

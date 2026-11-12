@@ -5,6 +5,7 @@ import { LocalizedElement } from "../LocalizedText";
 import Link from 'next/link';
 import Icon from './icons';
 import BookedStatus from './BookedStatus';
+import SaveButton from '../SaveButton';
 
 export const btn = {
   base: 'inline-flex min-h-[46px] items-center justify-center gap-2 rounded-full border border-transparent px-5 font-medium leading-none transition active:translate-y-px',
@@ -39,9 +40,10 @@ export function SectionHead({ title, sub, href, cta, id }) {
 }
 
 // Photo, meta line, title, short note and rate: one listing in a grid or shelf.
-export function ListingCard({ href, img, alt = '', title, meta, note, rate, priority = false, booked = false }) {
+export function ListingCard({ href, img, alt = '', title, meta, note, rate, priority = false, booked = false, saveable = true }) {
   return (
     <article className="group grid min-w-0 content-start gap-3">
+      <div className="relative">
       <Link href={href} tabIndex={-1} aria-hidden="true" className="relative block aspect-[3/2] overflow-hidden rounded-2xl bg-g1-rule">
         <img
           src={img}
@@ -53,6 +55,8 @@ export function ListingCard({ href, img, alt = '', title, meta, note, rate, prio
         />
         {booked && <BookedStatus overlay />}
       </Link>
+      {saveable && <SaveButton overlay href={href} title={title} image={img} />}
+      </div>
       <div className="grid gap-1.5">
         <p className="text-[0.8rem] tracking-[0.02em] text-g1-soft">{meta}</p>
         <h3 className="font-g1display text-[1.28rem] font-medium leading-[1.15] text-g1-ink">

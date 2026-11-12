@@ -6,9 +6,12 @@ import { useSavedText } from "../LocalizedText";
 import Link from 'next/link';
 import { AiConversation } from './AiConversation';
 import { useConciergeChat } from './ChatProvider';
-import { SECTIONS } from '../../../lib/aiSuggestions';
+import { SECTIONS,displayName } from '../../../lib/aiSuggestions';
+import { isAppRestricted } from '../../../lib/appRestrictedPaths';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
+import {useAiDock} from './AiDockProvider';
+import {useAI} from './AIProvider';
 
 // ===========================================================================
 // The Discovery Room — the concierge as a full page.
@@ -23,6 +26,7 @@ import { getTranslation } from '../../../lib/i18n';
 export function ConciergeRoom() {
   const msg = useSavedText();
   const { messages, reset } = useConciergeChat();
+  const {isOpen:dockOpen}=useAiDock(),{roomOpen}=useAI();
   const hasThread = messages.length > 0;
   // Same source of truth as the dock and the homepage bar: the global
   // language switcher drives the page chrome and the concierge alike.
@@ -35,10 +39,10 @@ export function ConciergeRoom() {
         <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-brand-gold">
           {t.ai?.discoveryRoom || <LocalizedText source={"Discovery Room"} />}
         </p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-g1-ink sm:text-5xl">
           {t.ai?.conciergeTitle || <LocalizedText source={"Your private concierge"} />}
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-zinc-400">
+        <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-g1-soft">
           {t.ai?.conciergeSubtitle ||
             <LocalizedText source={"Ask for anything across the MIAMI ELIO ecosystem — travel, dining, yachts, villas, cars, events and verified offers — and get there in one tap."} />}
         </p>
@@ -47,15 +51,15 @@ export function ConciergeRoom() {
 
       <section
         aria-label={msg("Concierge conversation")}
-        className="mx-auto mt-10 flex h-[min(640px,72vh)] w-full max-w-3xl flex-col rounded-3xl border border-white/10 bg-white/5 p-5 shadow-premium sm:p-7"
+        className="mx-auto mt-10 flex h-[min(640px,72vh)] w-full max-w-3xl flex-col rounded-3xl border border-g1-rule bg-g1-card p-5 shadow-premium sm:p-7"
       >
-        <div className="mb-3 flex items-center justify-between border-b border-white/5 pb-3">
-          <p className="text-sm font-semibold text-white">{msg("MIAMI ELIO Concierge")}</p>
+        <div className="mb-3 flex items-center justify-between border-b border-g1-rule pb-3">
+          <p className="text-sm font-semibold text-g1-ink">{msg("MIAMI ELIO Concierge")}</p>
           {hasThread && (
             <button
               type="button"
               onClick={reset}
-              className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-zinc-400 transition hover:border-brand-gold hover:text-brand-gold"
+              className="rounded-full border border-g1-rule px-3 py-1.5 text-xs text-g1-soft transition hover:border-brand-gold hover:text-brand-gold"
             >
               {t.ai?.newConversation || <LocalizedText source={"New conversation"} />}
             </button>
@@ -63,12 +67,12 @@ export function ConciergeRoom() {
         </div>
 
         <div className="min-h-0 flex-1">
-          <AiConversation variant="room" />
+          <AiConversation variant="room" active={!dockOpen&&!roomOpen} />
         </div>
       </section>
 
       <nav aria-label={msg("Ecosystem sections")} className="mx-auto mt-10 w-full max-w-3xl">
-        <p className="text-center font-mono text-[0.6rem] uppercase tracking-[0.28em] text-zinc-500">
+        <p className="text-center font-mono text-[0.6rem] uppercase tracking-[0.28em] text-g1-soft">
           {t.ai?.jumpIn || <LocalizedText source={"Or jump straight in"} />}
         </p>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -76,9 +80,11 @@ export function ConciergeRoom() {
             <Link
               key={section.href}
               href={section.href}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
+              // Sections the iOS app does not carry are not offered there (globals.css).
+              data-app-hidden={isAppRestricted(section.href) ? '' : undefined}
+              className="rounded-full border border-g1-rule bg-g1-card px-4 py-2 text-xs text-g1-soft transition hover:border-brand-gold/50 hover:text-g1-ink"
             >
-              {msg(section.label)}
+              {displayName(section.href,locale)||msg(section.label)}
             </Link>
           ))}
         </div>

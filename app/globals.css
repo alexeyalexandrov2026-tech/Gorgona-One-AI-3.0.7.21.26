@@ -11,6 +11,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* The iOS app (ios/) marks the document with data-app before the page runs.
+   Its native tab bar, concierge and install replace these pieces of web
+   chrome. Browsers never set data-app, so nothing here applies on the
+   website. */
+html[data-app] [data-app-hidden] {
+  display: none !important;
+}
+
 /* Events use viewport-wide backgrounds inside the shared centered shell.
    Keep the scrollbar's extra vw pixels from creating horizontal page scroll. */
 html:has([data-ticketnetwork-calendar]) {
@@ -22,7 +30,7 @@ body {
   /* Plain paper from the design system; the old gold glow is gone. */
   background: var(--g1-paper);
   color: #f5f2eb;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-g1-sans), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 * {
@@ -197,7 +205,7 @@ a {
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
-    font-family: var(--font-mono), ui-monospace, monospace;
+    font-family: var(--font-g1-mono), ui-monospace, monospace;
     font-size: 0.62rem;
     font-weight: 500;
     text-transform: uppercase;
@@ -216,7 +224,7 @@ a {
   }
 
   .lux-display {
-    font-family: var(--font-display), sans-serif;
+    font-family: var(--font-g1-display), ui-sans-serif, system-ui, sans-serif;
     font-weight: 500;
     line-height: 0.98;
     letter-spacing: -0.045em;
@@ -224,7 +232,7 @@ a {
   }
 
   .lux-kicker {
-    font-family: var(--font-display), sans-serif;
+    font-family: var(--font-g1-display), ui-sans-serif, system-ui, sans-serif;
     font-weight: 600;
     letter-spacing: -0.02em;
     color: #fff;
@@ -406,7 +414,7 @@ a {
 
   /* Ferrari-style uppercase editorial caption */
   .lux-caption-upper {
-    font-family: var(--font-mono), ui-monospace, monospace;
+    font-family: var(--font-g1-mono), ui-monospace, monospace;
     text-transform: uppercase;
     letter-spacing: 0.24em;
     font-size: 0.7rem;

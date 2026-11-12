@@ -3,17 +3,22 @@ import { LocalizedText } from "../LocalizedText";
 
 import { useSavedText } from "../LocalizedText";
 
-import { useEffect } from 'react';
+import { useEffect,useRef } from 'react';
 import Link from 'next/link';
 import { useAiDock } from './AiDockProvider';
 import { AiConversation } from './AiConversation';
 import { useBodyScrollLock } from '../useBodyScrollLock';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
+import {useAI} from './AIProvider';
+import {useDialogFocus} from './useDialogFocus';
 
 export function AiDock() {
   const msg = useSavedText();
   const { isOpen, close } = useAiDock();
+  const {closeRoom}=useAI(),panel=useRef(null);
+  useDialogFocus(isOpen,panel);
+  useEffect(()=>{if(isOpen)closeRoom();},[isOpen,closeRoom]);
   // The dock chrome follows the global switcher too - the transcript inside
   // it was already localized, so an English header was the odd one out.
   const locale = useLocale();
@@ -37,11 +42,12 @@ export function AiDock() {
       <div
         aria-hidden="true"
         onClick={close}
-        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-40 bg-[rgba(5,10,14,0.6)] backdrop-blur-sm transition-opacity duration-300 ${
           isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
       <aside
+        ref={panel}
         role="dialog"
         aria-modal="true"
         aria-label={msg("MIAMI ELIO AI Dock")}
@@ -51,22 +57,22 @@ export function AiDock() {
         // stay tabbable and visible to screen readers - and on /discovery,
         // which renders its own copy of this conversation, that surfaced as
         // two identical "Ask the concierge" inputs on one page.
-        inert={isOpen ? undefined : ''}
+        inert={isOpen ? undefined : true}
         aria-hidden={!isOpen}
-        className={`fixed bottom-0 right-0 z-50 flex h-[min(640px,88vh)] w-full flex-col border-t border-white/10 bg-[#0a0a0a]/[0.97] p-5 shadow-premium backdrop-blur-xl transition-transform duration-300 sm:bottom-6 sm:right-6 sm:h-[560px] sm:w-[400px] sm:rounded-[1.75rem] sm:border ${
+        className={`fixed bottom-0 right-0 z-50 flex h-[min(640px,88vh)] w-full flex-col border-t border-g1-rule bg-g1-paper p-5 shadow-premium backdrop-blur-xl transition-transform duration-300 sm:bottom-6 sm:right-6 sm:h-[560px] sm:w-[400px] sm:rounded-[1.75rem] sm:border ${
           isOpen ? "translate-y-0" : "translate-y-[110%]"
         }`}
       >
         <div className="mb-3 flex items-center justify-between">
           <div>
             <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-brand-gold">{msg("AI Dock")}</p>
-            <p className="mt-1 text-sm font-semibold text-white">{msg("MIAMI ELIO Concierge")}</p>
+            <p className="mt-1 text-sm font-semibold text-g1-ink">{msg("MIAMI ELIO Concierge")}</p>
           </div>
           <div className="flex items-center gap-2">
             <Link
               href="/discovery"
               onClick={close}
-              className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold"
+              className="rounded-full border border-g1-rule px-3 py-1.5 text-xs text-g1-soft transition hover:border-brand-gold hover:text-brand-gold"
             >
               {t.ai?.discoveryRoom || <LocalizedText source={"Discovery Room"} />}
             </Link>
@@ -74,7 +80,7 @@ export function AiDock() {
               type="button"
               onClick={close}
               aria-label={t.ai?.closeAI || 'Close AI Dock'}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-zinc-300 transition hover:border-brand-gold hover:text-brand-gold"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-g1-rule text-g1-soft transition hover:border-brand-gold hover:text-brand-gold"
             >
               ✕
             </button>
@@ -84,7 +90,7 @@ export function AiDock() {
           {/* Following a card navigates the page underneath, so the dock gets
               out of the way. The thread lives in ChatProvider and is waiting
               when the guest reopens it. */}
-          <AiConversation variant="dock" onNavigate={close} />
+          <AiConversation variant="dock" active={isOpen} onNavigate={close} />
         </div>
       </aside>
     </>

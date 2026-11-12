@@ -1,4 +1,8 @@
 "use client";
+import {getDiningCopy} from '../../../lib/dining/copy.mjs';
+import HeadoutPreview from '../dining/HeadoutPreview';
+import VenueEditor from '../dining/VenueEditor';
+import {getDiningEditorCopy} from '../../../lib/dining/editorCopy.mjs';
 
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../AuthProvider';
@@ -8,8 +12,8 @@ import { getWorldsCopy } from '../../../lib/worldsCopy';
 import { supabase } from '../../../lib/supabase';
 import { submissionKey } from '../../../lib/bookingSubmission.mjs';
 
-const button = 'min-h-[42px] rounded-lg border border-villa-obsidian/25 px-3 py-2 text-sm font-medium text-villa-obsidian transition hover:bg-villa-obsidian/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50';
-const input = 'min-h-[44px] min-w-0 rounded-lg border border-villa-obsidian/25 bg-white/70 px-3 py-2 text-base text-villa-obsidian focus-visible:outline focus-visible:outline-2';
+const button = 'min-h-[42px] rounded-lg border border-g1-rule px-3 py-2 text-sm font-medium text-g1-ink transition hover:bg-g1-card focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50';
+const input = 'min-h-[44px] min-w-0 rounded-lg border border-g1-rule bg-g1-card px-3 py-2 text-base text-g1-ink focus-visible:outline focus-visible:outline-2';
 
 async function api(userId, path, options = {}) {
   const { data, error } = await supabase.auth.getSession();
@@ -20,9 +24,50 @@ async function api(userId, path, options = {}) {
   return result;
 }
 
-export default function RequestBoard({ scope = 'customer' }) {
+// Items of one plan share a row in the list, in the order the guest chose them.
+function requestEntries(rows){
+  const entries=[],plans=new Map();
+  for(const row of rows){
+    if(!row.plan_id){entries.push({row});continue;}
+    let group=plans.get(row.plan_id);
+    if(!group){group={plan:row.plan_id,rows:[]};plans.set(row.plan_id,group);entries.push(group);}
+    group.rows.push(row);
+  }
+  for(const group of plans.values())group.rows.sort((a,b)=>(a.plan_position||0)-(b.plan_position||0));
+  return entries;
+}
+
+// Where a request is, as four steps: received, in review, answered, closed.
+// The current step is named in text as well, so the order is not only shown
+// by colour; for the guest a line says what happens next.
+const STEPS=['pending','reviewing','responded','closed'];
+function StatusSteps({status,labels,next}){
+  const current=STEPS.indexOf(status);
+  return <div className="mt-4 grid gap-3" data-status-steps={status}>
+    <ol className="grid grid-cols-4 gap-1.5" aria-label={labels[status]||''}>{STEPS.map((step,index)=><li key={step} aria-current={index===current?'step':undefined} className="grid min-w-0 gap-1.5">
+      <span className={`h-1.5 rounded-full ${index<=current?'bg-g1-accent':'bg-g1-rule'}`}/>
+      <span className={`text-[0.78rem] leading-tight [overflow-wrap:anywhere] ${index===current?'font-medium text-g1-ink':'text-g1-soft'}`}>{labels[step]}</span>
+    </li>)}</ol>
+    {next&&<p className="text-sm text-g1-ink">{next}</p>}
+  </div>;
+}
+
+// In the list: the same four steps as one short bar, "2/4 · In review".
+function StatusBar({status,labels,msg}){
+  const at=STEPS.indexOf(status);
+  if(at<0)return null;
+  return <div className="mt-3 max-w-xs" role="img" aria-label={msg('Status')+': '+labels[status]}>
+    <div className="grid grid-cols-4 gap-1.5" aria-hidden="true">{STEPS.map((step,i)=><span key={step} className={`block h-1.5 rounded-full ${i<=at?'bg-g1-accent':'bg-g1-rule'}`}/>)}</div>
+    <p className="mt-1.5 text-xs font-medium text-g1-ink" aria-hidden="true">{at+1}/4 · {labels[status]}</p>
+  </div>;
+}
+// A plan is as far along as its least advanced item.
+const planStatus=rows=>STEPS[Math.min(...rows.map(row=>Math.max(0,STEPS.indexOf(row.status))))];
+
+export default function RequestBoard({ scope = 'customer', embedded = false }) {
   const auth=useAuth(), msg=useSavedText(), locale=useLocale(), copy=getWorldsCopy(locale).form;
   const userId=auth?.session?.id;
+  const dining=getDiningCopy(locale);
   const [filter,setFilter]=useState(''), [after,setAfter]=useState(''), [reload,setReload]=useState(0);
   const [page,setPage]=useState({requests:[],nextCursor:null}), [loading,setLoading]=useState(true), [error,setError]=useState(false);
   const [selected,setSelected]=useState(''), [detail,setDetail]=useState(null), [detailError,setDetailError]=useState(false);
@@ -30,10 +75,18 @@ export default function RequestBoard({ scope = 'customer' }) {
   const [busy,setBusy]=useState(false), [actionError,setActionError]=useState('');
   const attempt=useRef(null), inFlight=useRef(false), mounted=useRef(true);
   const labels={ pending:msg('Pending'), reviewing:msg('In review'), responded:msg('Response sent'), closed:msg('Closed') };
-  const eventLabels={created:msg('Pending'),review:msg('In review'),respond:msg('Response sent'),close:msg('Closed'),assign:msg('Assign partner')};
+  const nextStep={ pending:msg('We have your request and will look at it shortly.'), reviewing:msg('We are checking availability and the details.'), responded:msg('We have answered by email or phone.'), closed:msg('This request is closed.') };
+  const eventLabels={created:msg('Pending'),review:msg('In review'),respond:msg('Response sent'),close:msg('Closed'),assign:msg('Assign partner'),withdraw:dining.withdraw};
   const refresh=()=>{setAfter('');setReload(value=>value+1);};
 
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
+  // Requests sent without signing in join this account when its email is confirmed (server-checked).
+  useEffect(()=>{
+    if(!userId||scope!=='customer')return;
+    let active=true;
+    api(userId,'/api/dashboard/requests/claim',{method:'POST'}).then(result=>{if(active&&(result.requests>0||result.plans>0))refresh();}).catch(()=>{});
+    return()=>{active=false;};
+  },[userId,scope]);
   useEffect(()=>{
     if(!userId)return;
     const controller=new AbortController();let active=true;
@@ -72,9 +125,10 @@ export default function RequestBoard({ scope = 'customer' }) {
   }
   const date=value=>new Intl.DateTimeFormat(locale,{dateStyle:'medium',timeZone:'America/New_York'}).format(new Date(value));
   if(!userId)return null;
-  return <section className="my-10 min-w-0 border-t border-villa-obsidian/20 pt-8" aria-label={msg('Requests')}>
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-      <h2 className="font-display text-3xl text-villa-charcoal">{msg('Requests')}</h2>
+  // `embedded`: inside a page that already heads the list (My Miami).
+  return <section className={embedded?'min-w-0 pb-8 pt-5':'my-10 min-w-0 border-t border-g1-rule pt-8'} aria-label={msg('Requests')}>
+    <div className={`mb-6 flex flex-wrap items-center gap-4 ${embedded?'justify-end':'justify-between'}`}>
+      {!embedded&&<h2 className="font-display text-3xl text-g1-ink">{msg('Requests')}</h2>}
       <div className="flex min-w-0 flex-wrap gap-2">
         <select aria-label={msg('Status')} className={input} value={filter} onChange={event=>{setFilter(event.target.value);setAfter('');setSelected('');}}>
           <option value="">{msg('All statuses')}</option>
@@ -83,27 +137,44 @@ export default function RequestBoard({ scope = 'customer' }) {
         <button type="button" className={button} onClick={refresh} disabled={loading}>{msg('Refresh')}</button>
       </div>
     </div>
-    {loading?<p role="status" className="py-8 text-villa-graphite">{msg('Loading...')}</p>:error?<p role="alert" className="py-8 text-villa-graphite">{msg('Unable to load requests.')}</p>:!page.requests.length?<p className="py-8 text-villa-graphite">{msg('No requests yet.')}</p>:<>
-      <table className="w-full table-fixed text-start text-sm text-villa-graphite">
-        <thead><tr className="border-b border-villa-obsidian/20 text-start"><th className="w-2/3 py-3 text-start font-medium">{msg('Requests')}</th><th className="py-3 text-start font-medium">{msg('Status')}</th></tr></thead>
-        <tbody>{page.requests.map(row=><tr key={row.id} className="border-b border-villa-obsidian/15 align-top">
-          <td className="py-4 pe-4 [overflow-wrap:anywhere]"><button type="button" className="text-start font-medium text-villa-obsidian underline decoration-villa-obsidian/25 underline-offset-4" onClick={()=>setSelected(row.id)} aria-expanded={selected===row.id}>{row.item_title||row.item_slug}</button>
-            <p className="mt-1 text-xs text-villa-ash">{row.id.slice(0,8)} · {date(row.created_at)}</p><p className="mt-2 text-sm">{row.dates}</p></td>
-          <td className="py-4 [overflow-wrap:anywhere]">{labels[row.status]||msg('Unknown')}</td>
+    {loading?<p role="status" className="py-8 text-g1-soft">{msg('Loading...')}</p>:error?<p role="alert" className="py-8 text-g1-soft">{msg('Unable to load requests.')}</p>:!page.requests.length?<p className="py-8 text-g1-soft">{msg('No requests yet.')}</p>:<>
+      <table className="w-full table-fixed text-start text-sm text-g1-soft">
+        <thead><tr className="border-b border-g1-rule text-start"><th className="w-2/3 py-3 text-start font-medium">{msg('Requests')}</th><th className="py-3 text-start font-medium">{msg('Status')}</th></tr></thead>
+        <tbody>{requestEntries(page.requests).map(entry=>entry.rows?<tr key={entry.plan} className="border-b border-g1-rule align-top" data-plan-row>
+          <td className="py-4 pe-4 [overflow-wrap:anywhere]"><p className="font-medium text-g1-ink">{msg('Plan')} · {entry.rows.length}</p>
+            <p className="mt-1 text-xs text-g1-soft">{entry.plan.slice(0,8)} · {date(entry.rows[0].created_at)}</p>
+            <StatusBar status={planStatus(entry.rows)} labels={labels} msg={msg}/>
+            <ul className="mt-2 grid gap-1.5">{entry.rows.map(row=><li key={row.id}><button type="button" className="text-start text-sm text-g1-ink underline decoration-g1-rule underline-offset-4" onClick={()=>setSelected(row.id)} aria-expanded={selected===row.id}>{row.item_title||row.item_slug}</button> <span className="text-xs text-g1-soft">· {labels[row.status]||msg('Unknown')}</span></li>)}</ul></td>
+          <td className="py-4 [overflow-wrap:anywhere]">{labels[planStatus(entry.rows)]||msg('Unknown')}</td>
+        </tr>:<tr key={entry.row.id} className="border-b border-g1-rule align-top">
+          <td className="py-4 pe-4 [overflow-wrap:anywhere]"><button type="button" className="text-start font-medium text-g1-ink underline decoration-g1-rule underline-offset-4" onClick={()=>setSelected(entry.row.id)} aria-expanded={selected===entry.row.id}>{entry.row.item_title||entry.row.item_slug}</button>
+            <p className="mt-1 text-xs text-g1-soft">{entry.row.id.slice(0,8)} · {date(entry.row.created_at)}</p><p className="mt-2 text-sm">{entry.row.dates}</p>
+            <StatusBar status={entry.row.status} labels={labels} msg={msg}/>
+            {entry.row.response&&<p className="mt-3 whitespace-pre-wrap text-sm text-g1-ink [overflow-wrap:anywhere]"><span className="text-g1-soft">{msg('Team reply')}:</span> {entry.row.response}</p>}</td>
+          <td className="py-4 [overflow-wrap:anywhere]">{labels[entry.row.status]||msg('Unknown')}</td>
         </tr>)}</tbody>
       </table>
       <div className="mt-4 flex flex-wrap gap-3">{after&&<button type="button" className={button} onClick={()=>setAfter('')}>{msg('Back')}</button>}{page.nextCursor&&<button type="button" className={button} onClick={()=>setAfter(page.nextCursor)}>{msg('Next page')}</button>}</div>
     </>}
-    {selected&&<div className="mt-8 min-w-0 border border-villa-obsidian/20 bg-white/40 p-4 sm:p-6">
-      <div className="mb-5 flex items-start justify-between gap-3"><h3 className="font-display text-2xl text-villa-charcoal">{msg('Details')}</h3><button type="button" className={button} disabled={busy} onClick={()=>setSelected('')}>{msg('Back')}</button></div>
+    {selected&&<div className="mt-8 min-w-0 border border-g1-rule bg-g1-card p-4 sm:p-6">
+      <div className="mb-5 flex items-start justify-between gap-3"><h3 className="font-display text-2xl text-g1-ink">{msg('Details')}</h3><button type="button" className={button} disabled={busy} onClick={()=>setSelected('')}>{msg('Back')}</button></div>
       {detailError?<p role="alert">{msg('Unable to load requests.')}</p>:!detail?<p role="status">{msg('Loading...')}</p>:<>
         <h4 className="text-lg font-medium [overflow-wrap:anywhere]">{detail.request.item_title}</h4>
         <p className="mt-2 text-sm [overflow-wrap:anywhere]">{detail.request.dates}</p>
         <p className="mt-3 text-sm">{msg('Status')}: {labels[detail.request.status]||msg('Unknown')}</p>
+        {STEPS.includes(detail.request.status)&&<StatusSteps status={detail.request.status} labels={labels} next={scope==='customer'?nextStep[detail.request.status]:''}/>}
+        {detail.plan&&<div className="my-4 grid gap-2 border-s-2 border-g1-rule ps-3 text-sm [overflow-wrap:anywhere]" data-plan-detail>
+          <p className="font-medium text-g1-ink">{msg('Plan')}</p>
+          <p>{msg('Dates')}: {detail.plan.start_date} → {detail.plan.end_date} · {msg('Guests')}: {detail.plan.guests}</p>
+          {detail.plan.note&&<p className="whitespace-pre-wrap">{msg('Wishes')}: {detail.plan.note}</p>}
+          <p className="mt-1 text-g1-soft">{msg('Items in this plan')}</p>
+          <ul className="grid gap-1">{detail.plan.items.map(item=><li key={item.id}>{item.id===selected?<span className="font-medium text-g1-ink">{item.item_title}</span>:<button type="button" className="text-start underline decoration-g1-rule underline-offset-4" onClick={()=>setSelected(item.id)}>{item.item_title}</button>} · {labels[item.status]||msg('Unknown')}</li>)}</ul>
+        </div>}
+        {detail.request.hospitality&&<div className="my-4 grid gap-2 text-sm">{detail.request.status!=='closed'&&<p>{dining.pending}</p>}{detail.request.hospitality.note&&<p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{detail.request.hospitality.note}</p>}{scope==='customer'&&detail.request.status!=='closed'&&<button type="button" className={button+' w-fit'} disabled={busy} onClick={()=>command('withdraw')}>{dining.withdraw}</button>}</div>}
         {scope!=='customer'&&<div className="my-4 grid gap-2 text-sm [overflow-wrap:anywhere]"><p>{copy.name}: {detail.request.client_name}</p><p>{copy.email}: {detail.request.client_email}</p><p>{copy.phone}: {detail.request.client_phone}</p></div>}
         <h4 className="mb-3 mt-6 font-medium">{msg('History')}</h4>
-        <ol className="grid gap-3 border-s border-villa-obsidian/20 ps-4">{detail.events.map(event=><li key={event.id} className="text-sm"><p>{eventLabels[event.event_type]||msg('Unknown')} · {date(event.created_at)}</p>{event.reply&&<p className="mt-1 whitespace-pre-wrap [overflow-wrap:anywhere]">{event.reply}</p>}</li>)}</ol>
-        {scope!=='customer'&&detail.request.status!=='closed'&&<div className="mt-6 grid gap-4 border-t border-villa-obsidian/20 pt-5">
+        <ol className="grid gap-3 border-s border-g1-rule ps-4">{detail.events.map(event=><li key={event.id} className="text-sm"><p>{eventLabels[event.event_type]||msg('Unknown')} · {date(event.created_at)}</p>{event.reply&&<p className="mt-1 whitespace-pre-wrap [overflow-wrap:anywhere]">{event.reply}</p>}</li>)}</ol>
+        {scope!=='customer'&&detail.request.status!=='closed'&&<div className="mt-6 grid gap-4 border-t border-g1-rule pt-5">
           {scope==='admin'&&<div className="flex min-w-0 flex-wrap gap-2"><select aria-label={msg('Assign partner')} className={`${input} max-w-full flex-1`} value={partner} onChange={event=>setPartner(event.target.value)} disabled={busy}><option value="">{msg('Unassigned')}</option>{partners.map(item=><option key={item.id} value={item.id}>{item.company_name||item.name}</option>)}</select><button type="button" className={button} onClick={()=>command('assign')} disabled={busy||partner===(detail.request.assigned_partner_id||'')}>{msg('Save')}</button></div>}
           <form onSubmit={event=>{event.preventDefault();command('respond');}} className="grid gap-3"><label className="grid gap-2 text-sm">{msg('Response')}<textarea className={`${input} min-h-[110px] w-full resize-y`} required maxLength={2000} value={reply} onChange={event=>setReply(event.target.value)} disabled={busy}/></label><button className={`${button} w-fit`} type="submit" disabled={busy||!reply.trim()}>{msg('Send response')}</button></form>
           {scope==='admin'&&<div className="flex flex-wrap gap-3">{detail.request.status==='pending'&&<button type="button" className={button} onClick={()=>command('review')} disabled={busy}>{msg('Start review')}</button>}<button type="button" className={button} onClick={()=>command('close')} disabled={busy}>{msg('Close request')}</button></div>}
@@ -122,5 +193,27 @@ export function NotificationSummary() {
     api(auth.session.id,'/api/dashboard/notifications').then(value=>{if(active)setData(value);}).catch(()=>{if(active)setFailed(true);});
     return()=>{active=false;};
   },[auth?.session?.id,auth?.session?.role]);
-  return <section className="my-8 border-t border-villa-obsidian/20 pt-6 text-sm"><h2 className="mb-4 font-display text-2xl">{msg('Notifications')}</h2>{failed?<p role="alert">{msg('Unable to load requests.')}</p>:!data?<p role="status">{msg('Loading...')}</p>:<div className="flex flex-wrap gap-x-8 gap-y-3"><p>{msg('Telegram')}: {data.channels.telegram?msg('Configured'):msg('Not configured')}</p><p>{msg('Email')}: {data.channels.email?msg('Configured'):msg('Not configured')}</p><p>{msg('Queued')}: {data.counts.pending+data.counts.leased}</p><p>{msg('Sent')}: {data.counts.sent}</p><p>{msg('Failed')}: {data.counts.failed}</p></div>}</section>;
+  return <section className="my-8 border-t border-g1-rule pt-6 text-sm"><h2 className="mb-4 font-display text-2xl">{msg('Notifications')}</h2>{failed?<p role="alert">{msg('Unable to load requests.')}</p>:!data?<p role="status">{msg('Loading...')}</p>:<div className="flex flex-wrap gap-x-8 gap-y-3"><p>{msg('Telegram')}: {data.channels.telegram?msg('Configured'):msg('Not configured')}</p><p>{msg('Email')}: {data.channels.email?msg('Configured'):msg('Not configured')}</p><p>{msg('Queued')}: {data.counts.pending+data.counts.leased}</p><p>{msg('Sent')}: {data.counts.sent}</p><p>{msg('Failed')}: {data.counts.failed}</p></div>}</section>;
+}
+
+// Reuses the existing authenticated dashboard transport and protected admin scope.
+export function DiningOverview() {
+ const auth=useAuth(),locale=useLocale(),msg=useSavedText(),copy=getDiningCopy(locale);
+ const [overview,setOverview]=useState(null),[failed,setFailed]=useState(false),[editing,setEditing]=useState(''),[revision,setRevision]=useState(0);
+ const editorCopy=getDiningEditorCopy(locale);
+ const id=auth?.session?.id;
+ useEffect(()=>{
+  if(!id||auth.session.role!=='admin')return;
+  let active=true;
+  api(id,'/api/dashboard/dining').then(result=>{if(active)setOverview(result);}).catch(()=>{if(active)setFailed(true);});
+  return()=>{active=false;};
+ },[id,auth?.session?.role,revision]);
+ if(auth?.session?.role!=='admin')return null;
+ return <section className="my-10 border-t border-g1-rule pt-8"><h2 className="mb-5 font-display text-3xl">{copy.providers}</h2>
+  {failed?<p role="alert">{msg('Unable to load requests.')}</p>:!overview?<p role="status">{msg('Loading...')}</p>:<>
+   <ul className="grid gap-3 sm:grid-cols-2">{overview.providers.filter(item=>item.id!=='venue').map(item=><li key={item.id} className="border border-g1-rule p-4"><a href={item.docs} target="_blank" rel="noopener noreferrer" className="font-medium underline">{item.name}</a><p className="mt-2 text-sm">{copy.unverified}</p></li>)}</ul>
+   {overview.headoutSandboxEnabled&&<HeadoutPreview key={id} locale={locale} read={(path,options)=>api(id,path,options)}/>}
+   <div className="mt-6 grid gap-4">{overview.catalogue.map(venue=><div key={venue.id} className="grid min-w-0 gap-2 border-t border-g1-rule pt-4 text-sm"><a className="font-medium underline" href={'/restaurants-nightlife/'+venue.slug}>{venue.name}</a><p>{venue.status==='verified'?venue.verifiedOn:copy.held}</p>{!venue.photographyLicensed&&<p>{copy.photo}</p>}{venue.sources.map(source=><a className="break-all underline" key={source} href={source} target="_blank" rel="noopener noreferrer">{new URL(source).hostname}</a>)}{overview.editorEnabled&&<button type="button" className={button+' w-fit'} aria-expanded={editing===venue.slug} onClick={()=>setEditing(current=>current===venue.slug?'':venue.slug)}>{editorCopy.edit}: {venue.name}</button>}{editing===venue.slug&&<VenueEditor key={id+':'+venue.slug} slug={venue.slug} locale={locale} read={(path,options)=>api(id,path,options)} onPublished={()=>setRevision(value=>value+1)}/>}</div>)}</div>
+  </>}
+ </section>;
 }

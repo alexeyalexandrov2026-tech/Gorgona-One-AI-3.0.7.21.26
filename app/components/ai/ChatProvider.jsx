@@ -1,7 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { matchActionCards, matchSuggestions } from '../../../lib/aiSuggestions';
+import { conversationNavigation } from '../../../lib/ai/conversation.mjs';
+import { chatSnapshot, planSnapshot } from '../../../lib/ai/session.mjs';
+import {chatPayload} from '../../../lib/ai/chatRequest.mjs';
 import { useLocale } from '../LocaleProvider';
 import { unavailableReply } from '../../../lib/ai/locale';
 
@@ -46,10 +48,13 @@ const NOOP = {
   messages: [],
   cards: [],
   suggestions: [],
+  plan: null,
   isLoading: false,
   hydrated: false,
   send() {},
-  reset() {}
+  reset() {},
+  updatePlan() {},
+  clearPlan() {}
 };
 
 export function ChatProvider({ children }) {
@@ -60,6 +65,9 @@ export function ChatProvider({ children }) {
   const [messages, setMessages] = useState([]);
   const [cards, setCards] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  // Catalogue items for a multi-section request (lib/ai/plan.mjs) and the
+  // guest edits to them. A reply without a plan keeps the current one.
+  const [plan, setPlan] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
@@ -68,17 +76,17 @@ export function ChatProvider({ children }) {
   const sessionIdRef = useRef(null);
   // Guards against overlapping sends racing each other's results.
   const inFlightRef = useRef(false);
+  const operationRef = useRef(null), generationRef = useRef(0);
+  useEffect(()=>()=>{generationRef.current++;operationRef.current?.abort();},[]);
 
   // Restore the thread on mount.
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const data = JSON.parse(raw);
-        if (Array.isArray(data.messages)) setMessages(data.messages);
-        if (Array.isArray(data.cards)) setCards(data.cards);
-        if (Array.isArray(data.suggestions)) setSuggestions(data.suggestions);
-        if (typeof data.sessionId === 'string') sessionIdRef.current = data.sessionId;
+        const data = chatSnapshot(JSON.parse(raw));
+        setMessages(data.messages);setCards(data.cards);setSuggestions(data.suggestions);setPlan(planSnapshot(JSON.parse(raw).plan));
+        sessionIdRef.current = data.sessionId;
       }
     } catch {
       /* malformed or blocked storage - start fresh */
@@ -92,16 +100,16 @@ export function ChatProvider({ children }) {
     try {
       sessionStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ messages, cards, suggestions, sessionId: sessionIdRef.current })
+        JSON.stringify({ messages, cards, suggestions, plan, sessionId: sessionIdRef.current })
       );
     } catch {
       /* storage full or blocked - non-fatal, the thread just won't survive a reload */
     }
-  }, [messages, cards, suggestions, hydrated]);
+  }, [messages, cards, suggestions, plan, hydrated]);
 
   const send = useCallback(async (rawText) => {
     const content = String(rawText || '').trim();
-    if (!content || inFlightRef.current) return;
+    if (!hydrated || !content || content.length>4000 || inFlightRef.current) return;
 
     inFlightRef.current = true;
     const nextMessages = [...messages, { role: 'user', content }].slice(-MAX_MESSAGES);
@@ -113,24 +121,21 @@ export function ChatProvider({ children }) {
     // A stalled request must never leave the typing indicator spinning
     // forever. Local models are slow, so the budget is generous.
     const controller = new AbortController();
+    const generation=++generationRef.current;operationRef.current=controller;
     const timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
 
     let answer = unavailableReply(locale);
     // Computed up front from the guest's own words: if the request never
     // reaches the server, these are the cards the guest still gets. The
     // matcher is multilingual, so this holds for any of the 16 UI languages.
-    let nextCards = matchActionCards(content, { locale });
-    let nextSuggestions = matchSuggestions(content, { locale });
+    const navigation=conversationNavigation(nextMessages,{locale});
+    let nextCards=navigation.cards,nextSuggestions=navigation.suggestions,nextPlan=null;
 
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: nextMessages,
-          locale,
-          ...(sessionIdRef.current ? { sessionId: sessionIdRef.current } : {})
-        }),
+        body: JSON.stringify(chatPayload(nextMessages,{locale,sessionId:sessionIdRef.current})),
         signal: controller.signal
       });
 
@@ -144,36 +149,38 @@ export function ChatProvider({ children }) {
       // The server ran the same matcher with the reply text as well, so its
       // answer is at least as good as the local one - but only take it if it
       // actually produced something.
-      if (Array.isArray(data?.cards) && data.cards.length) nextCards = data.cards;
-      if (Array.isArray(data?.suggestions) && data.suggestions.length) nextSuggestions = data.suggestions;
-      if (typeof data?.sessionId === 'string' && data.sessionId) sessionIdRef.current = data.sessionId;
+      const safe=chatSnapshot(data);
+      if (safe.cards.length) nextCards = safe.cards;
+      if (safe.suggestions.length) nextSuggestions = safe.suggestions;
+      nextPlan = planSnapshot(data?.plan);
+      if (generation===generationRef.current&&safe.sessionId)sessionIdRef.current=safe.sessionId;
     } catch {
       /* aborted, offline, or blocked - the locally matched cards stand */
     } finally {
       clearTimeout(timeout);
     }
 
-    setMessages((prev) => {
-      // If the backend is offline and we only have the canned error line, suppress the text.
-      // The local intent matcher still provides navigation cards, so the widget
-      // degrades gracefully into a silent smart-navigation bar instead of displaying an error.
-      if (answer === unavailableReply(locale)) {
-        return prev;
-      }
-      return [...prev, { role: 'assistant', content: answer }].slice(-MAX_MESSAGES);
-    });
+    if(generation!==generationRef.current)return;
+    operationRef.current=null;
+    // A real outage must be visible. Navigation remains available alongside
+    // the localized unavailable response; never impersonate a working model.
+    setMessages(prev=>[...prev,{role:'assistant',content:answer}].slice(-MAX_MESSAGES));
     setCards(nextCards);
     setSuggestions(nextSuggestions);
+    if (nextPlan) setPlan(nextPlan);
     setIsLoading(false);
     inFlightRef.current = false;
 
     return answer;
-  }, [messages, locale]);
+  }, [messages, locale, hydrated]);
 
   const reset = useCallback(() => {
+    generationRef.current++;operationRef.current?.abort();operationRef.current=null;
+    inFlightRef.current=false;setIsLoading(false);
     setMessages([]);
     setCards([]);
     setSuggestions([]);
+    setPlan(null);
     sessionIdRef.current = null;
     try {
       sessionStorage.removeItem(STORAGE_KEY);
@@ -182,9 +189,13 @@ export function ChatProvider({ children }) {
     }
   }, []);
 
+  // Every edit passes back through the same sanitizer as storage and the server.
+  const updatePlan = useCallback((change) => setPlan((current) => (current ? planSnapshot(change(current)) : current)), []);
+  const clearPlan = useCallback(() => setPlan(null), []);
+
   const value = useMemo(
-    () => ({ messages, cards, suggestions, isLoading, hydrated, send, reset }),
-    [messages, cards, suggestions, isLoading, hydrated, send, reset]
+    () => ({ messages, cards, suggestions, plan, isLoading, hydrated, send, reset, updatePlan, clearPlan }),
+    [messages, cards, suggestions, plan, isLoading, hydrated, send, reset, updatePlan, clearPlan]
   );
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

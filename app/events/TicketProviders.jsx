@@ -23,7 +23,7 @@ export function TicketProviders({ categoryLabel, category }) {
           TicketNetwork
         </LocalizedElement>
       </div>
-      <p className="mt-5 text-xs leading-relaxed text-villa-graphite"><LocalizedText source="TicketNetwork is our affiliate partner; we may earn a commission through its links. Checkout opens on TicketNetwork." /></p>
+      <p className="mt-5 text-xs leading-relaxed text-villa-graphite"><LocalizedText source="Checkout opens on TicketNetwork." /></p>
     </section>
   );
 }

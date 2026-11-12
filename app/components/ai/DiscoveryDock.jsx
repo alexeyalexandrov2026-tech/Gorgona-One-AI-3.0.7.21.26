@@ -27,6 +27,8 @@ export default function AIDock() {
     <>
       <button
         type="button"
+        // The iOS app has its own Concierge tab; see data-app-hidden in globals.css.
+        data-app-hidden=""
         className={`aidock ${roomOpen ? "is-open" : ''}`}
         data-ai-theme={theme}
         onClick={toggleRoom}
@@ -52,13 +54,13 @@ export default function AIDock() {
           position: fixed; right: 20px; bottom: 96px; z-index: 55;
           display: inline-flex; align-items: center; gap: 9px;
           padding: 10px 16px 10px 11px; border-radius: 999px; cursor: pointer;
-          font-family: "Space Mono", ui-monospace, monospace; font-size: 11px;
+          font-family: var(--font-g1-mono), ui-monospace, monospace; font-size: 11px;
           letter-spacing: 0.16em; text-transform: uppercase;
           backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
           transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
         }
         .aidock[data-ai-theme="dark"] {
-          background: rgba(26, 22, 15, 0.7); border: 1px solid rgba(216, 180, 120, 0.4); color: #ece4d4;
+          background: var(--g1-card); border: 1px solid var(--g1-rule); color: var(--g1-ink);
           box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.7), 0 0 22px rgba(216, 180, 120, 0.14);
         }
         .aidock[data-ai-theme="light"] {

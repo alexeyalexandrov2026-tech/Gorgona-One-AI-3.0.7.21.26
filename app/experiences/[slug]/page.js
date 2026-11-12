@@ -1,45 +1,5 @@
-import { savedListing, savedSource, savedPrice } from '../../../lib/savedCopy';
-import { LocalizedListing } from '../../components/LocalizedText';
-import { notFound } from 'next/navigation';
-import { getExperienceBySlug } from '../../../lib/experiencesData';
-import { getServerTranslation } from '../../../lib/serverLocale';
-import BookingForm from '../../components/BookingForm';
-
-export const dynamic = 'force-dynamic';
-
-export default async function ExperienceDetailPage({ params }) {
-  params = await params;
-  const experience = getExperienceBySlug(params.slug);
-
-  if (!experience) {
-    notFound();
-  }
-
-  const { t, locale } = await getServerTranslation();
-
-  return (
-    <main className="flex-1 py-10">
-      <div className="market-shell overflow-hidden rounded-[2rem]">
-        <img src={experience.image} alt={savedListing(locale, experience, 'title')} className="h-72 w-full object-cover" />
-        <div className="p-8">
-          <p className="market-pill">{experience.location}</p>
-          <h1 className="market-title mt-4">{savedListing(locale, experience, 'title')}</h1>
-          <p className="market-subtitle"><LocalizedListing itemId={experience.id} source={experience.description} /></p>
-          <div className="mt-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="market-card rounded-[1.5rem] p-6">
-              <div className="grid gap-4 text-sm text-zinc-300 sm:grid-cols-2">
-                <div><p className="text-zinc-500">{t.experiences.location}</p><p className="mt-1 text-white">{experience.location}</p></div>
-                <div><p className="text-zinc-500">{t.experiences.duration}</p><p className="mt-1 text-white">{savedSource(locale, experience.duration)}</p></div>
-                <div><p className="text-zinc-500">{t.experiences.price}</p><p className="mt-1 text-brand-gold">{savedPrice(locale, experience.price)}</p></div>
-              </div>
-            </div>
-            <div className="market-card rounded-[1.5rem] p-6">
-              <h2 className="text-xl font-semibold text-white">{t.experiences.book}</h2>
-              <BookingForm rentalSlug={experience.slug} rentalTitle={experience.title} kind="experience" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-  );
-}
+import {notFound} from 'next/navigation';
+import {getHeadoutCollection} from '../../../lib/headoutCatalog.mjs';
+import HeadoutCollection from '../HeadoutCollection';
+export async function generateMetadata({params}){const {slug}=await params;const item=getHeadoutCollection(slug);return {title:item?item.title+' | MIAMI ELIO':'Experiences | MIAMI ELIO'};}
+export default async function ExperiencePage({params}){const {slug}=await params;const item=getHeadoutCollection(slug);if(!item)notFound();return <HeadoutCollection item={item}/>;}

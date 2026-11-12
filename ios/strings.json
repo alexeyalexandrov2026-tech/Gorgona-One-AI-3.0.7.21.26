@@ -1,0 +1,296 @@
+{
+  "_readme": [
+    "Source of every string the native iOS screens show.",
+    "Run `node ios/scripts/build-strings.mjs` after editing; it writes ios/MiamiElio/Resources/<language>.lproj/.",
+    "An entry takes its 16 translations from the website wherever the website already has the phrase:",
+    "  site.lib      - a path in lib/i18n.js           (e.g. nav.yachts)",
+    "  site.catalog  - a key in i18n/locales/<lang>.js (e.g. ui.d8b8392e2c542950)",
+    "  site.starter  - an index into STARTER_PROMPTS in lib/ai/conciergePrompts.js",
+    "Only phrases the website does not have carry their own `translations` here."
+  ],
+  "localizable": {
+    "tab.home": { "en": "Home", "site": { "lib": "nav.home" } },
+    "tab.concierge": { "en": "Concierge", "site": { "catalog": "home.conciergeEyebrow" } },
+    "tab.search": { "en": "Search", "site": { "lib": "buttons.search" } },
+    "tab.account": { "en": "My Miami", "site": { "catalog": "ui.22a4b602f7b0fbd8" } },
+
+    "concierge.title": { "en": "Your private concierge", "site": { "lib": "ai.conciergeTitle" } },
+    "concierge.placeholder": { "en": "Ask Miami Elio AI", "site": { "lib": "ai.askPlaceholder" } },
+    "concierge.send": { "en": "Ask", "site": { "lib": "ai.ask" } },
+    "concierge.new": { "en": "New conversation", "site": { "lib": "ai.newConversation" } },
+    "concierge.open": { "en": "Open", "site": { "lib": "ai.open" } },
+    "concierge.starter.1": { "en": "Plan a weekend in Miami", "site": { "starter": 0 } },
+    "concierge.starter.2": { "en": "Find a yacht for 8 guests", "site": { "starter": 1 } },
+    "concierge.starter.3": { "en": "Book a table for a birthday dinner", "site": { "starter": 2 } },
+
+    "favorite.save": { "en": "Save to My Miami", "site": { "catalog": "ui.07bccc90d8b508ba" } },
+    "favorite.remove": { "en": "Remove from My Miami", "site": { "catalog": "ui.43c5a322e4b76af6" } },
+    "plan.title": { "en": "Your plan", "site": { "catalog": "ui.d9ab76c650a66141" } },
+    "plan.lede": { "en": "Real options from our catalogue. Swap or remove any of them, then send one request.", "site": { "catalog": "ui.a98b932a01547844" } },
+    "plan.another": { "en": "Another option", "site": { "catalog": "ui.8b18e96b46316403" } },
+    "plan.remove": { "en": "Remove", "site": { "catalog": "ui.c3812fc4acb861d5" } },
+    "plan.addBack": { "en": "Add back: {section}", "site": { "catalog": "ui.b3fe2fa8896a8035" } },
+    "plan.empty": { "en": "Add at least one item to the plan.", "site": { "catalog": "ui.db40d55f417d60ca" } },
+    "plan.send": { "en": "Send one request for the whole plan", "site": { "catalog": "ui.1d45cff1fd4f6c32" } },
+    "plan.firstDay": { "en": "First day", "site": { "catalog": "ui.6c0f6d250287a580" } },
+    "plan.lastDay": { "en": "Last day", "site": { "catalog": "ui.a4e24bc476c85773" } },
+    "plan.guests": { "en": "Guests", "site": { "catalog": "ui.3c8e0fde6fcc71e0" } },
+    "plan.dinnerTime": { "en": "Dinner time", "site": { "catalog": "ui.020acef4558ab703" } },
+    "plan.name": { "en": "Name", "site": { "catalog": "ui.dcd1d5223f73b3a9" } },
+    "plan.phone": { "en": "Phone", "site": { "catalog": "ui.63dceb8800b2dd4a" } },
+    "plan.email": { "en": "Email", "site": { "catalog": "ui.969ccbd3cf6300ec" } },
+    "plan.note": { "en": "Wishes (optional)", "site": { "catalog": "ui.4abcf747208336ef" } },
+    "plan.badDates": { "en": "The last day cannot be before the first day.", "site": { "catalog": "ui.14918c10a5fc693a" } },
+    "plan.check": { "en": "Please check the dates and contact details.", "site": { "catalog": "ui.2cafed9173756396" } },
+    "plan.failed": { "en": "The request did not go through. Please try again.", "site": { "catalog": "ui.603d1892a60c7020" } },
+    "plan.sending": { "en": "Sending…", "site": { "catalog": "ui.b8ed5279e897be5d" } },
+    "plan.submit": { "en": "Send request", "site": { "catalog": "ui.3a69f897298e727e" } },
+    "plan.charge": { "en": "Nothing is charged now. Our team confirms availability and prices with you first.", "site": { "catalog": "ui.af2a024dbf729c62" } },
+    "plan.sent": { "en": "Plan request sent", "site": { "catalog": "ui.3b5f28e944e7a0ef" } },
+    "plan.sentText": { "en": "Items in the request: {count}. Our team will contact you shortly.", "site": { "catalog": "ui.414b208e26059505" } },
+    "plan.new": { "en": "Start a new plan", "site": { "catalog": "ui.221ad00740494575" } },
+
+    "search.empty": { "en": "No results found for your search.", "site": { "lib": "search.noResults" } },
+    "search.popular": { "en": "Popular Searches", "site": { "lib": "buttons.popularSearches" } },
+
+    "world.yachts": { "en": "Yachts", "site": { "lib": "nav.yachts" } },
+    "world.cars": { "en": "Cars", "site": { "lib": "nav.cars" } },
+    "world.villas": { "en": "Villas", "site": { "lib": "nav.villas" } },
+    "world.events": { "en": "Events", "site": { "lib": "nav.events" } },
+    "world.travel": { "en": "Travel", "site": { "lib": "nav.travel" } },
+    "world.jets": { "en": "Private Jets", "site": { "lib": "nav.privateJets" } },
+    "world.dining": { "en": "Restaurants & nightlife", "site": { "lib": "search.popular.restaurantsNightlife" } },
+    "world.experiences": { "en": "Miami experiences", "site": { "lib": "search.popular.miamiExperiences" } },
+
+    "error.generic": { "en": "Something went wrong", "site": { "catalog": "ui.ab827e3fe17da220" } },
+    "action.retry": { "en": "Try again", "site": { "catalog": "ui.d8b8392e2c542950" } },
+    "action.cancel": { "en": "Cancel", "site": { "catalog": "ui.19766ed6ccb2f4a3" } },
+    "state.loading": { "en": "Loading...", "site": { "catalog": "ui.47d2a515ef2f05b8" } },
+
+    "action.ok": {
+      "en": "OK",
+      "translations": {
+        "ru": "ОК", "es": "Aceptar", "he": "אישור", "zh": "好", "pt": "OK", "uk": "ОК", "ja": "OK",
+        "ko": "확인", "de": "OK", "ar": "موافق", "tr": "Tamam", "fa": "تأیید", "it": "OK", "fr": "OK", "pl": "OK"
+      }
+    },
+    "offline.title": {
+      "en": "No internet connection",
+      "translations": {
+        "ru": "Нет подключения к интернету",
+        "es": "Sin conexión a internet",
+        "he": "אין חיבור לאינטרנט",
+        "zh": "没有网络连接",
+        "pt": "Sem ligação à internet",
+        "uk": "Немає підключення до інтернету",
+        "ja": "インターネットに接続されていません",
+        "ko": "인터넷에 연결되어 있지 않습니다",
+        "de": "Keine Internetverbindung",
+        "ar": "لا يوجد اتصال بالإنترنت",
+        "tr": "İnternet bağlantısı yok",
+        "fa": "اتصال اینترنت برقرار نیست",
+        "it": "Nessuna connessione a internet",
+        "fr": "Pas de connexion internet",
+        "pl": "Brak połączenia z internetem"
+      }
+    },
+    "offline.message": {
+      "en": "Check your connection and try again.",
+      "translations": {
+        "ru": "Проверьте подключение и попробуйте снова.",
+        "es": "Comprueba tu conexión e inténtalo de nuevo.",
+        "he": "בדקו את החיבור ונסו שוב.",
+        "zh": "请检查网络连接后重试。",
+        "pt": "Verifique a ligação e tente novamente.",
+        "uk": "Перевірте підключення та спробуйте ще раз.",
+        "ja": "接続を確認して、もう一度お試しください。",
+        "ko": "연결 상태를 확인한 후 다시 시도해 주세요.",
+        "de": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+        "ar": "تحقق من اتصالك ثم حاول مرة أخرى.",
+        "tr": "Bağlantınızı kontrol edip tekrar deneyin.",
+        "fa": "اتصال خود را بررسی کنید و دوباره تلاش کنید.",
+        "it": "Controlla la connessione e riprova.",
+        "fr": "Vérifiez votre connexion et réessayez.",
+        "pl": "Sprawdź połączenie i spróbuj ponownie."
+      }
+    },
+
+    "season.title": { "en": "Miami season", "site": { "catalog": "home.season" } },
+    "season.lede": { "en": "The weeks that sell out first. Plan them before everyone else does.", "site": { "catalog": "home.seasonSub" } },
+    "season.plan": { "en": "Plan this week", "site": { "catalog": "home.plan" } },
+    "season.ask": { "en": "{name}, {dates}. Help me plan it: a car, a place to stay, dinner and tickets.", "site": { "catalog": "home.seasonAsk" } },
+    "season.onNow": { "en": "On now", "site": { "catalog": "home.onNow" } },
+    "season.tomorrow": { "en": "Tomorrow", "site": { "catalog": "home.tomorrow" } },
+    "season.empty": { "en": "Next season’s dates are on their way.", "site": { "catalog": "home.seasonEmpty" } },
+    "season.remind": {
+      "en": "Remind me",
+      "translations": {
+        "ru": "Напомнить", "es": "Recordármelo", "he": "תזכירו לי", "zh": "提醒我", "pt": "Lembrar-me", "uk": "Нагадати",
+        "ja": "リマインダーを設定", "ko": "알림 받기", "de": "Erinnern", "ar": "ذكّرني", "tr": "Hatırlat", "fa": "یادآوری کن",
+        "it": "Ricordamelo", "fr": "Me le rappeler", "pl": "Przypomnij mi"
+      }
+    },
+    "season.reminderOff": {
+      "en": "Cancel the reminder",
+      "translations": {
+        "ru": "Отменить напоминание", "es": "Cancelar el recordatorio", "he": "ביטול התזכורת", "zh": "取消提醒",
+        "pt": "Cancelar o lembrete", "uk": "Скасувати нагадування", "ja": "リマインダーを取り消す", "ko": "알림 취소",
+        "de": "Erinnerung aufheben", "ar": "إلغاء التذكير", "tr": "Hatırlatmayı iptal et", "fa": "لغو یادآوری",
+        "it": "Annulla il promemoria", "fr": "Annuler le rappel", "pl": "Anuluj przypomnienie"
+      }
+    },
+    "season.reminderOn": {
+      "en": "Reminder on {date}",
+      "translations": {
+        "ru": "Напомним {date}",
+        "es": "Te lo recordaremos el {date}",
+        "he": "נזכיר לך ב־{date}",
+        "zh": "将于{date}提醒您",
+        "pt": "Vamos lembrar em {date}",
+        "uk": "Нагадаємо {date}",
+        "ja": "{date}にお知らせします",
+        "ko": "{date}에 알려 드릴게요",
+        "de": "Erinnerung am {date}",
+        "ar": "سنذكّرك في {date}",
+        "tr": "{date} tarihinde hatırlatacağız",
+        "fa": "در {date} یادآوری می‌کنیم",
+        "it": "Te lo ricorderemo il {date}",
+        "fr": "Rappel le {date}",
+        "pl": "Przypomnimy {date}"
+      }
+    },
+    "season.blocked": {
+      "en": "Notifications for Miami Elio are off. Turn them on in Settings to get reminders.",
+      "translations": {
+        "ru": "Уведомления Miami Elio выключены. Включите их в Настройках, чтобы получать напоминания.",
+        "es": "Las notificaciones de Miami Elio están desactivadas. Actívalas en Ajustes para recibir recordatorios.",
+        "he": "ההתראות של Miami Elio כבויות. הפעילו אותן בהגדרות כדי לקבל תזכורות.",
+        "zh": "Miami Elio 的通知已关闭。请在“设置”中开启，以便接收提醒。",
+        "pt": "As notificações do Miami Elio estão desativadas. Ative-as em Ajustes para receber lembretes.",
+        "uk": "Сповіщення Miami Elio вимкнено. Увімкніть їх у Параметрах, щоб отримувати нагадування.",
+        "ja": "Miami Elio の通知はオフになっています。リマインダーを受け取るには「設定」でオンにしてください。",
+        "ko": "Miami Elio 알림이 꺼져 있습니다. 알림을 받으려면 설정에서 켜 주세요.",
+        "de": "Mitteilungen von Miami Elio sind deaktiviert. Aktivieren Sie sie in den Einstellungen, um Erinnerungen zu erhalten.",
+        "ar": "إشعارات Miami Elio متوقفة. فعّلها من الإعدادات لتصلك التذكيرات.",
+        "tr": "Miami Elio bildirimleri kapalı. Hatırlatma almak için Ayarlar'dan açın.",
+        "fa": "اعلان‌های Miami Elio خاموش است. برای دریافت یادآوری‌ها آن‌ها را در تنظیمات روشن کنید.",
+        "it": "Le notifiche di Miami Elio sono disattivate. Attivale in Impostazioni per ricevere i promemoria.",
+        "fr": "Les notifications de Miami Elio sont désactivées. Activez-les dans Réglages pour recevoir les rappels.",
+        "pl": "Powiadomienia Miami Elio są wyłączone. Włącz je w Ustawieniach, aby otrzymywać przypomnienia."
+      }
+    },
+
+    "voice.speak": { "en": "Speak your request", "site": { "lib": "ai.speakRequest" } },
+    "voice.stop": { "en": "Stop listening", "site": { "lib": "ai.stopListening" } },
+    "voice.listening": { "en": "Listening", "site": { "lib": "ai.listening" } },
+    "voice.denied": {
+      "en": "To speak to the concierge, allow the microphone and speech recognition in Settings.",
+      "translations": {
+        "ru": "Чтобы говорить с консьержем, разрешите микрофон и распознавание речи в Настройках.",
+        "es": "Para hablar con el conserje, permite el micrófono y el reconocimiento de voz en Ajustes.",
+        "he": "כדי לדבר עם הקונסיירז', אפשרו גישה למיקרופון ולזיהוי דיבור בהגדרות.",
+        "zh": "如需与礼宾对话，请在“设置”中允许使用麦克风和语音识别。",
+        "pt": "Para falar com o concierge, permita o microfone e o reconhecimento de fala em Ajustes.",
+        "uk": "Щоб говорити з консьєржем, дозвольте мікрофон і розпізнавання мовлення в Параметрах.",
+        "ja": "コンシェルジュに話しかけるには、「設定」でマイクと音声認識を許可してください。",
+        "ko": "컨시어지에게 말하려면 설정에서 마이크와 음성 인식을 허용해 주세요.",
+        "de": "Um mit dem Concierge zu sprechen, erlauben Sie Mikrofon und Spracherkennung in den Einstellungen.",
+        "ar": "للتحدث إلى الكونسيرج، اسمح باستخدام الميكروفون والتعرّف على الكلام من الإعدادات.",
+        "tr": "Konsiyerjle konuşmak için Ayarlar'da mikrofona ve konuşma tanımaya izin verin.",
+        "fa": "برای صحبت با کانسیرژ، دسترسی به میکروفون و تشخیص گفتار را در تنظیمات مجاز کنید.",
+        "it": "Per parlare con il concierge, consenti il microfono e il riconoscimento vocale in Impostazioni.",
+        "fr": "Pour parler au concierge, autorisez le micro et la reconnaissance vocale dans Réglages.",
+        "pl": "Aby mówić do konsjerża, zezwól na mikrofon i rozpoznawanie mowy w Ustawieniach."
+      }
+    },
+    "voice.unavailable": {
+      "en": "Voice input isn’t available for this language on this iPhone.",
+      "translations": {
+        "ru": "На этом iPhone голосовой ввод для этого языка недоступен.",
+        "es": "La entrada de voz no está disponible para este idioma en este iPhone.",
+        "he": "הקלט קולי אינו זמין לשפה זו במכשיר iPhone זה.",
+        "zh": "此 iPhone 不支持该语言的语音输入。",
+        "pt": "A entrada de voz não está disponível para este idioma neste iPhone.",
+        "uk": "На цьому iPhone голосове введення для цієї мови недоступне.",
+        "ja": "この iPhone では、この言語の音声入力を利用できません。",
+        "ko": "이 iPhone에서는 이 언어의 음성 입력을 사용할 수 없습니다.",
+        "de": "Spracheingabe ist für diese Sprache auf diesem iPhone nicht verfügbar.",
+        "ar": "الإدخال الصوتي غير متاح لهذه اللغة على هذا الـ iPhone.",
+        "tr": "Bu iPhone'da bu dil için sesli giriş kullanılamıyor.",
+        "fa": "ورودی صوتی برای این زبان در این iPhone در دسترس نیست.",
+        "it": "L’input vocale non è disponibile per questa lingua su questo iPhone.",
+        "fr": "La saisie vocale n’est pas disponible pour cette langue sur cet iPhone.",
+        "pl": "Wprowadzanie głosowe nie jest dostępne dla tego języka na tym iPhonie."
+      }
+    },
+    "action.settings": {
+      "en": "Settings",
+      "translations": {
+        "ru": "Настройки", "es": "Ajustes", "he": "הגדרות", "zh": "设置", "pt": "Ajustes", "uk": "Параметри", "ja": "設定",
+        "ko": "설정", "de": "Einstellungen", "ar": "الإعدادات", "tr": "Ayarlar", "fa": "تنظیمات", "it": "Impostazioni", "fr": "Réglages", "pl": "Ustawienia"
+      }
+    }
+  },
+  "infoPlist": {
+    "NSCameraUsageDescription": {
+      "en": "Miami Elio uses the camera when you choose to take a photo for a listing or your profile.",
+      "translations": {
+        "ru": "Miami Elio использует камеру, когда вы решаете сделать фото для объявления или профиля.",
+        "es": "Miami Elio usa la cámara cuando decides tomar una foto para un anuncio o tu perfil.",
+        "he": "Miami Elio משתמשת במצלמה כשאתם בוחרים לצלם תמונה למודעה או לפרופיל.",
+        "zh": "当您选择为房源或个人资料拍照时，Miami Elio 会使用相机。",
+        "pt": "A Miami Elio usa a câmara quando decide tirar uma foto para um anúncio ou para o seu perfil.",
+        "uk": "Miami Elio використовує камеру, коли ви вирішуєте зробити фото для оголошення або профілю.",
+        "ja": "掲載情報やプロフィール用の写真を撮影するときに、Miami Elio はカメラを使用します。",
+        "ko": "등록 정보나 프로필에 사용할 사진을 촬영할 때 Miami Elio가 카메라를 사용합니다.",
+        "de": "Miami Elio verwendet die Kamera, wenn Sie ein Foto für ein Angebot oder Ihr Profil aufnehmen möchten.",
+        "ar": "يستخدم Miami Elio الكاميرا عندما تختار التقاط صورة لإعلان أو لملفك الشخصي.",
+        "tr": "Miami Elio, bir ilan veya profiliniz için fotoğraf çekmeyi seçtiğinizde kamerayı kullanır.",
+        "fa": "Miami Elio هنگامی از دوربین استفاده می‌کند که بخواهید برای یک آگهی یا نمایهٔ خود عکس بگیرید.",
+        "it": "Miami Elio usa la fotocamera quando scegli di scattare una foto per un annuncio o per il tuo profilo.",
+        "fr": "Miami Elio utilise l’appareil photo lorsque vous choisissez de prendre une photo pour une annonce ou votre profil.",
+        "pl": "Miami Elio używa aparatu, gdy chcesz zrobić zdjęcie do oferty lub swojego profilu."
+      }
+    },
+    "NSMicrophoneUsageDescription": {
+      "en": "Miami Elio uses the microphone when you speak a request to the concierge or record a video.",
+      "translations": {
+        "ru": "Miami Elio использует микрофон, когда вы диктуете запрос консьержу или записываете видео.",
+        "es": "Miami Elio usa el micrófono cuando dictas una solicitud al conserje o grabas un vídeo.",
+        "he": "Miami Elio משתמשת במיקרופון כשאתם מכתיבים בקשה לקונסיירז' או מקליטים וידאו.",
+        "zh": "当您向礼宾口述需求或录制视频时，Miami Elio 会使用麦克风。",
+        "pt": "A Miami Elio usa o microfone quando dita um pedido ao concierge ou grava um vídeo.",
+        "uk": "Miami Elio використовує мікрофон, коли ви диктуєте запит консьєржу або записуєте відео.",
+        "ja": "コンシェルジュへの依頼を音声で伝えるときや動画を撮影するときに、Miami Elio はマイクを使用します。",
+        "ko": "컨시어지에게 음성으로 요청하거나 동영상을 촬영할 때 Miami Elio가 마이크를 사용합니다.",
+        "de": "Miami Elio verwendet das Mikrofon, wenn Sie dem Concierge eine Anfrage diktieren oder ein Video aufnehmen.",
+        "ar": "يستخدم Miami Elio الميكروفون عندما تُملي طلبًا على الكونسيرج أو تسجّل فيديو.",
+        "tr": "Miami Elio, konsiyerje sesli bir istek ilettiğinizde veya video kaydettiğinizde mikrofonu kullanır.",
+        "fa": "Miami Elio هنگامی از میکروفون استفاده می‌کند که درخواستی را برای کانسیرژ بیان کنید یا ویدیو ضبط کنید.",
+        "it": "Miami Elio usa il microfono quando detti una richiesta al concierge o registri un video.",
+        "fr": "Miami Elio utilise le micro lorsque vous dictez une demande au concierge ou enregistrez une vidéo.",
+        "pl": "Miami Elio używa mikrofonu, gdy dyktujesz prośbę do konsjerża lub nagrywasz wideo."
+      }
+    },
+    "NSSpeechRecognitionUsageDescription": {
+      "en": "Miami Elio turns your spoken request into text for the concierge.",
+      "translations": {
+        "ru": "Miami Elio преобразует ваш голосовой запрос в текст для консьержа.",
+        "es": "Miami Elio convierte tu solicitud hablada en texto para el conserje.",
+        "he": "Miami Elio ממירה את הבקשה הקולית שלכם לטקסט עבור הקונסיירז'.",
+        "zh": "Miami Elio 会将您的语音需求转换为文字发送给礼宾。",
+        "pt": "A Miami Elio converte o seu pedido falado em texto para o concierge.",
+        "uk": "Miami Elio перетворює ваш голосовий запит на текст для консьєржа.",
+        "ja": "Miami Elio は音声による依頼をテキストに変換してコンシェルジュに伝えます。",
+        "ko": "Miami Elio가 음성 요청을 텍스트로 변환해 컨시어지에게 전달합니다.",
+        "de": "Miami Elio wandelt Ihre gesprochene Anfrage in Text für den Concierge um.",
+        "ar": "يحوّل Miami Elio طلبك المنطوق إلى نص للكونسيرج.",
+        "tr": "Miami Elio, sesli isteğinizi konsiyerj için metne dönüştürür.",
+        "fa": "Miami Elio درخواست گفتاری شما را برای کانسیرژ به متن تبدیل می‌کند.",
+        "it": "Miami Elio trasforma la tua richiesta vocale in testo per il concierge.",
+        "fr": "Miami Elio transforme votre demande vocale en texte pour le concierge.",
+        "pl": "Miami Elio zamienia Twoją wypowiedzianą prośbę na tekst dla konsjerża."
+      }
+    }
+  }
+}

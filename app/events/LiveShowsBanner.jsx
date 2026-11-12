@@ -118,7 +118,7 @@ export function LiveShowsBanner() {
 
       <div className="relative px-7 py-12 sm:px-11 sm:py-14 lg:px-14 lg:py-16">
         <p className="lux-eyebrow"><LocalizedText source="Live on stage" /></p>
-        <h3 className="mt-5 max-w-xl font-serif text-4xl italic leading-[1.02] text-white sm:text-5xl"><LocalizedText source="Concerts & {highlight}" values={{ highlight: <span className="text-brand-gold"><LocalizedText source="Live Shows" /></span> }} />
+        <h3 className="mt-5 max-w-xl font-g1display text-[clamp(2rem,3vw+1rem,3rem)] font-medium leading-[1.04] tracking-[-0.02em] text-white [text-wrap:balance]"><LocalizedText source="Concerts & {highlight}" values={{ highlight: <span className="text-brand-gold"><LocalizedText source="Live Shows" /></span> }} />
         </h3>
         <p className="mt-5 max-w-md text-sm leading-relaxed text-zinc-300/90"><LocalizedText source="Front-row seats, pit access and private boxes for the tours, festivals and stage productions worth travelling for." /></p>
       </div>
