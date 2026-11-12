@@ -29,8 +29,11 @@ function Message({ role, content }) {
   const isUser = role === 'user';
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
+      {/* Replies carry line breaks and may be in a right-to-left language
+          whatever the page direction is, so both are honoured per bubble. */}
       <div
-        className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+        dir="auto"
+        className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
           isUser ? 'bg-brand-gold text-black' : 'border border-white/10 bg-white/5 text-zinc-200'
         }`}
       >
@@ -86,7 +89,12 @@ export function AiConversation({ variant = 'dock', onNavigate }) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div ref={listRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
+      <div
+        ref={listRef}
+        role="log"
+        aria-live="polite"
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2"
+      >
         {messages.length === 0 && (
           <div className="space-y-3">
             <p className="text-sm text-zinc-400">{t.ai?.conciergeIntro || DEFAULT_INTRO}</p>

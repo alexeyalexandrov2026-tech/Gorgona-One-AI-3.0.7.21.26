@@ -248,7 +248,7 @@ export default function GorgonaOneAI() {
 
   const stateLine =
     phase === 'listening'
-      ? `${t.ai?.listening || 'Listening'} · EN · RU · ES · FR`
+      ? `${t.ai?.listening || 'Listening'} · ${voice.speechLang}`
       : phase === 'intent' && matches.length
       ? `${t.ai?.surfacing || 'Surfacing'} · ${constellationName(activeCluster, t)}`
       : greetingText;

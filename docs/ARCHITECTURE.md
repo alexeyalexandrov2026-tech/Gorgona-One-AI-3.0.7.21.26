@@ -8,11 +8,21 @@ only the discovery assistant feature and must never displace the brand.
 ## Current state (2026-07-17, commit d898ac4)
 
 **Live in production (protect — do not regress):**
-- Unified AI brain: `lib/ai/brain.js` — every LLM call goes through
-  `askBrain()`; `/api/chat` is a thin adapter. Model policy is env-driven
-  (default `openrouter/free`; paid chain = 3 env vars, no code change).
-  Free-pool hardening: provider ignore list (novita, poolside PII-redact
-  prompts), degenerate-completion detection + retry.
+- Concierge engine chain (`app/api/chat/route.js`), as of 2026-11-11:
+  Workers AI → local brain → ai-router → the concierge's own line + cards.
+  - Production answers from **Cloudflare Workers AI** through the `AI`
+    binding in `wrangler.jsonc` (`lib/ai/workersAi.mjs`; model =
+    `WORKERS_AI_MODEL`). No API key. A Worker cannot reach localhost, so
+    the local brain and the ai-router are skipped on Cloudflare unless
+    `GORGONA_AI_URL` / `AI_ROUTER_URL` point at a public address.
+  - Every engine gets the same system prompt: persona
+    (`lib/aiEcosystemContext.js`) + live inventory
+    (`lib/aiEcosystemDigest.js`) + the UI language.
+  - Input is sanitized, replies are stripped of markdown and checked, and
+    requests are rate-limited per address (`lib/ai/chatCore.mjs`).
+  - Every message gets a reply: when no engine answers the guest still
+    reads a localized line and gets navigation cards.
+  - `lib/ai/brain.js` (OpenRouter) is retained but has no caller.
 - Homepage concierge chat (GorgonaOneAI): conversation context
   (sessionStorage), voice in/out, 16 locales, ecosystem-grounded replies
   via `lib/aiEcosystemDigest.js` (server-only inventory digest).
@@ -20,7 +30,7 @@ only the discovery assistant feature and must never displace the brand.
 - Local AI backend: `lib/ai/localBrain.js` — an optional, self-contained
   adapter for the self-hosted Miami Elio AI Brain microservice (FastAPI +
   Ollama, `POST /api/v1/chat/completions`). `/api/chat` runs a fallback
-  chain (local brain → ai-router → canned concierge reply) and always
+  chain (see above) and always
   answers `200` with the same JSON contract, so the chat widget has no
   failure branch and an offline backend is a non-event.
   - Detection: `GET /api/health` identifies the service and reports whether
@@ -37,7 +47,8 @@ only the discovery assistant feature and must never displace the brand.
     suggestions still come from `matchSuggestions` client-side.
   - A circuit breaker keeps a switched-off backend from costing latency
     (measured: ~15-30ms per message with everything down).
-  - `GET /api/chat` reports engine status without spending a completion.
+  - `GET /api/chat` is a bare health check (`{ ok: true }`); engine
+    addresses and state are not exposed.
   - Config: `GORGONA_AI_*` in `.env.example`; nothing is required for the
     site to run, build, or deploy.
 - Client intent index (`lib/ai/provider.js`) — non-LLM constellation
