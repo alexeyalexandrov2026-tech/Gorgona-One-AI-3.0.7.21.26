@@ -40,3 +40,5 @@ jobs:
       - run: npx next build
         env:
           NEXT_TELEMETRY_DISABLED: 1
+      - name: Verify rentals in the built sitemap
+        run: node scripts/check-rental-sitemap.mjs
