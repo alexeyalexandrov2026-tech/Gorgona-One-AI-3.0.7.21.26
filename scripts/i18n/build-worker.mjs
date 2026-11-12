@@ -41,6 +41,12 @@ export function workerBuildArgs(argv) {
 
 function main() {
   const args = workerBuildArgs(process.argv.slice(2));
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  const expected = { ...manifest.dependencies, ...manifest.devDependencies };
+  const installed = Object.fromEntries(['next', 'react', 'react-dom', '@opennextjs/cloudflare'].map(name => [
+    name, JSON.parse(fs.readFileSync(path.join(root, 'node_modules', name, 'package.json'), 'utf8')).version
+  ]));
+  checkBuildDependencyVersions(expected, installed);
   // A previous output can retain an embedded manifest after its assets change.
   fs.rmSync(output, { recursive: true, force: true });
   const packageDirectory = path.join(root, 'node_modules', '@opennextjs', 'cloudflare');
@@ -56,6 +62,17 @@ function main() {
   }
   const report = checkWorkerAssets();
   console.log(`Cloudflare package checked: ${report.handlers} handler(s), ${report.clientAssets} referenced client assets.`);
+}
+
+// A shared node_modules from another worktree can compile an incompatible
+// Worker even when asset checks pass. Refuse before changing build output.
+export function checkBuildDependencyVersions(expected, installed) {
+  for (const name of ['next', 'react', 'react-dom', '@opennextjs/cloudflare']) {
+    const version = expected[name];
+    if (/^\d+\.\d+\.\d+$/.test(version || '') && installed[name] !== version) {
+      throw new Error(`Build dependency mismatch: ${name} requires ${version}, installed ${installed[name] || 'missing'}. Run npm ci in this checkout.`);
+    }
+  }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

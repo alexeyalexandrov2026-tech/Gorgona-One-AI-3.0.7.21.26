@@ -2,9 +2,9 @@
 import { LocalizedText, useSavedText } from "../LocalizedText";
 
 import { useState } from 'react';
-import { FLEET, YACHTS, STAYS, HERO_CAR, carThumb } from '../../../lib/homeData';
-import { SUPPORTED_LANGUAGES } from '../../../lib/languages';
+import { HERO_CAR, carThumb } from '../../../lib/homeData';
 import { useAskConcierge } from './shared';
+import {useConciergeChat} from '../ai/ChatProvider';
 import { btn, chipClass } from '../g1/ui';
 import Icon from '../g1/icons';
 
@@ -29,14 +29,13 @@ function ValetTag({ copy }) {
 export default function HomeHero({ copy }) {
   const msg = useSavedText();
   const ask = useAskConcierge();
+  const {hydrated,isLoading}=useConciergeChat();
   const [query, setQuery] = useState('');
-  const stats = [FLEET.length, YACHTS.length + STAYS.length, SUPPORTED_LANGUAGES.length];
 
   function submit(event) {
     event.preventDefault();
     if (!query.trim()) return;
-    ask(query);
-    setQuery('');
+    if(ask(query))setQuery('');
   }
 
   return (
@@ -60,6 +59,8 @@ export default function HomeHero({ copy }) {
             <label htmlFor="g1-hero-q" className="sr-only">{copy.searchLabel}</label>
             <input
               id="g1-hero-q"
+              maxLength={4000}
+              disabled={!hydrated||isLoading}
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -68,25 +69,17 @@ export default function HomeHero({ copy }) {
               enterKeyHint="send"
               className="min-w-0 flex-1 border-0 bg-transparent py-3 text-[1.05rem] text-g1-ink outline-none placeholder:text-g1-soft"
             />
-            <button type="submit" className={`${btn.base} ${btn.primary}`}>{copy.searchGo}</button>
+            <button type="submit" disabled={!hydrated||isLoading||!query.trim()} className={`${btn.base} ${btn.primary}`}>{copy.searchGo}</button>
           </form>
 
           <div className="flex flex-wrap gap-2" aria-label={copy.chipsLabel}>
             {copy.chips.map((chip) => (
-              <button key={chip} type="button" className={chipClass} onClick={() => ask(chip)}>
+              <button key={chip} type="button" disabled={!hydrated||isLoading} className={chipClass} onClick={() => ask(chip)}>
                 {chip}
               </button>
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-x-[22px] gap-y-3.5 border-t border-g1-rule pt-2 sm:grid-cols-3">
-            {stats.map((value, i) => (
-              <div key={copy.stats[i]} className="grid content-start gap-1 pt-3">
-                <b className="font-g1sans text-[2.3rem] font-light leading-none tracking-[-0.02em] tabular-nums text-g1-ink">{value}</b>
-                <span className="text-[0.8rem] leading-[1.35] text-g1-soft">{copy.stats[i]}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="relative min-h-[400px] w-full sm:min-h-[440px] lg:aspect-[4/5] lg:min-h-0 lg:max-w-[520px] lg:justify-self-end">

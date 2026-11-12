@@ -14,7 +14,6 @@ import { useLocale } from './LocaleProvider';
 const POPULAR_SEARCH_LINKS = [
   { key: 'carRentals', href: '/rentals' },
   { key: 'yachtRentals', href: '/yachts' },
-  { key: 'sportsbookBonuses', href: '/sportsbook' },
   { key: 'vacationRentals', href: '/vacation-rentals' },
   { key: 'miamiExperiences', href: '/experiences' },
   { key: 'restaurantsNightlife', href: '/restaurants-nightlife' }
@@ -105,33 +104,7 @@ function buildOvagoDeal(t) {
 const SEARCH_RESULT_LOGOS = {
   Amazon: '/images/brands/amazon-shopping.svg',
   'Best Buy': '/images/brands/best-buy-shopping.svg',
-  Newegg: '/images/brands/newegg-shopping.svg',
-  'Hard Rock Bet': '/images/brands/hard-rock-bet-betting.svg',
-  Bet365: '/images/brands/bet365-betting.svg',
-  DraftKings: '/images/brands/draftkings-betting.svg',
-  FanDuel: '/images/brands/fanduel-betting.svg',
-  BetMGM: '/images/brands/betmgm-betting.svg',
-  'Caesars Sportsbook': '/images/brands/caesars-sportsbook-betting.svg',
-  'Fanatics Sportsbook': '/images/brands/fanatics-sportsbook-betting.svg',
-  Betrivers: '/images/brands/betrivers-betting.svg',
-  'Bally Bet': '/images/brands/bally-bet-betting.svg'
-};
-
-// Sends every sportsbook's Search Results card to its dedicated profile
-// page (lib/mockData.js `sportsbooks`) instead of the generic /deals/
-// detail route used by every other brand - keyed by the dealsData betting
-// brand name, which doesn't always match the mockData sportsbook slug.
-const SPORTSBOOK_PROFILE_SLUGS = {
-  'Hard Rock Bet': 'hard-rock-bet',
-  Bet365: 'bet365',
-  DraftKings: 'draftkings',
-  FanDuel: 'fanduel',
-  BetMGM: 'betmgm',
-  'Caesars Sportsbook': 'caesars',
-  'Fanatics Sportsbook': 'fanatics',
-  Betrivers: 'betrivers',
-  'theScore Bet': 'thescore-bet',
-  'Bally Bet': 'bally-bet'
+  Newegg: '/images/brands/newegg-shopping.svg'
 };
 
 // Non-deal catalogs (yachts, vacation rentals, experiences, restaurants &
@@ -204,7 +177,7 @@ export function SearchBar() {
       category: t.categories[camelizeSlug(deal.category)] || deal.category,
       promoCode: deal.promoCode,
       discount: deal.discount,
-      href: SPORTSBOOK_PROFILE_SLUGS[deal.name] ? `/sportsbook/${SPORTSBOOK_PROFILE_SLUGS[deal.name]}` : `/deals/${deal.slug}`
+      href: `/deals/${deal.slug}`
     }));
 
     // The extra catalogs (yachts/vacation rentals/experiences/restaurants)

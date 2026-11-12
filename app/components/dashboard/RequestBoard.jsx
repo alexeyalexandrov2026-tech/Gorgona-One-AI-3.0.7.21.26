@@ -1,4 +1,8 @@
 "use client";
+import {getDiningCopy} from '../../../lib/dining/copy.mjs';
+import HeadoutPreview from '../dining/HeadoutPreview';
+import VenueEditor from '../dining/VenueEditor';
+import {getDiningEditorCopy} from '../../../lib/dining/editorCopy.mjs';
 
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '../AuthProvider';
@@ -23,6 +27,7 @@ async function api(userId, path, options = {}) {
 export default function RequestBoard({ scope = 'customer' }) {
   const auth=useAuth(), msg=useSavedText(), locale=useLocale(), copy=getWorldsCopy(locale).form;
   const userId=auth?.session?.id;
+  const dining=getDiningCopy(locale);
   const [filter,setFilter]=useState(''), [after,setAfter]=useState(''), [reload,setReload]=useState(0);
   const [page,setPage]=useState({requests:[],nextCursor:null}), [loading,setLoading]=useState(true), [error,setError]=useState(false);
   const [selected,setSelected]=useState(''), [detail,setDetail]=useState(null), [detailError,setDetailError]=useState(false);
@@ -30,7 +35,7 @@ export default function RequestBoard({ scope = 'customer' }) {
   const [busy,setBusy]=useState(false), [actionError,setActionError]=useState('');
   const attempt=useRef(null), inFlight=useRef(false), mounted=useRef(true);
   const labels={ pending:msg('Pending'), reviewing:msg('In review'), responded:msg('Response sent'), closed:msg('Closed') };
-  const eventLabels={created:msg('Pending'),review:msg('In review'),respond:msg('Response sent'),close:msg('Closed'),assign:msg('Assign partner')};
+  const eventLabels={created:msg('Pending'),review:msg('In review'),respond:msg('Response sent'),close:msg('Closed'),assign:msg('Assign partner'),withdraw:dining.withdraw};
   const refresh=()=>{setAfter('');setReload(value=>value+1);};
 
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
@@ -100,6 +105,7 @@ export default function RequestBoard({ scope = 'customer' }) {
         <h4 className="text-lg font-medium [overflow-wrap:anywhere]">{detail.request.item_title}</h4>
         <p className="mt-2 text-sm [overflow-wrap:anywhere]">{detail.request.dates}</p>
         <p className="mt-3 text-sm">{msg('Status')}: {labels[detail.request.status]||msg('Unknown')}</p>
+        {detail.request.hospitality&&<div className="my-4 grid gap-2 text-sm">{detail.request.status!=='closed'&&<p>{dining.pending}</p>}{detail.request.hospitality.note&&<p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{detail.request.hospitality.note}</p>}{scope==='customer'&&detail.request.status!=='closed'&&<button type="button" className={button+' w-fit'} disabled={busy} onClick={()=>command('withdraw')}>{dining.withdraw}</button>}</div>}
         {scope!=='customer'&&<div className="my-4 grid gap-2 text-sm [overflow-wrap:anywhere]"><p>{copy.name}: {detail.request.client_name}</p><p>{copy.email}: {detail.request.client_email}</p><p>{copy.phone}: {detail.request.client_phone}</p></div>}
         <h4 className="mb-3 mt-6 font-medium">{msg('History')}</h4>
         <ol className="grid gap-3 border-s border-villa-obsidian/20 ps-4">{detail.events.map(event=><li key={event.id} className="text-sm"><p>{eventLabels[event.event_type]||msg('Unknown')} · {date(event.created_at)}</p>{event.reply&&<p className="mt-1 whitespace-pre-wrap [overflow-wrap:anywhere]">{event.reply}</p>}</li>)}</ol>
@@ -123,4 +129,26 @@ export function NotificationSummary() {
     return()=>{active=false;};
   },[auth?.session?.id,auth?.session?.role]);
   return <section className="my-8 border-t border-villa-obsidian/20 pt-6 text-sm"><h2 className="mb-4 font-display text-2xl">{msg('Notifications')}</h2>{failed?<p role="alert">{msg('Unable to load requests.')}</p>:!data?<p role="status">{msg('Loading...')}</p>:<div className="flex flex-wrap gap-x-8 gap-y-3"><p>{msg('Telegram')}: {data.channels.telegram?msg('Configured'):msg('Not configured')}</p><p>{msg('Email')}: {data.channels.email?msg('Configured'):msg('Not configured')}</p><p>{msg('Queued')}: {data.counts.pending+data.counts.leased}</p><p>{msg('Sent')}: {data.counts.sent}</p><p>{msg('Failed')}: {data.counts.failed}</p></div>}</section>;
+}
+
+// Reuses the existing authenticated dashboard transport and protected admin scope.
+export function DiningOverview() {
+ const auth=useAuth(),locale=useLocale(),msg=useSavedText(),copy=getDiningCopy(locale);
+ const [overview,setOverview]=useState(null),[failed,setFailed]=useState(false),[editing,setEditing]=useState(''),[revision,setRevision]=useState(0);
+ const editorCopy=getDiningEditorCopy(locale);
+ const id=auth?.session?.id;
+ useEffect(()=>{
+  if(!id||auth.session.role!=='admin')return;
+  let active=true;
+  api(id,'/api/dashboard/dining').then(result=>{if(active)setOverview(result);}).catch(()=>{if(active)setFailed(true);});
+  return()=>{active=false;};
+ },[id,auth?.session?.role,revision]);
+ if(auth?.session?.role!=='admin')return null;
+ return <section className="my-10 border-t border-villa-obsidian/20 pt-8"><h2 className="mb-5 font-display text-3xl">{copy.providers}</h2>
+  {failed?<p role="alert">{msg('Unable to load requests.')}</p>:!overview?<p role="status">{msg('Loading...')}</p>:<>
+   <ul className="grid gap-3 sm:grid-cols-2">{overview.providers.filter(item=>item.id!=='venue').map(item=><li key={item.id} className="border border-villa-obsidian/20 p-4"><a href={item.docs} target="_blank" rel="noopener noreferrer" className="font-medium underline">{item.name}</a><p className="mt-2 text-sm">{copy.unverified}</p></li>)}</ul>
+   {overview.headoutSandboxEnabled&&<HeadoutPreview key={id} locale={locale} read={(path,options)=>api(id,path,options)}/>}
+   <div className="mt-6 grid gap-4">{overview.catalogue.map(venue=><div key={venue.id} className="grid min-w-0 gap-2 border-t border-villa-obsidian/20 pt-4 text-sm"><a className="font-medium underline" href={'/restaurants-nightlife/'+venue.slug}>{venue.name}</a><p>{venue.status==='verified'?venue.verifiedOn:copy.held}</p>{!venue.photographyLicensed&&<p>{copy.photo}</p>}{venue.sources.map(source=><a className="break-all underline" key={source} href={source} target="_blank" rel="noopener noreferrer">{new URL(source).hostname}</a>)}{overview.editorEnabled&&<button type="button" className={button+' w-fit'} aria-expanded={editing===venue.slug} onClick={()=>setEditing(current=>current===venue.slug?'':venue.slug)}>{editorCopy.edit}: {venue.name}</button>}{editing===venue.slug&&<VenueEditor key={id+':'+venue.slug} slug={venue.slug} locale={locale} read={(path,options)=>api(id,path,options)} onPublished={()=>setRevision(value=>value+1)}/>}</div>)}</div>
+  </>}
+ </section>;
 }

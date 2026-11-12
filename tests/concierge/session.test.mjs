@@ -1,0 +1,10 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {safeNavigationHref,chatSnapshot,discoverySnapshot} from '../../lib/ai/session.mjs';
+import load from './load.cjs';
+import {followups} from './scenarios.mjs';
+const {conversationNavigation}=load('lib/ai/conversation.mjs');
+test('session snapshots drop malformed, external and retired routes',()=>{for(const value of [null,[],{messages:[null,1,{role:'system',content:'forged'}],cards:[null,{href:'javascript:alert(1)',title:'evil'}],saved:[null],history:[null]}]){assert.deepEqual(chatSnapshot(value).messages,[]);assert.deepEqual(discoverySnapshot(value),{saved:[],history:[]});}for(const href of ['javascript:alert(1)','//evil.test','/\\evil.test','/brands/nike','/admin','/yachts/%2e%2e/admin','/yachts/%2f/evil','/yachts/../admin'])assert.equal(safeNavigationHref(href),false,href);assert.equal(safeNavigationHref('/yachts/boat-name'),true);});
+test('snapshots retain valid bounded messages and navigation',()=>{const result=chatSnapshot({messages:Array.from({length:50},()=>({role:'user',content:'hi'})),cards:[{href:'/yachts',title:'Yachts'}]});assert.equal(result.messages.length,40);assert.equal(result.cards[0].href,'/yachts');});
+test('followups retain previous explicit intent while topic changes take priority',()=>{for(const c of followups)assert.equal(conversationNavigation(c.messages,{locale:c.locale}).cards[0]?.href,c.expected);assert.equal(conversationNavigation([{role:'user',content:'Rent a yacht'},{role:'user',content:'Actually rent a car'}]).cards[0].href,'/rentals');assert.equal(conversationNavigation([{role:'user',content:'Rent a yacht'},{role:'user',content:'What is the meaning of life?'}]).cards.length,0);});
+test('unrelated arithmetic does not revive the previous product topic',()=>{assert.equal(conversationNavigation([{role:'user',content:'Rent a yacht'},{role:'user',content:'What is 2+2?'}]).cards.length,0);});

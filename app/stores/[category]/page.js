@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { categories } from '../../../lib/dealsData';
-import { getCategoryDeals, isBettingCategory } from '../../../lib/storeDirectory';
+import { getCategoryDeals } from '../../../lib/storeDirectory';
 import { getDealsCopy } from '../../../lib/dealsCopy';
 import { fill } from '../../../lib/homeCopy';
 import { getServerTranslation } from '../../../lib/serverLocale';
@@ -32,14 +32,13 @@ export default async function CategoryPage({ params }) {
   const copy = getDealsCopy(locale);
   const label = categoryLabel(t, category);
   const deals = getCategoryDeals(category.slug);
-  const betting = isBettingCategory(category.slug);
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
       <Crumbs items={[[t.nav.stores, '/stores'], [label]]} />
 
       <header className="grid gap-4 pb-8 pt-6">
-        <p className={eyebrowClass}>{betting ? t.nav.stores : fill(copy.offers, { n: deals.length })}</p>
+        <p className={eyebrowClass}>{fill(copy.offers, { n: deals.length })}</p>
         <h1 className="g1-display font-g1display text-[clamp(2.1rem,3vw+1rem,4rem)] font-medium leading-none tracking-[-0.015em] text-g1-ink [text-wrap:balance]">
           {label}
         </h1>
@@ -48,13 +47,7 @@ export default async function CategoryPage({ params }) {
       </header>
 
       <section className={`border-t border-g1-rule ${sectionY}`}>
-        {betting ? (
-          <div className="grid max-w-2xl gap-4 rounded-[22px] border border-g1-rule bg-g1-card p-6">
-            <h2 className="font-g1display text-[1.6rem] font-medium leading-tight text-g1-ink">{copy.bettingTitle}</h2>
-            <p className="text-g1-soft">{copy.bettingText}</p>
-            <Link href="/sportsbook" className={`${btn.base} ${btn.primary} w-fit`}>{copy.bettingCta}</Link>
-          </div>
-        ) : deals.length ? (
+        {deals.length ? (
           <DealGrid deals={deals} t={t} locale={locale} />
         ) : (
           <p className="text-g1-soft">{copy.empty}</p>

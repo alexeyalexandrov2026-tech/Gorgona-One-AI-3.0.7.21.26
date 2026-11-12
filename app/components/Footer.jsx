@@ -7,13 +7,12 @@ import { useLocale } from './LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
 const sections = [
   { key: 'travel', href: '/travel', fallback: 'Travel' },
-  { key: 'shopping', href: '/stores', fallback: 'Shopping' },
+  { key: 'experiences', href: '/experiences', fallback: 'Experiences' },
   { key: 'villas', href: '/vacation-rentals', fallback: 'Villas & Stays' },
   { key: 'yachts', href: '/yachts', fallback: 'Yacht Rentals' },
   { key: 'cars', href: '/rentals', fallback: 'Car Rentals' },
-  { key: 'sportsbooks', href: '/sportsbook', fallback: 'Sportsbooks' },
   { key: 'events', href: '/events', fallback: 'Events & Entertainment' },
-  { key: 'discovery', href: '/discovery', fallback: 'Discovery Room' }
+  { key: 'privateJets', href: '/private-jets', fallback: 'Private Jets' }
 ];
 
 const company = [
@@ -42,7 +41,7 @@ export function Footer() {
             <span className="font-g1display text-4xl font-medium tracking-tight text-g1-ink">Elio</span>
           </div>
           <p className="mt-4 max-w-sm leading-relaxed">
-            {t.footer?.desc || <LocalizedText source={"A luxury ecosystem for travel, shopping, stays, yachts, cars, sportsbooks, events and an AI concierge — verified offers and premium experiences in one destination."} />}
+            {t.footer.desc}
           </p>
         </div>
 
@@ -52,7 +51,7 @@ export function Footer() {
             {sections.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="transition hover:text-g1-ink">
-                  {t.nav?.[({ shopping: 'stores', sportsbooks: 'sportsbook' })[item.key] || item.key] || t.discovery?.[item.key] || item.fallback}
+                  {t.nav?.[({ shopping: 'stores' })[item.key] || item.key] || t.discovery?.[item.key] || item.fallback}
                 </Link>
               </li>
             ))}

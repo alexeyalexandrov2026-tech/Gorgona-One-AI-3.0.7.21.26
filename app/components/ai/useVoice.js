@@ -33,10 +33,12 @@ function detectStandalone() {
 // scope (not component state) is intentional: it is shared by every component
 // that imports this hook, across the whole page.
 let activeRecognition = null;
+function stopRecognition(recognition){try{recognition?.stop();}catch{/* Already closed or blocked: restore the text interface. */}}
 
 export function useVoice() {
   const locale = useLocale();
   const [isListening, setIsListening] = useState(false);
+  const [error,setError]=useState(null);
   const [isStandalone, setIsStandalone] = useState(false);
   // Feature-detection flags start false on every render pass, including the
   // very first client render, so they always match the server-rendered HTML
@@ -64,7 +66,8 @@ export function useVoice() {
       if (!recognitionSupported) return;
       // Only one recognition session may run at a time across the whole page;
       // stop whichever surface currently owns it before claiming it here.
-      activeRecognition?.stop();
+      stopRecognition(activeRecognition);
+      setError(null);
 
       const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognitionImpl();
@@ -75,31 +78,40 @@ export function useVoice() {
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
       recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        onResult?.(text);
+        if(recognitionRef.current!==recognition||activeRecognition!==recognition)return;
+        const text = event?.results?.[0]?.[0]?.transcript;
+        if(typeof text==='string'&&text.trim()&&text.length<=4000)onResult?.(text.trim());
+        else setError('unavailable');
       };
       recognition.onend = () => {
+        if(recognitionRef.current!==recognition)return;
         if (activeRecognition === recognition) activeRecognition = null;
         setIsListening(false);
       };
-      recognition.onerror = () => {
+      recognition.onerror = (event) => {
+        if(recognitionRef.current!==recognition)return;
         // Covers permission denial, no-speech, network errors, an unsupported
         // language - all simply return the UI to its resting state rather
         // than throwing.
-        if (activeRecognition === recognition) activeRecognition = null;
+        const owned=activeRecognition===recognition;
+        if (owned) activeRecognition = null;
+        if(owned&&event?.error!=='aborted')setError('unavailable');
         setIsListening(false);
       };
       recognitionRef.current = recognition;
       activeRecognition = recognition;
       setIsListening(true);
-      recognition.start();
+      try{recognition.start();}
+      catch{if(activeRecognition===recognition)activeRecognition=null;setIsListening(false);setError('unavailable');}
     },
     [recognitionSupported]
   );
 
   const stopListening = useCallback(() => {
-    recognitionRef.current?.stop();
-    if (activeRecognition === recognitionRef.current) activeRecognition = null;
+    const recognition=recognitionRef.current;recognitionRef.current=null;
+    stopRecognition(recognition);
+    if (activeRecognition === recognition) activeRecognition = null;
+    setError(null);
     setIsListening(false);
   }, []);
 
@@ -107,8 +119,9 @@ export function useVoice() {
   // mid-session (e.g. the user navigates away from the page while listening).
   useEffect(
     () => () => {
-      recognitionRef.current?.stop();
-      if (activeRecognition === recognitionRef.current) activeRecognition = null;
+      const recognition=recognitionRef.current;recognitionRef.current=null;
+      stopRecognition(recognition);
+      if (activeRecognition === recognition) activeRecognition = null;
     },
     []
   );
@@ -116,6 +129,7 @@ export function useVoice() {
   return {
     recognitionSupported,
     isListening,
+    error,
     startListening,
     stopListening,
     isStandalone,

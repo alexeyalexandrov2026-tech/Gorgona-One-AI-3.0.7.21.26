@@ -24,3 +24,12 @@ test('confirmed receipts clear contact data while storage failures preserve the 
  const blocked={getItem(){throw Error('blocked');},setItem(){throw Error('blocked');},removeItem(){throw Error('blocked');}};
  assert.equal(writeJournal(blocked,scope,entry),false);assert.equal(readJournal(blocked,scope,null,now),null);assert.doesNotThrow(()=>clearJournal(blocked,scope,null));
 });
+test('dining preferences and request keys survive same-tab reload without changing the original submission',()=>{
+ const storage=memory(),dining={kind:'dining',slug:'komodo-miami'};
+ const original={...entry,body:{...entry.body,kind:'dining',itemSlug:'komodo-miami',hospitality:{version:1,date:'2027-02-14',time:'19:30',guests:4,option:'table',note:'Quiet table'}}};
+ writeJournal(storage,dining,original);
+ assert.deepEqual(readJournal(storage,dining,null,now+20*60*1000).body,original.body);
+ assert.equal(readJournal(storage,dining,null,now+20*60*1000).key,original.key);
+ assert.equal(readJournal(storage,dining,'another-account',now),null);
+ assert.equal(readJournal(storage,dining,null,now+31*60*1000),null);
+});

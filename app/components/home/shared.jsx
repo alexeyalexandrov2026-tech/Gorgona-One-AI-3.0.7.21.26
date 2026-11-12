@@ -8,9 +8,11 @@ import { useConciergeChat } from '../ai/ChatProvider';
 // the homepage continues in the same conversation as the dock and /discovery.
 export function useAskConcierge() {
   const { open } = useAiDock();
-  const { send } = useConciergeChat();
+  const { send,hydrated,isLoading } = useConciergeChat();
   return useCallback((text) => {
+    if(text&&text.trim()&&(!hydrated||isLoading||text.trim().length>4000))return false;
     open();
     if (text && text.trim()) send(text.trim());
-  }, [open, send]);
+    return true;
+  }, [open, send, hydrated, isLoading]);
 }
