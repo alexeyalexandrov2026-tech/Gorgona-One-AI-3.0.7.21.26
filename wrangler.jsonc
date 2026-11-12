@@ -13,6 +13,12 @@
   "ai": {
     "binding": "AI"
   },
+  // The Workers AI model the concierge uses (read by app/api/chat as
+  // process.env.WORKERS_AI_MODEL). Remove it to fall back to the default in
+  // lib/ai/workersAi.mjs.
+  "vars": {
+    "WORKERS_AI_MODEL": "@cf/google/gemma-4-26b-a4b-it"
+  },
   "observability": {
     "enabled": true
   }
