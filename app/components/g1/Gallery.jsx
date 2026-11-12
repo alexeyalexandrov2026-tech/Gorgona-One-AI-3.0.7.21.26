@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { fill } from '../../../lib/homeCopy';
 
 // One large photo with a strip of thumbnails that switch it.
-export default function Gallery({ images, title, copy }) {
-  const [index, setIndex] = useState(0);
+export default function Gallery({ images, thumbnails, originals, originalLabel, initialIndex = 0, title, copy }) {
+  const [index, setIndex] = useState(() => Math.max(0,Math.min(initialIndex,images.length-1)));
   const total = images.length;
 
   return (
@@ -17,7 +17,7 @@ export default function Gallery({ images, title, copy }) {
           width="1600"
           height="1067"
           fetchPriority="high"
-          className="h-full w-full object-cover"
+          className={`h-full w-full ${originals ? 'object-contain' : 'object-cover'}`}
         />
       </figure>
       {total > 1 && (
@@ -31,11 +31,12 @@ export default function Gallery({ images, title, copy }) {
               aria-current={i === index}
               className="h-16 w-24 shrink-0 overflow-hidden rounded-xl border-2 border-transparent opacity-70 transition hover:opacity-100 aria-[current=true]:border-g1-accent aria-[current=true]:opacity-100"
             >
-              <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+              <img src={thumbnails?.[i] || src} alt="" loading="lazy" className="h-full w-full object-cover" />
             </button>
           ))}
         </div>
       )}
+      {originals?.[index] && <a href={originals[index]} target="_blank" rel="noopener noreferrer" className="w-fit text-sm text-g1-accent underline">{originalLabel}</a>}
     </div>
   );
 }

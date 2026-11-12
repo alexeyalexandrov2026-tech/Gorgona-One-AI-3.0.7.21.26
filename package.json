@@ -34,7 +34,10 @@
       "postcss": "$postcss"
     },
     "@node-minify/core": {
-      "glob": "10.5.0"
+      "glob": {".":"14.0.2","minimatch":"11.0.4"}
+    },
+    "@opennextjs/cloudflare": {
+      "glob": {".":"14.0.2","minimatch":"11.0.4"}
     },
     "undici@>=7.0.0 <7.30.1": "7.30.1"
   }

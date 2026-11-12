@@ -5,12 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { DEFAULT_LANGUAGE, getLanguageDir, isSupportedLanguage } from '../../lib/languages';
 import { canRefreshForLocale } from '../../lib/localePolicy';
 import { loadSavedLocale } from '../../lib/savedCopy';
+import {useHydratedValue} from './useHydratedValue';
 
 const LOCALE_STORAGE_KEY = 'gorgona-locale';
 const LOCALE_COOKIE_KEY = 'gorgona-locale';
 
 const LocaleContext = createContext(DEFAULT_LANGUAGE);
 const LocaleControllerContext = createContext(null);
+const INITIAL_CONTROLLER={locale:DEFAULT_LANGUAGE,ready:false,setLocale(){},registerClientLocaleRoute(){return()=>{};}};
 
 function readCookie(name) {
   if (typeof document === 'undefined') return null;
@@ -43,6 +45,7 @@ export function readSavedLocale() {
 
 export function LocaleProvider({ children }) {
   const [locale, setLocaleState] = useState(DEFAULT_LANGUAGE);
+  const [ready, setReady] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const currentLocale = useRef(DEFAULT_LANGUAGE);
@@ -72,17 +75,20 @@ export function LocaleProvider({ children }) {
     };
   }, []);
 
-  const setLocale = useCallback(async (code) => {
+  const setLocale = useCallback(async (code, {serverLocale}={}) => {
     const next = isSupportedLanguage(code) ? code : DEFAULT_LANGUAGE;
     const request = ++selection.current;
+    setReady(false);
     // Fetch only the selected, saved language bundle. Concurrent selections
     // resolve in the visitor's order of intent, never network arrival order.
     try { await loadSavedLocale(next); }
-    catch { return; }
+    catch { if(request===selection.current)setReady(true);return; }
     if (request !== selection.current) return;
     const changed = next !== currentLocale.current;
+    const needsRefresh=serverLocale===undefined?changed:next!==serverLocale;
     currentLocale.current = next;
     setLocaleState(next);
+    setReady(true);
     try { window.localStorage.setItem(LOCALE_STORAGE_KEY, next); }
     catch { /* Persist the cookie and keep the current session usable. */ }
     writeCookie(LOCALE_COOKIE_KEY, next);
@@ -90,19 +96,22 @@ export function LocaleProvider({ children }) {
     // Refresh merges RSC text while preserving unaffected client state.
     // Protected embed pages render our text from this context instead.
     const activePath = window.location.pathname || currentPathname.current;
-    if (changed && canRefreshForLocale(activePath) && !clientLocaleRoutes.current.has(activePath)) router.refresh();
+    if (needsRefresh && canRefreshForLocale(activePath) && !clientLocaleRoutes.current.has(activePath)) router.refresh();
   }, [router]);
 
   useEffect(() => {
     if (restored.current) return;
     restored.current = true;
     const saved = readSavedLocale();
-    if (saved) setLocale(saved);
-    else applyDocumentLocale(DEFAULT_LANGUAGE);
+    // Server text already used this cookie. Refresh only when storage disagrees.
+    const cookie=readCookie(LOCALE_COOKIE_KEY);
+    const serverLocale=isSupportedLanguage(cookie)?cookie:DEFAULT_LANGUAGE;
+    if (saved) setLocale(saved,{serverLocale});
+    else {applyDocumentLocale(DEFAULT_LANGUAGE);setReady(true);}
   }, [setLocale]);
 
   const localeValue = useMemo(() => locale, [locale]);
-  const controllerValue = useMemo(() => ({ locale, setLocale, registerClientLocaleRoute }), [locale, setLocale, registerClientLocaleRoute]);
+  const controllerValue = useMemo(() => ({ locale, ready, setLocale, registerClientLocaleRoute }), [locale, ready, setLocale, registerClientLocaleRoute]);
 
   return (
     <LocaleContext.Provider value={localeValue}>
@@ -112,11 +121,18 @@ export function LocaleProvider({ children }) {
 }
 
 export function useLocale() {
-  return useContext(LocaleContext);
+  return useHydratedValue(useContext(LocaleContext),DEFAULT_LANGUAGE);
 }
 
 export function useLocaleController() {
-  return useContext(LocaleControllerContext);
+  const value=useContext(LocaleControllerContext);
+  return useHydratedValue(value,value?INITIAL_CONTROLLER:null);
+}
+
+// Session storage can restore before the saved language bundle has loaded.
+// Language-sensitive interactions wait for both instead of using English briefly.
+export function useLocaleReady() {
+  return useLocaleController()?.ready ?? true;
 }
 
 // Client-only route text (such as 404) needs no RSC refresh. Keep the

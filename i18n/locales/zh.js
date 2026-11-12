@@ -917,5 +917,6 @@ export default {
   "listing.midline.description": "音乐、鸡尾酒与迈阿密之夜。",
   "ui.b21d564daaa86897": "Eatwith",
   "ui.9b864ba64f10a3b4": "结账将在 TicketNetwork 打开。",
-  "ui.7ab18ba3fd0d9837": "活动列表最初显示迈阿密及南佛罗里达周边城市的近期活动。可使用地区、日期、表演者和城市筛选条件调整列表。选票、付款及订单支持由 TicketNetwork 在新标签页中提供。转售价格可能高于票面价格。"
+  "ui.7ab18ba3fd0d9837": "活动列表最初显示迈阿密及南佛罗里达周边城市的近期活动。可使用地区、日期、表演者和城市筛选条件调整列表。选票、付款及订单支持由 TicketNetwork 在新标签页中提供。转售价格可能高于票面价格。",
+  "worlds.categories.Sports": "跑车"
 };

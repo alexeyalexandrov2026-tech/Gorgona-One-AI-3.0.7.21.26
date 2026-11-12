@@ -917,5 +917,6 @@ export default {
   "listing.midline.description": "Müzik, kokteyller ve Miami’de bir gece.",
   "ui.b21d564daaa86897": "Eatwith",
   "ui.9b864ba64f10a3b4": "Ödeme TicketNetwork’te açılır.",
-  "ui.7ab18ba3fd0d9837": "Yaklaşan etkinlikler önce Miami ve Güney Florida’nın yakın şehirlerinden gösterilir. Listeyi bölge, tarih, sanatçı ve şehir filtreleriyle düzenleyin. Bilet seçimi, ödeme ve sipariş desteği yeni sekmede TicketNetwork tarafından sağlanır. Yeniden satış fiyatları biletin nominal değerini aşabilir."
+  "ui.7ab18ba3fd0d9837": "Yaklaşan etkinlikler önce Miami ve Güney Florida’nın yakın şehirlerinden gösterilir. Listeyi bölge, tarih, sanatçı ve şehir filtreleriyle düzenleyin. Bilet seçimi, ödeme ve sipariş desteği yeni sekmede TicketNetwork tarafından sağlanır. Yeniden satış fiyatları biletin nominal değerini aşabilir.",
+  "worlds.categories.Sports": "Spor otomobiller"
 };

@@ -917,5 +917,6 @@ export default {
   "listing.midline.description": "Muzyka, koktajle i wieczór w Miami.",
   "ui.b21d564daaa86897": "Eatwith",
   "ui.9b864ba64f10a3b4": "Płatność otwiera się w TicketNetwork.",
-  "ui.7ab18ba3fd0d9837": "Nadchodzące wydarzenia obejmują początkowo Miami i pobliskie miasta południowej Florydy. Dostosuj listę filtrami obszaru, daty, wykonawcy i miasta. Wybór biletów, płatności i obsługę zamówień prowadzi TicketNetwork w nowej karcie. Ceny odsprzedaży mogą przekraczać cenę nominalną."
+  "ui.7ab18ba3fd0d9837": "Nadchodzące wydarzenia obejmują początkowo Miami i pobliskie miasta południowej Florydy. Dostosuj listę filtrami obszaru, daty, wykonawcy i miasta. Wybór biletów, płatności i obsługę zamówień prowadzi TicketNetwork w nowej karcie. Ceny odsprzedaży mogą przekraczać cenę nominalną.",
+  "worlds.categories.Sports": "Samochody sportowe"
 };

@@ -917,5 +917,6 @@ export default {
   "listing.midline.description": "Musique, cocktails et soirée à Miami.",
   "ui.b21d564daaa86897": "Eatwith",
   "ui.9b864ba64f10a3b4": "Le paiement s’ouvre sur TicketNetwork.",
-  "ui.7ab18ba3fd0d9837": "Les événements à venir affichent d’abord Miami et les villes voisines du sud de la Floride. Affinez la liste avec les filtres de zone, date, artiste et ville. Le choix des billets, le paiement et l’assistance sont assurés par TicketNetwork dans un nouvel onglet. Les prix de revente peuvent dépasser la valeur faciale."
+  "ui.7ab18ba3fd0d9837": "Les événements à venir affichent d’abord Miami et les villes voisines du sud de la Floride. Affinez la liste avec les filtres de zone, date, artiste et ville. Le choix des billets, le paiement et l’assistance sont assurés par TicketNetwork dans un nouvel onglet. Les prix de revente peuvent dépasser la valeur faciale.",
+  "worlds.categories.Sports": "Voitures de sport"
 };

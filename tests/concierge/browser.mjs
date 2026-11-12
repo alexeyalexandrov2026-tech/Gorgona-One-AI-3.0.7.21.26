@@ -2,15 +2,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
-import {chromium,expect as pwExpect} from '@playwright/test';
+import {expect as pwExpect} from '@playwright/test';
+import {launchConciergeBrowser} from './browser-engine.mjs';
 import {SUPPORTED_LANGUAGES} from '../../lib/languages.js';
-import {hostedContext} from '../../scripts/concierge/hosted-context.mjs';
+import {hostedContext,stagingBase} from '../../scripts/concierge/hosted-context.mjs';
 assert.equal(process.env.CONCIERGE_HOSTED_ACCEPTANCE,'1');
 const {base,cookie,identity}=await hostedContext(),output=process.env.CONCIERGE_BROWSER_RESULTS;
+const offline=process.env.CONCIERGE_BROWSER_OFFLINE==='1';if(offline)assert.equal(base,stagingBase);
 assert.ok(output&&path.isAbsolute(output));fs.mkdirSync(output,{recursive:true});
-const browser=await chromium.launch({headless:true,...(process.env.I18N_BROWSER_EXECUTABLE?{executablePath:process.env.I18N_BROWSER_EXECUTABLE}:{})}),results=[],expect=pwExpect.configure({timeout:15000});
-async function scenario(name,operation,{locale='en',width=1280,session,local,voice}={}){
- const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
+const browser=await launchConciergeBrowser(),results=[],expect=pwExpect.configure({timeout:15000});
+const selected=process.argv.slice(2);
+async function scenario(name,operation,{locale='en',width=1280,session,local,voice,javaScriptEnabled=true}={}){
+ if(selected.length&&!selected.includes(name))return;
+ const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce',javaScriptEnabled}),page=await context.newPage(),errors=[];
+ const navigations=[];
+ page.on('framenavigated',frame=>{if(frame===page.mainFrame())navigations.push({url:frame.url(),at:new Date().toISOString()});});
  await context.addCookies([{name:'gorgona-locale',value:locale,url:base}]);
  if(cookie)await context.addCookies([{name:cookie.slice(0,cookie.indexOf('=')),value:cookie.slice(cookie.indexOf('=')+1),url:base,secure:true,httpOnly:true,sameSite:'Lax'}]);
  await context.addInitScript(({locale,session,local,voice})=>{
@@ -18,6 +24,7 @@ async function scenario(name,operation,{locale='en',width=1280,session,local,voi
   if(voice){
    // Explicit browser fixture; never opens a microphone or records audio.
    class SpeechFixture{
+    constructor(){if(voice==='constructor')throw Error('QA recognition constructor failure');if(voice==='configuration')Object.defineProperty(this,'lang',{set(){throw Error('QA recognition configuration failure');}});}
     start(){window.__qaSpeechLocale=this.lang;if(voice==='throw')throw Error('QA recognition start failure');if(voice==='hold'){(window.__qaSpeechSessions||=[]).push(this);return;}queueMicrotask(()=>{if(voice==='permission')this.onerror?.({error:'not-allowed'});else if(voice==='malformed')this.onresult?.({results:[]});else this.onresult?.({results:[[{transcript:locale==='ru'?'Нужна яхта':'Rent a yacht'}]]});this.onend?.();});}
     stop(){this.onend?.();}
    }
@@ -25,14 +32,16 @@ async function scenario(name,operation,{locale='en',width=1280,session,local,voi
   }
  },{locale,session,local,voice});
  await context.route('**/api/book',route=>route.abort('blockedbyclient'));
- page.on('pageerror',error=>errors.push({message:error.message,stack:error.stack}));page.setDefaultNavigationTimeout(30000);
- try{await operation(page,context);await expect(page.locator('html')).toHaveAttribute('lang',locale);await expect(page.locator('html')).toHaveAttribute('dir',['ar','he','fa'].includes(locale)?'rtl':'ltr');assert.deepEqual(errors,[],'JavaScript exceptions');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)<=2,'document overflow');results.push({name,status:'PASS',locale,width});}
- catch(error){await page.screenshot({path:path.join(output,name+'.png'),animations:'disabled'}).catch(()=>{});results.push({name,status:'FAIL',locale,width,error:error.message,jsErrors:errors});}
+ if(offline)await context.route(base+'/api/chat',route=>route.abort('blockedbyclient'));
+ page.on('pageerror',error=>errors.push({message:error.message,stack:error.stack,url:page.url(),navigation:navigations.length,at:new Date().toISOString()}));page.setDefaultNavigationTimeout(30000);
+ try{await operation(page,context);await expect(page.locator('html')).toHaveAttribute('lang',locale);if(javaScriptEnabled)await expect(page.locator('html')).toHaveAttribute('dir',['ar','he','fa'].includes(locale)?'rtl':'ltr');assert.deepEqual(errors,[],'JavaScript exceptions');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)<=2,'document overflow');results.push({name,status:'PASS',locale,width,javaScriptEnabled});}
+ catch(error){await page.screenshot({path:path.join(output,name+'.png'),animations:'disabled'}).catch(()=>{});results.push({name,status:'FAIL',locale,width,error:error.message,stack:error.stack,jsErrors:errors,navigations});}
  finally{await context.close();}
 }
 const thread=page=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('gorgona-concierge-thread')||'null'));
 async function send(page,text){const form=page.locator('main form');await expect(form.locator('input')).toBeEnabled();await form.locator('input').fill(text);await form.locator('button[type="submit"]').click();await expect.poll(async()=>((await thread(page))?.cards||[]).length).toBeGreaterThan(0);}
 try{
+ await scenario('drawer-trigger-first-paint',async page=>{await page.goto(base+'/discovery');const trigger=page.locator('button.aidock');assert.equal(await trigger.evaluate(el=>getComputedStyle(el).position),'fixed','Trigger must be positioned before hydration');await expect(trigger).toBeDisabled();},{javaScriptEnabled:false});
  await scenario('room-answer',async page=>{await page.goto(base+'/discovery');await send(page,'Find a yacht for 8 guests');const saved=await thread(page);assert.ok(saved.messages.some(m=>m.role==='assistant'&&m.content.trim()),'No visible concierge response');await expect(page.locator('main a[href="/yachts"]').first()).toBeVisible();});
  await scenario('room-card-dock-history-reload',async page=>{
   await page.goto(base+'/discovery');await send(page,'Rent a yacht');await page.locator('main a[href="/yachts"]').first().click();await expect(page).toHaveURL(base+'/yachts');
@@ -51,7 +60,7 @@ try{
  await scenario('drawer-result-destination',async page=>{await page.goto(base+'/discovery');await page.locator('button.aidock').click();const drawer=page.locator('.dr__panel');await drawer.locator('.dr__input').fill('Komodo');await drawer.locator('.dr__go').click();await expect(drawer.locator('.dr__go')).toBeEnabled();await drawer.locator('.dr__rowMain').first().click();await expect(page).toHaveURL(base+'/restaurants-nightlife/komodo-miami');const response=await page.request.get(page.url());assert.equal(response.status(),200);});
  await scenario('reset-inflight',async page=>{
   await page.goto(base+'/discovery');let release,ready,delivered;const held=new Promise(resolve=>{release=resolve;}),started=new Promise(resolve=>{ready=resolve;}),completed=new Promise(resolve=>{delivered=resolve;});
-  await page.route('**/api/chat',async route=>{try{const response=await route.fetch();ready();await held;await route.fulfill({response}).catch(()=>{});}finally{delivered();}});
+  await page.route('**/api/chat',async route=>{try{const response=offline?null:await route.fetch();ready();await held;await route.fulfill(response?{response}:{status:200,contentType:'application/json',body:JSON.stringify({reply:'Explicit offline QA fixture',cards:[{href:'/rentals',title:'Car Rentals'}],suggestions:[]})}).catch(()=>{});}finally{delivered();}});
   const form=page.locator('main form');await form.locator('input').fill('Rent a car');await form.locator('button[type="submit"]').click();await started;
   await page.getByRole('button',{name:'New conversation',exact:true}).click();release();await expect.poll(async()=>{const data=await thread(page);return (data?.cards?.length||0)+(data?.messages?.length||0);}).toBe(0);
   await completed;await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
@@ -62,9 +71,10 @@ try{
  await scenario('malformed-discovery-saved',async page=>{await page.goto(base+'/discovery');await page.locator('button.aidock').click();await expect(page.locator('.dr__input')).toBeVisible();},{local:{history:[null],saved:[null]}});
  await scenario('voice-dictation-fixture',async page=>{await page.goto(base+'/discovery');const mic=page.locator('main form button[aria-pressed]');await expect(mic).toBeEnabled();await mic.click();await expect.poll(async()=>((await thread(page))?.cards||[]).length).toBeGreaterThan(0);assert.equal(await page.evaluate(()=>window.__qaSpeechLocale),'ru-RU');assert.equal((await thread(page)).messages.filter(m=>m.role==='user').length,1);await expect(mic).toHaveAttribute('aria-pressed','false');},{locale:'ru',voice:'success'});
  for(const voice of ['permission','throw','malformed'])await scenario('voice-'+voice+'-fixture',async page=>{await page.goto(base+'/discovery');const mic=page.locator('main form button[aria-pressed]');await expect(mic).toBeEnabled();await mic.click();await expect(page.locator('main').getByRole('alert')).toBeVisible();await expect(mic).toHaveAttribute('aria-pressed','false');await send(page,'Rent a car');await expect(page.locator('main').getByRole('alert')).toHaveCount(0);},{voice});
+ for(const voice of ['constructor','configuration'])await scenario('voice-'+voice+'-offline-fixture',async page=>{await page.route('**/api/chat',route=>route.abort('blockedbyclient'));await page.goto(base+'/discovery');const mic=page.locator('main form button[aria-pressed]');await expect(mic).toBeEnabled();await mic.click();await expect(page.locator('main').getByRole('alert')).toBeVisible();await expect(mic).toHaveAttribute('aria-pressed','false');await send(page,'Rent a yacht');await expect(page.locator('main a[href="/yachts"]').first()).toBeVisible();await expect(page.locator('main').getByRole('alert')).toHaveCount(0);},{voice});
  await scenario('voice-unsupported-fixture',async page=>{await page.goto(base+'/discovery');await expect(page.locator('main form input')).toBeEnabled();await expect(page.locator('main form button[aria-pressed]')).toHaveCount(0);await send(page,'Rent a yacht');},{voice:'unsupported'});
  await scenario('voice-owner-handoff-fixture',async page=>{await page.goto(base+'/discovery');const mainMic=page.locator('main form button[aria-pressed]');await expect(mainMic).toBeEnabled();await mainMic.click();await page.getByRole('button',{name:'Open the Discovery Room concierge',exact:true}).click();const dock=page.getByRole('dialog',{name:'MIAMI ELIO AI Dock',exact:true});await dock.locator('button[aria-pressed]').click();await page.evaluate(()=>{window.__qaSpeechSessions[0].onresult({results:[[{transcript:'Stale old request'}]]});});await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));assert.equal((await thread(page)).messages.length,0);await page.evaluate(()=>window.__qaSpeechSessions[1].onresult({results:[[{transcript:'Rent a yacht'}]]}));await expect.poll(async()=>((await thread(page))?.cards||[]).length).toBeGreaterThan(0);assert.deepEqual((await thread(page)).messages.filter(m=>m.role==='user').map(m=>m.content),['Rent a yacht']);},{voice:'hold'});
  await scenario('voice-close-cancels-fixture',async page=>{await page.goto(base+'/discovery');await page.getByRole('button',{name:'Open the Discovery Room concierge',exact:true}).click();const dock=page.getByRole('dialog',{name:'MIAMI ELIO AI Dock',exact:true});await expect(dock.locator('button[aria-pressed]')).toBeEnabled();await dock.locator('button[aria-pressed]').click();await page.keyboard.press('Escape');await page.evaluate(()=>window.__qaSpeechSessions[0].onresult({results:[[{transcript:'Late after closing'}]]}));await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));assert.equal((await thread(page)).messages.length,0);},{voice:'hold'});
  await scenario('voice-reset-cancels-fixture',async page=>{await page.goto(base+'/discovery');await send(page,'Rent a car');await page.locator('main form button[aria-pressed]').click();await page.getByRole('button',{name:'New conversation',exact:true}).click();await page.evaluate(()=>window.__qaSpeechSessions[0].onresult({results:[[{transcript:'Late after reset'}]]}));await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));assert.equal((await thread(page)).messages.length,0);},{voice:'hold'});
  for(const {code:locale} of SUPPORTED_LANGUAGES)await scenario('layout-'+locale,async page=>{await page.goto(base+'/discovery');await expect(page.locator('main form input')).toBeEnabled();},{locale,width:['ar','he','fa'].includes(locale)?320:390});
-}finally{await browser.close();const report={base,identity,at:new Date().toISOString(),isolatedContexts:true,bookingRequestsBlocked:true,results,pass:results.filter(r=>r.status==='PASS').length,fail:results.filter(r=>r.status==='FAIL').length};fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));if(report.fail)process.exitCode=1;}
+}finally{await browser.close();const report={base,identity,at:new Date().toISOString(),browserEngine:browser.browserType().name(),browserVersion:browser.version(),modelRequestsBlocked:offline,isolatedContexts:true,bookingRequestsBlocked:true,results,pass:results.filter(r=>r.status==='PASS').length,fail:results.filter(r=>r.status==='FAIL').length};fs.writeFileSync(path.join(output,'results.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));if(report.fail)process.exitCode=1;}

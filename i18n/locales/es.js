@@ -917,5 +917,6 @@ export default {
   "listing.midline.description": "Música, cócteles y una noche en Miami.",
   "ui.b21d564daaa86897": "Eatwith",
   "ui.9b864ba64f10a3b4": "La compra se completa en TicketNetwork.",
-  "ui.7ab18ba3fd0d9837": "Los próximos eventos se muestran inicialmente para Miami y las ciudades cercanas del sur de Florida. Ajusta la lista con los filtros de zona, fecha, artista o equipo y ciudad. TicketNetwork gestiona la selección de entradas, el pago y la asistencia del pedido en una nueva pestaña. Los precios de reventa pueden superar el valor nominal."
+  "ui.7ab18ba3fd0d9837": "Los próximos eventos se muestran inicialmente para Miami y las ciudades cercanas del sur de Florida. Ajusta la lista con los filtros de zona, fecha, artista o equipo y ciudad. TicketNetwork gestiona la selección de entradas, el pago y la asistencia del pedido en una nueva pestaña. Los precios de reventa pueden superar el valor nominal.",
+  "worlds.categories.Sports": "Deportivos"
 };

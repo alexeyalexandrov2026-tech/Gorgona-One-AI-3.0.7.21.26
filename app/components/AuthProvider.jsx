@@ -4,8 +4,10 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { getSession, signOut as authSignOut } from '../../lib/auth';
 import { sessionLoader } from '../../lib/authSession.mjs';
 import { supabase } from '../../lib/supabase';
+import {useHydratedValue} from './useHydratedValue';
 
 const AuthContext = createContext(null);
+const INITIAL_AUTH={session:null,loading:true,error:null,refresh(){},async signOut(){return false;}};
 
 export function AuthProvider({ children }) {
   const [state, setState] = useState({ session: null, loading: true, error: null });
@@ -50,5 +52,6 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const value=useContext(AuthContext);
+  return useHydratedValue(value,value?INITIAL_AUTH:null);
 }

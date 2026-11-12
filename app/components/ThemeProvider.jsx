@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import {useHydratedValue} from './useHydratedValue';
 
 // ===========================================================================
 // Theme layer for the Miami Elio AI ecosystem.
@@ -54,12 +55,13 @@ export function ThemeProvider({ children, defaultTheme = 'dark' }) {
   const value = useMemo(
     () => ({
       theme,
+      initialTheme:defaultTheme,
       ready,
       isDark: theme === 'dark',
       setTheme,
       toggle: () => setTheme(theme === 'dark' ? 'light' : 'dark')
     }),
-    [theme, ready]
+    [theme, ready, defaultTheme]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
@@ -69,8 +71,7 @@ export function ThemeProvider({ children, defaultTheme = 'dark' }) {
 // so individual AI components never crash if mounted standalone.
 export function useAITheme() {
   const ctx = useContext(ThemeContext);
-  if (!ctx) {
-    return { theme: 'dark', ready: true, isDark: true, setTheme: () => {}, toggle: () => {} };
-  }
-  return ctx;
+  const theme=ctx?.initialTheme||'dark';
+  const initial={theme,ready:!ctx,isDark:theme==='dark',setTheme(){},toggle(){}};
+  return useHydratedValue(ctx||initial,initial);
 }

@@ -917,5 +917,6 @@ export default {
   "listing.midline.description": "Musica, cocktail e una serata a Miami.",
   "ui.b21d564daaa86897": "Eatwith",
   "ui.9b864ba64f10a3b4": "Il pagamento si apre su TicketNetwork.",
-  "ui.7ab18ba3fd0d9837": "Gli eventi in programma mostrano inizialmente Miami e le città vicine della Florida meridionale. Modifica l’elenco con i filtri per zona, data, artista e città. La scelta dei biglietti, il pagamento e l’assistenza agli ordini sono gestiti da TicketNetwork in una nuova scheda. I prezzi di rivendita possono superare il valore nominale."
+  "ui.7ab18ba3fd0d9837": "Gli eventi in programma mostrano inizialmente Miami e le città vicine della Florida meridionale. Modifica l’elenco con i filtri per zona, data, artista e città. La scelta dei biglietti, il pagamento e l’assistenza agli ordini sono gestiti da TicketNetwork in una nuova scheda. I prezzi di rivendita possono superare il valore nominale.",
+  "worlds.categories.Sports": "Auto sportive"
 };

@@ -4,6 +4,7 @@ import { useSavedText } from "../LocalizedText";
 import { useAI } from './AIProvider';
 import { useAITheme } from '../ThemeProvider';
 import DiscoveryRoom from './DiscoveryRoom';
+import {useLocaleReady} from '../LocaleProvider';
 
 // ===========================================================================
 // Persistent AI dock (Phase 3).
@@ -18,7 +19,9 @@ import DiscoveryRoom from './DiscoveryRoom';
 export default function AIDock() {
   const msg = useSavedText();
   const { toggleRoom, roomOpen, saved, history, hydrated } = useAI();
-  const { theme } = useAITheme();
+  const { theme, ready:themeReady } = useAITheme();
+  const localeReady=useLocaleReady();
+  const ready = hydrated && themeReady && localeReady;
 
   // A subtle count of what's waiting in the room.
   const count = (saved?.length || 0) + (history?.length || 0);
@@ -27,9 +30,10 @@ export default function AIDock() {
     <>
       <button
         type="button"
+        disabled={!ready}
         className={`aidock ${roomOpen ? "is-open" : ''}`}
         data-ai-theme={theme}
-        onClick={toggleRoom}
+        onClick={(event)=>{event.currentTarget.focus({preventScroll:true});toggleRoom();}}
         aria-label={roomOpen ? msg("Close Miami Elio AI") : msg("Open Miami Elio AI")}
         aria-expanded={roomOpen}
       >
@@ -42,57 +46,6 @@ export default function AIDock() {
 
       <DiscoveryRoom />
 
-      <style jsx>{`
-        /* Sits ABOVE the AiSphere, which owns the bottom-right corner
-           (bottom-6 right-5, 60px, z-50). Both were pinned to the same spot,
-           and because this pill carries the higher z-index it swallowed
-           clicks aimed at the lower half of the sphere - the concierge
-           button simply would not open from there. */
-        .aidock {
-          position: fixed; right: 20px; bottom: 96px; z-index: 55;
-          display: inline-flex; align-items: center; gap: 9px;
-          padding: 10px 16px 10px 11px; border-radius: 999px; cursor: pointer;
-          font-family: "Space Mono", ui-monospace, monospace; font-size: 11px;
-          letter-spacing: 0.16em; text-transform: uppercase;
-          backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-          transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
-        }
-        .aidock[data-ai-theme="dark"] {
-          background: rgba(26, 22, 15, 0.7); border: 1px solid rgba(216, 180, 120, 0.4); color: #ece4d4;
-          box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.7), 0 0 22px rgba(216, 180, 120, 0.14);
-        }
-        .aidock[data-ai-theme="light"] {
-          background: rgba(255, 253, 248, 0.85); border: 1px solid rgba(198, 160, 94, 0.45); color: #2c281f;
-          box-shadow: 0 12px 30px -14px rgba(60, 45, 12, 0.4);
-        }
-        .aidock:hover { transform: translateY(-2px); }
-        .aidock:focus-visible { outline: 2px solid #c6a05e; outline-offset: 3px; }
-        .aidock.is-open { opacity: 0.85; }
-        /* The sphere moves to bottom-8 right-8 at the sm breakpoint. */
-        @media (min-width: 640px) { .aidock { right: 32px; bottom: 108px; } }
-
-        .aidock__orb {
-          position: relative; width: 22px; height: 22px; border-radius: 50%;
-          background: radial-gradient(circle at 34% 30%, #fffdf6 0%, #d8b478 55%, #8a6528 100%);
-          box-shadow: 0 0 12px rgba(216, 180, 120, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-          display: flex; align-items: center; justify-content: center;
-        }
-        .aidock__core {
-          width: 8px; height: 8px; border-radius: 50%;
-          background: radial-gradient(circle, #fffef7, #f0d49a);
-          animation: aidockPulse 2.6s ease-in-out infinite;
-        }
-        @keyframes aidockPulse { 0%, 100% { transform: scale(0.7); opacity: 0.75; } 50% { transform: scale(1.05); opacity: 1; } }
-
-        .aidock__badge {
-          position: absolute; top: -6px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px;
-          border-radius: 999px; background: #c6a05e; color: #201810;
-          font-size: 10px; letter-spacing: 0; display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-        }
-
-        @media (prefers-reduced-motion: reduce) { .aidock__core { animation: none; } .aidock { transition: none; } }
-      `}</style>
     </>
   );
 }

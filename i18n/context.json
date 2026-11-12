@@ -3670,5 +3670,9 @@
   "ui.7ab18ba3fd0d9837": {
     "sourceHash": "7ab18ba3fd0d983796c95cc4ca3674d6c02bcb1e3da03943c1e074f71c7c7dd0",
     "description": "app/events/TicketNetworkCatalogue.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "worlds.categories.Sports": {
+    "sourceHash": "404714cbd00e198a94947fdc30e580c78f370e7f7c46032a70f3a74523dc3b2b",
+    "context": "Car body type filter; sports cars"
   }
 }

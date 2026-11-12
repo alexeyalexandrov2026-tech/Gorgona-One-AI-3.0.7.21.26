@@ -9,4 +9,5 @@ node_modules/
 .dev.vars
 .dev.vars.*
 .wrangler/
+.cache/
 supabase/.temp/

@@ -23,13 +23,13 @@ const isoDay = (offset) => {
 
 // Request form for a car, a charter, a stay or an experience. Nothing is charged: the
 // request goes to the team, who confirm rate, deposit and requirements.
-export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car' }) {
+export default function BookingForm({ rentalSlug, rentalTitle, kind = 'car', pickupLocation }) {
   const auth=useAuth(),msg=useSavedText();
   if(auth?.loading)return <div role="status" className="py-5">{msg('Loading...')}</div>;
-  return <BookingWorkspace key={[auth?.session?.id||'guest',kind,rentalSlug].join(':')} rentalSlug={rentalSlug} rentalTitle={rentalTitle} kind={kind}/>;
+  return <BookingWorkspace key={[auth?.session?.id||'guest',kind,rentalSlug].join(':')} rentalSlug={rentalSlug} rentalTitle={rentalTitle} kind={kind} pickupLocation={pickupLocation}/>;
 }
 
-function BookingWorkspace({rentalSlug,rentalTitle,kind}) {
+function BookingWorkspace({rentalSlug,rentalTitle,kind,pickupLocation}) {
   const msg=useSavedText();
   const locale = useLocale();
   const copy = getWorldsCopy(locale).form;
@@ -89,6 +89,7 @@ function BookingWorkspace({rentalSlug,rentalTitle,kind}) {
         return await send(pending.current,sessionData?.session);
       }
       const body = { ...contact, dates: summarizeRequest(kind, trip), itemSlug: rentalSlug, itemTitle: rentalTitle, kind };
+      if(pickupLocation && kind==='car' && trip.place===0)body.dates=`${trip.from} → ${trip.to} · Pickup / delivery: ${pickupLocation}`;
       attempt.current = submissionKey(attempt.current, JSON.stringify([body, sessionData?.session?.user?.id || null]));
       const entry={version:1,key:attempt.current.key,owner:sessionData?.session?.user?.id||null,createdAt:Date.now(),body,trip};
       pending.current=entry;writeJournal(storage(),scope,entry);setLocked(true);
@@ -186,7 +187,7 @@ function BookingWorkspace({rentalSlug,rentalTitle,kind}) {
             <label className={`${labelClass} col-span-2`}>
               {copy.deliveryTo}
               <select className={inputClass} value={trip.place} onChange={setT('place', true)}>
-                {copy.places.map((label, i) => <option key={label} value={i}>{label}</option>)}
+                {copy.places.map((label, i) => <option key={label} value={i}>{i===0&&pickupLocation?`${copy.pickup} · ${pickupLocation==='On request'?getWorldsCopy(locale).onRequest:pickupLocation}`:label}</option>)}
               </select>
             </label>
           )}

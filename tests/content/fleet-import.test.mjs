@@ -10,7 +10,7 @@ import {savedListing} from '../../lib/savedCopy.js';
 import nextConfig from '../../next.config.js';
 const read=name=>JSON.parse(readFileSync(new URL('../../docs/fleet-import/'+name,import.meta.url),'utf8'));
 const plan=read('decisions.json'),source=read('source-inventory.json'),assets=read('assets.json').assets;
-const cars=getRentals();
+const cars=getRentals().filter(car=>car.supplier!=='Sunset Exotics');
 test('unaffected original vehicles retain their routes, covers and descriptive metadata',()=>{
  for(const original of read('existing-fleet.json')){
   if(['mercedes-g-class-white','mercedes-gls-white'].includes(original.slug))continue;

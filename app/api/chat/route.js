@@ -2,24 +2,25 @@ import { NextResponse } from 'next/server';
 import { SYSTEM_PROMPT } from '../../../lib/aiEcosystemContext';
 import { askLocalBrain } from '../../../lib/ai/localBrain';
 import { languageDirective, normalizeLocale, unavailableReply } from '../../../lib/ai/locale';
-import {readChatRequest,ChatInputError} from '../../../lib/ai/chatRequest.mjs';
+import {readChatRequest,validateChatTransport,ChatInputError} from '../../../lib/ai/chatRequest.mjs';
 import {conversationNavigation} from '../../../lib/ai/conversation.mjs';
+import {askWorkersBrain} from '../../../lib/ai/workersBrain.mjs';
+import {groundedReply,CATALOGUE_PROTOCOL} from '../../../lib/ai/groundedReply.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
 //
 // A thin adapter over a fallback chain, in order of preference:
 //
+//   0. native Workers AI, opt-in on the authenticated QA Worker only
 //   1. the local Miami Elio AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
 //   2. the hosted ai-router on :20128 (OpenAI-compatible)
 //   3. a polite canned reply
 //
 // The contract this route returns NEVER changes shape and the status is
-// ALWAYS 200 for a well-formed request, whatever happens upstream. That is
-// what lets the chat widget stay a pure presentation layer: it renders
-// `reply` and `suggestions` and has no failure branch to style. Swapping,
-// disabling, or breaking a backend changes which engine answers — never the
-// page.
+// ALWAYS 200 for a well-formed request, whatever happens upstream. A degraded
+// answer is explicitly labelled error:true/configured:false, with locally
+// computed navigation buttons still available. Invalid requests return 400/413.
 // ===========================================================================
 
 export const runtime = 'nodejs';
@@ -46,14 +47,15 @@ function logRouterIssue(...args) {
   console.error('AI router:', ...args);
 }
 
-function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false } = {}) {
+function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, navigation = null, responsePolicy = null } = {}) {
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
     // somewhere to go even when no model answered. The guest's own words
     // lead; the reply only reinforces - and on the degraded path it is a
     // canned line, so it is excluded entirely.
-    ...conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale}),
+    ...(navigation||conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale})),
+    ...(responsePolicy?{responsePolicy}:{}),
     configured: !error,
     ...(source ? { source } : {}),
     // Handle for the local brain's server-side conversation memory. The
@@ -71,7 +73,7 @@ async function askRouter(messages, locale) {
   const openaiMessages = [
     // The router path owns its system prompt, so the language instruction
     // goes where it belongs: appended to the persona.
-    { role: 'system', content: `${SYSTEM_PROMPT}${languageDirective(locale)}` },
+    { role: 'system', content: `${SYSTEM_PROMPT}${languageDirective(locale)}${CATALOGUE_PROTOCOL}` },
     ...messages
       .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && m.content)
       .map((m) => ({ role: m.role, content: String(m.content).slice(0, 4000) }))
@@ -101,10 +103,9 @@ async function askRouter(messages, locale) {
     });
 
     if (!response.ok) {
-      // Log only the status and upstream error body server-side for debugging -
-      // never the request payload or the API key - and never forward either to
-      // the client.
-      logRouterIssue(response.status, (await response.text()).slice(0, 500));
+      // Provider bodies may echo customer input or credentials. Log metadata only.
+      logRouterIssue('provider status',response.status);
+      await response.body?.cancel().catch(()=>{});
       return null;
     }
 
@@ -114,7 +115,7 @@ async function askRouter(messages, locale) {
     if (error?.name === 'AbortError') {
       logRouterIssue('request timed out after', ROUTER_TIMEOUT_MS, 'ms');
     } else {
-      logRouterIssue('unreachable —', error?.message || error);
+      logRouterIssue('unreachable');
     }
     return null;
   } finally {
@@ -127,6 +128,7 @@ async function askRouter(messages, locale) {
 export async function POST(request) {
   let body;
   try {
+    validateChatTransport(request);
     body = await readChatRequest(request);
   } catch(error) {
     return NextResponse.json({ error: error instanceof ChatInputError?error.message:'Invalid chat request.' }, { status: error instanceof ChatInputError?error.status:400 });
@@ -144,17 +146,25 @@ export async function POST(request) {
   // to answer in it, and the degraded path speaks it too.
   const locale = normalizeLocale(body?.locale);
 
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request});
+  if(cloud.ok)return reply(cloud.reply,{messages,latestUserMessage,source:'workers-ai',locale,navigation:cloud.navigation,responsePolicy:cloud.responsePolicy});
+  // A denied/failed metered engine must not start another unmetered engine.
+  if(cloud.kind!=='disabled')return reply(unavailableReply(locale),{messages,latestUserMessage,locale,source:'navigation',error:true});
+
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
-  const local = await askLocalBrain({ messages, systemPrompt: SYSTEM_PROMPT, sessionId, locale });
+  const local = await askLocalBrain({ messages, systemPrompt: SYSTEM_PROMPT+CATALOGUE_PROTOCOL, sessionId, locale,responseProtocol:CATALOGUE_PROTOCOL });
   if (local.ok) {
-    return reply(local.reply, { messages, latestUserMessage, source: 'local', sessionId: local.sessionId, locale });
+    const projection=groundedReply(local.reply,{messages,locale});
+    if(projection)return reply(projection.reply, { messages, latestUserMessage, source: 'local', sessionId: local.sessionId, locale,navigation:projection.navigation,responsePolicy:projection.responsePolicy });
+    return reply(unavailableReply(locale),{messages,latestUserMessage,locale,source:'navigation',error:true});
   }
 
   // Link 2 - the hosted router.
   const routed = await askRouter(messages, locale);
   if (routed) {
-    return reply(routed, { messages, latestUserMessage, source: 'router', locale });
+    const projection=groundedReply(routed,{messages,locale});
+    if(projection)return reply(projection.reply, { messages, latestUserMessage, source: 'router', locale,navigation:projection.navigation,responsePolicy:projection.responsePolicy });
   }
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the

@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {discoverySnapshot,navigationItem} from '../../../lib/ai/session.mjs';
+import {useHydratedValue} from '../useHydratedValue';
 
 // ===========================================================================
 // Miami Elio AI — session state (Phase 3).
@@ -100,5 +101,5 @@ export function AIProvider({ children }) {
 }
 
 export function useAI() {
-  return useContext(AIStateContext) || NOOP;
+  return useHydratedValue(useContext(AIStateContext) || NOOP,NOOP);
 }

@@ -1,4 +1,5 @@
 import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
+import { getRentals } from '../lib/rentalsData.js';
 import { allDeals } from '../lib/dealsData';
 import { EVENT_CATEGORIES, LEAGUES } from '../lib/mockEventsData';
 import { getAllEvents } from '../lib/eventsData';
@@ -55,5 +56,6 @@ export default async function sitemap() {
     priority: 0.8
   }));
 
-  return [...staticRoutes, ...categoryRoutes, ...dealRoutes, ...eventCategoryRoutes, ...leagueRoutes, ...eventRoutes];
+  const carRoutes = getRentals().map(car=>({url:`${baseUrl}/rentals/${car.slug}`,changeFrequency:'weekly',priority:0.7}));
+  return [...staticRoutes, ...categoryRoutes, ...dealRoutes, ...eventCategoryRoutes, ...leagueRoutes, ...eventRoutes, {url:baseUrl+'/rentals',changeFrequency:'weekly',priority:0.8}, ...carRoutes];
 }
