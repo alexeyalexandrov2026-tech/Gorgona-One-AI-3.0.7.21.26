@@ -38,6 +38,7 @@ open MiamiElio.xcodeproj
 |---|---|---|
 | Логика | `cd ios/MiamiElioKit && swift test` | Mac, CI |
 | Сборка и UI-тесты | workflow **iOS** (`.github/workflows/ios.yml`) | CI на macOS при любом изменении в `ios/` |
+| Сборка Release для TestFlight без подписи и то, что проверяет App Store Connect | job `release-archive` того же workflow, `scripts/check-release-archive.sh` | CI на macOS, рядом с UI-тестами |
 | Тексты совпадают с сайтом | `node ios/scripts/build-strings.mjs --check` | CI |
 | Сезон совпадает с главной сайта | `node ios/scripts/build-season.mjs --check`, `node --test tests/content/app-season.test.mjs` | CI iOS и CI сайта |
 | Сайт и приложение не разошлись | `node --test tests/content/app-shell.test.mjs` | основной CI сайта |
@@ -45,7 +46,7 @@ open MiamiElio.xcodeproj
 
 Скриншоты каждого прогона UI-тестов лежат в артефакте `ios-screenshots` на странице прогона в GitHub Actions.
 
-Если UI-тест упал, шаг «Report failed tests» (`scripts/report-test-failures.py`) пишет в пометки прогона (Annotations), какой тест упал, на какой строке и что было на экране. Пометки видны без входа на GitHub — на странице прогона и через открытый API (`/check-runs/<id>/annotations`); журналы шагов и артефакты открываются только после входа.
+Если UI-тест упал, шаг «Report failed tests» (`scripts/report-test-failures.mjs`) пишет в пометки прогона (Annotations) только имя теста, файл, строку и текст проверки, очищенный от всего, что взято с экрана или относится к человеку (подписи и сравниваемые значения, почта, телефоны, ссылки, ключи, буквы не из латиницы). Скриншотов и описания экрана в пометках и в журнале нет; это проверяет `tests/content/ios-failure-report.test.mjs`. Пометки видны без входа на GitHub — на странице прогона и через открытый API (`/check-runs/<id>/annotations`); журналы шагов и артефакты открываются только после входа.
 
 ## Как приложение договаривается с сайтом
 
@@ -77,15 +78,14 @@ open MiamiElio.xcodeproj
 
 ## Публикация в TestFlight и App Store
 
-Нужен платный аккаунт Apple Developer (99 $ в год). Без него приложение можно только собрать и запустить в симуляторе.
+Нужен платный аккаунт Apple Developer (99 $ в год). Без него приложение можно только собрать и запустить в симуляторе. Пошагово для владельца и список проверок на iPhone — `docs/TESTFLIGHT.md`; коротко:
 
-1. Зарегистрироваться на developer.apple.com, записать **Team ID** (10 символов, раздел Membership).
-2. В App Store Connect создать приложение с Bundle ID `com.miamielio.app` (или поменять его в `project.yml`).
-3. App Store Connect → Users and Access → Integrations → App Store Connect API: создать ключ с ролью **Admin**, скачать файл `.p8`, записать **Key ID** и **Issuer ID**.
-4. В GitHub: Settings → Secrets and variables → Actions добавить секреты `APPLE_TEAM_ID`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8` (содержимое файла `.p8`).
-5. Actions → **iOS release (TestFlight)** → Run workflow.
+1. Записать **Team ID**, зарегистрировать идентификатор `com.miamielio.app`, создать приложение в App Store Connect.
+2. App Store Connect → Users and Access → Integrations → App Store Connect API: ключ с ролью **Admin**; файл `.p8`, **Key ID**, **Issuer ID**.
+3. GitHub: Settings → Secrets and variables → Actions — секреты `APPLE_TEAM_ID`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8`.
+4. Метка `ios-testflight-<версия>` на нужном коммите (`git tag ios-testflight-1.0.0 <коммит> && git push origin ios-testflight-1.0.0`) запускает `.github/workflows/ios-release.yml` из любой ветки; такие сборки — только для внутренних тестировщиков. Кнопка Actions → **iOS release (TestFlight)** → Run workflow появится, когда workflow окажется в `main`.
 
-> Этот workflow ещё ни разу не запускался: на момент написания Apple-аккаунта не было. При первом запуске возможны правки.
+> Выгрузка ещё ни разу не запускалась: Apple-аккаунта нет. Половина без подписи — сборка Release и проверка того, что читает App Store Connect (`scripts/check-release-archive.sh`), — идёт в job `release-archive` workflow iOS на каждом изменении `ios/`. При первом настоящем запуске возможны правки.
 
 ## Что нужно сделать до отправки на ревью App Store
 

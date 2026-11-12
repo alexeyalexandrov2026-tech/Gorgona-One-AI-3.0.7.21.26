@@ -1,9 +1,22 @@
-# Uploads a build of the iOS app to TestFlight. Started by hand from the
-# Actions tab; never runs on its own.
+# Uploads a build of the iOS app to TestFlight. Never runs on its own.
 #
 # NOT YET PROVEN: this has never run, because it needs an Apple Developer
 # account that did not exist when it was written. Expect to adjust it on the
-# first real run. Setup steps are in ios/README.md.
+# first real run. Setup, and what to check on the iPhone: docs/TESTFLIGHT.md.
+# The unsigned half of it (Release archive and its checks) runs on every
+# change to ios/, in the iOS workflow's release-archive job.
+#
+# Two ways to start it:
+#   - A tag ios-testflight-<version> on the commit to build, on any branch:
+#       git tag ios-testflight-1.0.0 <commit> && git push origin ios-testflight-1.0.0
+#     The version comes from the tag; for another build of the same version,
+#     add anything after it (ios-testflight-1.0.0-2). These builds are for
+#     internal testers only. A tag is the way while this file is not in main:
+#     GitHub offers the Run workflow button only for workflows in main.
+#   - Once this file is in main: Actions -> iOS release (TestFlight) -> Run workflow.
+#
+# The build number is this workflow's run number and attempt (12.1), so every
+# upload, a re-run included, gets a new one.
 #
 # Repository secrets it needs:
 #   APPLE_TEAM_ID   - the 10-character team ID from developer.apple.com
@@ -13,12 +26,19 @@
 name: iOS release (TestFlight)
 
 on:
+  push:
+    tags:
+      - 'ios-testflight-*'
   workflow_dispatch:
     inputs:
       version:
         description: 'Version shown in the App Store, e.g. 1.0.0'
         required: true
         default: '1.0.0'
+      internal_only:
+        description: 'For internal testers only (the build cannot go to external testers or the App Store)'
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -36,22 +56,27 @@ jobs:
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
       ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
-      APP_VERSION: ${{ inputs.version }}
+      REQUESTED_VERSION: ${{ inputs.version || github.ref_name }}
+      INTERNAL_ONLY: ${{ github.event_name == 'push' || inputs.internal_only }}
+      BUILD_NUMBER: ${{ github.run_number }}.${{ github.run_attempt }}
     steps:
-      - name: Check the Apple credentials are configured
+      - name: Check the Apple credentials and the version
         run: |
           missing=""
           for name in APPLE_TEAM_ID ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do
             [ -n "${!name}" ] || missing="$missing $name"
           done
           if [ -n "$missing" ]; then
-            echo "::error::Missing repository secrets:$missing. See ios/README.md."
+            echo "::error::Missing repository secrets:$missing. See docs/TESTFLIGHT.md."
             exit 1
           fi
-          if ! printf '%s' "$APP_VERSION" | grep -Eq '^[0-9]+\.[0-9]+(\.[0-9]+)?$'; then
-            echo "::error::Version must look like 1.0.0"
+          version=$(printf '%s' "$REQUESTED_VERSION" | grep -Eo '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -n 1 || true)
+          if [ -z "$version" ]; then
+            echo "::error::No version in '$REQUESTED_VERSION': use 1.0.0, or a tag like ios-testflight-1.0.0"
             exit 1
           fi
+          echo "APP_VERSION=$version" >> "$GITHUB_ENV"
+          echo "Miami Elio $version ($BUILD_NUMBER), internal testers only: $INTERNAL_ONLY"
 
       - uses: actions/checkout@v4
 
@@ -86,20 +111,29 @@ jobs:
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             MARKETING_VERSION="$APP_VERSION" \
-            CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             -quiet
+
+      - name: Check the archive
+        working-directory: ios
+        run: bash scripts/check-release-archive.sh build/MiamiElio.xcarchive "$APP_VERSION" "$BUILD_NUMBER"
 
       - name: Upload to TestFlight
         working-directory: ios
         run: |
+          cp ExportOptions.plist build/ExportOptions.plist
+          if [ "$INTERNAL_ONLY" = "true" ]; then
+            /usr/libexec/PlistBuddy -c "Add :testFlightInternalTestingOnly bool true" build/ExportOptions.plist
+          fi
           xcodebuild -exportArchive \
             -archivePath build/MiamiElio.xcarchive \
-            -exportOptionsPlist ExportOptions.plist \
+            -exportOptionsPlist build/ExportOptions.plist \
             -exportPath build/export \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/asc/AuthKey_${ASC_KEY_ID}.p8" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          echo "Uploaded Miami Elio $APP_VERSION ($BUILD_NUMBER). App Store Connect processes it for 10-30 minutes; then it appears in TestFlight for the internal group."
 
       - name: Remove the key
         if: always()

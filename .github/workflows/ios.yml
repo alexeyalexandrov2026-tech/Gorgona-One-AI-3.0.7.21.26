@@ -91,9 +91,11 @@ jobs:
           xcrun xcresulttool export attachments --path build/UITests.xcresult --output-path build/attachments || exit 0
           python3 scripts/collect-screenshots.py build/attachments build/screenshots
 
-      # Step logs open only to someone signed in to GitHub. Annotations show
-      # on the run's page and through the public API: put there which test
-      # failed, on which line, and what was on screen at that moment.
+      # Step logs open only to someone signed in to GitHub; annotations show to
+      # anyone. So they say which test failed, in which file and on which
+      # line, and the assertion's wording cleaned of anything taken from the
+      # screen or from a person - nothing more (scripts/report-test-failures.mjs,
+      # checked by tests/content/ios-failure-report.test.mjs).
       - name: Report failed tests
         if: failure()
         working-directory: ios
@@ -101,7 +103,7 @@ jobs:
           [ -d build/UITests.xcresult ] || exit 0
           xcrun xcresulttool get test-results tests --path build/UITests.xcresult > build/tests.json || true
           xcrun xcresulttool get test-results summary --path build/UITests.xcresult > build/summary.json || true
-          python3 scripts/report-test-failures.py build/tests.json build/summary.json build/attachments
+          node scripts/report-test-failures.mjs build/tests.json build/summary.json
 
       - name: Upload screenshots
         if: always()
@@ -110,3 +112,39 @@ jobs:
           name: ios-screenshots
           path: ios/build/screenshots
           if-no-files-found: ignore
+
+  # TestFlight (ios-release.yml) needs an Apple Developer account to sign and
+  # upload. Until then, archive the Release build the same way, unsigned, and
+  # check what App Store Connect reads, so the first real upload does not fail
+  # on something a build could have caught. Runs beside the UI tests.
+  release-archive:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate the Xcode project
+        working-directory: ios
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen
+          xcodegen generate
+
+      - name: Archive (Release, unsigned)
+        working-directory: ios
+        run: |
+          xcodebuild archive \
+            -project MiamiElio.xcodeproj \
+            -scheme MiamiElio \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/MiamiElio.xcarchive \
+            MARKETING_VERSION=9.9.9 \
+            CURRENT_PROJECT_VERSION=999.1 \
+            CODE_SIGNING_ALLOWED=NO \
+            -quiet
+
+      # The version and build number given above must reach the app, as the
+      # ones the TestFlight workflow gives will.
+      - name: Check the archive
+        working-directory: ios
+        run: bash scripts/check-release-archive.sh build/MiamiElio.xcarchive 9.9.9 999.1
