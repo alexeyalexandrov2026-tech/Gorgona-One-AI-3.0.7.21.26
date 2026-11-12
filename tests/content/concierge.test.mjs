@@ -105,6 +105,12 @@ test('Workers AI is asked with the persona and answers in every response shape',
   const custom = await askWorkersAi({ binding, messages, systemPrompt: 'p', model: ' @cf/example/model ' });
   assert.equal(custom.model, '@cf/example/model');
 
+  // Gemma 4 is told not to think first (thinking would spend max_tokens and
+  // leave the reply empty); models that do not take the option never get it.
+  assert.equal(calls[0].input.chat_template_kwargs, undefined);
+  await askWorkersAi({ binding, messages, systemPrompt: 'p', model: '@cf/google/gemma-4-26b-a4b-it' });
+  assert.deepEqual(calls.at(-1).input.chat_template_kwargs, { enable_thinking: false });
+
   assert.equal(extractWorkersAiText({ choices: [{ message: { content: ' From choices ' } }] }), 'From choices');
   assert.equal(extractWorkersAiText({ output: [{ content: [{ type: 'output_text', text: 'From output' }] }] }), 'From output');
   assert.equal(extractWorkersAiText({ result: { response: 'From envelope' } }), 'From envelope');
