@@ -91,6 +91,18 @@ jobs:
           xcrun xcresulttool export attachments --path build/UITests.xcresult --output-path build/attachments || exit 0
           python3 scripts/collect-screenshots.py build/attachments build/screenshots
 
+      # Step logs open only to someone signed in to GitHub. Annotations show
+      # on the run's page and through the public API: put there which test
+      # failed, on which line, and what was on screen at that moment.
+      - name: Report failed tests
+        if: failure()
+        working-directory: ios
+        run: |
+          [ -d build/UITests.xcresult ] || exit 0
+          xcrun xcresulttool get test-results tests --path build/UITests.xcresult > build/tests.json || true
+          xcrun xcresulttool get test-results summary --path build/UITests.xcresult > build/summary.json || true
+          python3 scripts/report-test-failures.py build/tests.json build/summary.json build/attachments
+
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
