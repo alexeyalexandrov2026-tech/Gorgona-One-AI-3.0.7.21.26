@@ -13,6 +13,7 @@ import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
 import { FLEET, HOME_YACHTS, HOME_STAYS, carThumb } from '../lib/homeData';
 import HomeHero from './components/home/HomeHero';
 import SeasonShelf from './components/home/SeasonShelf';
+import TicketCarousel from './components/home/TicketCarousel';
 import A1ALine from './components/home/A1ALine';
 import ConciergeBand from './components/home/ConciergeBand';
 import { SectionHead, ListingCard, btn } from './components/g1/ui';
@@ -45,6 +46,11 @@ export default function HomePage() {
       <section className="py-[clamp(36px,5vw,72px)]">
         <SectionHead title={copy.season} sub={copy.seasonSub} href="/events" cta={t.nav.events} />
         <SeasonShelf copy={copy} locale={locale} />
+      </section>
+
+      <section className="py-[clamp(36px,5vw,72px)]">
+        <SectionHead title={copy.tickets.title} sub={copy.tickets.sub} href="/events" cta={copy.tickets.all} />
+        <TicketCarousel copy={copy} locale={locale} />
       </section>
 
       <section className={`${rule} py-[clamp(36px,5vw,72px)]`}>

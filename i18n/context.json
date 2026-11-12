@@ -167,6 +167,62 @@
     "sourceHash": "37a663b534f49a47145b95573be03f4a35c16faf01f2b2154af0246e15625548",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
+  "home.tickets.title": {
+    "sourceHash": "f73b457cfa575b0725e16667ab2503ff54d8eb8ce0f4a29f4ee9781c44787888",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.sub": {
+    "sourceHash": "6cd0151ec2b298e331174b41e4302fdc7b8fe4605c9cbea82ce847ffbf3a04ae",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.get": {
+    "sourceHash": "23ba839798488c6dc8493f332c1fb930dabc2762f9530caa1a9057f7ddeb38d0",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.all": {
+    "sourceHash": "db7e6f72a4bbe53d37b9cfb39337922da3f760a1cb0b380c28bbec46d8d946da",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.label": {
+    "sourceHash": "6dc105fb5ac906f322b9e3d0fb7ca64db60c3233b390ab6dc3a321c6959b95e6",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.show": {
+    "sourceHash": "a9594051cca5dd400836749710dca77182bd5f677d725c7b593dfc1942a6ee66",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.pause": {
+    "sourceHash": "858e4ba7a29fd38b630ed73a79e2738333b3fc6778fafa90252f5556c1262fdc",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.play": {
+    "sourceHash": "436e61016e26fcb773b9725745cbbf0afe7f001ea26041a814a7712c2925c442",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.lines.nba": {
+    "sourceHash": "b012484bf5cbbfeee85b1829706525530ed80af7a07409165c4594f7ce4206e3",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.lines.theater": {
+    "sourceHash": "f9dea276913d88bcdce65baaffd16433eef6f87e48ddb9face7b5c3316e097b0",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.lines.mls": {
+    "sourceHash": "13b6d1b79de4d720c20fcb652fe39d7cad8f2be81cbdd6e582794ba2860071e2",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.lines.festivals": {
+    "sourceHash": "209b73a7689a83e3933fdd8eb96f1ffe85f36f7fd3064ab380d638e45754d34b",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.lines.tennis": {
+    "sourceHash": "d0cbce68aded233adfd9f86e1713939656b38551c4a49fc80c1278e61d641b1f",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "home.tickets.lines.hiphop": {
+    "sourceHash": "c9e5fc9cecc67a75d462cae98f4f04efc5090736f7c153ae758d2ec8c3c70a3b",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
   "home.line": {
     "sourceHash": "03b28d7df4dcba85a4598e28b413a1f1a0efaed352d786eb1505ec0bb93a8155",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
@@ -2014,6 +2070,10 @@
   "ui.20e5fc7adf15478a": {
     "sourceHash": "20e5fc7adf15478aa111ac7cc0eba8c456804c5eb3717a8198a0334d4980a249",
     "description": "app/events/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.435a05d90f73e5b9": {
+    "sourceHash": "435a05d90f73e5b91b2168cf71cfe423eea52497f424ffa4aff9cd4d05932f73",
+    "description": "app/events/EventPass.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.748426d0340e1edf": {
     "sourceHash": "748426d0340e1edf3c7cc1665b5eb19fe2ac1f180d0a4a28eddb36cc2bfa128a",
