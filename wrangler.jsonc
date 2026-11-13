@@ -7,7 +7,7 @@
   "ai": { "binding": "CONCIERGE_AI" },
   "vars": {
     "APP_ENV": "production",
-    "CONCIERGE_WORKERS_AI_ENABLED": "false"
+    "CONCIERGE_WORKERS_AI_ENABLED": "true"
   },
   "assets": {
     "directory": ".open-next/assets",
