@@ -6,16 +6,19 @@ import {readChatRequest,validateChatTransport,ChatInputError} from '../../../lib
 import {conversationNavigation} from '../../../lib/ai/conversation.mjs';
 import {askWorkersBrain} from '../../../lib/ai/workersBrain.mjs';
 import {groundedReply,CATALOGUE_PROTOCOL} from '../../../lib/ai/groundedReply.mjs';
+import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
+import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
 //
 // A thin adapter over a fallback chain, in order of preference:
 //
-//   0. native Workers AI, opt-in with durable usage limits
-//   1. the local Miami Elio AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
-//   2. the hosted ai-router on :20128 (OpenAI-compatible)
-//   3. a polite canned reply
+//   0. local greetings, Miami time and current weather
+//   1. native Workers AI, opt-in with durable usage limits
+//   2. the local Miami Elio AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
+//   3. the hosted ai-router on :20128 (OpenAI-compatible)
+//   4. a localized unavailable reply
 //
 // The contract this route returns NEVER changes shape and the status is
 // ALWAYS 200 for a well-formed request, whatever happens upstream. A degraded
@@ -145,6 +148,10 @@ export async function POST(request) {
   // The language showing in the global switcher. Every engine below is told
   // to answer in it, and the degraded path speaks it too.
   const locale = normalizeLocale(body?.locale);
+
+  const fact=await answerConciergeFact(latestUserMessage,locale,request.signal);
+  if(fact)return reply(fact.reply,{source:fact.source,error:fact.error,locale,
+    navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY});
 
   const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request});
   if(cloud.ok)return reply(cloud.reply,{messages,latestUserMessage,source:'workers-ai',locale,navigation:cloud.navigation,responsePolicy:cloud.responsePolicy});

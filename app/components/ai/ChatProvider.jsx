@@ -143,12 +143,12 @@ export function ChatProvider({ children }) {
       if (typeof data?.reply === 'string' && data.reply.trim()) {
         answer = data.reply.trim();
       }
-      // The server ran the same matcher with the reply text as well, so its
-      // answer is at least as good as the local one - but only take it if it
-      // actually produced something.
+      // Conversation replies can explicitly omit navigation, even when the
+      // offline matcher recognized a place or section name in the question.
       const safe=chatSnapshot(data);
-      if (safe.cards.length) nextCards = safe.cards;
-      if (safe.suggestions.length) nextSuggestions = safe.suggestions;
+      const authoritative=response.ok&&data?.responsePolicy==='conversation-v1';
+      if (safe.cards.length||(authoritative&&Array.isArray(data.cards))) nextCards = safe.cards;
+      if (safe.suggestions.length||(authoritative&&Array.isArray(data.suggestions))) nextSuggestions = safe.suggestions;
       if (generation===generationRef.current&&safe.sessionId)sessionIdRef.current=safe.sessionId;
     } catch {
       /* aborted, offline, or blocked - the locally matched cards stand */
