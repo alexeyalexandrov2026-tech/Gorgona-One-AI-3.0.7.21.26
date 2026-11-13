@@ -170,7 +170,8 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         <input
           aria-label={t.ai?.askPlaceholder || 'Ask the concierge anything…'}
           maxLength={4000}
-          disabled={!hydrated||isLoading}
+          disabled={!hydrated}
+          readOnly={isLoading}
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder={voice.isListening ? `${t.ai?.listening || 'Listening'}…` : (t.ai?.askPlaceholder || 'Ask the concierge anything…')}

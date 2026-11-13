@@ -86,9 +86,12 @@ try{
  await expect(primary.locator('a[href="/yachts"]')).toBeVisible();
  await expect(announcement).toBeEmpty();
  await page.evaluate(()=>window.mode='reply');
- await form.getByRole('textbox').fill('Help me choose a yacht outing.');
- await form.getByRole('textbox').press('Enter');
+ const primaryInput=form.getByRole('textbox');
+ await primaryInput.fill('Help me choose a yacht outing.');
+ await primaryInput.press('Enter');
  await expect(announcement).toHaveText(reply);
+ await expect(primaryInput).toBeFocused();
+ await expect(primaryInput).toBeEditable();
  await expect(announcement.locator('span')).toHaveAttribute('lang','en');
  await expect(secondary.getByText(reply,{exact:true})).toBeVisible();
  await expect(secondaryAnnouncement).toBeEmpty();
@@ -101,8 +104,9 @@ try{
  const secondaryInput=secondary.getByRole('textbox');
  await secondaryInput.fill('What would you pick for a short outing?');
  await secondaryInput.press('Enter');
- await expect(secondaryInput).toBeDisabled();
  await expect(secondary.locator('[aria-busy="true"]')).toHaveCount(1);
+ await expect(secondaryInput).toBeFocused();
+ await expect(secondaryInput).not.toBeEditable();
  await expect(secondaryAnnouncement).toBeEmpty();
  await switchChat.click();
  await page.evaluate(()=>window.completeReply());
