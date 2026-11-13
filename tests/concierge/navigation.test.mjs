@@ -1,10 +1,26 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import load from './load.cjs';
-import {cases} from './scenarios.mjs';
+import {acceptanceCases,acceptanceFollowups,cases,isConciergeAcceptanceDestination} from './scenarios.mjs';
 const {matchActionCards}=load('lib/aiSuggestions.js');
 const {searchEcosystem}=load('lib/ai/intent.js');
 const {getEcosystemIndex}=load('lib/ai/ecosystemIndex.js');
+test('hosted acceptance excludes restaurant routes and retains the supported journeys',()=>{
+ for (const href of ['/restaurants-nightlife','/restaurants-nightlife/komodo-miami','/restaurants-nightlife?date=tomorrow','/stores/restaurants']) {
+  assert.equal(isConciergeAcceptanceDestination(href),false,href);
+ }
+ for (const {expected,also} of [...acceptanceCases,...acceptanceFollowups]) {
+  assert.ok(isConciergeAcceptanceDestination(expected),expected);
+  if (also) assert.ok(isConciergeAcceptanceDestination(also),also);
+ }
+ assert.deepEqual(new Set(acceptanceCases.map(c=>c.locale)),new Set(cases.map(c=>c.locale)));
+ for (const locale of ['en','ru','es']) {
+  for (const expected of ['/yachts','/rentals','/events']) {
+   assert.ok(acceptanceCases.some(c=>c.locale===locale&&c.expected===expected),locale+' '+expected);
+  }
+ }
+ assert.equal(acceptanceFollowups.length,2);
+});
 for(const c of cases)test('primary section '+c.locale+' '+c.query,()=>{assert.equal(matchActionCards(c.query,{locale:c.locale})[0]?.href,c.expected);});
 for(const c of cases)test('Discovery primary '+c.locale+' '+c.query,()=>{const first=searchEcosystem(c.query,{locale:c.locale}).results[0];assert.ok(first&&(first.href===c.expected||first.href.startsWith(c.expected+'/')),first?.href);});
 test('retired brand destinations are absent from Discovery',()=>{assert.ok(getEcosystemIndex().every(e=>!e.href.startsWith('/brands/')&&!e.href.startsWith('/stores')));});

@@ -32,3 +32,16 @@ export const followups=[
  {locale:'en',messages:[{role:'user',content:'I need a yacht'},{role:'assistant',content:'How many guests?'},{role:'user',content:'For 8 guests tomorrow'}],expected:'/yachts'},
  {locale:'ru',messages:[{role:'user',content:'Хочу арендовать машину'},{role:'assistant',content:'На сколько дней?'},{role:'user',content:'На три дня с завтра'}],expected:'/rentals'}
 ];
+
+// Keep restaurant and nightlife out of hosted acceptance until the booking API is approved.
+const excludedAcceptanceDestinations = ['/restaurants-nightlife', '/stores/restaurants'];
+
+export function isConciergeAcceptanceDestination(href) {
+ const [pathname] = href.split(/[?#]/, 1);
+ return !excludedAcceptanceDestinations.some(route => pathname === route || pathname.startsWith(route + '/'));
+}
+
+export const acceptanceCases = cases.filter(({expected, also}) =>
+ isConciergeAcceptanceDestination(expected) && (!also || isConciergeAcceptanceDestination(also))
+);
+export const acceptanceFollowups = followups.filter(({expected}) => isConciergeAcceptanceDestination(expected));

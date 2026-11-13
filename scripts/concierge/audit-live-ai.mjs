@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {hostedContext,stagingBase} from './hosted-context.mjs';
-import {cases} from '../../tests/concierge/scenarios.mjs';
+import {acceptanceCases} from '../../tests/concierge/scenarios.mjs';
 import {SUPPORTED_LANGUAGES} from '../../lib/languages.js';
 const {base,headers,identity}=await hostedContext();assert.equal(base,stagingBase);
 const output=process.env.CONCIERGE_LIVE_AI_RESULTS;assert.ok(output&&path.isAbsolute(output));
@@ -19,7 +19,7 @@ async function chat(locale,messages){
 }
 for(const {code:locale} of SUPPORTED_LANGUAGES){
  if(selected.length&&!selected.includes('language-'+locale))continue;
- const scenario=cases.find(c=>c.locale===locale);assert.ok(scenario);
+ const scenario=acceptanceCases.find(c=>c.locale===locale);assert.ok(scenario);
  try{const {data,ms}=await chat(locale,[{role:'user',content:scenario.query}]);assert.equal(data.cards[0]?.href,scenario.expected);results.push({name:'language-'+locale,status:'PASS',locale,ms,source:data.source,query:scenario.query,reply:data.reply,destination:data.cards[0].href});}
  catch(error){results.push({name:'language-'+locale,status:'FAIL',locale,error:error.message});}
 }

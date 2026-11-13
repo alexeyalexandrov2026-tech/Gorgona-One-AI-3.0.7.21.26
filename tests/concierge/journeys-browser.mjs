@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import {expect as browserExpect} from '@playwright/test';
 import {launchConciergeBrowser} from './browser-engine.mjs';
 import {hostedContext,stagingBase} from '../../scripts/concierge/hosted-context.mjs';
-import {cases,followups} from './scenarios.mjs';
+import {acceptanceCases,acceptanceFollowups} from './scenarios.mjs';
 import {unavailableReply} from '../../lib/ai/locale.js';
 assert.ok(process.env.CONCIERGE_TEST_BASE===stagingBase||(process.env.CONCIERGE_TEST_BASE==='https://gorgona-one.com'&&process.env.CONCIERGE_PUBLIC_READONLY==='1'),'Use protected staging or explicitly opted-in read-only public QA');
 const {base,cookie,identity}=await hostedContext(),output=process.env.CONCIERGE_JOURNEY_RESULTS;
@@ -14,7 +14,7 @@ assert.ok(output&&path.isAbsolute(output));fs.mkdirSync(output,{recursive:true})
 const browser=await launchConciergeBrowser(),expect=browserExpect.configure({timeout:15000});
 const results=[],transport=[],unexpectedWrites=[],destinationStatus=new Map();
 let blockedTelemetry=0;
-const locales=[...new Set(cases.map(c=>c.locale))],selected=process.argv.slice(2);
+const locales=[...new Set(acceptanceCases.map(c=>c.locale))],selected=process.argv.slice(2);
 assert.ok(selected.every(locale=>locales.includes(locale)),'Unknown test locale');
 const returnMode=process.env.CONCIERGE_JOURNEY_RETURN||'dock';
 assert.ok(['dock','reload'].includes(returnMode),'Use dock or reload return mode');
@@ -73,7 +73,7 @@ try{
   }
   try{
    await page.goto(base+'/discovery');
-   for(const c of cases.filter(c=>c.locale===locale))await check(c.query,async()=>{
+   for(const c of acceptanceCases.filter(c=>c.locale===locale))await check(c.query,async()=>{
     await returnToDiscovery();
     const saved=await send(c.query);assert.equal(saved.cards[0]?.href,c.expected);
     if(c.also)assert.ok([...saved.cards,...saved.suggestions].some(x=>x.href===c.also),'Mixed intent must retain both destinations');
@@ -82,7 +82,7 @@ try{
     const key=locale+':'+c.expected;
     if(!destinationStatus.has(key)){const response=await context.request.get(base+c.expected,{maxRedirects:0});assert.equal(response.status(),200,'Destination must be a real page');destinationStatus.set(key,response.status());}
    });
-   for(const f of followups.filter(f=>f.locale===locale))await check('follow-up '+f.expected,async()=>{
+   for(const f of acceptanceFollowups.filter(f=>f.locale===locale))await check('follow-up '+f.expected,async()=>{
     await returnToDiscovery();await send(f.messages[0].content);
     const saved=await send(f.messages.at(-1).content);assert.equal(saved.cards[0]?.href,f.expected);
     await expect(page.locator('main a[href="'+f.expected+'"]').first()).toBeVisible();

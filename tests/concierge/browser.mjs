@@ -40,6 +40,17 @@ async function scenario(name,operation,{locale='en',width=1280,session,local,voi
 }
 const thread=page=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('gorgona-concierge-thread')||'null'));
 async function send(page,text){const form=page.locator('main form');await expect(form.locator('input')).toBeEnabled();await form.locator('input').fill(text);await form.locator('button[type="submit"]').click();await expect.poll(async()=>((await thread(page))?.cards||[]).length).toBeGreaterThan(0);}
+const yachtQuery = 'Azimut 68 Fly';
+const yachtDetail = '/yachts/azimut-68-fly';
+async function searchForYacht(page) {
+ await page.goto(base+'/discovery');
+ await page.locator('button.aidock').click();
+ const drawer = page.locator('.dr__panel');
+ await drawer.locator('.dr__input').fill(yachtQuery);
+ await drawer.locator('.dr__go').click();
+ await expect(drawer.locator('.dr__rowMain').first()).toBeVisible();
+ return drawer;
+}
 try{
  await scenario('drawer-trigger-first-paint',async page=>{await page.goto(base+'/discovery');const trigger=page.locator('button.aidock');assert.equal(await trigger.evaluate(el=>getComputedStyle(el).position),'fixed','Trigger must be positioned before hydration');await expect(trigger).toBeDisabled();},{javaScriptEnabled:false});
  await scenario('room-answer',async page=>{await page.goto(base+'/discovery');await send(page,'Find a yacht for 8 guests');const saved=await thread(page);assert.ok(saved.messages.some(m=>m.role==='assistant'&&m.content.trim()),'No visible concierge response');await expect(page.locator('main a[href="/yachts"]').first()).toBeVisible();});
@@ -48,16 +59,36 @@ try{
   await page.getByRole('button',{name:'Open the Discovery Room concierge',exact:true}).click();const dock=page.getByRole('dialog',{name:'MIAMI ELIO AI Dock',exact:true});await expect(dock.getByText('Rent a yacht',{exact:true})).toBeVisible();await dock.getByRole('link',{name:'Discovery Room',exact:true}).click();await expect(page).toHaveURL(base+'/discovery');await page.reload();assert.ok((await thread(page)).messages.some(m=>m.content==='Rent a yacht'));await expect(page.locator('main a[href="/yachts"]').first()).toBeVisible();
  });
  await scenario('homepage-to-dock-to-section',async page=>{await page.goto(base+'/');const form=page.locator('main form[role="search"]');await expect(form.locator('#g1-hero-q')).toBeEnabled();await form.locator('#g1-hero-q').fill('Rent a car');await form.locator('button[type="submit"]').click();const dock=page.getByRole('dialog',{name:'MIAMI ELIO AI Dock',exact:true});await expect(dock).toBeVisible();await expect(dock.locator('a[href="/rentals"]').first()).toBeVisible();await dock.locator('a[href="/rentals"]').first().click();await expect(page).toHaveURL(base+'/rentals');await expect(page.locator('aside[aria-label="MIAMI ELIO AI Dock"]')).toHaveAttribute('aria-hidden','true');});
- await scenario('saved-history-reuse-clear',async page=>{await page.goto(base+'/discovery');await page.locator('button.aidock').click();const drawer=page.locator('.dr__panel');await drawer.locator('.dr__input').fill('Komodo');await drawer.locator('.dr__go').click();await expect(drawer.locator('.dr__go')).toBeEnabled();await drawer.locator('.dr__pin').first().click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gorgona-ai-session')).saved.length)).toBe(1);await page.reload();await page.locator('button.aidock').click();await expect(drawer.locator('.dr__histQ')).toBeVisible();await drawer.locator('.dr__histQ').click();await expect(drawer.locator('.dr__input')).toHaveValue('Komodo');const saved=drawer.locator('.dr__section').filter({has:page.getByRole('heading',{name:/^Saved/})});await saved.locator('.dr__pin').click();await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gorgona-ai-session')).saved.length)).toBe(0);await drawer.getByRole('button',{name:'Clear',exact:true}).click();await expect(drawer.locator('.dr__histQ')).toHaveCount(0);});
+ await scenario('saved-history-reuse-clear',async page=>{
+  const drawer = await searchForYacht(page);
+  await drawer.locator('.dr__pin').first().click();
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gorgona-ai-session')).saved.length)).toBe(1);
+  await page.reload();
+  await page.locator('button.aidock').click();
+  await expect(drawer.locator('.dr__histQ')).toBeVisible();
+  await drawer.locator('.dr__histQ').click();
+  await expect(drawer.locator('.dr__input')).toHaveValue(yachtQuery);
+  const saved = drawer.locator('.dr__section').filter({has:page.getByRole('heading',{name:/^Saved/})});
+  await saved.locator('.dr__pin').click();
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('gorgona-ai-session')).saved.length)).toBe(0);
+  await drawer.getByRole('button',{name:'Clear',exact:true}).click();
+  await expect(drawer.locator('.dr__histQ')).toHaveCount(0);
+ });
  await scenario('modal-focus-and-exclusive-panels',async page=>{await page.goto(base+'/discovery');await page.locator('button.aidock').click();const drawer=page.locator('.dr__panel');for(let i=0;i<12;i++){await page.keyboard.press('Tab');assert.equal(await drawer.evaluate(el=>el.contains(document.activeElement)),true);}await page.keyboard.press('Escape');await expect(page.locator('button.aidock')).toBeFocused();await page.getByRole('button',{name:'Open the Discovery Room concierge',exact:true}).click();const dock=page.getByRole('dialog',{name:'MIAMI ELIO AI Dock',exact:true});for(let i=0;i<12;i++){await page.keyboard.press('Tab');assert.equal(await dock.evaluate(el=>el.contains(document.activeElement)),true);}await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Open the Discovery Room concierge',exact:true})).toBeFocused();});
  await scenario('network-failure-retry',async page=>{await page.goto(base+'/discovery');await page.route('**/api/chat',route=>route.abort('failed'),{times:1});await send(page,'Rent a yacht');await expect.poll(async()=>((await thread(page))?.messages||[]).filter(m=>m.role==='assistant').length).toBe(1);await send(page,'Rent a car');await expect(page.locator('main a[href="/rentals"]').first()).toBeVisible();assert.equal((await thread(page)).messages.filter(m=>m.role==='user').length,2);});
  await scenario('double-submit-and-empty-input',async page=>{await page.goto(base+'/discovery');const form=page.locator('main form');await expect(form.locator('input')).toBeEnabled();await expect(form.locator('button[type="submit"]')).toBeDisabled();let calls=0;page.on('request',request=>{if(new URL(request.url()).pathname==='/api/chat')calls++;});await form.locator('input').fill('Rent a yacht');await form.evaluate(el=>{el.requestSubmit();el.requestSubmit();});await expect.poll(async()=>((await thread(page))?.cards||[]).length).toBeGreaterThan(0);assert.equal(calls,1);assert.equal((await thread(page)).messages.filter(m=>m.role==='user').length,1);});
  await scenario('long-unbroken-mobile-message',async page=>{await page.goto(base+'/discovery');await send(page,'yacht '+ 'x'.repeat(3000));await expect(page.locator('main a[href="/yachts"]').first()).toBeVisible();},{width:390});
  await scenario('retired-brand-search-has-explicit-empty-state',async page=>{await page.goto(base+'/discovery');await page.locator('button.aidock').click();const drawer=page.locator('.dr__panel');await drawer.locator('.dr__input').fill('Nike');await drawer.locator('.dr__go').click();await expect(drawer.locator('.dr__go')).toBeEnabled();await expect(drawer.getByRole('status')).toBeVisible();assert.equal(await drawer.locator('.dr__row').count(),0);});
- for(const [locale,query] of [['en','nightclub bottle service'],['ru','частный самолёт'],['zh','游艇']])await scenario('drawer-'+locale,async page=>{
+ for(const [locale,query] of [['en','Rent a car'],['ru','частный самолёт'],['zh','游艇']])await scenario('drawer-'+locale,async page=>{
   await page.goto(base+'/discovery');await page.locator('button.aidock').click();const drawer=page.locator('.dr__panel');await expect(drawer).toBeVisible();await drawer.locator('.dr__input').fill(query);await drawer.locator('.dr__go').click();await expect(drawer.locator('.dr__go')).toBeEnabled();assert.ok(await drawer.locator('.dr__row').count()>0,'Discovery returned no results');await page.keyboard.press('Escape');await expect(page.locator('.dr')).toHaveAttribute('aria-hidden','true');
  },{locale,width:390});
- await scenario('drawer-result-destination',async page=>{await page.goto(base+'/discovery');await page.locator('button.aidock').click();const drawer=page.locator('.dr__panel');await drawer.locator('.dr__input').fill('Komodo');await drawer.locator('.dr__go').click();await expect(drawer.locator('.dr__go')).toBeEnabled();await drawer.locator('.dr__rowMain').first().click();await expect(page).toHaveURL(base+'/restaurants-nightlife/komodo-miami');const response=await page.request.get(page.url());assert.equal(response.status(),200);});
+ await scenario('drawer-result-destination',async page=>{
+  const drawer = await searchForYacht(page);
+  await drawer.locator('.dr__rowMain').first().click();
+  await expect(page).toHaveURL(base+yachtDetail);
+  const response = await page.request.get(page.url());
+  assert.equal(response.status(),200);
+ });
  await scenario('reset-inflight',async page=>{
   await page.goto(base+'/discovery');let release,ready,delivered;const held=new Promise(resolve=>{release=resolve;}),started=new Promise(resolve=>{ready=resolve;}),completed=new Promise(resolve=>{delivered=resolve;});
   await page.route('**/api/chat',async route=>{try{const response=offline?null:await route.fetch();ready();await held;await route.fulfill(response?{response}:{status:200,contentType:'application/json',body:JSON.stringify({reply:'Explicit offline QA fixture',cards:[{href:'/rentals',title:'Car Rentals'}],suggestions:[]})}).catch(()=>{});}finally{delivered();}});
