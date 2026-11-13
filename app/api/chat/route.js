@@ -150,33 +150,35 @@ export async function POST(request) {
   const locale = normalizeLocale(body?.locale);
 
   const fact=await answerConciergeFact(latestUserMessage,locale,request.signal);
-  if(fact)return reply(fact.reply,{source:fact.source,error:fact.error,locale,
+  if(fact&&!fact.remainingMessage)return reply(fact.reply,{source:fact.source,error:fact.error,locale,
     navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY});
 
-  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request});
-  if(cloud.ok)return reply(cloud.reply,{messages,latestUserMessage,source:'workers-ai',locale,navigation:cloud.navigation,responsePolicy:cloud.responsePolicy});
+  const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
+  const respond=(text,options)=>reply(fact?fact.reply+'\n\n'+text:text,{messages:modelMessages,locale,...options});
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages});
+  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy});
   // A denied/failed metered engine must not start another unmetered engine.
-  if(cloud.kind!=='disabled')return reply(unavailableReply(locale),{messages,latestUserMessage,locale,source:'navigation',error:true});
+  if(cloud.kind!=='disabled')return respond(unavailableReply(locale),{source:'navigation',error:true});
 
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
-  const local = await askLocalBrain({ messages, systemPrompt: SYSTEM_PROMPT+CATALOGUE_PROTOCOL, sessionId, locale,responseProtocol:CATALOGUE_PROTOCOL });
+  const local = await askLocalBrain({ messages:modelMessages, systemPrompt: SYSTEM_PROMPT+CATALOGUE_PROTOCOL, sessionId, locale,responseProtocol:CATALOGUE_PROTOCOL });
   if (local.ok) {
-    const projection=groundedReply(local.reply,{messages,locale});
-    if(projection)return reply(projection.reply, { messages, latestUserMessage, source: 'local', sessionId: local.sessionId, locale,navigation:projection.navigation,responsePolicy:projection.responsePolicy });
-    return reply(unavailableReply(locale),{messages,latestUserMessage,locale,source:'navigation',error:true});
+    const projection=groundedReply(local.reply,{messages:modelMessages,locale});
+    if(projection)return respond(projection.reply,{source:'local',sessionId:local.sessionId,navigation:projection.navigation,responsePolicy:projection.responsePolicy});
+    return respond(unavailableReply(locale),{source:'navigation',error:true});
   }
 
   // Link 2 - the hosted router.
-  const routed = await askRouter(messages, locale);
+  const routed = await askRouter(modelMessages, locale);
   if (routed) {
-    const projection=groundedReply(routed,{messages,locale});
-    if(projection)return reply(projection.reply, { messages, latestUserMessage, source: 'router', locale,navigation:projection.navigation,responsePolicy:projection.responsePolicy });
+    const projection=groundedReply(routed,{messages:modelMessages,locale});
+    if(projection)return respond(projection.reply,{source:'router',navigation:projection.navigation,responsePolicy:projection.responsePolicy});
   }
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the
   // widget renders this like any other answer instead of hitting an error path.
-  return reply(unavailableReply(locale), { messages, latestUserMessage, locale, source:'navigation', error: true });
+  return respond(unavailableReply(locale),{source:'navigation',error:true});
 }
 
 // Non-LLM diagnostics: confirms which engines are wired up without spending a

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import load from './load.cjs';
 
 const {POST}=load('app/api/chat/route.js');
+const {answerConciergeFact}=load('lib/ai/conciergeFacts.mjs');
 const {groundedReply}=load('lib/ai/groundedReply.mjs');
 const {SUPPORTED_LANGUAGES}=load('lib/languages.js');
 const weatherUrl='https://api.weather.gov/stations/KMIA/observations/latest';
@@ -75,6 +76,50 @@ test('the live route answers Miami time locally and reports the NWS observation 
   assert.equal(fetcher.mock.callCount(),2);
 });
 
+test('direct clock and observation questions stay local across the supported languages',async t=>{
+  const questions={
+    en:'What time is it in Miami right now?',ru:'Который час в Майами?',
+    es:'¿Qué hora es en Miami?',he:'מה השעה במיאמי?',zh:'迈阿密现在几点了？',
+    pt:'Que horas são em Miami?',uk:'Котра година в Маямі?',ja:'マイアミは今何時ですか？',
+    ko:'마이애미는 지금 몇 시예요?',de:'Wie spät ist es in Miami?',
+    ar:'كم الساعة في ميامي؟',tr:"Miami'de şu anda saat kaç?",
+    fa:'ساعت الان در میامی چند است؟',it:'Che ore sono a Miami?',
+    fr:'Quelle heure est-il à Miami ?',pl:'Która godzina jest w Miami?',
+  };
+  const weather={
+    en:'What is the weather in Miami now?',ru:'Какая погода в Майами сейчас?',
+    es:'¿Qué tiempo hace en Miami ahora?',he:'מה מזג האוויר במיאמי עכשיו?',zh:'迈阿密现在天气怎么样？',
+    pt:'Como está o tempo em Miami agora?',uk:'Яка погода зараз у Маямі?',ja:'マイアミの今の天気はどうですか？',
+    ko:'마이애미의 현재 날씨는 어때요?',de:'Wie ist das Wetter in Miami jetzt?',
+    ar:'كيف هو الطقس في ميامي الآن؟',tr:"Miami'de şu anda hava nasıl?",
+    fa:'آب و هوای میامی چطور است؟',it:'Che tempo fa a Miami ora?',
+    fr:'Quel temps fait-il à Miami maintenant ?',pl:'Jaka jest pogoda w Miami teraz?',
+  };
+  const fetcher=t.mock.method(globalThis,'fetch',async url=>{
+    assert.equal(url,weatherUrl);
+    return Response.json({properties:{
+      stationId:'KMIA',timestamp:new Date().toISOString(),
+      temperature:{unitCode:'wmoUnit:degC',value:24,qualityControl:'V'},
+      textDescription:'Fair',
+    }});
+  });
+  for(const [locale,question] of Object.entries(questions)){
+    const result=await answerConciergeFact(question,locale);
+    assert.equal(result?.source,'concierge',question);
+    assert.equal(result.remainingMessage,'',question);
+    assert.match(result.reply,/\p{N}/u,question);
+  }
+  assert.equal(fetcher.mock.callCount(),0);
+  for(const [locale,question] of Object.entries(weather)){
+    const result=await answerConciergeFact(question,locale);
+    assert.equal(result?.source,'weather',question);
+    assert.equal(result.error,false,question);
+    assert.equal(result.remainingMessage,'',question);
+    assert.match(result.reply,/KMIA.*NWS/s,question);
+  }
+  assert.equal(fetcher.mock.callCount(),16);
+});
+
 test('stale, malformed and failed NWS readings yield a weather-specific message',async t=>{
   t.mock.timers.enable({apis:['Date'],now:new Date('2026-07-05T00:42:00Z')});
   const observation={
@@ -116,16 +161,37 @@ test('the cloud route uses conversation history to revise an itinerary and keeps
     if(flag===undefined)delete process.env.CONCIERGE_WORKERS_AI_ENABLED;else process.env.CONCIERGE_WORKERS_AI_ENABLED=flag;
   });
   process.env.CONCIERGE_WORKERS_AI_ENABLED='true';
+  const outsideObservationScope=[
+    'What is the current weather in Paris?',
+    'What will the weather be in Miami tomorrow?',
+    'What is the weather in Miami in January?',
+    'What is the weather in Miami in the summer?',
+    'What is the weather in Miami this afternoon?',
+    '¿Qué tiempo hace en Miami en enero?',
+    'Quel temps fait-il à Miami en janvier ?',
+    'Какая погода в Майами в выходные?',
+    'What is the weather in Miami and in Orlando?',
+    'What time is it in Miami and London?',
+  ];
+  let admissionAllowed=true,weatherFetches=0;
   const fetcher=t.mock.method(globalThis,'fetch',async url=>{
+    if(url===weatherUrl){
+      weatherFetches++;
+      return Response.json({properties:{
+        stationId:'KMIA',timestamp:new Date().toISOString(),
+        temperature:{unitCode:'wmoUnit:degC',value:24,qualityControl:'V'},
+        textDescription:'Fair',
+      }});
+    }
     assert.equal(url,'https://quota-fixture.supabase.co/rest/v1/rpc/concierge_ai_reserve');
-    return Response.json({allowed:true});
+    return Response.json({allowed:admissionAllowed});
   });
   const selections=[
     {version:2,action:'plan',days:[['south-beach'],['zoo-miami']]},
     {version:2,action:'plan',days:[['frost-science'],['pamm']]},
-    {version:2,action:'guide',choice:'weather-scope'},
-    {version:2,action:'guide',choice:'weather-scope'},
+    ...outsideObservationScope.map(()=>({version:2,action:'guide',choice:'weather-scope'})),
     {version:2,action:'consult',options:['bay-cruise','longer-charter'],question:'time-on-water'},
+    {version:2,action:'consult',options:['bay-cruise'],question:'dates'},
     {version:2,action:'consult',options:['bay-cruise'],question:'dates'},
   ];
   const sent=[];
@@ -154,20 +220,24 @@ test('the cloud route uses conversation history to revise an itinerary and keeps
   assert.doesNotMatch(revised.reply,/South Beach|Zoo Miami/);
   assert.deepEqual(sent[1].slice(1),[user,{role:'assistant',content:first.reply},followup]);
 
-  for(const query of ['What is the current weather in Paris?','What will the weather be in Miami tomorrow?']){
+  for(const query of outsideObservationScope){
     const result=await chat(query);
-    assert.equal(result.source,'workers-ai');
+    assert.equal(result.source,'workers-ai',query);
     assert.match(result.reply,/current.*Miami/i);
     assert.deepEqual(result.cards,[]);
+    assert.equal(sent.at(-1).at(-1).content,query);
   }
-  const yacht={role:'user',content:'Hello, can you help me choose a yacht outing in Miami?'};
+  assert.equal(weatherFetches,0);
+  const yacht={role:'user',content:'What time is it in Miami? I also need to rent a yacht.'};
   const mixed=await chat([yacht]);
   assert.equal(mixed.source,'workers-ai');
+  assert.match(mixed.reply,/^Local time in Miami is /);
   assert.match(mixed.reply,/short.*bay.*skyline/i);
   assert.match(mixed.reply,/longer.*swim/i);
   assert.match(mixed.reply,/How much time would you like to spend on the water/);
-  assert.doesNotMatch(mixed.reply,/weather|local time|NWS|KMIA/i);
+  assert.doesNotMatch(mixed.reply,/weather|NWS|KMIA/i);
   assert.equal(mixed.cards[0].href,'/yachts');
+  assert.equal(sent.at(-1).at(-1).content,'I also need to rent a yacht.');
 
   const yachtFollowup={role:'user',content:'Four adults and two kids. We only have a couple of hours.'};
   const tailored=await chat([yacht,{role:'assistant',content:mixed.reply},yachtFollowup]);
@@ -175,7 +245,21 @@ test('the cloud route uses conversation history to revise an itinerary and keeps
   assert.match(tailored.reply,/What dates/);
   assert.doesNotMatch(tailored.reply,/longer|swim|How many people|How much time/i);
   assert.deepEqual(sent.at(-1).slice(1),[yacht,{role:'assistant',content:mixed.reply},yachtFollowup]);
-  assert.equal(fetcher.mock.callCount(),6);
+
+  const weatherAndYacht=await chat('How is the weather in Miami, can you suggest a yacht?');
+  assert.equal(weatherAndYacht.source,'workers-ai');
+  assert.match(weatherAndYacht.reply,/KMIA.*Biscayne Bay/s);
+  assert.equal(weatherAndYacht.cards[0].href,'/yachts');
+  assert.equal(sent.at(-1).at(-1).content,'can you suggest a yacht?');
+  assert.equal(weatherFetches,1);
+
+  admissionAllowed=false;
+  const denied=await chat('Который час в Майами? Ещё хочу арендовать яхту.','ru');
+  assert.equal(denied.source,'navigation');
+  assert.equal(denied.configured,false);
+  assert.match(denied.reply,/^Местное время в Майами/);
+  assert.equal(denied.cards[0].href,'/yachts');
+  assert.equal(fetcher.mock.callCount(),outsideObservationScope.length+7);
   assert.deepEqual(selections,[]);
 });
 
