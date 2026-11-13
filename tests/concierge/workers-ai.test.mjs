@@ -17,16 +17,20 @@ test('native inference cannot start without a successful durable admission',asyn
  assert.equal((await meteredChat(env,input,{authorize:async()=>{throw Error('Offline database');}})).ok,false);
  assert.equal(calls,0);
 });
-test('cloud adapter is off without explicit protected-staging configuration',async()=>{
+test('cloud adapter is off without an enabled and authorized Worker environment',async()=>{
  let calls=0;const env=environment(async()=>{calls++;return {};});
- for(const value of [{...env,CONCIERGE_WORKERS_AI_ENABLED:'off'},{...env,APP_ENV:'production'},{...env,CONCIERGE_AI:null},{}])assert.equal((await workersAiChat(value,input)).ok,false);
+ for(const value of [{...env,CONCIERGE_WORKERS_AI_ENABLED:'off'},{...env,APP_ENV:'production'},{...env,APP_ENV:'preview'},{...env,CONCIERGE_AI:null},{}])assert.equal((await workersAiChat(value,input)).ok,false);
  assert.equal(calls,0);
 });
 test('cloud adapter uses real catalogue context, bounded history and selected language',async()=>{
  let sent;
  const result=await workersAiChat(environment(async(model,body)=>{sent={model,body};return {choices:[{message:{content:valid},finish_reason:'stop'}]};}),input);
  assert.equal(result.ok,true);assert.match(result.reply,/Условия/);assert.equal(result.responsePolicy,'catalogue-v1');assert.equal(sent.model,WORKERS_AI_MODEL);
- assert.equal(sent.body.stream,false);assert.ok(sent.body.max_tokens<=384);assert.equal(sent.body.messages[0].role,'system');
+ assert.equal(sent.model,'@cf/qwen/qwen3.8-27b');
+ assert.equal(sent.body.stream,false);assert.equal(sent.body.max_completion_tokens,384);assert.equal(sent.body.store,false);
+ assert.deepEqual(sent.body.response_format,{type:'json_object'});
+ assert.deepEqual(sent.body.chat_template_kwargs,{enable_thinking:false});
+ assert.equal(sent.body.messages[0].role,'system');
  assert.match(sent.body.messages[0].content,/Russian/);assert.match(sent.body.messages[0].content,/\/yachts/);assert.match(sent.body.messages[0].content,/\/private-jets/);assert.doesNotMatch(sent.body.messages[0].content,/\/stores|\/coupons/);
  assert.deepEqual(sent.body.messages.at(-1),input.messages[0]);
  const long=Array.from({length:12},(_,i)=>({role:i%2?'user':'assistant',content:'語'.repeat(4000)}));

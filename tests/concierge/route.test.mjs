@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import load from './load.cjs';
-const request=body=>new Request('https://example.test/api/chat',{method:'POST',headers:{'Content-Type':'application/json','cf-connecting-ip':'198.51.100.42'},body:JSON.stringify(body)});
+const request=(body,origin='https://example.test')=>new Request(origin+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json','cf-connecting-ip':'198.51.100.42'},body:JSON.stringify(body)});
 test('router failure logs never copy provider echoes or exception details',async()=>{
  const envNames=['GORGONA_AI_ENABLED','CONCIERGE_WORKERS_AI_ENABLED'],old=Object.fromEntries(envNames.map(k=>[k,process.env[k]])),fetcher=globalThis.fetch,logger=console.error;
  Object.assign(process.env,{GORGONA_AI_ENABLED:'off',CONCIERGE_WORKERS_AI_ENABLED:'false'});
@@ -57,4 +57,63 @@ test('actual route uses the request-local cloud binding after validating input',
   globalThis[key].env.CONCIERGE_WORKERS_AI_ENABLED='false';
   const mismatch=await (await POST(request({locale:'en',messages:[{role:'user',content:'Rent a yacht'}]}))).json();assert.equal(mismatch.source,'navigation');assert.equal(unmetered,0);
  }finally{globalThis.fetch=fetcher;if(saved===undefined)delete globalThis[key];else globalThis[key]=saved;if(flag===undefined)delete process.env.CONCIERGE_WORKERS_AI_ENABLED;else process.env.CONCIERGE_WORKERS_AI_ENABLED=flag;}
+});
+
+test('public Workers AI requires the production hostname, database and durable admission', async () => {
+  const contextKey = Symbol.for('__cloudflare-context__');
+  const previousContext = globalThis[contextKey];
+  const previousFlag = process.env.CONCIERGE_WORKERS_AI_ENABLED;
+  const previousFetch = globalThis.fetch;
+  const productionOrigin = 'https://gorgona-one.com';
+  const productionDatabase = 'https://ctszqhhvalyqxhbfqifx.supabase.co';
+  const body = { locale: 'ru', messages: [{ role: 'user', content: 'Хочу арендовать яхту в Майами' }] };
+  const calls = [];
+  const env = {
+    APP_ENV: 'production',
+    CONCIERGE_WORKERS_AI_ENABLED: 'true',
+    NEXT_PUBLIC_SUPABASE_URL: productionDatabase,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: 'fixture-anon',
+    SUPABASE_SERVICE_ROLE_KEY: 'fixture-service',
+    BOOKING_RATE_SECRET: 'fixture-secret-with-at-least-32-characters',
+    CONCIERGE_AI: {
+      async run() {
+        calls.push('model');
+        return { choices: [{ finish_reason: 'stop', message: { content: '{"version":1,"action":"recommend","sections":["/yachts"]}' } }] };
+      },
+    },
+  };
+  let admitted = false;
+  process.env.CONCIERGE_WORKERS_AI_ENABLED = 'true';
+  globalThis[contextKey] = { env };
+  globalThis.fetch = async url => {
+    calls.push(url);
+    return Response.json({ allowed: admitted });
+  };
+  try {
+    const { POST } = load('app/api/chat/route.js');
+    const chat = async origin => (await POST(request(body, origin))).json();
+    assert.equal((await chat('https://preview.example.test')).source, 'navigation');
+    env.NEXT_PUBLIC_SUPABASE_URL = 'https://staging-fixture.supabase.co';
+    assert.equal((await chat(productionOrigin)).source, 'navigation');
+    assert.deepEqual(calls, []);
+
+    env.NEXT_PUBLIC_SUPABASE_URL = productionDatabase;
+    const rpc = productionDatabase + '/rest/v1/rpc/concierge_ai_reserve';
+    assert.equal((await chat(productionOrigin)).source, 'navigation');
+    assert.deepEqual(calls, [rpc]);
+    admitted = true;
+    const result = await chat(productionOrigin);
+    assert.equal(result.source, 'workers-ai');
+    assert.equal(result.configured, true);
+    assert.equal(result.responsePolicy, 'catalogue-v1');
+    assert.equal(result.cards[0].href, '/yachts');
+    assert.match(result.reply, /Условия/);
+    assert.deepEqual(calls, [rpc, rpc, 'model']);
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousContext === undefined) delete globalThis[contextKey];
+    else globalThis[contextKey] = previousContext;
+    if (previousFlag === undefined) delete process.env.CONCIERGE_WORKERS_AI_ENABLED;
+    else process.env.CONCIERGE_WORKERS_AI_ENABLED = previousFlag;
+  }
 });
