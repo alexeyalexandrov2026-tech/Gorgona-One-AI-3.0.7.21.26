@@ -1,14 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Asked for only when one of the site's own pages wants the microphone. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false" />
+
     <application
         android:label="${appLabel}"
         android:supportsRtl="true"
         android:theme="@style/Theme.MiamiElio">
-        <activity android:name=".MainActivity" android:exported="true">
+        <!--
+          The web views keep their pages and history only while this Activity
+          lives, so it stays through rotation, resizing and the like instead
+          of being rebuilt; Compose lays the screen out again by itself. A
+          change of language does rebuild it.
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- miamielio://open?path=/yachts, miamielio://concierge, miamielio://search, miamielio://account -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="miamielio" />
             </intent-filter>
         </activity>
     </application>

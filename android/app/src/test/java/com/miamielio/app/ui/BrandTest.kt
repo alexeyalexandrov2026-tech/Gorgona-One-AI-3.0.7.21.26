@@ -16,7 +16,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
-import com.miamielio.app.BrandScreen
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -88,8 +87,8 @@ class BrandTest {
     }
 
     @Test
-    fun theBrandScreenShowsTheMark() {
-        compose.setContent { MiamiElioTheme { BrandScreen() } }
+    fun theSplashIsReadAsTheBrandName() {
+        compose.setContent { MiamiElioTheme { SplashView() } }
         compose.mainClock.advanceTimeBy(1_000)
         compose.onNodeWithContentDescription("Miami Elio").assertExists()
     }

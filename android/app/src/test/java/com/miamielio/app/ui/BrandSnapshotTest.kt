@@ -6,7 +6,6 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
-import com.miamielio.app.BrandScreen
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -30,8 +29,8 @@ class BrandSnapshotTest {
     val compose = createComposeRule()
 
     @Test
-    fun theBrandScreenIsDarkPaperWithAGoldOrbAndTheWordmark() {
-        compose.setContent { MiamiElioTheme { BrandScreen() } }
+    fun theSplashIsDarkPaperWithAGoldOrbAndTheWordmark() {
+        compose.setContent { MiamiElioTheme { SplashView() } }
         compose.mainClock.advanceTimeBy(2_000)
 
         val picture = compose.onRoot().captureToImage().asAndroidBitmap()
