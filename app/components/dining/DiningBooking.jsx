@@ -16,7 +16,7 @@ export default function DiningBooking(props) {
  if(auth?.loading)return <p role="status">{getWorldsCopy(locale).form.sending}</p>;
  return <BookingWorkspace key={(auth?.session?.id||'guest')+':'+props.venue.slug} {...props} owner={auth?.session?.id||null} loading={auth?.loading}/>;
 }
-function BookingWorkspace({venue,channels,enabled,owner,loading}) {
+function BookingWorkspace({venue,channels,widget,enabled,owner,loading}) {
  const locale=useLocale(),copy=getDiningCopy(locale),form=getWorldsCopy(locale).form;
  const [selection,setSelection]=useState({version:1,date:'',time:'19:00',guests:2,option:'table',note:''});
  const [contact,setContact]=useState({name:'',email:'',phone:''});
@@ -57,8 +57,22 @@ function BookingWorkspace({venue,channels,enabled,owner,loading}) {
   } catch {if(mounted.current)setState('error');} finally {flight.current=false;}
  }
  return <section aria-label={copy.channels} className="grid min-w-0 gap-6 rounded-[22px] border border-g1-rule bg-g1-card p-5 sm:p-6">
-  <div><h2 className="font-g1display text-2xl">{copy.channels}</h2><p className="mt-3 text-sm leading-relaxed text-g1-soft">{copy.handoff}</p></div>
+  <div>
+   <h2 className="font-g1display text-2xl">{copy.channels}</h2>
+   {!widget&&<p className="mt-3 text-sm leading-relaxed text-g1-soft">{copy.handoff}</p>}
+  </div>
+  {widget&&<iframe
+   src={widget.src}
+   title={`${copy.channels} · ${venue.name} · Resos`}
+   sandbox="allow-forms allow-scripts allow-same-origin"
+   referrerPolicy="no-referrer"
+   loading="lazy"
+   className="h-[700px] w-full max-w-[500px] rounded-xl border border-g1-rule"
+  />}
   <div className="grid gap-2">
+   {widget&&<a className={`${btn.base} ${btn.ghost} justify-start text-start`} href={widget.href} target="_blank" rel="noopener noreferrer">
+    {fill(copy.providerWebsite,{provider:'Resos'})}
+   </a>}
    {channels.map(channel=>(
     <a key={channel.provider+channel.externalId} className={`${btn.base} ${btn.ghost} justify-start text-start`} href={channel.href} target="_blank" rel="noopener noreferrer">
      {channel.provider==='venue'?copy.venueWebsite:fill(copy.providerWebsite,{provider:channel.name})}
