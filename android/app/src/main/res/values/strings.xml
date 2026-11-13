@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      The site language these strings are written in. Every translated
+      values-xx/strings.xml repeats it with its own code, so the app can tell
+      which language Android actually picked (and whether Jost can set it).
+    -->
+    <string name="locale_code" translatable="false">en</string>
+</resources>

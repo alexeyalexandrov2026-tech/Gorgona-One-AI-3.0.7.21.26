@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The site's dark palette (app/design-system.css, [data-theme="dark"]). -->
+<resources>
+    <color name="paper">#0A1218</color>
+    <color name="card">#111D25</color>
+    <color name="ink">#EDF2F3</color>
+    <color name="soft">#9AAAB2</color>
+    <color name="rule">#22323C</color>
+    <color name="accent">#FF6E93</color>
+    <color name="gold">#C9A45C</color>
+</resources>
