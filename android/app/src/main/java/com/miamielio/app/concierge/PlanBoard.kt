@@ -61,11 +61,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.miamielio.app.R
+import com.miamielio.app.core.FavoriteRef
 import com.miamielio.app.core.PlanItem
 import com.miamielio.app.core.PlanRequest
 import com.miamielio.app.core.PlanSection
+import com.miamielio.app.favorites.FavoriteHeart
+import com.miamielio.app.favorites.FavoritesStore
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.Eyebrow
 import com.miamielio.app.ui.Hairline
@@ -89,10 +93,12 @@ internal fun PlanBoard(
     isSending: Boolean,
     problem: PlanProblem?,
     model: ConciergeViewModel,
+    favorites: FavoritesStore,
     onOpen: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var requesting by rememberSaveable { mutableStateOf(false) }
+    val savedKeys by favorites.keys.collectAsStateWithLifecycle()
     val shape = RoundedCornerShape(20.dp)
     Column(
         modifier
@@ -131,9 +137,13 @@ internal fun PlanBoard(
             Text(stringResource(R.string.plan_lede), color = Theme.soft, style = AppFont.detail)
 
             draft.plan.sections.filter { it.href !in draft.removed }.forEach { section ->
+                val item = draft.item(section)
+                val favorite = remember(item) { FavoriteRef.of(item) }
                 PlanItemRow(
                     section = section,
-                    item = draft.item(section),
+                    item = item,
+                    saved = favorite != null && favorite.key in savedKeys,
+                    onFavorite = favorite?.let { ref -> { favorites.toggle(ref) } },
                     onOpen = onOpen,
                     onAnother = { model.showAnotherOption(section) },
                     onRemove = { model.removeFromPlan(section) },
@@ -184,6 +194,8 @@ internal fun PlanBoard(
 private fun PlanItemRow(
     section: PlanSection,
     item: PlanItem,
+    saved: Boolean,
+    onFavorite: (() -> Unit)?,
     onOpen: (String) -> Unit,
     onAnother: () -> Unit,
     onRemove: () -> Unit,
@@ -211,14 +223,19 @@ private fun PlanItemRow(
             contentScale = ContentScale.Crop,
         )
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Eyebrow(section.label)
-            Text(
-                item.title,
-                Modifier.pressable { onOpen(item.href) },
-                color = Theme.ink,
-                style = AppFont.rowTitle,
-            )
-            item.subtitle?.let { Text(it, color = Theme.soft, style = AppFont.detail) }
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Eyebrow(section.label)
+                    Text(
+                        item.title,
+                        Modifier.pressable { onOpen(item.href) },
+                        color = Theme.ink,
+                        style = AppFont.rowTitle,
+                    )
+                    item.subtitle?.let { Text(it, color = Theme.soft, style = AppFont.detail) }
+                }
+                if (onFavorite != null) FavoriteHeart(saved, onFavorite)
+            }
             Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
                 if (section.candidates.size > 1) {
                     Text(
@@ -242,7 +259,6 @@ private fun PlanItemRow(
                 )
             }
         }
-        // Favourite hearts join here with favourites (handoff, item 9).
     }
 }
 

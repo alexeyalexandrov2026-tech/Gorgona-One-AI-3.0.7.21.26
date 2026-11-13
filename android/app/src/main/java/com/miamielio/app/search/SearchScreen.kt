@@ -59,7 +59,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.miamielio.app.R
+import com.miamielio.app.core.FavoriteRef
 import com.miamielio.app.core.SearchResult
+import com.miamielio.app.favorites.FavoriteHeart
+import com.miamielio.app.favorites.FavoritesStore
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.Eyebrow
 import com.miamielio.app.ui.Hairline
@@ -76,8 +79,14 @@ import kotlin.math.min
  * opens in Home through [onOpen]. Mirrors the iPhone app's `SearchView`.
  */
 @Composable
-fun SearchScreen(model: SearchViewModel, onOpen: (String) -> Unit, modifier: Modifier = Modifier) {
+internal fun SearchScreen(
+    model: SearchViewModel,
+    favorites: FavoritesStore,
+    onOpen: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val state by model.state.collectAsStateWithLifecycle()
+    val savedKeys by favorites.keys.collectAsStateWithLifecycle()
     val open by rememberUpdatedState(onOpen)
     val focus = LocalFocusManager.current
 
@@ -127,6 +136,9 @@ fun SearchScreen(model: SearchViewModel, onOpen: (String) -> Unit, modifier: Mod
                         result = result,
                         imageUrl = model.imageUrl(result),
                         onClick = { open(result.href) },
+                        favorite = remember(result) { FavoriteRef.of(result) },
+                        savedKeys = savedKeys,
+                        toggleFavorite = favorites::toggle,
                         // Only the first screenful arrives in turn; rows further
                         // down are already there by the time they scroll in.
                         modifier = Modifier.arrives(min(index, 7)),
@@ -304,41 +316,51 @@ private fun WorldTile(world: World, format: TileFormat, open: (String) -> Unit, 
 // region Results
 
 @Composable
-private fun ResultRow(result: SearchResult, imageUrl: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun ResultRow(
+    result: SearchResult,
+    imageUrl: String?,
+    onClick: () -> Unit,
+    favorite: FavoriteRef?,
+    savedKeys: Set<String>,
+    toggleFavorite: (FavoriteRef) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(modifier.fillMaxWidth()) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .pressable(onClick = onClick)
-                .padding(vertical = 14.dp)
-                .testTag("search.result"),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = null,
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Row(
                 modifier = Modifier
-                    .size(width = 92.dp, height = 76.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Theme.card),
-                contentScale = ContentScale.Crop,
-            )
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text(result.title, color = Theme.ink, style = AppFont.rowTitle, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                if (result.detailLine.isNotEmpty()) {
-                    Text(result.detailLine, color = Theme.soft, style = AppFont.detail, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    .weight(1f)
+                    .pressable(onClick = onClick)
+                    .padding(top = 14.dp, bottom = 14.dp, end = if (favorite != null) 4.dp else 0.dp)
+                    .testTag("search.result"),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(if (favorite != null) 12.dp else 16.dp),
+            ) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(width = 92.dp, height = 76.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(Theme.card),
+                    contentScale = ContentScale.Crop,
+                )
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Text(result.title, color = Theme.ink, style = AppFont.rowTitle, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    if (result.detailLine.isNotEmpty()) {
+                        Text(result.detailLine, color = Theme.soft, style = AppFont.detail, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    }
+                    result.price?.let { Text(it, color = Theme.accent, style = AppFont.detailMedium) }
                 }
-                result.price?.let { Text(it, color = Theme.accent, style = AppFont.detailMedium) }
+                Icon(
+                    painter = painterResource(R.drawable.ic_arrow_forward),
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = Theme.soft,
+                )
             }
-            Icon(
-                painter = painterResource(R.drawable.ic_arrow_forward),
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = Theme.soft,
-            )
+            if (favorite != null) FavoriteHeart(saved = favorite.key in savedKeys, onToggle = { toggleFavorite(favorite) })
         }
-        // Favourite hearts join here with favourites (handoff, item 9).
         Hairline()
     }
 }

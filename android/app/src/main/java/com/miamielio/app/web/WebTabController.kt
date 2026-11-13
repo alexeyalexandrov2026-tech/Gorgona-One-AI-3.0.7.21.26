@@ -79,6 +79,7 @@ class WebTabController(
 
     /** The favourites the page reports ("kind:slug"), with the page they came from. */
     var onFavorites: ((Set<String>, WebTabController) -> Unit)? = null
+    internal var onFavoritesPageReady: (() -> Unit)? = null
 
     private val startUrl: String = config.resolve(startPath) ?: config.baseUrl
     private val bootstrap = WebBootstrap.script(config.internalHosts, policy.restrictedPaths, deviceLocale)
@@ -120,7 +121,8 @@ class WebTabController(
         }
         reloadIfSessionChanged()
         // A favourite changed in another tab shows up when this one comes back.
-        webView.evaluateJavascript(WebBootstrap.FAVORITES_REFRESH, null)
+        runOnSite(WebBootstrap.FAVORITES_REFRESH) {}
+        onFavoritesPageReady?.invoke()
     }
 
     override fun load(url: String) {
@@ -142,12 +144,25 @@ class WebTabController(
 
     /** Runs a script only while a Miami Elio page is showing; reports false anywhere else. */
     fun runOnSite(script: String, completion: (Boolean) -> Unit) {
-        val address = webView.url?.let(WebAddress::parse)
-        if (destroyed || address == null || address.scheme != "https" || address.host !in config.internalHosts) {
+        if (destroyed || state.value.isLoading || state.value.failure != null) {
             completion(false)
             return
         }
-        webView.evaluateJavascript(script) { result -> completion(result == "true") }
+        val origin = siteOrigin(webView.url)
+        if (origin == null) {
+            completion(false)
+            return
+        }
+        webView.evaluateJavascript(WebBootstrap.onOrigin(origin, script)) { result -> completion(result == "true") }
+    }
+
+    private fun siteOrigin(url: String?): String? {
+        val address = url?.let(Uri::parse) ?: return null
+        val host = address.host?.lowercase()
+        if (address.scheme != "https" || address.userInfo != null ||
+            (address.port != -1 && address.port != 443) || host !in config.internalHosts
+        ) return null
+        return "https://$host"
     }
 
     fun onResume() {
@@ -313,8 +328,8 @@ class WebTabController(
         }.getOrDefault(false)
         runCatching {
             if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-                WebViewCompat.addWebMessageListener(view, WebBootstrap.BRIDGE, originRules) { _, message, origin, isMainFrame, _ ->
-                    received(message.data, origin, isMainFrame)
+                WebViewCompat.addWebMessageListener(view, WebBootstrap.BRIDGE, originRules) { source, message, origin, isMainFrame, _ ->
+                    if (!destroyed && source === webView) received(message.data, origin, isMainFrame)
                 }
             }
         }
@@ -361,10 +376,14 @@ class WebTabController(
         }
 
         override fun onPageFinished(view: WebView, url: String?) {
+            if (destroyed || view !== webView) return
             settle()
             container.isRefreshing = false
             mutableState.update { it.copy(isLoading = false, canGoBack = view.canGoBack()) }
             readSession { signedIn -> signedInAtLoad = signedIn }
+            if (state.value.failure == null && url == view.url && siteOrigin(url) != null) {
+                onFavoritesPageReady?.invoke()
+            }
         }
 
         override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {

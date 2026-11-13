@@ -182,11 +182,13 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
                 AppTab.Explore -> WebTab(services.explore, Modifier.testTag("content.Explore"))
                 AppTab.Concierge -> ConciergeScreen(
                     model = services.concierge,
+                    favorites = services.favorites,
                     onOpen = router::open,
                     modifier = Modifier.testTag("content.Concierge"),
                 )
                 AppTab.Search -> SearchScreen(
                     model = services.search,
+                    favorites = services.favorites,
                     onOpen = router::open,
                     modifier = Modifier.testTag("content.Search"),
                 )

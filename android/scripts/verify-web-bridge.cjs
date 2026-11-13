@@ -7,20 +7,22 @@
 //   cd android && ./gradlew testDebugUnitTest     writes the script the app injects
 //   node android/scripts/verify-web-bridge.cjs    checks it
 //
-// The script is read from android/app/build/outputs/web/bootstrap.js, which
-// WebBootstrapTest writes; pass another path as the first argument to check
-// a different copy.
+// WebBootstrapTest writes the scripts into android/app/build/outputs/web.
+// Pass another path to bootstrap.js to check a different copy and its
+// sibling favorite-change.js.
 
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
 const file = process.argv[2] || path.join(__dirname, '..', 'app', 'build', 'outputs', 'web', 'bootstrap.js');
-if (!fs.existsSync(file)) {
-  console.error(`No script at ${file} - run \`./gradlew testDebugUnitTest\` in android/ first.`);
+const favoriteFile = path.join(path.dirname(file), 'favorite-change.js');
+if (!fs.existsSync(file) || !fs.existsSync(favoriteFile)) {
+  console.error('Missing Android web scripts. Run testDebugUnitTest in android/ first.');
   process.exit(1);
 }
 const source = fs.readFileSync(file, 'utf8');
+const favoriteChange = fs.readFileSync(favoriteFile, 'utf8');
 
 /** A page as the script sees it, recording everything the script does to it. */
 function page(hostname, options = {}) {
@@ -101,6 +103,43 @@ check(
     foreign.sandbox.webkit === undefined &&
     foreign.document.cookie === ''
 );
+
+function runFavorite(origin, options = {}) {
+  const writes = [];
+  const delivered = [];
+  const context = {
+    location: { origin },
+    localStorage: {
+      getItem: () => options.stored ?? null,
+      setItem: (key, value) => writes.push({ key, items: JSON.parse(value) }),
+    },
+    __miamiFavorite: options.ready ? (change) => delivered.push(change) : undefined,
+  };
+  context.window = context;
+  const accepted = vm.runInNewContext(favoriteChange, context);
+  return { accepted, writes, delivered };
+}
+
+const siteOrigin = 'https://gorgona-one.com';
+const expected = { kind: 'yacht', slug: 'azimut-55', title: 'Azimut "55"', on: true };
+const direct = runFavorite(siteOrigin, { ready: true });
+check('gives the exact favorite edit to a ready site store', direct.accepted &&
+  JSON.stringify(direct.delivered) === JSON.stringify([expected]) && direct.writes.length === 0);
+
+const earlier = { kind: 'car', slug: 'suv', title: 'SUV', on: false };
+const queued = runFavorite(siteOrigin, { stored: JSON.stringify([earlier]) });
+check('appends after earlier site edits when the site store is not ready', queued.accepted &&
+  queued.writes[0]?.key === 'gorgona-favorites-pending' &&
+  JSON.stringify(queued.writes[0]?.items) === JSON.stringify([earlier, expected]));
+
+const full = runFavorite(siteOrigin, { stored: JSON.stringify(Array(50).fill(earlier)) });
+check('keeps existing site edits intact when the site queue is full', full.accepted === false && full.writes.length === 0);
+const invalid = runFavorite(siteOrigin, { stored: '{}' });
+check('keeps the native edit pending when site storage is invalid', invalid.accepted === false && invalid.writes.length === 0);
+
+const navigated = runFavorite('https://partner.example.com', { ready: true });
+check('does not hand off favorites when the document has changed origin', navigated.accepted === false &&
+  navigated.writes.length === 0 && navigated.delivered.length === 0);
 
 if (failed) {
   console.error(`${failed} check(s) failed.`);

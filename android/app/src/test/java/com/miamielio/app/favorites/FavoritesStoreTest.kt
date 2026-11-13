@@ -2,6 +2,8 @@ package com.miamielio.app.favorites
 
 import com.miamielio.app.core.FavoriteRef
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
@@ -116,3 +118,5 @@ internal class MemoryFavorites : FavoritesPersistence {
         this.snapshot = snapshot
     }
 }
+
+internal fun guestFavorites() = FavoritesStore(MemoryFavorites(), CoroutineScope(Dispatchers.Main.immediate))

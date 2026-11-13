@@ -25,6 +25,7 @@ import com.miamielio.app.core.ConciergeClient
 import com.miamielio.app.core.PlanClient
 import com.miamielio.app.core.PlanRequest
 import com.miamielio.app.core.jsonBody
+import com.miamielio.app.favorites.guestFavorites
 import com.miamielio.app.ui.MiamiElioTheme
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
@@ -59,7 +60,8 @@ class ConciergeScreenTest {
             reporter = reporter,
             locale = { "en" },
         )
-        compose.setContent { MiamiElioTheme { ConciergeScreen(model, onOpen = { opened += it }) } }
+        val favorites = guestFavorites()
+        compose.setContent { MiamiElioTheme { ConciergeScreen(model, favorites, onOpen = { opened += it }) } }
         return model
     }
 
@@ -247,12 +249,15 @@ class ConciergeSnapshotTest {
             reporter = null,
             locale = { locale },
         )
-        compose.setContent { MiamiElioTheme { ConciergeScreen(model, onOpen = {}) } }
+        val favorites = guestFavorites()
+        compose.setContent { MiamiElioTheme { ConciergeScreen(model, favorites, onOpen = {}) } }
         compose.mainClock.advanceTimeBy(2_000)
         save("concierge-welcome-$locale.png")
         chat.reply(Replies.withPlan(reply = "A **sunset cruise**, then dinner at [Komodo](/restaurants-nightlife/komodo-miami)."))
         compose.runOnUiThread { model.send(ask) }
         compose.mainClock.advanceTimeBy(2_000)
+        compose.onNodeWithTag("concierge.conversation").performScrollToNode(hasTestTag("plan.item"))
+        compose.onAllNodesWithTag("favorite.heart")[0].performClick()
     }
 
     @Test

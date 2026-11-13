@@ -31,6 +31,10 @@ object WebBootstrap {
     fun originRules(config: AppConfig): Set<String> =
         config.internalHosts.map { "https://$it" }.toSet()
 
+    /** Check again in the renderer, in case navigation raced the native URL check. */
+    internal fun onOrigin(origin: String, expression: String): String =
+        "(function(){if(window.location.origin!==${js(origin)}) return false;return ($expression);})()"
+
     private fun js(text: String): String = JsonPrimitive(text).toString()
         // A line separator ends a statement in older engines.
         .replace(" ", "\\u2028")

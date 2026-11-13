@@ -2,6 +2,7 @@ package com.miamielio.app.web
 
 import android.webkit.WebViewClient
 import com.miamielio.app.core.AppConfig
+import com.miamielio.app.core.FavoriteRef
 import com.miamielio.app.core.RoutePolicy
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -18,7 +19,10 @@ class WebBootstrapTest {
     fun theScriptIsWrittenForTheSitesOwnPages() {
         val script = WebBootstrap.script(config.internalHosts, policy.restrictedPaths, "ru")
         // Kept so a person, or `node --check`, can look at exactly what a page gets.
-        File("build/outputs/web").apply { mkdirs() }.resolve("bootstrap.js").writeText(script)
+        val output = File("build/outputs/web").apply { mkdirs() }
+        output.resolve("bootstrap.js").writeText(script)
+        val favorite = requireNotNull(FavoriteRef.of("yacht", "azimut-55", "Azimut \"55\""))
+        output.resolve("favorite-change.js").writeText(WebBootstrap.onOrigin(config.baseUrl, favorite.script(on = true)))
 
         assertTrue(script.contains("""var hosts = ["gorgona-one.com","www.gorgona-one.com"];"""))
         assertTrue(script.contains("if (hosts.indexOf(location.hostname) === -1) { return; }"))

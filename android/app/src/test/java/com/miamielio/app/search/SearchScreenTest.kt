@@ -17,6 +17,7 @@ import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import com.miamielio.app.concierge.ScriptedTransport
 import com.miamielio.app.core.SearchClient
+import com.miamielio.app.favorites.guestFavorites
 import com.miamielio.app.ui.MiamiElioTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
@@ -46,7 +47,8 @@ class SearchScreenTest {
     private fun show() {
         // No typing pause here: the test clock does not run by itself.
         val model = SearchViewModel(SearchClient(transport = server), online, pauseMillis = 0)
-        compose.setContent { MiamiElioTheme { SearchScreen(model, onOpen = { opened += it }) } }
+        val favorites = guestFavorites()
+        compose.setContent { MiamiElioTheme { SearchScreen(model, favorites, onOpen = { opened += it }) } }
     }
 
     @Test
@@ -146,7 +148,8 @@ class SearchSnapshotTest {
 
     private fun show(server: ScriptedTransport = ScriptedTransport()): SearchViewModel {
         val model = SearchViewModel(SearchClient(transport = server), pauseMillis = 0)
-        compose.setContent { MiamiElioTheme { SearchScreen(model, onOpen = {}) } }
+        val favorites = guestFavorites()
+        compose.setContent { MiamiElioTheme { SearchScreen(model, favorites, onOpen = {}) } }
         return model
     }
 
@@ -182,10 +185,21 @@ class SearchSnapshotTest {
         val model = show(server)
         compose.runOnUiThread { model.setQuery("yacht") }
         settle()
+        compose.onAllNodesWithTag("favorite.heart")[0].performClick()
         save("search-results-en.png")
         compose.runOnUiThread { model.setQuery("yachts") }
         settle()
         save("search-offline-en.png")
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "iw-w360dp-h740dp-xhdpi")
+    fun resultsInHebrew() {
+        val model = show(ScriptedTransport().reply(AZIMUT))
+        compose.runOnUiThread { model.setQuery("yacht") }
+        settle()
+        compose.onAllNodesWithTag("favorite.heart")[0].performClick()
+        save("search-results-he.png")
     }
 
     private fun save(name: String) {

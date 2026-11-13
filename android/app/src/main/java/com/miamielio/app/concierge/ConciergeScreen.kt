@@ -84,6 +84,7 @@ import com.miamielio.app.ui.LocalReduceMotion
 import com.miamielio.app.ui.OrbActivity
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
+import com.miamielio.app.favorites.FavoritesStore
 import com.miamielio.app.ui.arrives
 import com.miamielio.app.ui.pressable
 import com.miamielio.app.ui.rememberKeyboardDismissal
@@ -94,7 +95,12 @@ import com.miamielio.app.ui.rememberKeyboardDismissal
  * through [onOpen]. Mirrors the iPhone app's `ConciergeView`.
  */
 @Composable
-fun ConciergeScreen(model: ConciergeViewModel, onOpen: (String) -> Unit, modifier: Modifier = Modifier) {
+internal fun ConciergeScreen(
+    model: ConciergeViewModel,
+    favorites: FavoritesStore,
+    onOpen: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val state by model.state.collectAsStateWithLifecycle()
     val open by rememberUpdatedState(onOpen)
     val list = rememberLazyListState()
@@ -164,6 +170,7 @@ fun ConciergeScreen(model: ConciergeViewModel, onOpen: (String) -> Unit, modifie
             state.plan?.let { plan ->
                 item(key = "plan") {
                     PlanBoard(
+                        favorites = favorites,
                         draft = plan,
                         isSending = state.isSendingPlan,
                         problem = state.planProblem,

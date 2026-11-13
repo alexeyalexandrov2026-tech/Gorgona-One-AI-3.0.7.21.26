@@ -1,6 +1,7 @@
 package com.miamielio.app.app
 
 import android.app.Activity
+import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
@@ -14,10 +15,19 @@ import com.miamielio.app.core.PlanClient
 import com.miamielio.app.core.RoutePolicy
 import com.miamielio.app.core.SearchClient
 import com.miamielio.app.core.SiteLocale
+import com.miamielio.app.favorites.FavoritesPage
+import com.miamielio.app.favorites.FavoritesPreferences
+import com.miamielio.app.favorites.FavoritesStore
 import com.miamielio.app.net.OkHttpTransport
 import com.miamielio.app.search.SearchViewModel
 import com.miamielio.app.web.WebHost
 import com.miamielio.app.web.WebTabController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 
 /**
  * Builds the app's long-lived objects once and wires them together. They
@@ -38,6 +48,20 @@ class AppServices(
     val explore = WebTabController(activity, config, policy, startPath = "/", deviceLocale = deviceLocale, host = host)
     val account = WebTabController(activity, config, policy, startPath = "/profile", deviceLocale = deviceLocale, host = host)
     val router = AppRouter(config, policy, explore, account, external)
+
+    private val favoritesScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val exploreFavorites = explore.favoritesPage()
+    private val accountFavorites = account.favoritesPage()
+    internal val favorites = FavoritesStore(
+        FavoritesPreferences(activity.getSharedPreferences("miami-elio-favorites", Context.MODE_PRIVATE)),
+        favoritesScope,
+        listOf(exploreFavorites, accountFavorites),
+    )
+
+    init {
+        explore.connectFavorites(exploreFavorites)
+        account.connectFavorites(accountFavorites)
+    }
 
     /**
      * The native screens' state. It lives in a store of its own, cleared in
@@ -77,6 +101,7 @@ class AppServices(
     fun onResume() {
         explore.onResume()
         account.onResume()
+        favorites.retry()
     }
 
     fun onPause() {
@@ -87,7 +112,21 @@ class AppServices(
     fun destroy() {
         viewModels.clear()
         connectivity.close()
+        favoritesScope.cancel()
         explore.destroy()
         account.destroy()
+    }
+
+    private fun WebTabController.favoritesPage(): FavoritesPage = FavoritesPage { change ->
+        suspendCancellableCoroutine { continuation ->
+            runOnSite(change.favorite.script(change.on)) { delivered ->
+                if (continuation.isActive) continuation.resume(delivered)
+            }
+        }
+    }
+
+    private fun WebTabController.connectFavorites(page: FavoritesPage) {
+        onFavorites = { keys, _ -> favorites.received(keys, page) }
+        onFavoritesPageReady = { favorites.retry(page) }
     }
 }
