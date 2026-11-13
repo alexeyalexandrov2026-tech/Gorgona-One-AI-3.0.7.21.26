@@ -13,6 +13,10 @@ val debugBaseUrl = providers.gradleProperty("miamielio.debugBaseUrl")
 val releaseBaseUrl = providers.gradleProperty("miamielio.releaseBaseUrl")
     .getOrElse("https://gorgona-one.com")
 
+// Where "Report this answer" is sent on the site. Empty hides the action:
+//   ./gradlew bundleRelease -Pmiamielio.reportPath=
+val reportPath = providers.gradleProperty("miamielio.reportPath").getOrElse("/api/chat/report")
+
 // Release signing is read from android/keystore.properties (never committed)
 // or from environment variables in CI. Without either, the release bundle is
 // built unsigned.
@@ -34,6 +38,7 @@ android {
         versionCode = 1
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "REPORT_PATH", "\"$reportPath\"")
     }
 
     signingConfigs {

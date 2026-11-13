@@ -15,6 +15,7 @@
     <string name="concierge_starter_2" formatted="false">מצא יאכטה ל-8 אורחים</string>
     <string name="concierge_starter_3" formatted="false">הזמן שולחן לארוחת ערב</string>
     <string name="concierge_title" formatted="false">הקונסיירז׳ הפרטי שלכם</string>
+    <string name="concierge_unavailable" formatted="false">הקונסיירז׳ אינו זמין זמנית. אפשר להמשיך לעיין בקטלוג.</string>
     <string name="error_generic" formatted="false">משהו השתבש</string>
     <string name="favorite_remove" formatted="false">הסרה מהמיאמי שלי</string>
     <string name="favorite_save" formatted="false">שמירה במיאמי שלי</string>
@@ -44,6 +45,9 @@
     <string name="plan_sent_text" formatted="false">פריטים בבקשה: {count}. הצוות שלנו ייצור איתך קשר בקרוב.</string>
     <string name="plan_submit" formatted="false">שליחת בקשה</string>
     <string name="plan_title" formatted="false">התוכנית שלך</string>
+    <string name="report_prompt" formatted="false">מה לא בסדר בתשובה הזו? (לא חובה)</string>
+    <string name="report_send" formatted="false">שליחת דיווח</string>
+    <string name="report_sent" formatted="false">תודה. הדיווח נשלח לצוות שלנו.</string>
     <string name="search_empty" formatted="false">לא נמצאו תוצאות עבור החיפוש שלך.</string>
     <string name="search_popular" formatted="false">חיפושים פופולריים</string>
     <string name="season_ask" formatted="false">{name}, {dates}. עזרו לי לתכנן: רכב, לינה, ארוחת ערב וכרטיסים.</string>

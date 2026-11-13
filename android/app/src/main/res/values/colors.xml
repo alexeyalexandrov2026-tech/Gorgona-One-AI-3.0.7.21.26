@@ -8,4 +8,6 @@
     <color name="rule">#22323C</color>
     <color name="accent">#FF6E93</color>
     <color name="gold">#C9A45C</color>
+    <!-- The ground of the app icon, as on the iPhone. -->
+    <color name="icon_ground">#100D08</color>
 </resources>

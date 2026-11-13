@@ -15,6 +15,7 @@
     <string name="concierge_starter_2" formatted="false">Znajdź jacht dla 8 gości</string>
     <string name="concierge_starter_3" formatted="false">Zarezerwuj stolik na kolację</string>
     <string name="concierge_title" formatted="false">Twój prywatny konsjerż</string>
+    <string name="concierge_unavailable" formatted="false">Concierge jest chwilowo niedostępny. Katalog nadal można przeglądać.</string>
     <string name="error_generic" formatted="false">Coś poszło nie tak</string>
     <string name="favorite_remove" formatted="false">Usuń z Moje Miami</string>
     <string name="favorite_save" formatted="false">Zapisz w Moje Miami</string>
@@ -44,6 +45,9 @@
     <string name="plan_sent_text" formatted="false">Pozycji w zapytaniu: {count}. Nasz zespół wkrótce się z Tobą skontaktuje.</string>
     <string name="plan_submit" formatted="false">Wyślij zapytanie</string>
     <string name="plan_title" formatted="false">Twój plan</string>
+    <string name="report_prompt" formatted="false">Co jest nie tak z tą odpowiedzią? (opcjonalnie)</string>
+    <string name="report_send" formatted="false">Wyślij zgłoszenie</string>
+    <string name="report_sent" formatted="false">Dziękujemy. Zgłoszenie zostało wysłane do naszego zespołu.</string>
     <string name="search_empty" formatted="false">Nie znaleziono wyników dla Twojego wyszukiwania.</string>
     <string name="search_popular" formatted="false">Popularne wyszukiwania</string>
     <string name="season_ask" formatted="false">{name}, {dates}. Pomóż mi zaplanować samochód, nocleg, kolację i bilety.</string>

@@ -15,6 +15,7 @@
     <string name="concierge_starter_2" formatted="false">Finde eine Yacht für 8 Gäste</string>
     <string name="concierge_starter_3" formatted="false">Reserviere einen Tisch zum Abendessen</string>
     <string name="concierge_title" formatted="false">Ihr privater Concierge</string>
+    <string name="concierge_unavailable" formatted="false">Der Concierge ist vorübergehend nicht verfügbar. Der Katalog bleibt geöffnet.</string>
     <string name="error_generic" formatted="false">Etwas ist schiefgelaufen</string>
     <string name="favorite_remove" formatted="false">Aus Mein Miami entfernen</string>
     <string name="favorite_save" formatted="false">In Mein Miami speichern</string>
@@ -44,6 +45,9 @@
     <string name="plan_sent_text" formatted="false">Positionen in der Anfrage: {count}. Unser Team meldet sich in Kürze bei Ihnen.</string>
     <string name="plan_submit" formatted="false">Anfrage senden</string>
     <string name="plan_title" formatted="false">Ihr Plan</string>
+    <string name="report_prompt" formatted="false">Was stimmt mit dieser Antwort nicht? (optional)</string>
+    <string name="report_send" formatted="false">Meldung senden</string>
+    <string name="report_sent" formatted="false">Danke. Die Meldung wurde an unser Team gesendet.</string>
     <string name="search_empty" formatted="false">Keine Ergebnisse für Ihre Suche gefunden.</string>
     <string name="search_popular" formatted="false">Beliebte Suchanfragen</string>
     <string name="season_ask" formatted="false">{name}, {dates}. Helfen Sie mir bei der Planung: Auto, Unterkunft, Abendessen und Tickets.</string>

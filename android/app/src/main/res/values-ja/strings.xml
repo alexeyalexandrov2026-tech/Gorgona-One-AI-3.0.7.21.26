@@ -15,6 +15,7 @@
     <string name="concierge_starter_2" formatted="false">8名用のヨットを探して</string>
     <string name="concierge_starter_3" formatted="false">ディナーの席を予約して</string>
     <string name="concierge_title" formatted="false">あなた専用のコンシェルジュ</string>
+    <string name="concierge_unavailable" formatted="false">コンシェルジュは一時的にご利用いただけません。カタログは引き続きご覧いただけます。</string>
     <string name="error_generic" formatted="false">問題が発生しました</string>
     <string name="favorite_remove" formatted="false">マイ・マイアミから削除</string>
     <string name="favorite_save" formatted="false">マイ・マイアミに保存</string>
@@ -44,6 +45,9 @@
     <string name="plan_sent_text" formatted="false">リクエストの項目数：{count}。スタッフより近日中にご連絡します。</string>
     <string name="plan_submit" formatted="false">問い合わせを送信</string>
     <string name="plan_title" formatted="false">あなたのプラン</string>
+    <string name="report_prompt" formatted="false">この回答の問題点を教えてください（任意）</string>
+    <string name="report_send" formatted="false">報告を送信</string>
+    <string name="report_sent" formatted="false">ありがとうございます。報告をチームに送信しました。</string>
     <string name="search_empty" formatted="false">検索結果が見つかりませんでした。</string>
     <string name="search_popular" formatted="false">人気の検索</string>
     <string name="season_ask" formatted="false">{name}、{dates}。車、宿泊先、夕食、チケットの手配を手伝ってください。</string>

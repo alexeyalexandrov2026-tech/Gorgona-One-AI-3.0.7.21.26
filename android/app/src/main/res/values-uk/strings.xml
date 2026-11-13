@@ -15,6 +15,7 @@
     <string name="concierge_starter_2" formatted="false">Знайди яхту на 8 гостей</string>
     <string name="concierge_starter_3" formatted="false">Заброньюй столик на вечерю</string>
     <string name="concierge_title" formatted="false">Ваш особистий консьєрж</string>
+    <string name="concierge_unavailable" formatted="false">Консьєрж тимчасово недоступний. Каталог, як і раніше, відкритий.</string>
     <string name="error_generic" formatted="false">Щось пішло не так</string>
     <string name="favorite_remove" formatted="false">Прибрати з «Мого Маямі»</string>
     <string name="favorite_save" formatted="false">До «Мого Маямі»</string>
@@ -44,6 +45,9 @@
     <string name="plan_sent_text" formatted="false">Позицій у заявці: {count}. Наша команда незабаром зв’яжеться з вами.</string>
     <string name="plan_submit" formatted="false">Надіслати запит</string>
     <string name="plan_title" formatted="false">Ваш план</string>
+    <string name="report_prompt" formatted="false">Що не так із цією відповіддю? (необов’язково)</string>
+    <string name="report_send" formatted="false">Надіслати скаргу</string>
+    <string name="report_sent" formatted="false">Дякуємо. Скаргу надіслано нашій команді.</string>
     <string name="search_empty" formatted="false">За вашим запитом нічого не знайдено.</string>
     <string name="search_popular" formatted="false">Популярні запити</string>
     <string name="season_ask" formatted="false">{name}, {dates}. Допоможіть спланувати: авто, житло, вечерю та квитки.</string>

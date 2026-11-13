@@ -15,6 +15,7 @@
     <string name="concierge_starter_2" formatted="false">Найди яхту на 8 гостей</string>
     <string name="concierge_starter_3" formatted="false">Забронируй столик на день рождения</string>
     <string name="concierge_title" formatted="false">Ваш личный консьерж</string>
+    <string name="concierge_unavailable" formatted="false">Консьерж временно недоступен. Каталог по-прежнему открыт.</string>
     <string name="error_generic" formatted="false">Что-то пошло не так</string>
     <string name="favorite_remove" formatted="false">Убрать из «Моего Майами»</string>
     <string name="favorite_save" formatted="false">В «Мой Майами»</string>
@@ -44,6 +45,9 @@
     <string name="plan_sent_text" formatted="false">Позиций в заявке: {count}. Наша команда скоро свяжется с вами.</string>
     <string name="plan_submit" formatted="false">Отправить заявку</string>
     <string name="plan_title" formatted="false">Ваш план</string>
+    <string name="report_prompt" formatted="false">Что не так с этим ответом? (необязательно)</string>
+    <string name="report_send" formatted="false">Отправить жалобу</string>
+    <string name="report_sent" formatted="false">Спасибо. Жалоба отправлена нашей команде.</string>
     <string name="search_empty" formatted="false">По вашему запросу ничего не найдено.</string>
     <string name="search_popular" formatted="false">Популярные запросы</string>
     <string name="season_ask" formatted="false">{name}, {dates}. Помогите спланировать: машина, жильё, ужин и билеты.</string>

@@ -15,6 +15,7 @@
     <string name="concierge_starter_2" formatted="false">寻找可容纳8人的游艇</string>
     <string name="concierge_starter_3" formatted="false">预订晚餐餐厅</string>
     <string name="concierge_title" formatted="false">您的私人礼宾</string>
+    <string name="concierge_unavailable" formatted="false">礼宾服务暂时不可用。您仍可浏览目录。</string>
     <string name="error_generic" formatted="false">出错了</string>
     <string name="favorite_remove" formatted="false">从“我的迈阿密”移除</string>
     <string name="favorite_save" formatted="false">收藏到“我的迈阿密”</string>
@@ -44,6 +45,9 @@
     <string name="plan_sent_text" formatted="false">请求中的项目数：{count}。我们的团队将尽快联系您。</string>
     <string name="plan_submit" formatted="false">发送需求</string>
     <string name="plan_title" formatted="false">您的行程计划</string>
+    <string name="report_prompt" formatted="false">这个回答有什么问题？（选填）</string>
+    <string name="report_send" formatted="false">发送举报</string>
+    <string name="report_sent" formatted="false">谢谢。举报已发送给我们的团队。</string>
     <string name="search_empty" formatted="false">未找到与您的搜索匹配的结果。</string>
     <string name="search_popular" formatted="false">热门搜索</string>
     <string name="season_ask" formatted="false">{name}，{dates}。请帮我安排汽车、住宿、晚餐和门票。</string>
