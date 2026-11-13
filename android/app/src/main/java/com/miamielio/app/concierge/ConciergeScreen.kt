@@ -51,11 +51,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
@@ -89,6 +86,7 @@ import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.ui.arrives
 import com.miamielio.app.ui.pressable
+import com.miamielio.app.ui.rememberKeyboardDismissal
 
 /**
  * The AI concierge as a native conversation. It speaks to the same
@@ -126,17 +124,6 @@ fun ConciergeScreen(model: ConciergeViewModel, onOpen: (String) -> Unit, modifie
         seen = count
     }
 
-    // Dragging the conversation puts the keyboard away, which is also what
-    // uncovers the tab bar.
-    val dismissKeyboard = remember(focus) {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                if (source == NestedScrollSource.UserInput && available.y != 0f) focus.clearFocus()
-                return Offset.Zero
-            }
-        }
-    }
-
     Column(
         modifier
             .fillMaxSize()
@@ -154,7 +141,7 @@ fun ConciergeScreen(model: ConciergeViewModel, onOpen: (String) -> Unit, modifie
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .nestedScroll(dismissKeyboard)
+                .nestedScroll(rememberKeyboardDismissal())
                 .testTag("concierge.conversation"),
             contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 20.dp),
             verticalArrangement = Arrangement.spacedBy(26.dp),

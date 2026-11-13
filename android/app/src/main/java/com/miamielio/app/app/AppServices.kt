@@ -12,8 +12,10 @@ import com.miamielio.app.core.AppConfig
 import com.miamielio.app.core.ConciergeClient
 import com.miamielio.app.core.PlanClient
 import com.miamielio.app.core.RoutePolicy
+import com.miamielio.app.core.SearchClient
 import com.miamielio.app.core.SiteLocale
 import com.miamielio.app.net.OkHttpTransport
+import com.miamielio.app.search.SearchViewModel
 import com.miamielio.app.web.WebHost
 import com.miamielio.app.web.WebTabController
 
@@ -62,6 +64,16 @@ class AppServices(
         },
     )[ConciergeViewModel::class]
 
+    /** Whether the phone has a connection; "no internet" screens ask again when it is back. */
+    val connectivity = Connectivity(activity.applicationContext)
+
+    val search: SearchViewModel = ViewModelProvider.create(
+        viewModels,
+        viewModelFactory {
+            initializer { SearchViewModel(SearchClient(config, policy, OkHttpTransport.search()), connectivity.online) }
+        },
+    )[SearchViewModel::class]
+
     fun onResume() {
         explore.onResume()
         account.onResume()
@@ -74,6 +86,7 @@ class AppServices(
 
     fun destroy() {
         viewModels.clear()
+        connectivity.close()
         explore.destroy()
         account.destroy()
     }

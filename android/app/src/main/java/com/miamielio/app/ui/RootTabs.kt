@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Icon
@@ -50,9 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -60,6 +56,7 @@ import com.miamielio.app.R
 import com.miamielio.app.app.AppServices
 import com.miamielio.app.app.AppTab
 import com.miamielio.app.concierge.ConciergeScreen
+import com.miamielio.app.search.SearchScreen
 import com.miamielio.app.web.WebTab
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -188,38 +185,17 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
                     onOpen = router::open,
                     modifier = Modifier.testTag("content.Concierge"),
                 )
-                AppTab.Search -> ComingTab(stringResource(R.string.tab_search), orb = false, tag = "content.Search")
+                AppTab.Search -> SearchScreen(
+                    model = services.search,
+                    onOpen = router::open,
+                    modifier = Modifier.testTag("content.Search"),
+                )
                 AppTab.Account -> WebTab(services.account, Modifier.testTag("content.Account"))
             }
         }
         if (!typing) {
             TabBar(selected = tab, onSelect = router::select)
         }
-    }
-}
-
-/** Holds the place of a native tab until its screen is built. */
-@Composable
-private fun ComingTab(title: String, orb: Boolean, tag: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .padding(32.dp)
-            .testTag(tag),
-        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        if (orb) ConciergeMark(diameter = 72.dp, modifier = Modifier.arrives(0), breathes = true)
-        Text(
-            text = title,
-            modifier = Modifier
-                .arrives(1)
-                .semantics { heading() },
-            color = Theme.ink,
-            style = AppFont.title,
-            textAlign = TextAlign.Center,
-        )
     }
 }
 
