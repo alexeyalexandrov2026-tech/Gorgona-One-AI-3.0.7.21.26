@@ -46,8 +46,10 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // in the layout), so this component is a VIEW of the conversation rather
   // than an owner of it - the homepage bar, the sphere dock and the Discovery
   // Room all render the same thread.
-  const { messages, cards, suggestions, isLoading, hydrated, send } = useConciergeChat();
+  const { messages, latestReply, cards, suggestions, isLoading, hydrated, send } = useConciergeChat();
   const [input, setInput] = useState('');
+  const [announcement, setAnnouncement] = useState(null);
+  const lastObservedReply = useRef(latestReply);
   const listRef = useRef(null);
   const voice = useVoice();
   useEffect(()=>{if(!active||!messages.length)voice.stopListening();},[active,messages.length,voice.stopListening]);
@@ -60,6 +62,16 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, isLoading, cards]);
+
+  useEffect(() => {
+    if (!active || !hydrated) {
+      setAnnouncement(null);
+    } else if (lastObservedReply.current !== latestReply) {
+      setAnnouncement(latestReply);
+    }
+    // Inactive views observe each reply so reopening them cannot replay it.
+    lastObservedReply.current = latestReply;
+  }, [active, hydrated, latestReply]);
 
   // send() never throws and never logs - an offline AI backend is an expected
   // state, and the guest still gets a concierge line plus working navigation
@@ -88,8 +100,13 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   }
 
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-col" aria-busy={!hydrated||isLoading}>
-      <div ref={listRef} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
+    <div className="flex h-full min-h-0 min-w-0 flex-col">
+      <p role="status" aria-atomic="true" className="sr-only">
+        {active && hydrated && announcement && (
+          <span key={announcement.id} lang={announcement.lang} dir="auto">{announcement.content}</span>
+        )}
+      </p>
+      <div ref={listRef} aria-busy={!hydrated||isLoading} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
         {messages.length === 0 && (
           <div className="space-y-3">
             <p className="text-sm text-zinc-400">{t.ai?.conciergeIntro || DEFAULT_INTRO}</p>
