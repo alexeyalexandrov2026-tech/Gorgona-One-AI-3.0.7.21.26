@@ -67,18 +67,21 @@ try{
   await page.evaluate(()=>window.results=[]);
   console.log('PASS '+mode+' failure is contained; stale result ignored; next dictation recovers');
  }
- await page.evaluate(()=>window.mode='constructor');
+ await page.evaluate(()=>window.mode='offline');
  const primary=page.getByRole('region',{name:'Primary chat',exact:true});
  const secondary=page.getByRole('region',{name:'Secondary chat',exact:true});
  const form=primary.locator('form');
- await expect(form.locator('button[aria-pressed]')).toBeEnabled();
- await form.locator('button[aria-pressed]').click();
- await expect(page.getByRole('alert')).toBeVisible();
+ for (const view of [primary,secondary]) {
+  const composer=view.locator('form');
+  await expect(composer.getByRole('textbox')).toBeEditable();
+  await expect(composer.getByRole('button')).toHaveCount(1);
+  await expect(composer.getByRole('button',{name:'Ask',exact:true})).toHaveAttribute('type','submit');
+ }
+ console.log('PASS both chat composers only expose text input and the send button');
  await form.locator('input').fill('Rent a yacht');
  await form.locator('button[type="submit"]').click();
  await expect(primary.locator('a[href="/yachts"]')).toBeVisible();
- await expect(page.getByRole('alert')).toHaveCount(0);
- console.log('PASS real conversation recovers from constructor failure through text and yacht recommendation');
+ console.log('PASS the text conversation offers navigation when the transport is offline');
  const announcement=primary.getByRole('status'),secondaryAnnouncement=secondary.getByRole('status');
  await expect(announcement).toHaveText('The concierge is temporarily unavailable. Please try again shortly.');
  await expect(secondaryAnnouncement).toBeEmpty();
