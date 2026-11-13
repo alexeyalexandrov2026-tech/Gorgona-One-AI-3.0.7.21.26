@@ -71,6 +71,12 @@ android {
         buildConfig = true
     }
 
+    // Lists the app's 16 languages for Android 13+, so the guest can pick the
+    // app's language in the phone's settings (see res/resources.properties).
+    androidResources {
+        generateLocaleConfig = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
