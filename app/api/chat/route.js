@@ -12,7 +12,7 @@ import {groundedReply,CATALOGUE_PROTOCOL} from '../../../lib/ai/groundedReply.mj
 //
 // A thin adapter over a fallback chain, in order of preference:
 //
-//   0. native Workers AI, opt-in on the authenticated QA Worker only
+//   0. native Workers AI, opt-in with durable usage limits
 //   1. the local Miami Elio AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
 //   2. the hosted ai-router on :20128 (OpenAI-compatible)
 //   3. a polite canned reply

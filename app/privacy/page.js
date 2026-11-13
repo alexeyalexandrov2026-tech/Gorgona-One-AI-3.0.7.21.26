@@ -13,6 +13,7 @@ export default function PrivacyPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{msg("Privacy")}</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">{t.legal.privacyTitle}</h1>
         <p className="mt-4 max-w-2xl text-zinc-400">{t.legal.privacyBody}</p>
+        <p className="mt-4 max-w-2xl text-zinc-400">{t.legal.conciergePrivacy}</p>
       </div>
     </main>
   );

@@ -4,6 +4,11 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-07-11",
   "compatibility_flags": ["nodejs_compat"],
+  "ai": { "binding": "CONCIERGE_AI" },
+  "vars": {
+    "APP_ENV": "production",
+    "CONCIERGE_WORKERS_AI_ENABLED": "true"
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
