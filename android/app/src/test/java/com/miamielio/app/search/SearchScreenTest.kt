@@ -2,9 +2,13 @@ package com.miamielio.app.search
 
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -25,8 +29,8 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.File
 
 private val AZIMUT = """{"results":[
-  {"href":"/yachts/azimut-55","title":"Azimut 55","subtitle":"MIAMI ELIO Fleet","location":"Sunny Isles Beach","price":"from ${'$'}2,400"},
-  {"href":"/yachts/sunseeker-76","title":"Sunseeker 76","category":"Yacht","location":"Miami Beach"}]}"""
+  {"href":"/yachts/azimut-55","title":"Azimut 55","world":"yachts","subtitle":"MIAMI ELIO Fleet","location":"Sunny Isles Beach","price":"from ${'$'}2,400"},
+  {"href":"/yachts/sunseeker-76","title":"Sunseeker 76","world":"yachts","category":"Yacht","location":"Miami Beach"}]}"""
 
 /** The search screen against a scripted server. Results carry no photos, so nothing goes to the real site. */
 @RunWith(RobolectricTestRunner::class)
@@ -76,6 +80,23 @@ class SearchScreenTest {
         // "Cancel" clears the query and brings the sections back.
         compose.onNodeWithTag("search.cancel").performClick()
         compose.onNodeWithText("POPULAR SEARCHES").assertExists()
+    }
+
+    @Test
+    fun theHeartSavesAndRemovesWithoutOpeningTheListing() {
+        server.reply(AZIMUT)
+        show()
+        compose.onNodeWithTag("search.input").performTextInput("azimut")
+        compose.waitForIdle()
+
+        val heart = compose.onAllNodesWithTag("favorite.heart")[0]
+        heart.assertIsNotSelected().assertContentDescriptionEquals("Save to My Miami").performClick()
+        heart.assertIsSelected().assertContentDescriptionEquals("Remove from My Miami")
+        assertEquals(emptyList<String>(), opened)
+        heart.performClick()
+        heart.assertIsNotSelected().assertContentDescriptionEquals("Save to My Miami")
+        compose.onNodeWithText("Azimut 55").performClick()
+        assertEquals(listOf("/yachts/azimut-55"), opened)
     }
 
     @Test

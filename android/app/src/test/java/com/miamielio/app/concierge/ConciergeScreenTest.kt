@@ -5,6 +5,8 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -63,6 +65,29 @@ class ConciergeScreenTest {
 
     private fun scrollTo(tag: String) {
         compose.onNodeWithTag("concierge.conversation").performScrollToNode(hasTestTag(tag))
+    }
+
+    @Test
+    fun aPlanHeartFollowsTheListingWhenOptionsChange() {
+        chat.reply(Replies.withPlan())
+        show()
+        compose.onAllNodesWithTag("concierge.starter")[0].performClick()
+        compose.waitForIdle()
+        scrollTo("plan.item")
+
+        val yacht = compose.onAllNodesWithTag("favorite.heart")[0]
+        yacht.assertIsNotSelected().performClick()
+        yacht.assertIsSelected()
+        assertTrue(opened.isEmpty())
+
+        val next = compose.onNodeWithTag("plan.another")
+        next.performClick()
+        compose.onNodeWithText("Small Yacht").assertExists()
+        yacht.assertIsNotSelected()
+
+        next.performClick()
+        compose.onNodeWithText("Big Yacht").assertExists()
+        yacht.assertIsSelected()
     }
 
     @Test
