@@ -6,16 +6,19 @@ import {readChatRequest,validateChatTransport,ChatInputError} from '../../../lib
 import {conversationNavigation} from '../../../lib/ai/conversation.mjs';
 import {askWorkersBrain} from '../../../lib/ai/workersBrain.mjs';
 import {groundedReply,CATALOGUE_PROTOCOL} from '../../../lib/ai/groundedReply.mjs';
+import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
+import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
 //
 // A thin adapter over a fallback chain, in order of preference:
 //
-//   0. native Workers AI, opt-in with durable usage limits
-//   1. the local Miami Elio AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
-//   2. the hosted ai-router on :20128 (OpenAI-compatible)
-//   3. a polite canned reply
+//   0. local greetings, Miami time and current weather
+//   1. native Workers AI, opt-in with durable usage limits
+//   2. the local Miami Elio AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
+//   3. the hosted ai-router on :20128 (OpenAI-compatible)
+//   4. a localized unavailable reply
 //
 // The contract this route returns NEVER changes shape and the status is
 // ALWAYS 200 for a well-formed request, whatever happens upstream. A degraded
@@ -146,30 +149,36 @@ export async function POST(request) {
   // to answer in it, and the degraded path speaks it too.
   const locale = normalizeLocale(body?.locale);
 
-  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request});
-  if(cloud.ok)return reply(cloud.reply,{messages,latestUserMessage,source:'workers-ai',locale,navigation:cloud.navigation,responsePolicy:cloud.responsePolicy});
+  const fact=await answerConciergeFact(latestUserMessage,locale,request.signal);
+  if(fact&&!fact.remainingMessage)return reply(fact.reply,{source:fact.source,error:fact.error,locale,
+    navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY});
+
+  const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
+  const respond=(text,options)=>reply(fact?fact.reply+'\n\n'+text:text,{messages:modelMessages,locale,...options});
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages});
+  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy});
   // A denied/failed metered engine must not start another unmetered engine.
-  if(cloud.kind!=='disabled')return reply(unavailableReply(locale),{messages,latestUserMessage,locale,source:'navigation',error:true});
+  if(cloud.kind!=='disabled')return respond(unavailableReply(locale),{source:'navigation',error:true});
 
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
-  const local = await askLocalBrain({ messages, systemPrompt: SYSTEM_PROMPT+CATALOGUE_PROTOCOL, sessionId, locale,responseProtocol:CATALOGUE_PROTOCOL });
+  const local = await askLocalBrain({ messages:modelMessages, systemPrompt: SYSTEM_PROMPT+CATALOGUE_PROTOCOL, sessionId, locale,responseProtocol:CATALOGUE_PROTOCOL });
   if (local.ok) {
-    const projection=groundedReply(local.reply,{messages,locale});
-    if(projection)return reply(projection.reply, { messages, latestUserMessage, source: 'local', sessionId: local.sessionId, locale,navigation:projection.navigation,responsePolicy:projection.responsePolicy });
-    return reply(unavailableReply(locale),{messages,latestUserMessage,locale,source:'navigation',error:true});
+    const projection=groundedReply(local.reply,{messages:modelMessages,locale});
+    if(projection)return respond(projection.reply,{source:'local',sessionId:local.sessionId,navigation:projection.navigation,responsePolicy:projection.responsePolicy});
+    return respond(unavailableReply(locale),{source:'navigation',error:true});
   }
 
   // Link 2 - the hosted router.
-  const routed = await askRouter(messages, locale);
+  const routed = await askRouter(modelMessages, locale);
   if (routed) {
-    const projection=groundedReply(routed,{messages,locale});
-    if(projection)return reply(projection.reply, { messages, latestUserMessage, source: 'router', locale,navigation:projection.navigation,responsePolicy:projection.responsePolicy });
+    const projection=groundedReply(routed,{messages:modelMessages,locale});
+    if(projection)return respond(projection.reply,{source:'router',navigation:projection.navigation,responsePolicy:projection.responsePolicy});
   }
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the
   // widget renders this like any other answer instead of hitting an error path.
-  return reply(unavailableReply(locale), { messages, latestUserMessage, locale, source:'navigation', error: true });
+  return respond(unavailableReply(locale),{source:'navigation',error:true});
 }
 
 // Non-LLM diagnostics: confirms which engines are wired up without spending a
