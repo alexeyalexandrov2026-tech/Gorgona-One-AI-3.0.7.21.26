@@ -44,6 +44,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.autofill.contentType
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -377,11 +379,12 @@ private fun PlanRequestForm(
 
                 Spacer(Modifier.height(4.dp))
                 FormField(name, { name = it }, stringResource(R.string.plan_name), "plan.name",
-                    KeyboardOptions(capitalization = KeyboardCapitalization.Words, keyboardType = KeyboardType.Text))
+                    KeyboardOptions(capitalization = KeyboardCapitalization.Words, keyboardType = KeyboardType.Text),
+                    autofill = ContentType.PersonFullName)
                 FormField(phone, { phone = it }, stringResource(R.string.plan_phone), "plan.phone",
-                    KeyboardOptions(keyboardType = KeyboardType.Phone))
+                    KeyboardOptions(keyboardType = KeyboardType.Phone), autofill = ContentType.PhoneNumber)
                 FormField(email, { email = it }, stringResource(R.string.plan_email), "plan.email",
-                    KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false))
+                    KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false), autofill = ContentType.EmailAddress)
                 FormField(note, { note = it.take(1000) }, stringResource(R.string.plan_note), "plan.note",
                     KeyboardOptions(capitalization = KeyboardCapitalization.Sentences), singleLine = false)
 
@@ -509,13 +512,15 @@ private fun FormField(
     tag: String,
     keyboard: KeyboardOptions,
     singleLine: Boolean = true,
+    autofill: ContentType? = null,
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onChange,
         modifier = Modifier
             .fillMaxWidth()
-            .testTag(tag),
+            .testTag(tag)
+            .then(if (autofill == null) Modifier else Modifier.contentType(autofill)),
         label = { Text(label) },
         textStyle = AppFont.body,
         singleLine = singleLine,

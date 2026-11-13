@@ -6,7 +6,12 @@ import com.miamielio.app.core.SiteLocale
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+
+data class BridgeFavorites(val keys: Set<String>, val owner: String?)
+data class BridgeFavoriteReceipt(val id: String, val saved: Boolean)
 
 /** What a Miami Elio page told the app. Every part is optional. */
 data class BridgeMessage(
@@ -15,7 +20,8 @@ data class BridgeMessage(
     /** A page the site would like opened outside the web view. */
     val open: String? = null,
     /** The guest's favourites as "kind:slug" keys. */
-    val favorites: Set<String>? = null,
+    val favorites: BridgeFavorites? = null,
+    val favoriteReceipt: BridgeFavoriteReceipt? = null,
 )
 
 /**
@@ -157,12 +163,23 @@ object WebBootstrap {
         fun string(key: String): String? =
             (body[key] as? JsonPrimitive)?.takeIf { it.isString }?.content?.trim()?.takeIf { it.isNotEmpty() }
 
+        val owner = string("favoritesOwner")?.takeIf(uuid::matches)
+        val validOwner = body["favoritesOwner"] == JsonNull || owner != null
+        val receipt = body["favoriteReceipt"] as? JsonObject
+        val receiptId = (receipt?.get("id") as? JsonPrimitive)?.takeIf { it.isString }?.content
+        val saved = (receipt?.get("saved") as? JsonPrimitive)?.takeUnless { it.isString }?.booleanOrNull
         return BridgeMessage(
             locale = string("locale")?.let(SiteLocale::normalize),
             open = string("open"),
-            favorites = (body["favorites"] as? JsonArray)?.let(FavoriteRef::keys),
+            favorites = if (validOwner && body["favoritesVersion"] == JsonPrimitive(2)) {
+                (body["favorites"] as? JsonArray)?.let { BridgeFavorites(FavoriteRef.keys(it), owner) }
+            } else null,
+            favoriteReceipt = if (receiptId != null && uuid.matches(receiptId) && saved != null) {
+                BridgeFavoriteReceipt(receiptId, saved)
+            } else null,
         )
     }
 
     private const val MAX_MESSAGE_LENGTH = 64 * 1024
+    private val uuid = Regex("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 }

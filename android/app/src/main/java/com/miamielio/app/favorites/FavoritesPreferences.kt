@@ -30,13 +30,19 @@ internal class FavoritesPreferences(private val preferences: SharedPreferences) 
             .mapNotNull { (it as? JsonPrimitive)?.takeIf(JsonPrimitive::isString)?.content }
             .filter(FavoriteRef::isKey)
             .toSet()
-        return FavoritesSnapshot(keys, record.lossyArray("pending", ::readChange))
+        return FavoritesSnapshot(keys, record.lossyArray("pending", ::readChange), record.string("owner"))
     }
 
     override fun save(snapshot: FavoritesSnapshot) {
         val record = buildJsonObject {
             put("keys", JsonArray(snapshot.keys.map(::JsonPrimitive)))
-            put("pending", JsonArray(snapshot.pending.map { it.favorite.changeJson(it.on) }))
+            put("owner", snapshot.owner)
+            put("pending", JsonArray(snapshot.pending.map { change ->
+                buildJsonObject {
+                    change.favorite.changeJson(change.on).forEach { (name, value) -> put(name, value) }
+                    put("owner", change.owner)
+                }
+            }))
         }
         preferences.edit().putString(SNAPSHOT, record.toString()).apply()
     }
@@ -50,7 +56,7 @@ internal class FavoritesPreferences(private val preferences: SharedPreferences) 
             subtitle = change.string("subtitle"),
             image = change.string("image"),
         ) ?: return null
-        return FavoriteChange(favorite, on)
+        return FavoriteChange(favorite, on, change.string("owner"))
     }
 
     private fun JsonObject.string(key: String): String? =

@@ -1176,6 +1176,24 @@
       "fr": "En écoute",
       "pl": "Nasłuchiwanie"
     },
+    "voice_permission_explanation": {
+      "en": "Miami Elio turns your spoken request into text for the concierge.",
+      "ru": "Miami Elio преобразует ваш голосовой запрос в текст для консьержа.",
+      "es": "Miami Elio convierte tu solicitud hablada en texto para el conserje.",
+      "he": "Miami Elio ממירה את הבקשה הקולית שלכם לטקסט עבור הקונסיירז'.",
+      "zh": "Miami Elio 会将您的语音需求转换为文字发送给礼宾。",
+      "pt": "A Miami Elio converte o seu pedido falado em texto para o concierge.",
+      "uk": "Miami Elio перетворює ваш голосовий запит на текст для консьєржа.",
+      "ja": "Miami Elio は音声による依頼をテキストに変換してコンシェルジュに伝えます。",
+      "ko": "Miami Elio가 음성 요청을 텍스트로 변환해 컨시어지에게 전달합니다.",
+      "de": "Miami Elio wandelt Ihre gesprochene Anfrage in Text für den Concierge um.",
+      "ar": "يحوّل Miami Elio طلبك المنطوق إلى نص للكونسيرج.",
+      "tr": "Miami Elio, sesli isteğinizi konsiyerj için metne dönüştürür.",
+      "fa": "Miami Elio درخواست گفتاری شما را برای کانسیرژ به متن تبدیل می‌کند.",
+      "it": "Miami Elio trasforma la tua richiesta vocale in testo per il concierge.",
+      "fr": "Miami Elio transforme votre demande vocale en texte pour le concierge.",
+      "pl": "Miami Elio zamienia Twoją wypowiedzianą prośbę na tekst dla konsjerża."
+    },
     "voice_speak": {
       "en": "Speak your request",
       "ru": "Произнесите ваш запрос",

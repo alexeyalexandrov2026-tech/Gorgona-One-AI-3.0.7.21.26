@@ -16,6 +16,7 @@ import com.miamielio.app.core.PlanItem
 import com.miamielio.app.core.PlanRequest
 import com.miamielio.app.core.PlanReceipt
 import com.miamielio.app.core.PlanSection
+import com.miamielio.app.core.SiteLocale
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
@@ -118,12 +119,15 @@ class ConciergeViewModel(
 
     /** The key of the last plan send, reused while its details stay the same. */
     private var planAttempt: Pair<PlanRequest, UUID>? = null
+    private val reportAttempts = mutableMapOf<Long, AnswerReport>()
     private var sessionId: String? = null
     private var job: Job? = null
     private var nextId = 0L
 
     /** True when a report on an answer can actually be delivered. */
     val canReport: Boolean get() = reporter != null
+
+    internal fun speechLanguage(): String = SiteLocale.speechLocale(locale())
 
     fun setDraft(text: String) = mutableState.update { it.copy(draft = text) }
 
@@ -162,6 +166,7 @@ class ConciergeViewModel(
         job = null
         sessionId = null
         planAttempt = null
+        reportAttempts.clear()
         mutableState.update { ConciergeState(draft = it.draft) }
     }
 
@@ -254,13 +259,14 @@ class ConciergeViewModel(
         val answer = entries[index]
         if (answer.report == ReportStatus.Sending || answer.report == ReportStatus.Sent) return
         val question = entries.take(index).lastOrNull { it.kind == ConciergeEntry.Kind.Guest }?.text.orEmpty()
-        val report = AnswerReport(
+        val normalizedNote = note.trim().take(AnswerReport.maxNoteLength)
+        val report = reportAttempts[entryId]?.takeIf { it.note == normalizedNote } ?: AnswerReport(
             answer = answer.text,
             question = question,
-            note = note.trim().take(AnswerReport.maxNoteLength),
+            note = normalizedNote,
             sessionId = sessionId,
             locale = locale(),
-        )
+        ).also { reportAttempts[entryId] = it }
         markReport(entryId, ReportStatus.Sending)
         viewModelScope.launch {
             val outcome = try {
@@ -271,6 +277,7 @@ class ConciergeViewModel(
             } catch (_: Exception) {
                 ReportStatus.Failed
             }
+            if (outcome == ReportStatus.Sent) reportAttempts.remove(entryId)
             markReport(entryId, outcome)
         }
     }

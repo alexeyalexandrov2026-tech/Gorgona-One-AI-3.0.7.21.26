@@ -104,42 +104,31 @@ check(
     foreign.document.cookie === ''
 );
 
-function runFavorite(origin, options = {}) {
-  const writes = [];
+function runFavorite(origin, ready = false) {
   const delivered = [];
   const context = {
     location: { origin },
-    localStorage: {
-      getItem: () => options.stored ?? null,
-      setItem: (key, value) => writes.push({ key, items: JSON.parse(value) }),
-    },
-    __miamiFavorite: options.ready ? (change) => delivered.push(change) : undefined,
+    __miamiFavoriteV2: ready ? (change) => delivered.push(change) : undefined,
   };
   context.window = context;
   const accepted = vm.runInNewContext(favoriteChange, context);
-  return { accepted, writes, delivered };
+  return { accepted, delivered };
 }
 
 const siteOrigin = 'https://gorgona-one.com';
-const expected = { kind: 'yacht', slug: 'azimut-55', title: 'Azimut "55"', on: true };
-const direct = runFavorite(siteOrigin, { ready: true });
-check('gives the exact favorite edit to a ready site store', direct.accepted &&
-  JSON.stringify(direct.delivered) === JSON.stringify([expected]) && direct.writes.length === 0);
+const expected = { kind: 'yacht', slug: 'azimut-55', title: 'Azimut "55"', on: true,
+  receipt: '11111111-1111-4111-8111-111111111111', owner: null };
+const direct = runFavorite(siteOrigin, true);
+check('starts a favorite edit with its receipt ID and owner', direct.accepted &&
+  JSON.stringify(direct.delivered) === JSON.stringify([expected]));
 
-const earlier = { kind: 'car', slug: 'suv', title: 'SUV', on: false };
-const queued = runFavorite(siteOrigin, { stored: JSON.stringify([earlier]) });
-check('appends after earlier site edits when the site store is not ready', queued.accepted &&
-  queued.writes[0]?.key === 'gorgona-favorites-pending' &&
-  JSON.stringify(queued.writes[0]?.items) === JSON.stringify([earlier, expected]));
+const notReady = runFavorite(siteOrigin);
+check('keeps the native edit pending on sites without the confirmed bridge', notReady.accepted === false &&
+  notReady.delivered.length === 0);
 
-const full = runFavorite(siteOrigin, { stored: JSON.stringify(Array(50).fill(earlier)) });
-check('keeps existing site edits intact when the site queue is full', full.accepted === false && full.writes.length === 0);
-const invalid = runFavorite(siteOrigin, { stored: '{}' });
-check('keeps the native edit pending when site storage is invalid', invalid.accepted === false && invalid.writes.length === 0);
-
-const navigated = runFavorite('https://partner.example.com', { ready: true });
+const navigated = runFavorite('https://partner.example.com', true);
 check('does not hand off favorites when the document has changed origin', navigated.accepted === false &&
-  navigated.writes.length === 0 && navigated.delivered.length === 0);
+  navigated.delivered.length === 0);
 
 if (failed) {
   console.error(`${failed} check(s) failed.`);

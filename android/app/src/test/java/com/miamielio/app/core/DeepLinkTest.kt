@@ -15,6 +15,13 @@ class DeepLinkTest {
     }
 
     @Test
+    fun seasonNotificationCarriesOnlyAnEventId() {
+        assertEquals(DeepLink.SeasonConcierge("art-basel"), DeepLink.parse(DeepLink.seasonUrl("art-basel")))
+        assertEquals(DeepLink.Concierge, DeepLink.parse("miamielio://concierge?event=invalid%2Fid"))
+        assertEquals(DeepLink.Concierge, DeepLink.parse("miamielio://concierge?prompt=send%20this"))
+    }
+
+    @Test
     fun readsAPageOfTheSite() {
         assertEquals(DeepLink.Open("/yachts"), DeepLink.parse("miamielio://open?path=/yachts"))
         assertEquals(DeepLink.Open("/yachts/azimut-55"), DeepLink.parse("miamielio://open?path=%2Fyachts%2Fazimut-55"))

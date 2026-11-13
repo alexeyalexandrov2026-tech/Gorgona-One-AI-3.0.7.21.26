@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">Buscar</string>
     <string name="voice_denied" formatted="false">Para falar com o concierge, permita o microfone e o reconhecimento de fala nas Definições.</string>
     <string name="voice_listening" formatted="false">Ouvindo</string>
+    <string name="voice_permission_explanation" formatted="false">A Miami Elio converte o seu pedido falado em texto para o concierge.</string>
     <string name="voice_speak" formatted="false">Fale o seu pedido</string>
     <string name="voice_stop" formatted="false">Parar de ouvir</string>
     <string name="voice_unavailable" formatted="false">A entrada de voz não está disponível para este idioma neste dispositivo.</string>

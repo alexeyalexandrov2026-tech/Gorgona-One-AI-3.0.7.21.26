@@ -36,6 +36,7 @@ class AppRouter(
     private val explore: WebPage,
     private val account: WebPage,
     private val external: ExternalOpener,
+    private val onSeason: (String) -> Unit = {},
 ) {
     private val selected = MutableStateFlow(AppTab.Explore)
     val selectedTab: StateFlow<AppTab> = selected.asStateFlow()
@@ -73,6 +74,10 @@ class AppRouter(
     fun handle(deepLink: String) {
         when (val link = DeepLink.parse(deepLink)) {
             DeepLink.Concierge -> show(AppTab.Concierge)
+            is DeepLink.SeasonConcierge -> {
+                show(AppTab.Concierge)
+                onSeason(link.eventId)
+            }
             DeepLink.Search -> show(AppTab.Search)
             DeepLink.Account -> show(AppTab.Account)
             is DeepLink.Open -> open(link.path)

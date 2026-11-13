@@ -29,15 +29,15 @@ class FavoritesTest {
     @Test
     fun theScriptCarriesTheChangeAsData() {
         val favorite = FavoriteRef.of("car", "white-suv", "White \"SUV\" </script> ")!!
-        val script = favorite.script(on = true)
-        assertTrue(script.contains("window.__miamiFavorite"))
-        assertTrue(script.contains(FavoriteRef.pendingKey))
+        val script = favorite.script(on = true, receipt = "one", owner = null)
+        assertTrue(script.contains("window.__miamiFavoriteV2"))
+        assertTrue(script.contains("\"receipt\":\"one\""))
         assertTrue(script.contains("\"on\":true"))
         // The title is JSON-escaped, never spliced into the code as text.
         assertFalse(script.contains("White \"SUV\""))
         // A line separator would end the statement in older engines.
         assertFalse(script.contains(" "))
-        assertTrue(favorite.script(on = false).contains("\"on\":false"))
+        assertTrue(favorite.script(on = false, receipt = "one", owner = null).contains("\"on\":false"))
     }
 
     @Test

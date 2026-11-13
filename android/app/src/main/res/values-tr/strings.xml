@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">Ara</string>
     <string name="voice_denied" formatted="false">Konsiyerjle konuşmak için Ayarlar\'da mikrofona ve konuşma tanımaya izin verin.</string>
     <string name="voice_listening" formatted="false">Dinliyor</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio, sesli isteğinizi konsiyerj için metne dönüştürür.</string>
     <string name="voice_speak" formatted="false">İsteğinizi söyleyin</string>
     <string name="voice_stop" formatted="false">Dinlemeyi Durdur</string>
     <string name="voice_unavailable" formatted="false">Bu cihazda bu dil için sesli giriş kullanılamıyor.</string>

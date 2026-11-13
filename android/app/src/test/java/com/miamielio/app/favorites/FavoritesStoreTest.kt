@@ -19,6 +19,30 @@ class FavoritesStoreTest {
     private val stay = requireNotNull(FavoriteRef.of("stay", "villa-azure", "Villa Azure"))
 
     @Test
+    fun anAccountChangeNeverSendsThePreviousAccountsPendingEdit() = runTest {
+        val disk = MemoryFavorites()
+        val calls = mutableListOf<FavoriteChange>()
+        val page = FavoritesPage { change -> calls.add(change); false }
+        val store = FavoritesStore(disk, this, listOf(page))
+        store.received(emptySet(), page, "first")
+        store.toggle(yacht)
+        advanceUntilIdle()
+        assertEquals("first", calls.single().owner)
+
+        val reopened = FavoritesStore(disk, this, listOf(page))
+        assertFalse(reopened.isSaved(yacht))
+        reopened.received(setOf(stay.key), page, "second")
+        advanceUntilIdle()
+        assertEquals(1, calls.size)
+        assertEquals(setOf(stay.key), reopened.keys.value)
+
+        reopened.received(emptySet(), page, "first")
+        advanceUntilIdle()
+        assertTrue(reopened.isSaved(yacht))
+        assertEquals(listOf("first", "first"), calls.map(FavoriteChange::owner))
+    }
+
+    @Test
     fun guestSelectionsAndUnsentChangesSurviveReopening() = runTest {
         val disk = MemoryFavorites()
         val first = FavoritesStore(disk, this)

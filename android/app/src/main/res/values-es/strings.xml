@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">Buscar</string>
     <string name="voice_denied" formatted="false">Para hablar con el conserje, permite el micrófono y el reconocimiento de voz en Ajustes.</string>
     <string name="voice_listening" formatted="false">Escuchando</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio convierte tu solicitud hablada en texto para el conserje.</string>
     <string name="voice_speak" formatted="false">Di tu solicitud</string>
     <string name="voice_stop" formatted="false">Dejar de escuchar</string>
     <string name="voice_unavailable" formatted="false">La entrada de voz no está disponible para este idioma en este dispositivo.</string>

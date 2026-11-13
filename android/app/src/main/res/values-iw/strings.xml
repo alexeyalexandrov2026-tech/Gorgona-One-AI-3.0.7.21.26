@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">חיפוש</string>
     <string name="voice_denied" formatted="false">כדי לדבר עם הקונסיירז\', אפשרו גישה למיקרופון ולזיהוי דיבור בהגדרות.</string>
     <string name="voice_listening" formatted="false">מקשיב</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio ממירה את הבקשה הקולית שלכם לטקסט עבור הקונסיירז\'.</string>
     <string name="voice_speak" formatted="false">אמור את הבקשה שלך</string>
     <string name="voice_stop" formatted="false">הפסק להקשיב</string>
     <string name="voice_unavailable" formatted="false">הקלט הקולי אינו זמין לשפה זו במכשיר זה.</string>

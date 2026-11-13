@@ -30,10 +30,13 @@ import com.miamielio.app.core.RouteDecision
 import com.miamielio.app.core.RoutePolicy
 import com.miamielio.app.core.SiteLocale
 import com.miamielio.app.core.WebAddress
+import com.miamielio.app.favorites.FavoriteChange
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import java.util.UUID
 
 /** What a page may ask the Activity for. */
 interface WebHost {
@@ -78,8 +81,9 @@ class WebTabController(
     override var onRoute: ((url: String, decision: RouteDecision) -> Unit)? = null
 
     /** The favourites the page reports ("kind:slug"), with the page they came from. */
-    var onFavorites: ((Set<String>, WebTabController) -> Unit)? = null
+    internal var onFavorites: ((BridgeFavorites) -> Unit)? = null
     internal var onFavoritesPageReady: (() -> Unit)? = null
+    private val favoriteReceipts = mutableMapOf<String, CompletableDeferred<Boolean>>()
 
     private val startUrl: String = config.resolve(startPath) ?: config.baseUrl
     private val bootstrap = WebBootstrap.script(config.internalHosts, policy.restrictedPaths, deviceLocale)
@@ -156,6 +160,24 @@ class WebTabController(
         webView.evaluateJavascript(WebBootstrap.onOrigin(origin, script)) { result -> completion(result == "true") }
     }
 
+    internal suspend fun deliverFavorite(change: FavoriteChange): Boolean {
+        val token = UUID.randomUUID().toString()
+        val receipt = CompletableDeferred<Boolean>()
+        favoriteReceipts[token] = receipt
+        return try {
+            runOnSite(change.favorite.script(change.on, token, change.owner)) { started ->
+                if (!started) receipt.complete(false)
+            }
+            receipt.await()
+        } finally {
+            favoriteReceipts.remove(token)
+        }
+    }
+
+    private fun clearFavoriteReceipts() {
+        favoriteReceipts.values.toList().forEach { it.complete(false) }
+    }
+
     private fun siteOrigin(url: String?): String? {
         val address = url?.let(Uri::parse) ?: return null
         val host = address.host?.lowercase()
@@ -176,6 +198,7 @@ class WebTabController(
     fun destroy() {
         if (destroyed) return
         destroyed = true
+        clearFavoriteReceipts()
         container.removeAllViews()
         webView.destroy()
     }
@@ -246,7 +269,8 @@ class WebTabController(
         message.open?.let { target ->
             if (policy.decide(target) == RouteDecision.Restricted) onRoute?.invoke(target, RouteDecision.Restricted)
         }
-        message.favorites?.let { onFavorites?.invoke(it, this) }
+        message.favorites?.let { onFavorites?.invoke(it) }
+        message.favoriteReceipt?.let { favoriteReceipts[it.id]?.complete(it.saved) }
     }
 
     // --- Routing ---
@@ -347,14 +371,16 @@ class WebTabController(
     /** The system took the page's process (memory, or a crash): start a fresh web view where it was. */
     private fun rebuild(lost: WebView) {
         if (destroyed || lost !== webView) return
+        mutableState.update { it.copy(isLoading = true, progress = 0f, canGoBack = false) }
+        clearFavoriteReceipts()
         val url = lost.url ?: startUrl
         container.removeAllViews()
         lost.destroy()
         webView = build()
         attach(webView)
-        mutableState.update { it.copy(isLoading = false, progress = 0f, canGoBack = false) }
         container.isRefreshing = false
         if (started) webView.loadUrl(url)
+        else mutableState.update { it.copy(isLoading = false) }
     }
 
     private inner class Navigation : WebViewClient() {
@@ -365,8 +391,10 @@ class WebTabController(
         }
 
         override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
+            if (view !== webView || destroyed) return
             pendingUrl = url
             mutableState.update { it.copy(failure = null, isLoading = true, progress = 0f) }
+            clearFavoriteReceipts()
             if (!scriptInstalledAtDocumentStart && url != null) {
                 val address = WebAddress.parse(url)
                 if (address?.scheme == "https" && address.host in config.internalHosts) {
@@ -440,6 +468,11 @@ class WebTabController(
                 }
             }
             catcher.webViewClient = object : WebViewClient() {
+                override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+                    finish()
+                    return true
+                }
+
                 override fun shouldOverrideUrlLoading(window: WebView, request: WebResourceRequest): Boolean {
                     if (!caught && !destroyed) {
                         val url = config.secure(request.url.toString())

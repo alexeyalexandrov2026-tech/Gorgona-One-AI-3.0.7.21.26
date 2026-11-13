@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">Search</string>
     <string name="voice_denied" formatted="false">To speak to the concierge, allow the microphone and speech recognition in Settings.</string>
     <string name="voice_listening" formatted="false">Listening</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio turns your spoken request into text for the concierge.</string>
     <string name="voice_speak" formatted="false">Speak your request</string>
     <string name="voice_stop" formatted="false">Stop listening</string>
     <string name="voice_unavailable" formatted="false">Voice input isn’t available for this language on this device.</string>

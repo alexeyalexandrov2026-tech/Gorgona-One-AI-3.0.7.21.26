@@ -7,12 +7,19 @@ sealed interface DeepLink {
     data object Concierge : DeepLink
     data object Search : DeepLink
     data object Account : DeepLink
+    data class SeasonConcierge(val eventId: String) : DeepLink
 
     /** A page of the site, as a site-relative path ("/yachts"). */
     data class Open(val path: String) : DeepLink
 
     companion object {
         const val SCHEME = "miamielio"
+        private val seasonId = Regex("[a-z0-9][a-z0-9-]{0,79}")
+
+        internal fun seasonUrl(eventId: String): String {
+            require(seasonId.matches(eventId))
+            return "miamielio://concierge?event=" + eventId
+        }
 
         /**
          * `miamielio://open?path=/yachts`, `miamielio://concierge`,
@@ -24,7 +31,7 @@ sealed interface DeepLink {
             val address = WebAddress.parse(link) ?: return null
             if (address.scheme != SCHEME) return null
             return when (address.host) {
-                "concierge" -> Concierge
+                "concierge" -> query(link)["event"]?.takeIf(seasonId::matches)?.let(::SeasonConcierge) ?: Concierge
                 "search" -> Search
                 "account" -> Account
                 else -> {

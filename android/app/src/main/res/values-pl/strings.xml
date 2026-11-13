@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">Szukaj</string>
     <string name="voice_denied" formatted="false">Aby mówić do konsjerża, zezwól na mikrofon i rozpoznawanie mowy w Ustawieniach.</string>
     <string name="voice_listening" formatted="false">Nasłuchiwanie</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio zamienia Twoją wypowiedzianą prośbę na tekst dla konsjerża.</string>
     <string name="voice_speak" formatted="false">Wypowiedz swoje żądanie</string>
     <string name="voice_stop" formatted="false">Zatrzymaj nasłuchiwanie</string>
     <string name="voice_unavailable" formatted="false">Wprowadzanie głosowe nie jest dostępne dla tego języka na tym urządzeniu.</string>

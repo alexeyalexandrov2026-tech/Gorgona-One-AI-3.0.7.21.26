@@ -22,7 +22,9 @@ class WebBootstrapTest {
         val output = File("build/outputs/web").apply { mkdirs() }
         output.resolve("bootstrap.js").writeText(script)
         val favorite = requireNotNull(FavoriteRef.of("yacht", "azimut-55", "Azimut \"55\""))
-        output.resolve("favorite-change.js").writeText(WebBootstrap.onOrigin(config.baseUrl, favorite.script(on = true)))
+        output.resolve("favorite-change.js").writeText(
+            WebBootstrap.onOrigin(config.baseUrl, favorite.script(on = true, receipt = "11111111-1111-4111-8111-111111111111", owner = null)),
+        )
 
         assertTrue(script.contains("""var hosts = ["gorgona-one.com","www.gorgona-one.com"];"""))
         assertTrue(script.contains("if (hosts.indexOf(location.hostname) === -1) { return; }"))
@@ -65,11 +67,24 @@ class WebBootstrapTest {
             WebBootstrap.parse("""{"open":"https://gorgona-one.com/sportsbook"}"""),
         )
         assertEquals(
-            BridgeMessage(favorites = setOf("yacht:a", "car:b")),
-            WebBootstrap.parse("""{"favorites":["yacht:a","car:b",7,"no-colon"]}"""),
+            BridgeMessage(favorites = BridgeFavorites(setOf("yacht:a", "car:b"), null)),
+            WebBootstrap.parse("""{"favorites":["yacht:a","car:b",7,"no-colon"],"favoritesOwner":null,"favoritesVersion":2}"""),
         )
-        assertEquals(BridgeMessage(favorites = emptySet()), WebBootstrap.parse("""{"favorites":[]}"""))
+        assertEquals(BridgeMessage(), WebBootstrap.parse("""{"favorites":[]}"""))
         assertEquals(BridgeMessage(), WebBootstrap.parse("""{"favorites":"yacht:a","open":7,"unknown":true}"""))
+    }
+
+    @Test
+    fun validatesFavoriteReceiptAndAccount() {
+        val id = "11111111-1111-4111-8111-111111111111"
+        val account = WebBootstrap.parse("""{"favorites":[],"favoritesOwner":"$id","favoritesVersion":2}""")
+        assertEquals(BridgeFavorites(emptySet(), id), account?.favorites)
+        assertEquals(
+            BridgeFavoriteReceipt(id, true),
+            WebBootstrap.parse("""{"favoriteReceipt":{"id":"$id","saved":true}}""")?.favoriteReceipt,
+        )
+        assertNull(WebBootstrap.parse("""{"favoriteReceipt":{"id":"$id","saved":"true"}}""")?.favoriteReceipt)
+        assertNull(WebBootstrap.parse("""{"favorites":[],"favoritesOwner":"someone","favoritesVersion":2}""")?.favorites)
     }
 
     @Test

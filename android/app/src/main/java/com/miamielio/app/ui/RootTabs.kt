@@ -183,6 +183,7 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
                 AppTab.Concierge -> ConciergeScreen(
                     model = services.concierge,
                     favorites = services.favorites,
+                    season = services.season,
                     onOpen = router::open,
                     modifier = Modifier.testTag("content.Concierge"),
                 )

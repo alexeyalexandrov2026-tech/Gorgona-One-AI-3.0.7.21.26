@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">搜索</string>
     <string name="voice_denied" formatted="false">如需与礼宾对话，请在“设置”中允许使用麦克风和语音识别。</string>
     <string name="voice_listening" formatted="false">倾听中</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio 会将您的语音需求转换为文字发送给礼宾。</string>
     <string name="voice_speak" formatted="false">说出您的请求</string>
     <string name="voice_stop" formatted="false">停止倾听</string>
     <string name="voice_unavailable" formatted="false">此设备不支持该语言的语音输入。</string>

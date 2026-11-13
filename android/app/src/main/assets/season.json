@@ -1,0 +1,61 @@
+{
+  "checked": "2026-10-02",
+  "events": [
+    {
+      "id": "flibs",
+      "name": "Fort Lauderdale International Boat Show",
+      "start": "2026-10-28",
+      "end": "2026-11-01",
+      "place": "Fort Lauderdale",
+      "tip": "The world’s largest in-water boat show. Marinas and charters fill up first."
+    },
+    {
+      "id": "art-basel",
+      "name": "Art Basel Miami Beach",
+      "start": "2026-12-04",
+      "end": "2026-12-06",
+      "place": "Miami Beach Convention Center",
+      "tip": "VIP days start Dec 2. Dinner tables and cars go first."
+    },
+    {
+      "id": "nye",
+      "name": "New Year’s Eve",
+      "start": "2026-12-31",
+      "end": "2026-12-31",
+      "place": "Biscayne Bay",
+      "tip": "Fireworks over the bay. Yachts for the night book out weeks ahead."
+    },
+    {
+      "id": "boat-show",
+      "name": "Miami International Boat Show",
+      "start": "2027-02-10",
+      "end": "2027-02-14",
+      "place": "Miami Beach",
+      "tip": "Five days of boats, brokers and dinners on the water."
+    },
+    {
+      "id": "miami-open",
+      "name": "Miami Open",
+      "start": "2027-03-14",
+      "end": "2027-03-28",
+      "place": "Hard Rock Stadium",
+      "tip": "Two weeks of tennis. The final weekend sells first."
+    },
+    {
+      "id": "ultra",
+      "name": "Ultra Music Festival",
+      "start": "2027-03-26",
+      "end": "2027-03-28",
+      "place": "Bayfront Park",
+      "tip": "Miami Music Week runs around it, and downtown hotels fill early."
+    },
+    {
+      "id": "f1",
+      "name": "Formula 1 Miami Grand Prix",
+      "start": "2027-04-30",
+      "end": "2027-05-02",
+      "place": "Miami International Autodrome",
+      "tip": "Race weekend. Cars and villas book months ahead."
+    }
+  ]
+}

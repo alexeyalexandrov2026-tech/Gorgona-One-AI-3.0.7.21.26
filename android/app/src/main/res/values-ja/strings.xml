@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">検索</string>
     <string name="voice_denied" formatted="false">コンシェルジュに話しかけるには、「設定」でマイクと音声認識を許可してください。</string>
     <string name="voice_listening" formatted="false">リスニング中</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio は音声による依頼をテキストに変換してコンシェルジュに伝えます。</string>
     <string name="voice_speak" formatted="false">リクエストを話してください</string>
     <string name="voice_stop" formatted="false">リスニングを停止</string>
     <string name="voice_unavailable" formatted="false">このデバイスでは、この言語の音声入力を利用できません。</string>

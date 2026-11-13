@@ -24,22 +24,22 @@ class FavoriteRef private constructor(
     val key: String get() = "$kind:$slug"
 
     /**
-     * JavaScript that gives the change to the page's favourites store, or
-     * queues it in the shared web storage until a page is ready. Evaluates
-     * to true once the change is with the page.
+     * Asks the page to save this edit. True means the page started delivery.
+     * It sends a separate receipt with this token after persistence.
      */
-    fun script(on: Boolean): String {
+    internal fun script(on: Boolean, receipt: String, owner: String?): String {
         // JSON is valid JavaScript except for these two line separators.
-        val literal = changeJson(on).toString().replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
+        val operation = buildJsonObject {
+            changeJson(on).forEach { (name, value) -> put(name, value) }
+            put("receipt", receipt)
+            put("owner", owner)
+        }
+        val literal = operation.toString().replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
         return """
             (function (change) {
               try {
-                if (window.__miamiFavorite) { window.__miamiFavorite(change); return true; }
-                var key = '$pendingKey';
-                var queue = JSON.parse(window.localStorage.getItem(key) || '[]');
-                if (!Array.isArray(queue) || queue.length >= 50) return false;
-                queue.push(change);
-                window.localStorage.setItem(key, JSON.stringify(queue));
+                if (typeof window.__miamiFavoriteV2 !== 'function') return false;
+                window.__miamiFavoriteV2(change);
                 return true;
               } catch (e) { return false; }
             })($literal)
@@ -64,9 +64,6 @@ class FavoriteRef private constructor(
 
     companion object {
         val kinds = setOf("yacht", "stay", "car", "dining", "nightlife")
-
-        /** Where a page queues changes it could not take yet (`FavoritesProvider.jsx`). */
-        const val pendingKey = "gorgona-favorites-pending"
 
         fun of(kind: String, slug: String, title: String, subtitle: String? = null, image: String? = null): FavoriteRef? {
             val name = title.trim()

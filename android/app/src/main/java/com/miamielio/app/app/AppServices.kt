@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.miamielio.app.BuildConfig
 import com.miamielio.app.R
 import com.miamielio.app.concierge.ConciergeViewModel
+import com.miamielio.app.core.AnswerReportClient
 import com.miamielio.app.core.AppConfig
 import com.miamielio.app.core.ConciergeClient
 import com.miamielio.app.core.PlanClient
@@ -20,14 +21,16 @@ import com.miamielio.app.favorites.FavoritesPreferences
 import com.miamielio.app.favorites.FavoritesStore
 import com.miamielio.app.net.OkHttpTransport
 import com.miamielio.app.search.SearchViewModel
+import com.miamielio.app.season.SeasonReminders
+import com.miamielio.app.season.prompt
 import com.miamielio.app.web.WebHost
 import com.miamielio.app.web.WebTabController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 
 /**
  * Builds the app's long-lived objects once and wires them together. They
@@ -47,7 +50,10 @@ class AppServices(
 
     val explore = WebTabController(activity, config, policy, startPath = "/", deviceLocale = deviceLocale, host = host)
     val account = WebTabController(activity, config, policy, startPath = "/profile", deviceLocale = deviceLocale, host = host)
-    val router = AppRouter(config, policy, explore, account, external)
+    internal val season = SeasonReminders(activity)
+    val router = AppRouter(config, policy, explore, account, external, onSeason = { id ->
+        season.events.find { it.id == id }?.let { concierge.prepare(it.prompt(activity)) }
+    })
 
     private val favoritesScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val exploreFavorites = explore.favoritesPage()
@@ -79,9 +85,7 @@ class AppServices(
                 ConciergeViewModel(
                     client = ConciergeClient(config, policy, OkHttpTransport.chat()),
                     planClient = PlanClient(config, OkHttpTransport.plan()),
-                    // Nowhere to deliver a report yet (handoff, open question 1),
-                    // so "report this answer" is not offered.
-                    reporter = null,
+                    reporter = AnswerReportClient(config, OkHttpTransport(15_000)),
                     locale = { explore.currentSiteLocale() },
                 )
             }
@@ -90,6 +94,12 @@ class AppServices(
 
     /** Whether the phone has a connection; "no internet" screens ask again when it is back. */
     val connectivity = Connectivity(activity.applicationContext)
+
+    init {
+        favoritesScope.launch {
+            connectivity.online.filter { it }.collect { favorites.retry() }
+        }
+    }
 
     val search: SearchViewModel = ViewModelProvider.create(
         viewModels,
@@ -117,16 +127,10 @@ class AppServices(
         account.destroy()
     }
 
-    private fun WebTabController.favoritesPage(): FavoritesPage = FavoritesPage { change ->
-        suspendCancellableCoroutine { continuation ->
-            runOnSite(change.favorite.script(change.on)) { delivered ->
-                if (continuation.isActive) continuation.resume(delivered)
-            }
-        }
-    }
+    private fun WebTabController.favoritesPage(): FavoritesPage = FavoritesPage(::deliverFavorite)
 
     private fun WebTabController.connectFavorites(page: FavoritesPage) {
-        onFavorites = { keys, _ -> favorites.received(keys, page) }
+        onFavorites = { snapshot -> favorites.received(snapshot.keys, page, snapshot.owner) }
         onFavoritesPageReady = { favorites.retry(page) }
     }
 }

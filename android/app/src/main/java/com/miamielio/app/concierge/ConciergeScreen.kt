@@ -85,6 +85,8 @@ import com.miamielio.app.ui.OrbActivity
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.favorites.FavoritesStore
+import com.miamielio.app.season.SeasonList
+import com.miamielio.app.season.SeasonReminders
 import com.miamielio.app.ui.arrives
 import com.miamielio.app.ui.pressable
 import com.miamielio.app.ui.rememberKeyboardDismissal
@@ -100,6 +102,7 @@ internal fun ConciergeScreen(
     favorites: FavoritesStore,
     onOpen: (String) -> Unit,
     modifier: Modifier = Modifier,
+    season: SeasonReminders? = null,
 ) {
     val state by model.state.collectAsStateWithLifecycle()
     val open by rememberUpdatedState(onOpen)
@@ -154,6 +157,9 @@ internal fun ConciergeScreen(
         ) {
             if (state.entries.isEmpty()) {
                 item(key = "welcome") { Welcome(onAsk = { model.send(it) }) }
+                if (season != null) {
+                    item(key = "season") { SeasonList(season, onPrepare = model::prepare) }
+                }
             }
             items(state.entries, key = { it.id }) { entry ->
                 EntryRow(
@@ -189,6 +195,8 @@ internal fun ConciergeScreen(
             canSend = state.canSend,
             onDraft = model::setDraft,
             onSend = { model.send() },
+            dictationLanguage = model::speechLanguage,
+            readingReply = state.isSending,
         )
     }
 }
@@ -273,7 +281,6 @@ private fun Welcome(onAsk: (String) -> Unit) {
             }
         }
         Hairline(Modifier.arrives(3 + starters.size))
-        // The season's weeks join here with the season list (handoff, item 10).
     }
 }
 
@@ -579,7 +586,14 @@ private fun ReportDialog(status: ReportStatus, onSend: (String) -> Unit, onDismi
 // region Composer
 
 @Composable
-private fun Composer(draft: String, canSend: Boolean, onDraft: (String) -> Unit, onSend: () -> Unit) {
+private fun Composer(
+    draft: String,
+    canSend: Boolean,
+    onDraft: (String) -> Unit,
+    onSend: () -> Unit,
+    dictationLanguage: () -> String,
+    readingReply: Boolean,
+) {
     val placeholder = stringResource(R.string.concierge_placeholder)
     var focused by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(24.dp)
@@ -588,7 +602,9 @@ private fun Composer(draft: String, canSend: Boolean, onDraft: (String) -> Unit,
             .fillMaxWidth()
             .background(Theme.paper),
     ) {
+        val voice = rememberDictation(draft, dictationLanguage, onDraft, readingReply)
         Hairline()
+        voice.feedback()
         Row(
             Modifier
                 .fillMaxWidth()
@@ -611,7 +627,12 @@ private fun Composer(draft: String, canSend: Boolean, onDraft: (String) -> Unit,
                     capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Send,
                 ),
-                keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
+                keyboardActions = KeyboardActions(onSend = {
+                    if (canSend) {
+                        voice.cancel()
+                        onSend()
+                    }
+                }),
                 maxLines = 5,
                 decorationBox = { field ->
                     Box(
@@ -627,7 +648,11 @@ private fun Composer(draft: String, canSend: Boolean, onDraft: (String) -> Unit,
                     }
                 },
             )
-            SendButton(enabled = canSend, onClick = onSend)
+            voice.button(!readingReply)
+            SendButton(enabled = canSend) {
+                voice.cancel()
+                onSend()
+            }
         }
     }
 }

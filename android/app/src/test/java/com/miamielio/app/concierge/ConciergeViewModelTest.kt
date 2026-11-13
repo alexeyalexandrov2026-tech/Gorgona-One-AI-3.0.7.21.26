@@ -342,8 +342,10 @@ class ConciergeViewModelTest {
     @Test
     fun aReportCarriesTheAnswerItsQuestionAndTheNote() = test {
         val sent = mutableListOf<AnswerReport>()
+        val attempts = mutableListOf<AnswerReport>()
         var fails = true
         val model = model(reporter = { report ->
+            attempts += report
             if (fails) {
                 fails = false
                 throw IOException("offline")
@@ -364,7 +366,9 @@ class ConciergeViewModelTest {
         model.report(answer.id, "  not true  ")
         advanceUntilIdle()
         assertEquals(ReportStatus.Sent, model.state.value.entries.last().report)
-        assertEquals(listOf(AnswerReport("A wrong answer", "A question", "not true", "s-1", "ru")), sent)
+        assertEquals(2, attempts.size)
+        val expected = AnswerReport("A wrong answer", "A question", "not true", "s-1", "ru", attempts.first().idempotencyKey)
+        assertEquals(listOf(expected), sent)
 
         // Once is enough; the guest's own message cannot be reported.
         model.report(answer.id, "again")

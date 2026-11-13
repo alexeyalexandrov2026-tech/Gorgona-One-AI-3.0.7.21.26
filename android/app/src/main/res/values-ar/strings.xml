@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">بحث</string>
     <string name="voice_denied" formatted="false">للتحدث إلى الكونسيرج، اسمح باستخدام الميكروفون والتعرّف على الكلام من الإعدادات.</string>
     <string name="voice_listening" formatted="false">جاري الاستماع</string>
+    <string name="voice_permission_explanation" formatted="false">يحوّل Miami Elio طلبك المنطوق إلى نص للكونسيرج.</string>
     <string name="voice_speak" formatted="false">تحدث بطلبك</string>
     <string name="voice_stop" formatted="false">إيقاف الاستماع</string>
     <string name="voice_unavailable" formatted="false">الإدخال الصوتي غير متاح لهذه اللغة على هذا الجهاز.</string>

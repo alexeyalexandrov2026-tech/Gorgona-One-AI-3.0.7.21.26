@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">Пошук</string>
     <string name="voice_denied" formatted="false">Щоб говорити з консьєржем, дозвольте мікрофон і розпізнавання мовлення у Налаштуваннях.</string>
     <string name="voice_listening" formatted="false">Слухаю</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio перетворює ваш голосовий запит на текст для консьєржа.</string>
     <string name="voice_speak" formatted="false">Вимовте ваш запит</string>
     <string name="voice_stop" formatted="false">Зупинити</string>
     <string name="voice_unavailable" formatted="false">На цьому пристрої голосове введення для цієї мови недоступне.</string>

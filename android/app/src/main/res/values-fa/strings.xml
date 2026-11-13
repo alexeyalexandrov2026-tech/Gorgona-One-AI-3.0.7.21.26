@@ -67,6 +67,7 @@
     <string name="tab_search" formatted="false">جستجو</string>
     <string name="voice_denied" formatted="false">برای صحبت با کانسیرژ، دسترسی به میکروفون و تشخیص گفتار را در تنظیمات مجاز کنید.</string>
     <string name="voice_listening" formatted="false">در حال گوش دادن</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio درخواست گفتاری شما را برای کانسیرژ به متن تبدیل می‌کند.</string>
     <string name="voice_speak" formatted="false">درخواست خود را بگویید</string>
     <string name="voice_stop" formatted="false">توقف گوش دادن</string>
     <string name="voice_unavailable" formatted="false">ورودی صوتی برای این زبان در این دستگاه در دسترس نیست.</string>
