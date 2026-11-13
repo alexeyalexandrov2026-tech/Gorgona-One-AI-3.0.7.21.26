@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {selection,safeDestination,PROVIDERS,providerAdapter,availability,resosWidgetFor} from '../../lib/dining/gateway.mjs';
+import {selection,safeDestination,PROVIDERS,providerAdapter,availability} from '../../lib/dining/gateway.mjs';
 import {getVenues,getVenueBySlug} from '../../lib/restaurantsNightlifeData.js';
 import {channelsFor} from '../../lib/dining/gateway.mjs';
 import {DINING_COPY,getDiningPhotoCopy} from '../../lib/dining/copy.mjs';
@@ -24,21 +24,6 @@ test('referral destinations cannot become open redirects or script URLs',()=>{
 test('external handoffs do not invent availability or confirmations',()=>{
   const result=availability({id:'test',status:'verified',channels:[]},requested);
   assert.equal(result.slots,null);assert.equal(result.confirmation,null);assert.equal(result.status,'check_with_provider');
-});
-test('Resos embeds are limited to one configured verified restaurant and a Resos booking URL',()=>{
- const venue=getVenueBySlug('komodo-miami');
- const prefix='https://pilot-restaurant.resos.com';
- const config={DINING_RESOS_VENUE_SLUG:venue.slug,DINING_RESOS_BOOKING_URL:prefix+'/booking'};
- assert.deepEqual(resosWidgetFor(venue,config),{src:prefix+'/widget/booking',href:prefix+'/booking'});
- assert.equal(resosWidgetFor(venue,{}),null);
- assert.equal(resosWidgetFor(getVenueBySlug('makoto-miami'),config),null);
- for(const change of [{status:'unverified'},{category:'nightlife'}])assert.equal(resosWidgetFor({...venue,...change},config),null);
- for(const url of [
-  'http://pilot.resos.com/booking','https://pilot.resos.com.evil.test/booking',
-  'https://resos.com/booking','https://user@pilot.resos.com/booking',
-  'https://pilot.resos.com:444/booking','https://pilot.resos.com/other',
-  prefix+'/booking?return=https://example.com',prefix+'/booking#other',
- ])assert.equal(resosWidgetFor(venue,{...config,DINING_RESOS_BOOKING_URL:url}),null,url);
 });
 test('canonical catalogue is expanded, deduplicated and source-backed without unverifiable ratings and with licensed, correctly identified images',()=>{
  const venues=getVenues();assert.ok(venues.length>=24);

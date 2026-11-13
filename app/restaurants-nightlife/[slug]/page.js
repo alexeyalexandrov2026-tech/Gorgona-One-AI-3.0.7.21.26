@@ -8,7 +8,7 @@ import {fill} from '../../../lib/homeCopy';
 import AskButton from '../../components/g1/AskButton';
 import {Crumbs,Specs,eyebrowClass} from '../../components/g1/ui';
 import DiningBooking from '../../components/dining/DiningBooking';
-import {channelsFor,PROVIDERS,resosWidgetFor} from '../../../lib/dining/gateway.mjs';
+import {channelsFor,PROVIDERS} from '../../../lib/dining/gateway.mjs';
 import {getDiningCopy,getDiningStyles} from '../../../lib/dining/copy.mjs';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,6 @@ export default async function VenueDetailPage({params}) {
  if(!venue)notFound();
  const {t,locale}=await getServerTranslation();
  const copy=getDealsCopy(locale),dining=getDiningCopy(locale),styles=getDiningStyles(locale);
- const widget=resosWidgetFor(venue,process.env);
  const kind=venue.category==='restaurant'?t.restaurantsNightlife.restaurants:t.restaurantsNightlife.nightlife;
  return <main className="flex-1 font-g1sans text-g1-ink">
   <Crumbs items={[[t.restaurantsNightlife.pill,'/restaurants-nightlife'],[venue.name]]}/>
@@ -32,7 +31,7 @@ export default async function VenueDetailPage({params}) {
     <Specs items={[[t.restaurantsNightlife.location,venue.neighborhood||venue.location],[t.category.categoryLabel,kind]]}/>
     <AskButton prompt={fill(copy.tablePrompt,{name:venue.name})} className="w-fit">{t.home.askConcierge}</AskButton>
    </div>
-   {venue.status==='verified'?<DiningBooking venue={{slug:venue.slug,name:venue.name,category:venue.category,features:venue.features}} channels={channelsFor(venue).map(channel=>({...channel,name:PROVIDERS.find(provider=>provider.id===channel.provider)?.name}))} widget={widget} enabled={process.env.DINING_REQUESTS_ENABLED==='true'&&process.env.DINING_SCHEMA_ENABLED==='true'}/>:<p role="status" className="rounded-[22px] border border-g1-rule p-5">{dining.held}</p>}
+   {venue.status==='verified'?<DiningBooking venue={{slug:venue.slug,name:venue.name,category:venue.category,features:venue.features}} channels={channelsFor(venue).map(channel=>({...channel,name:PROVIDERS.find(provider=>provider.id===channel.provider)?.name}))} enabled={process.env.DINING_REQUESTS_ENABLED==='true'&&process.env.DINING_SCHEMA_ENABLED==='true'}/>:<p role="status" className="rounded-[22px] border border-g1-rule p-5">{dining.held}</p>}
   </div>
  </main>;
 }
