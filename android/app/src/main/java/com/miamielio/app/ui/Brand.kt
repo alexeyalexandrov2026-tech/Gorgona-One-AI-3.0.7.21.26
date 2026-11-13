@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -54,7 +56,9 @@ fun Wordmark(modifier: Modifier = Modifier, size: Float = 26f) {
     // grow, and the splash is composed around its size.
     val density = LocalDensity.current
     val capped = remember(density) { Density(density.density, density.fontScale.coerceAtMost(1.3f)) }
-    CompositionLocalProvider(LocalDensity provides capped) {
+    // A logo, not a sentence: "MIAMI Elio" in that order in every language,
+    // right-to-left ones included.
+    CompositionLocalProvider(LocalDensity provides capped, LocalLayoutDirection provides LayoutDirection.Ltr) {
         Row(
             modifier = modifier.clearAndSetSemantics {
                 contentDescription = "Miami Elio"

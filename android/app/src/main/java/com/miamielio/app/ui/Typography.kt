@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -45,9 +46,13 @@ private val DmMono = FontFamily(Font(R.font.dm_mono_medium, FontWeight.Medium))
 class AppType private constructor(val setsText: Boolean) {
     private val family: FontFamily = if (setsText) Jost else FontFamily.Default
 
-    /** Everything that is read rather than looked at. */
+    /**
+     * Everything that is read rather than looked at. The direction of each
+     * line follows its own words, as in the iPhone app: an English yacht
+     * name in the Hebrew app still reads "80 ft", not "ft 80".
+     */
     fun text(size: Float, weight: FontWeight = FontWeight.Normal): TextStyle =
-        TextStyle(fontFamily = family, fontWeight = weight, fontSize = size.sp)
+        TextStyle(fontFamily = family, fontWeight = weight, fontSize = size.sp, textDirection = TextDirection.Content)
 
     /** Headings: the text family at medium weight, letters pulled together as on the site. */
     fun display(size: Float): TextStyle =
