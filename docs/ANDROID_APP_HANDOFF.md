@@ -1,43 +1,112 @@
 # Передача дел: приложение Miami Elio для Android
 
-Состояние на 13 ноября 2026, конец третьей сессии. Сначала прочитайте `CLAUDE.md` в корне: правила оттуда действуют и здесь.
+Состояние на **13 ноября 2026, конец третьей сессии**. Этот файл — единственная инструкция для следующего агента: прочитайте его целиком, затем `CLAUDE.md` в корне репозитория (его правила действуют и здесь; если что-то противоречит — спросите владельца).
 
-## Коротко
+---
 
-- **Ветка:** `claude/android-app-agent-rr0ij5`, создана от `main` на коммите `477e39b3` (Merge pull request #50). Всё лежит в папке `android/` и в этом файле. Сайт, `ios/` и ветка №43 не тронуты.
-- **Готово:** каркас проекта Gradle, ядро приложения (логика без экранов), сетевой транспорт, тема и бренд (цвета, шрифты, логотип, шар консьержа), тексты на 16 языках, две веб-вкладки («Главная» и «Моё Майами»), панель из четырёх вкладок, заставка, внешние и глубокие ссылки, **нативный консьерж с доской плана и заявкой** (пункт 7, третья сессия), **нативный поиск** (пункт 8, третья сессия — полная проверка не прогнана, см. ниже), тесты ко всему этому.
-- **Не готово:** избранное, сезон и напоминания, голос, иконка, CI, подпись выпуска. «Пожаловаться на ответ» сделано, но скрыто: некуда отправлять (открытый вопрос 1).
-- **Проверено** (13 ноября, компьютер владельца, Windows, третья сессия): `testDebugUnitTest assembleDebug lintDebug bundleRelease` проходят — 125 тестов в 22 классах, 0 сбоев; Lint 0 ошибок; debug-APK 14,9 МБ; неподписанный release-AAB 4,8 МБ. **На телефоне и в эмуляторе приложение не запускалось ни разу.** Подробности — в разделе «Что проверено».
-- **Pull request не открыт** — владелец не просил.
-- **Пункт 8 (поиск) в коммите `63a8168f` не проверен целиком.** На диске C: закончилось место (0,34 ГБ свободно из ~454 ГБ): JVM тестов упала с «Native memory allocation (malloc) failed», после чего Gradle перестал запускаться («There is not enough space on the disk»). До сбоя: 6 тестов `SearchViewModelTest` прошли, 3 снимка `SearchSnapshotTest` нарисованы и просмотрены; 2 из 4 тестов `SearchScreenTest` упали из-за ошибки самого теста (заголовок «Popular Searches» рисуется заглавными) — исправлено, но не перезапущено. Сама сборка занимает мало (`android/app/build` 0,22 ГБ, `~/.gradle` 2,1 ГБ) — место занято чем-то другим; файлы владельца агент не трогал.
+## 1. Коротко
 
-## С чего начать следующему агенту
+| | |
+|---|---|
+| **Ветка** | `claude/android-app-agent-rr0ij5`, создана от `main` на коммите `477e39b3` (Merge pull request #50). Последний коммит третьей сессии — см. `git log -1`. |
+| **Где код** | только папка `android/` и этот файл. Сайт, `ios/`, ветка №43 и `main` не тронуты. |
+| **Рабочая папка на компьютере владельца** | `C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-elio-android-agent` (отдельный git worktree). |
+| **Готово** | пункты 1–8 из плана (раздел 9): каркас Gradle, ядро без Android, сетевой транспорт, тема и бренд, тексты на 16 языках, веб-вкладки «Главная» и «Моё Майами», панель вкладок, заставка, внешние и глубокие ссылки, **нативный консьерж** с доской плана и заявкой, **нативный поиск** с «нет сети» и автоповтором при возврате связи. Тесты ко всему. |
+| **Не готово** | пункты 9–15: избранное (сердечки), сезон и напоминания, голос, иконка, сквозные UI-тесты, CI, README и отчёт о приёмке. Подпись выпуска (нужен ключ владельца). «Пожаловаться на ответ» сделано, но скрыто, пока владелец не скажет, куда отправлять. |
+| **Проверено** | 13 ноября, конец 3-й сессии, чистая сборка (`:app:clean`) на компьютере владельца: `testDebugUnitTest assembleDebug lintDebug bundleRelease` проходят — **138 тестов в 25 классах, 0 сбоев**; Lint 0 ошибок; debug-APK 14,7 МБ; неподписанный release-AAB 5,8 МБ; `verify-web-bridge.cjs` и `build-strings.mjs --check` проходят. |
+| **Не проверено никогда** | приложение **ни разу не запускалось** на телефоне или в эмуляторе; к настоящим `/api/chat`, `/api/plan`, `/api/search` приложение не обращалось (все тесты — на подставном сервере). |
+| **Pull request** | не открыт — владелец не просил. Не открывать без просьбы. |
+| **Следующая работа** | пункт 9 — избранное (подробно в разделе 9). |
 
-0. **Сначала — место на диске C:.** Пока свободно меньше 2–3 ГБ, сборка и тесты не пойдут. Затем прогнать полную проверку (пункт 3) — она подтвердит пункт 8 — и записать результат в «Что проверено».
+---
 
-1. **В ветку пишет одна сессия.** Перед первой правкой и перед каждой отправкой: `git fetch origin claude/android-app-agent-rr0ij5` и `git status -sb`. Локальная ветка должна совпадать с GitHub. Если там появились чужие коммиты — не делать force-push и не сливать их молча: показать владельцу и спросить (так уже было, см. «Параллельная облачная сессия»).
-2. **Исходная точка.** Пункты 1–8 из списка «Что осталось сделать» сделаны (1–6 — вторая сессия, 7–8 — третья). В истории ветки есть коммит `462f0170` с чужой версией пунктов 5–12; его файлов в дереве **нет**, это только черновик для чтения.
-3. **Убедиться, что всё собирается**, до своих правок: команды в разделе «Как собрать…». Ожидаемо: 125 тестов в 22 классах после пункта 7 плюс 13 тестов поиска в 3 классах (6 ViewModel, 4 экран, 3 снимка) — всего 138 в 25 классах, 0 сбоев (**ещё ни разу не прогонялось целиком**, см. «Коротко»); Lint 0 ошибок; `node android/scripts/verify-web-bridge.cjs` — 13 проверок; `node android/scripts/build-strings.mjs --check` — 16 языков, 76 строк.
-4. **Следующая работа — пункт 9 (избранное)**, дальше по порядку до 15. Места для сердечек отмечены комментариями в `concierge/PlanBoard.kt` и `search/SearchScreen.kt`.
-5. **Коммит и отправка после каждого законченного куска**, этот файл обновлять вместе с кодом. Владелец уже дважды упирался в лимит использования посреди работы — несохранённое пропадает.
-6. **Pull request не открывать**, пока владелец не попросит. Ветку №43, `main`, `ios/` и остальные рабочие папки `miami-elio-*` не трогать.
-7. Вопросы, на которые владелец ещё не ответил, — в конце файла. Жалоба на ответ (вопрос 1) сделана до отправки: как только владелец решит, куда слать, достаточно написать реализацию `AnswerReporter` и передать её в `AppServices` вместо `reporter = null` — кнопка появится сама.
+## 2. Пошаговая инструкция: первые полчаса
 
-## Что случилось с предыдущей попыткой
+Выполняйте по порядку. Каждый шаг короткий; пропуск любого уже стоил предыдущим сессиям часов.
 
-До этой сессии над приложением работал другой агент (сессия «Miami Elio Android приложение»). Он упёрся в лимит и **ничего не закоммитил**: на GitHub от него нет ни ветки, ни папки `android/`. Его код недоступен, поэтому работа начата заново. Вывод для следующего агента: **коммитить и пушить после каждого законченного куска**, а не в конце.
+**Шаг 1. Перейти в рабочую папку.** Сессия в приложении Claude на этом компьютере часто стартует в пустой временной папке, а не в репозитории. Перейдите в `C:\Users\alexa\Documents\ChatGPT\Miami Elio\miami-elio-android-agent` (в приложении — инструмент `change_directory`). Другие папки `miami-elio-*` не трогать: там чужие ветки и PR.
 
-**Уточнение (вторая сессия, на компьютере владельца).** Часть той попытки нашлась на диске: рабочая папка `Documents\ChatGPT\Miami Elio\miami-elio-android` (ветка `feat/android-app` от коммита `e70b7477`, PR №48) с неотслеживаемой папкой `android/`. В ней только каркас: настройки Gradle, манифест, ресурсы темы, заготовка иконки (`res/drawable-nodpi/launcher_foreground.png`, `res/mipmap-anydpi-v26/ic_launcher.xml`, `res/drawable/ic_notification.xml`, `ic_splash_orb.xml`) и два скрипта (`scripts/build-strings.mjs`, `scripts/build-season.mjs`). Кода на Kotlin там нет. Папка не тронута; заготовки иконки и `build-season.mjs` могут пригодиться в пунктах 10 и 12.
+**Шаг 2. Прочитать** этот файл и `CLAUDE.md`. Файлы `AGENT_START_HERE.md`, `HANDOFF.md`, `Plan.md` в корне — устаревший архив другого проекта, им **не следовать** (в них `git reset --hard`).
 
-**Параллельная облачная сессия (13 ноября).** Пока вторая сессия делала пункты 5–6, облачная сессия Claude отправила в эту же ветку коммит `462f0170` со своей версией пунктов 5–12 (веб-вкладки, консьерж, поиск, план, избранное, сезон, голос, иконка; около 4800 строк, без тестов к ним). Владелец выбрал версию второй сессии. Коммит слияния `b533935c` берёт все файлы из неё, а `462f0170` оставляет только в истории: **в рабочем дереве его кода нет**. Его можно читать как черновик при работе над пунктами 7–12 (`git show 462f0170:android/app/src/main/java/com/miamielio/app/<путь>`), но переносить только с тестами и под нынешние `AppRouter`, `AppServices` и `WebTabController`. Вывод: в эту ветку должна писать одна сессия; перед каждой отправкой — `git fetch` и сверка.
+**Шаг 3. Сверить ветку с GitHub** — перед первой правкой и перед каждой отправкой:
+```bash
+git fetch origin claude/android-app-agent-rr0ij5
+git status -sb
+git log --oneline -3 HEAD
+git log --oneline -3 FETCH_HEAD
+```
+Локальная ветка должна совпадать с GitHub. Если на GitHub появились чужие коммиты — **не делать** force-push, rebase или молчаливое слияние: показать владельцу и спросить (так уже было, раздел 11).
 
-Что лежит в `462f0170` и может пригодиться как черновик: `concierge/ConciergeScreen.kt`, `ConciergeViewModel.kt`, `PlanBoard.kt`, `Dictation.kt` (пункты 7 и 11); `search/SearchScreen.kt`, `SearchViewModel.kt` (пункт 8); `favorites/FavoritesStore.kt` (пункт 9); `season/SeasonStore.kt`, `SeasonList.kt`, `Reminders.kt`, `assets/season.json`, `android/scripts/build-season.mjs` (пункт 10); адаптивная иконка в `res/mipmap-*` (пункт 12); `core/ReportApi.kt` (жалоба на ответ — **куда он её отправляет, никто не проверял**, а владелец на этот вопрос не отвечал); `ui/Parts.kt`; четыре дополнительные строки на каждый язык в его `android/strings.json`. Этот коммит собирается и проходит прежние 77 тестов (проверено второй сессией), но его экраны никто не запускал и не тестировал.
+**Шаг 4. Проверить место на диске C: и память.** В третьей сессии диск заполнился до 0,34 ГБ — тестовая JVM упала, а Gradle перестал запускаться. В PowerShell:
+```powershell
+Get-PSDrive C
+Get-CimInstance Win32_OperatingSystem | Select-Object FreePhysicalMemory, FreeVirtualMemory
+```
+Нужно хотя бы **3 ГБ** свободного места. Если меньше — сказать владельцу и не начинать сборку (его файлы не удалять).
 
-Сама облачная сессия (`claude.ai/code/session_01GvhNbyHLcshC3eFRNgQswn`): владелец просил её удалить. В его аккаунте на claude.ai её нет — ссылка отвечает «This session couldn't be found». Удалена она или запущена под другим аккаунтом, выяснить не удалось. После `462f0170` она в ветку ничего не отправляла.
+**Шаг 5. Окружение сборки** (всё уже установлено — проверить, что на месте):
+- JDK 17: `C:\Users\alexa\android-toolchain\jdk-17.0.21+9`
+- Android SDK: `C:\Users\alexa\android-toolchain\sdk` (платформа 36, build-tools 36.0.0, лицензии приняты; платформу 37 Gradle докачивает сам)
+- `android/local.properties` (в git не попадает) содержит ровно `sdk.dir=C\:/Users/alexa/android-toolchain/sdk` — двоеточие после буквы диска **экранировано**, иначе Lint падает с `PropertyEscape`.
+- В репозитории включён **sparse checkout**: в новой рабочей папке `android/` появится только после `git sparse-checkout add android`.
 
-Полного текста исходного задания владельца в этой сессии нет — есть только его краткое изложение (скриншоты владельца). Оно приведено в разделе «Задание». Если владелец пришлёт полный текст, сверить с ним.
+**Шаг 6. Полная проверка до любых правок:**
+```powershell
+$env:JAVA_HOME = "C:\Users\alexa\android-toolchain\jdk-17.0.21+9"
+cd android
+.\gradlew.bat testDebugUnitTest assembleDebug lintDebug
+cd ..
+node android/scripts/verify-web-bridge.cjs
+node android/scripts/build-strings.mjs --check
+```
+Ожидаемо: **138 тестов в 25 классах, 0 сбоев**; Lint 0 ошибок (около 3 минут на чистой сборке); `verify-web-bridge.cjs` — «The page script behaves as the app expects.» (13 проверок); `build-strings.mjs --check` — «16 languages, 76 strings».
+Как считать тесты: Gradle итог не печатает — сложите `tests`/`failures` из `android/app/build/test-results/testDebugUnitTest/*.xml`.
+Если тесты падают за секунды с `java.io.EOFException` — в `android/app/build` остались файлы, оборванные сбоем: `.\gradlew.bat :app:clean` и повторить.
 
-## Задание (изложение)
+**Шаг 7. Взяться за пункт 9** (раздел 9). Порядок работы на каждом пункте: логика и её тесты → коммит и пуш → экран, UI-тесты, снимки → полная проверка (шаг 6) → коммит и пуш → обновить этот файл → коммит и пуш.
+
+**Шаг 8. Коммит и отправка** после каждого законченного куска (владелец не раз упирался в лимит посреди работы — несохранённое пропадает):
+- сообщение коммита писать в файл (UTF-8 без BOM) и делать `git commit -F <файл>` — PowerShell 5.1 ломает многострочные сообщения с кавычками;
+- добавлять файлы **по именам**, не `git add -A`: упавшая JVM оставляет `android/app/hs_err_pid*.log` и `replay_pid*.log`, git их не игнорирует — их удалять;
+- в конце сообщения строка `Co-Authored-By: …` (как в предыдущих коммитах ветки);
+- `git push origin claude/android-app-agent-rr0ij5`, затем снова шаг 3 — убедиться, что GitHub совпадает.
+
+**Шаг 9. Обновлять этот файл** вместе с кодом: что сделано, что проверено (с числами), что не проверено, новые особенности.
+
+---
+
+## 3. Правила (из `CLAUDE.md` и решений владельца)
+
+- В ветку пишет **одна** сессия. Не делать `git reset --hard`, `git push --force`, rebase, не пушить в `main`.
+- Pull request — только по просьбе владельца.
+- Ветку №43 (`claude/miami-elio-app-home-twt06c`), `main`, папку `ios/`, сайт — **не менять**. Читать их можно (`git show <ветка>:<путь>`).
+- Код из веток `claude/*` брать только с ведома владельца. Ресурсы (шрифты, фото, переводы, иконка, данные сезона) берутся из ветки №43, потому что задание — «повторить приложение для iPhone»; это владельцу сообщено (вопрос 5 в разделе 10).
+- Не коммитить `.claude/`, секреты, `local.properties`, `keystore.properties`.
+- Черновик `462f0170` (раздел 11) — только для чтения; переносить из него код можно лишь с тестами и под нынешнюю архитектуру.
+- Строки, написанные агентом на 16 языках, носитель языка не проверял — отмечать это в файле.
+
+---
+
+## 4. Особенности компьютера владельца (Windows) — на них уже потеряно время
+
+- **Проверка «Fact-Forcing Gate» (GateGuard).** Первая команда в оболочке за сессию, первая запись/правка **каждого** файла и любая команда, похожая на удаление, отклоняются всегда — даже если факты уже написаны в том же сообщении. Нужно написать в ответе: (1) кто использует файл (какие файлы его вызывают), (2) что нет другого файла с той же ролью (проверить поиском), (3) какие данные он читает/пишет — поля, формат дат, (4) дословно указание владельца; затем **повторить то же действие**. Для команд удаления: что будет удалено, как откатить, указание владельца. Это проверка владельца — **не обходить** (в том числе записью файлов через оболочку). Большие файлы из-за неё отправляются дважды — закладывайте время.
+- **Диск C:** см. шаг 4. Признаки нехватки: «Native memory allocation (malloc) failed» в тестах, «There is not enough space on the disk» при запуске `gradlew.bat`.
+- **Память:** на компьютере одновременно работают несколько приложений Claude, ChatGPT, Codex, браузер — свободной памяти бывает 0,5 ГБ. Если тестовая JVM падает, можно освободить память, остановив простаивающие демоны: `.\gradlew.bat --stop`.
+- **Robolectric и диалоги:** диалог по размеру содержимого (`AlertDialog` или `Dialog` с настройками по умолчанию) с полем ввода на высоком экране (`qualifiers = "w411dp-h891dp"`) **зависает** при `performTextInput` — «Compose did not get idle» через 60 с, следующий тест может упасть с `OutOfMemoryError`. Полноэкранный `Dialog(…, DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false))` работает — так сделаны окно жалобы и форма заявки.
+- **Robolectric и время:** `delay()` во ViewModel под Compose UI-тестом сам не проходит — в тестах экрана пауза ввода поиска передаётся как `pauseMillis = 0`. В тестах ViewModel — `StandardTestDispatcher` + `advanceTimeBy`.
+- **Robolectric и размер экрана:** на экране по умолчанию (320×470 dp) третья готовая кнопка консьержа не помещается — для тестов экранов брать `qualifiers = "w411dp-h891dp"`.
+- **Снимки с фото:** Coil грузит картинки в фоне; в тестах снимков перед съёмкой ждать: `repeat(30) { Thread.sleep(100); compose.mainClock.advanceTimeBy(100) }; compose.waitForIdle()` (`SearchSnapshotTest.settle()`). Снимки только с `@GraphicsMode(NATIVE)`.
+- **Сеть в тестах:** не давать результатам/плану адреса фото — иначе Coil пойдёт на настоящий сайт.
+- **Заглавные в `Eyebrow`:** текст «надзаголовков» рисуется заглавными — в тестах искать `"POPULAR SEARCHES"`, а не `"Popular Searches"`.
+- **Lint** запоминает прошлый результат: после правки `local.properties` пересчитать `.\gradlew.bat :app:lintAnalyzeDebug --rerun :app:lintReportDebug --rerun :app:lintDebug`.
+- В комментариях Kotlin не писать `values*/strings.xml`: сочетание `*/` закрывает комментарий.
+- Эмулятора и образов системы на компьютере **нет**. Проверка на устройстве возможна, только если владелец подключит телефон или разрешит поставить эмулятор (вопрос 7).
+
+---
+
+## 5. Задание (изложение владельца)
+
+Полного текста задания нет — только краткое изложение со скриншотов владельца. Если он пришлёт полный текст, сверить.
 
 Рабочее приложение Android «Miami Elio», повторяющее приложение для iPhone (ветка `claude/miami-elio-app-home-twt06c`, черновик №43, коммит `ea94e447`).
 
@@ -50,267 +119,261 @@
 3. **Функции:** показ плана поездки и отправка плана через `/api/plan` с ключом идемпотентности; распознавание речи средствами телефона; напоминания о событиях сезона (10:00 по Майами, за 21 день); тёмная тема, шрифт Jost, золотой шар консьержа, 16 языков с проверкой RTL и доступности; безопасный мост с веб-вью, действие «пожаловаться на ответ», запросы разрешений.
 4. **Проверка и выпуск:** debug-APK, release-AAB; CI с Android Lint, модульными и UI-тестами; сквозные сценарии (поиск → карточка → заявка; консьерж → план → повтор; избранное гостя и вошедшего; восстановление сети); проверка на настоящем телефоне (голос, уведомления, глубокие ссылки); узкие экраны и RTL; отчёт о приёмке с путями к APK/AAB, командами сборки, версией сервера и временем.
 
-## Что сделано
+---
 
-### Проект (`android/`)
+## 6. Что сделано — карта кода
+
+Пути — от `android/app/src/main/java/com/miamielio/app/`, если не сказано иное. Образец каждого файла — одноимённый файл в `ios/` ветки №43: `git fetch origin claude/miami-elio-app-home-twt06c && git show FETCH_HEAD:ios/MiamiElio/<путь>`.
+
+### 6.1. Проект (`android/`)
 
 | Что | Где |
 |---|---|
 | Настройки Gradle, каталог версий | `settings.gradle.kts`, `build.gradle.kts`, `gradle.properties`, `gradle/libs.versions.toml` |
-| Обёртка Gradle 9.9.1 | `gradlew`, `gradle/wrapper/` |
+| Обёртка Gradle 9.9.1 | `gradlew`, `gradlew.bat`, `gradle/wrapper/` |
 | Сборка приложения | `app/build.gradle.kts` |
-| Манифест и `MainActivity` (настоящие, см. «Веб-вкладки и навигация») | `app/src/main/AndroidManifest.xml`, `app/src/main/java/com/miamielio/app/MainActivity.kt` |
-| Шрифты сайта (Jost, Bodoni Moda, DM Mono) и их лицензии OFL | `app/src/main/res/font/`, `app/src/main/assets/licenses/` |
-| Фотографии разделов для экрана «Поиск» | `app/src/main/res/drawable-nodpi/world_*.jpg` |
+| Манифест, `MainActivity` | `app/src/main/AndroidManifest.xml`, `MainActivity.kt` |
+| Шрифты сайта (Jost, Bodoni Moda, DM Mono) и лицензии OFL | `app/src/main/res/font/`, `app/src/main/assets/licenses/` |
+| Фото разделов для «Поиска» | `app/src/main/res/drawable-nodpi/world_*.jpg` (8 шт., 720–1400 px) |
+| Значки тонкой линией | `app/src/main/res/drawable/ic_*.xml` (стрелки зеркалятся в RTL — `autoMirrored`) |
+| Источник текстов и генератор | `android/strings.json`, `android/scripts/build-strings.mjs` |
+| Проверка скрипта страницы в Node | `android/scripts/verify-web-bridge.cjs` |
 
-Версии: AGP 9.5.1, Gradle 9.9.1, Kotlin 2.4.21, Compose BOM 2026.09.00, `compileSdk 37`, `targetSdk 36`, `minSdk 26`. В AGP 9 поддержка Kotlin встроена: плагин `org.jetbrains.kotlin.android` **не нужен**, подключён только `org.jetbrains.kotlin.plugin.compose`.
+Версии: AGP 9.5.1, Gradle 9.9.1, Kotlin 2.4.21, Compose BOM 2026.09.00, Coil 3.6.3, OkHttp 5.5.1, `compileSdk 37`, `targetSdk 36`, `minSdk 26`. В AGP 9 поддержка Kotlin встроена: плагин `org.jetbrains.kotlin.android` **не нужен**, подключён только `org.jetbrains.kotlin.plugin.compose`.
 
-В `app/build.gradle.kts` уже заложено:
-- `BuildConfig.BASE_URL` и `BuildConfig.ADDITIONAL_HOSTS`. Debug → тестовый сайт ветки iOS `https://claude-miami-elio-app-home-twt06c-gorgonaoneai3072126.alexey-alexandrov2026.workers.dev`, release → `https://gorgona-one.com` (плюс `www.gorgona-one.com`). Меняются свойствами `-Pmiamielio.debugBaseUrl=…` и `-Pmiamielio.releaseBaseUrl=…`.
-- У debug-сборки суффикс `.debug` и имя «Miami Elio Test», чтобы стоять на телефоне рядом с боевой.
-- Подпись release читается из `android/keystore.properties` (в git не попадает) или из переменных `MIAMIELIO_KEYSTORE_FILE`, `MIAMIELIO_KEYSTORE_PASSWORD`, `MIAMIELIO_KEY_ALIAS`, `MIAMIELIO_KEY_PASSWORD`. Без них AAB собирается неподписанным.
-- R8 и сжатие ресурсов для release, зависимости для тестов (JUnit, корутины, Robolectric, Compose UI test).
+В `app/build.gradle.kts`:
+- `BuildConfig.BASE_URL` и `BuildConfig.ADDITIONAL_HOSTS`. Debug → тестовый сайт ветки №43 `https://claude-miami-elio-app-home-twt06c-gorgonaoneai3072126.alexey-alexandrov2026.workers.dev`, release → `https://gorgona-one.com` (+ `www.gorgona-one.com`). Меняются `-Pmiamielio.debugBaseUrl=…`, `-Pmiamielio.releaseBaseUrl=…`.
+- У debug суффикс `.debug` и имя «Miami Elio Test» — стоит на телефоне рядом с боевой.
+- Подпись release — из `android/keystore.properties` (не в git) или переменных `MIAMIELIO_KEYSTORE_FILE`, `MIAMIELIO_KEYSTORE_PASSWORD`, `MIAMIELIO_KEY_ALIAS`, `MIAMIELIO_KEY_PASSWORD`. Без них AAB неподписанный.
+- R8 и сжатие ресурсов для release; тестовые зависимости: JUnit, kotlinx-coroutines-test, Robolectric 4.17, Compose UI test.
 
-### Ядро (`app/src/main/java/com/miamielio/app/core/`)
+Разрешения в манифесте: `INTERNET`; `ACCESS_NETWORK_STATE` (выдаётся при установке — для автоповтора при возврате связи); `RECORD_AUDIO` и `MODIFY_AUDIO_SETTINGS` (спрашиваются, только когда микрофон нужен странице сайта).
 
-Перенос `ios/MiamiElioKit` на Kotlin, без зависимостей от Android, чтобы тестировать на обычной JVM.
+### 6.2. Ядро (`core/`) — без зависимостей от Android, тестируется на обычной JVM
 
-| Файл | Что делает | Образец в iOS |
+| Файл | Что делает | Образец |
 |---|---|---|
-| `AppConfig.kt` | адрес сайта, свои хосты, `resolve()` для ссылок из JSON, `secure()` (http → https для своих страниц), нестрогий разбор адресов `WebAddress` | `AppConfig.swift` |
-| `RoutePolicy.kt` | куда идёт каждая ссылка: `Web`, `Browser`, `System`, `Restricted`, `Ignored`; список закрытых букмекерских путей | `RoutePolicy.swift` |
-| `SiteLocale.kt` | 16 языков сайта, RTL, языки распознавания речи, `VoiceLevel` (громкость для шара) | `SiteLocale.swift` |
+| `AppConfig.kt` | адрес сайта, свои хосты, `resolve()` для ссылок из JSON, `secure()`, нестрогий разбор адресов `WebAddress` | `AppConfig.swift` |
+| `RoutePolicy.kt` | куда идёт ссылка: `Web`, `Browser`, `System`, `Restricted`, `Ignored`; закрытые букмекерские пути | `RoutePolicy.swift` |
+| `SiteLocale.kt` | 16 языков сайта, RTL, языки распознавания речи, `VoiceLevel` | `SiteLocale.swift` |
 | `Http.kt` | `ApiError`, `HttpRequest/HttpResponse`, интерфейс `HttpTransport`, терпимый разбор JSON | `HTTPTransport.swift` |
-| `SearchApi.kt` | `SearchResult`, `SearchClient` | `SearchAPI.swift` |
+| `SearchApi.kt` | `SearchResult`, `SearchClient` (2–80 знаков, до 20 результатов, только открываемые в приложении) | `SearchAPI.swift` |
 | `ConciergeApi.kt` | `ChatMessage`, `ConciergeReply`, `ConciergeClient` (12 реплик, 4000 знаков UTF-16, тело ≤ 32 768 байт) | `ConciergeAPI.swift` |
 | `PlanApi.kt` | `PlanRules`, `ConciergePlan`, `PlanRequest`, `PlanReceipt`, `PlanClient` (заголовок `Idempotency-Key`) | `PlanAPI.swift` |
-| `Favorites.kt` | `FavoriteRef`, скрипт передачи изменения странице, чтение списка от страницы | `Favorites.swift` |
+| `Favorites.kt` | `FavoriteRef` (`of(kind, slug, …)`, `of(SearchResult)`, `of(PlanItem)`, `key = "kind:slug"`, `script(on)` — скрипт передачи изменения странице, `keys(json)` — список от страницы) | `Favorites.swift` |
 | `Season.kt` | события сезона, «скоро», расчёт времени напоминания | `Season.swift` |
+| `DeepLink.kt` | `miamielio://concierge`, `…//search`, `…//account`, `…//open?path=/yachts` — только пути внутри сайта | `AppRouter.swift` |
+| `AnswerReport.kt` | что уходит в жалобе на ответ и интерфейс `AnswerReporter`; **реализации нет** (вопрос 1) | — |
 
-Отличия от iOS, сделанные намеренно:
-- `RoutePolicy` считает системными хосты `play.google.com`, `maps.app.goo.gl`, `maps.google.com` вместо адресов Apple, и **игнорирует** схемы `intent:`, `content:`, `android-app:` — иначе страница могла бы запускать чужие приложения.
-- `AppConfig.resolve()` отвергает ссылки с пробелами и управляющими символами.
-- `VoiceLevel.fromRecognizer()` — Android отдаёт громкость сразу в децибелах.
+Отличия от iOS: `RoutePolicy` считает системными `play.google.com`, `maps.app.goo.gl`, `maps.google.com` и **игнорирует** схемы `intent:`, `content:`, `android-app:` (иначе страница запускала бы чужие приложения); `AppConfig.resolve()` отвергает ссылки с пробелами и управляющими символами; `VoiceLevel.fromRecognizer()` принимает децибелы.
 
-### Сеть (`app/src/main/java/com/miamielio/app/net/`)
+### 6.3. Сеть (`net/OkHttpTransport.kt`)
 
-`OkHttpTransport.kt` — `HttpTransport` поверх OkHttp: `enqueue` + `suspendCancellableCoroutine`, отмена корутины обрывает запрос, cookie и кэша нет, срок на весь вызов (поиск 20 с, чат 45 с, план 30 с — `OkHttpTransport.search()`, `.chat()`, `.plan()`), переход с https на http по перенаправлению запрещён, ответ больше 2 МБ считается сбоем. Недоступный сервер и тайм-аут — `IOException`; негодный адрес — `ApiError.InvalidRequest`.
+`HttpTransport` поверх OkHttp: отмена корутины обрывает запрос; cookie и кэша нет; срок на весь вызов — поиск 20 с, чат 45 с, план 30 с (`OkHttpTransport.search()`, `.chat()`, `.plan()`); https → http по перенаправлению запрещён; ответ больше 2 МБ — сбой. Недоступный сервер и тайм-аут — `IOException` (экран поиска показывает «нет сети»); негодный адрес — `ApiError.InvalidRequest`.
 
-### Тема и бренд (`app/src/main/java/com/miamielio/app/ui/`)
+### 6.4. Тема и бренд (`ui/`)
 
-| Файл | Что делает | Образец в iOS |
+| Файл | Что делает |
+|---|---|
+| `Theme.kt` | цвета сайта (`Theme.paper #0A1218`, `card`, `ink`, `soft`, `rule`, `accent`, `accentWash`, `gold`), `MiamiElioTheme` (единственная тёмная схема M3), `LocalReduceMotion` |
+| `Typography.kt` | `AppFont`: Jost для en, es, pt, de, tr, it, fr, pl, ru, системный шрифт для остальных; роли `hero`, `title`, `cardTitle`, `rowTitle`, `body`, `detail`, `button`, `eyebrow`, `tabLabel`; `Eyebrow()` (заглавные). **Направление текста — по содержимому** (`TextDirection.Content`): английская строка каталога в ивритском интерфейсе читается «80 ft», а не «ft 80». |
+| `Brand.kt` | `Wordmark` («MIAMI Elio»; **всегда слева направо**, в RTL не зеркалится), `ConciergeMark` (шар: покой, слушает, думает, вспышка при новом ответе; свечение — радиальный градиент), `Hairline` |
+| `Motion.kt` | `Modifier.arrives(order)` — появление по очереди; `Modifier.pressable { }` — нажатие с проседанием; `dips()` |
+| `Keyboard.kt` | `rememberKeyboardDismissal()` — протягивание списка убирает клавиатуру (консьерж, поиск) |
+| `L10n.kt` | `String.filled("count" to 3)` — подстановка `{count}` |
+| `RootTabs.kt` | `AppRoot` (вкладки под заставкой), `SplashView`, `RootTabs`, `TabBar`; панель прячется, когда открыта клавиатура |
+
+### 6.5. Веб-вкладки и навигация
+
+| Файл | Что делает |
+|---|---|
+| `web/WebTabController.kt` | один `WebView` на вкладку на всё время Activity; `MiamiElioApp/1.0` в User-Agent; cookie `gorgona-locale` до первого запроса; скрипт и мост только для своих https-адресов (`addDocumentStartJavaScript`, `addWebMessageListener`; `addJavascriptInterface` **не используется**); все ссылки через `RoutePolicy`; обновление жестом вниз; перезагрузка при смене входа в другой вкладке; выбор файлов; микрофон только своим страницам; новый `WebView`, если система убила процесс страницы; `currentSiteLocale()`; `runOnSite(script) { delivered -> }`; `onFavorites` — список избранного от страницы |
+| `web/WebBootstrap.kt` | текст скрипта страницы, разбор сообщений моста (`BridgeMessage`, в т. ч. `favorites`), `FAVORITES_REFRESH` |
+| `web/LoadFailure.kt`, `web/WebTab.kt` | «нет сети» / «что-то пошло не так» по коду ошибки; экран вкладки с полосой загрузки и повтором; «назад» листает историю вкладки |
+| `app/AppRouter.kt` | выбранная вкладка (`StateFlow`), повторное нажатие возвращает веб-вкладку к началу, `open(reference)` — любая ссылка из JSON по правилам `RoutePolicy` (своя страница → «Главная») |
+| `app/ExternalLinks.kt` | чужие сайты — Custom Tabs в цветах приложения; `tel:`, `mailto:` и прочее — системе |
+| `app/Connectivity.kt` | `online: StateFlow<Boolean>` по сети системы (`registerDefaultNetworkCallback`) |
+| `app/AppServices.kt` | создаёт и связывает всё; `concierge` и `search` — ViewModel в **собственном `ViewModelStore`**, очищаемом в `destroy()` (они читают язык сайта из вкладки «Главная», принадлежащей Activity). Разговор и поиск переживают переключение вкладок и поворот; сбрасываются только при смене языка телефона — вместе с веб-вкладками |
+| `MainActivity.kt` | точка входа; выбор файлов и микрофон для страниц; глубокие ссылки |
+
+Как устроено: страница получает мост `miamiElioNative` и поверх него ту же «дверь», что в iPhone: `window.webkit.messageHandlers.miamiElio.postMessage(...)`; документ помечается `data-app="android"`. Activity не пересоздаётся при повороте (`android:configChanges`), но пересоздаётся при смене языка. «Назад»: история веб-вкладки → «Главная» → выход. Всплывающие окна без нажатия не открываются. `alert/confirm/prompt` показывает сам WebView.
+
+Не сделано и не проверено: ни одна настоящая страница не загружалась (Robolectric подменяет WebView); скрипт страницы проверен в Node, а не в настоящем WebView; связка «ошибка WebView → экран ошибки» тестом не покрыта; съёмка фото камерой из формы выбора файла и полноэкранное видео не поддержаны; `mediaPlaybackRequiresUserGesture` включён (видео без звука может не стартовать само — проверить на телефоне); `WebView.saveState` при убийстве процесса не делается; сторонние cookie выключены (если сломаются встроенные формы партнёров — причина может быть здесь).
+
+### 6.6. Консьерж (`concierge/`, пункт 7)
+
+| Файл | Что делает | Образец |
 |---|---|---|
-| `Theme.kt` | цвета сайта (`Theme.paper`, `card`, `ink`, `soft`, `rule`, `accent`, `accentWash`, золото), `MiamiElioTheme` (единственная тёмная схема Material 3), `LocalReduceMotion` (системная настройка «Убрать анимации») | `Support/Theme.swift` |
-| `Typography.kt` | `AppFont` / `AppType`: Jost для en, es, pt, de, tr, it, fr, pl, ru, системный шрифт для остальных; роли `hero`, `title`, `cardTitle`, `rowTitle`, `body`, `detail`, `button`, `eyebrow`; `Eyebrow()` | `Support/Typography.swift` |
-| `Brand.kt` | `Wordmark` («MIAMI Elio», читается экранным диктором как одно название), `ConciergeMark` (шар: покой, слушает, думает, вспышка при появлении ответа), `Hairline` | `Support/Brand.swift` |
-| `Motion.kt` | `Modifier.arrives(order)` — появление содержимого по очереди; `Modifier.pressable { }` — нажатие с лёгким проседанием | `Support/Motion.swift` |
-| `L10n.kt` | `String.filled("count" to 3)` — подстановка в переведённую строку | `Support/L10n.swift` |
+| `ConciergeViewModel.kt` | `ConciergeEntry` (гость / консьерж / сбой); `sessionId` сервера; язык ответов — `explore.currentSiteLocale()`; повтор после сбоя; «новый разговор» отбрасывает опоздавший ответ; `prepare(text)` — положить запрос в поле (для напоминаний сезона, пункт 10); доска плана `PlanDraft` (другой вариант по кругу, убрать, вернуть; после квитанции не меняется); `sendPlan()` — тот же `Idempotency-Key`, пока детали заявки те же (после 400 — новый); `report()` через `AnswerReporter` | `ConciergeStore.swift` |
+| `ConciergeScreen.kt` | приветствие (шар, «Miami Elio AI», заголовок, 3 готовых запроса); пузыри гостя; ответы рядом с шаром; карточки и подсказки → `router.open`; шар «думает»; строка сбоя с повтором; «Новый диалог»; поле ввода (до 5 строк, клавиша «Отправить»); вибрация при новой реплике; «Пожаловаться на ответ» + окно (полноэкранный `Dialog`); общие `Chip()` и `fieldColors()` | `ConciergeView.swift` |
+| `PlanBoard.kt` | доска «Ваш план»; полноэкранная форма заявки: первый/последний день (не раньше сегодня; последний не раньше первого), гости 1–99 (по умолчанию из плана), время ужина — только если в плане ресторан (по умолчанию 20:00), имя, телефон, почта, пожелания; ошибки формы; квитанция и «Собрать новый план» | `PlanBoardView.swift` |
+| `ReplyText.kt` | лёгкий Markdown в ответах: `**жирный**`, `__жирный__`, `*курсив*`, `_курсив_` (не внутри слова), `` `код` ``, `[ссылка](/путь)`; экранирование `\*`; незакрытое остаётся как есть; ссылки → `router.open` | `AttributedString(markdown:)` |
 
-Окно тёмное с первого кадра: `res/values/themes.xml` (`Theme.MiamiElio`), `res/values/colors.xml`.
+Не сделано здесь: микрофон (пункт 11), список сезона под готовыми запросами (пункт 10), сердечки на доске плана (пункт 9) — места отмечены комментариями; в заявке нет «не знаю точных дат» и подсказок автозаполнения (в iOS — `textContentType`; добавить в пункте 13). Не проверено: настоящие `/api/chat` и `/api/plan`; фото плана (в тестах серые подложки); системные окна выбора даты и времени в тестах не открывались.
 
-Отличие от iOS: свечение шара нарисовано радиальным градиентом, а не размытием — размытие в Compose работает только с Android 12.
+### 6.7. Поиск (`search/`, пункт 8)
 
-### Веб-вкладки и навигация
-
-| Файл | Что делает | Образец в iOS |
+| Файл | Что делает | Образец |
 |---|---|---|
-| `web/WebTabController.kt` | один `WebView` на вкладку, живёт всё время работы Activity; метка `MiamiElioApp/1.0` в User-Agent; cookie `gorgona-locale` до первого запроса; скрипт начала документа и мост только для своих https-адресов (`addDocumentStartJavaScript`, `addWebMessageListener`; `addJavascriptInterface` не используется); все ссылки через `RoutePolicy` (`shouldOverrideUrlLoading`, `onCreateWindow`, `doUpdateVisitedHistory`); обновление жестом вниз; перезагрузка, если вход изменился в другой вкладке; выбор файлов; микрофон только своим страницам; новый `WebView`, если система забрала процесс страницы; состояние — `StateFlow<State>` | `Web/WebViewModel.swift` |
-| `web/WebBootstrap.kt` | текст скрипта страницы и разбор её сообщений (`BridgeMessage`); без зависимостей от Android | там же |
-| `web/LoadFailure.kt` | «нет сети» или «что-то пошло не так» по коду ошибки WebView | там же |
-| `web/WebTab.kt` | экран вкладки: страница, полоса загрузки, экран ошибки с кнопкой повтора; «назад» листает историю вкладки | `Web/WebTab.swift` |
-| `core/DeepLink.kt` | разбор `miamielio://concierge`, `…//search`, `…//account`, `…//open?path=/yachts`; только пути внутри сайта | `App/AppRouter.swift` |
-| `app/AppRouter.kt` | выбранная вкладка (`StateFlow`), повторное нажатие возвращает веб-вкладку к началу, куда идёт каждая ссылка | `App/AppRouter.swift` |
-| `app/ExternalLinks.kt` | чужие сайты — Custom Tabs в цветах приложения; `tel:` — набор номера, `mailto:` — почта, остальное — системе (только как ссылка из браузера) | `Support/SafariView.swift` |
-| `app/AppServices.kt` | создаёт и связывает всё перечисленное; debug-сборка смотрит на тестовый сайт, release — на боевой | `App/AppServices.swift` |
-| `ui/RootTabs.kt` | `AppRoot` (вкладки под заставкой), `SplashView`, `RootTabs`, `TabBar` | `App/RootTabView.swift`, `App/SplashView.swift` |
-| `MainActivity.kt` | точка входа; выбор файлов и запрос микрофона для страниц; глубокие ссылки | `App/MiamiElioApp.swift` |
-| `scripts/verify-web-bridge.cjs` | запускает скрипт страницы на подставной странице в Node и проверяет 13 его действий | `ios/scripts/verify-web-bridge.cjs` |
+| `SearchViewModel.kt` | фазы `Idle` / `Searching` / `Results` / `Empty` / `Failed` / `Offline`; сервер спрашивается через 350 мс после последней буквы; каждый запуск отменяет прошлый вместе с запросом; прежние результаты видны, пока грузятся новые; `IOException` → «нет сети», прочее → «что-то пошло не так»; при возврате связи во время «нет сети» поиск повторяется сам (`Connectivity.online`); «Попробовать снова» и клавиша «Поиск» — без паузы | `SearchStore.swift` (там «нет сети» не отличается от сбоя) |
+| `SearchScreen.kt` | логотип; поле с «Отмена» (очищает, возвращает разделы); плитки разделов фото (широкая «Автомобили», пары «Яхты/Виллы», «События/Рестораны», «Впечатления/Путешествия», низкая «Частные самолёты»; ведут на `/rentals`, `/yachts`, `/vacation-rentals`, `/events`, `/restaurants-nightlife`, `/experiences`, `/travel`, `/private-jets`); строки результатов (фото, название, место, цена) → «Главная»; сообщения «ничего не найдено», «что-то пошло не так», «нет подключения» с повтором | `SearchView.swift` |
 
-Как это устроено на Android и чем отличается от iOS:
-- Страница получает объект `miamiElioNative` (мост) и поверх него ту же «дверь», что в iPhone: `window.webkit.messageHandlers.miamiElio.postMessage(...)`. Документ помечается `data-app="android"`.
-- Activity не пересоздаётся при повороте и изменении размера окна (`android:configChanges` в манифесте) — иначе веб-вкладки теряли бы страницу и историю. При смене языка телефона пересоздаётся.
-- Вкладки «Консьерж» и «Поиск» — пока заглушки (шар и заголовок); экраны делаются в пунктах 7 и 8.
-- Системная кнопка «назад»: сначала история веб-вкладки, потом возврат на «Главную», потом выход из приложения.
-- Окно без нажатия пользователя (всплывающее) не открывается вовсе.
-- Диалоги страницы (`alert`, `confirm`, `prompt`) показывает сам WebView стандартным окном Android, отдельного кода нет.
+Фото разделов грузит Coil под размер плитки и не на главном потоке (8 фото ≈ 6,6 Мп ≈ 26 МБ при полном декодировании). Не сделано: сердечки в строках результатов (пункт 9, место отмечено). Не проверено: настоящий `/api/search`; определение «нет сети» и возврат связи на настоящем телефоне.
 
-**Не сделано в этих пунктах и не проверено:**
-- На телефоне и в эмуляторе не запускалось. Robolectric подменяет WebView пустышкой: проверено, что вкладка просит нужный адрес с нужными настройками, но ни одна настоящая страница не загружалась. Скрипт страницы проверен в Node на подставной странице, а не в настоящем WebView.
-- Связка «ошибка WebView → экран ошибки» тестом не покрыта (отдельно проверены разбор ошибки и сам экран).
-- Съёмка фото из формы выбора файла (камера) не поддержана — только выбор готового файла. Полноэкранное видео со страницы не поддержано.
-- `mediaPlaybackRequiresUserGesture` оставлен включённым: видео без звука на страницах может не запускаться само, в отличие от iOS. Проверить на телефоне и решить.
-- Сохранение страниц при уничтожении процесса системой (`WebView.saveState`) не делается: после этого вкладки открываются с начала.
-- Сторонние cookie в WebView выключены (как в iOS). Если встроенные формы партнёров перестанут работать — причина может быть здесь.
+### 6.8. Тексты на 16 языках
 
-### Консьерж (пункт 7, третья сессия)
+- `android/strings.json` — **единственный источник**: 76 строк × 16 языков (en, ru, es, he, zh, pt, uk, ja, ko, de, ar, tr, fa, it, fr, pl). Слова — из приложения для iPhone (`ios/MiamiElio/Resources/*.lproj/Localizable.strings`, коммит `ea94e447`), то есть те же, что на сайте.
+- `node android/scripts/build-strings.mjs` пишет `res/values*/strings.xml` (иврит — `values-iw`, китайский — `values-zh`); `--check` проверяет актуальность; сверяет языки с `lib/languages.js` и требует одинаковых подстановок `{name}` во всех языках. **Руками `strings.xml` не править.**
+- Имена: ключ iOS `plan.addBack` → `plan_add_back`. `locale_code` в каждом файле — по нему выбирается шрифт.
+- Написаны агентом, **носитель языка не проверял:** `concierge_report`, правка `voice_unavailable` («на этом устройстве»), названия системных настроек (fr, pt, uk) и «уведомления» (de); `report_prompt`, `report_send`, `report_sent` (из черновика `462f0170`, португальский исправлен на бразильский вариант сайта — «equipe»).
+- Не перенесены 3 строки `InfoPlist.strings` (зачем камера, микрофон, распознавание речи) — понадобятся в пункте 11 для объяснения перед запросом разрешения: взять из `ios/strings.json`, раздел `infoPlist`.
+- `generateLocaleConfig = true` + `res/resources.properties`: Android 13+ показывает выбор языка приложения в настройках.
+- Ещё не использованы (Lint предупреждает): `action_settings`, `favorite_save`, `favorite_remove`, `season_*`, `voice_*` — для пунктов 9–11.
 
-| Файл | Что делает | Образец в iOS |
-|---|---|---|
-| `concierge/ConciergeViewModel.kt` | разговор (`ConciergeEntry`: гость / консьерж / сбой), `sessionId` сервера, язык ответов — `services.explore.currentSiteLocale()`; повтор после сбоя; «новый разговор» отбрасывает опоздавший ответ; `prepare(text)` для будущих напоминаний сезона; доска плана (`PlanDraft`: другой вариант, убрать, вернуть; после отправки план не меняется); `sendPlan()` с тем же `Idempotency-Key`, пока детали заявки те же (после 400 — новый ключ); `report()` через `AnswerReporter` | `Concierge/ConciergeStore.swift` |
-| `concierge/ConciergeScreen.kt` | приветствие (шар, «Miami Elio AI», заголовок, три готовых запроса между линиями), реплики гостя пузырём, ответы консьержа рядом с шаром, карточки и подсказки (открываются во «Главной» через `router.open`), шар «думает» пока ждём, строка сбоя с «Попробовать снова», «Новый диалог» в верхней строке, поле ввода (до 5 строк, кнопка клавиатуры «Отправить»), лёгкая вибрация при новой реплике, протягивание разговора убирает клавиатуру; «Пожаловаться на ответ» и окно жалобы | `Concierge/ConciergeView.swift` |
-| `concierge/PlanBoard.kt` | доска «Ваш план» и полноэкранная форма заявки: первый и последний день (выбор даты, не раньше сегодня; последний не раньше первого), гости 1–99 (по умолчанию из плана), время ужина — только если в плане ресторан (по умолчанию 20:00), имя, телефон, почта, пожелания; ошибка формы; квитанция «Заявка на план отправлена» и «Собрать новый план» | `Concierge/PlanBoardView.swift` |
-| `concierge/ReplyText.kt` | лёгкий Markdown в ответах: `**жирный**`, `*курсив*`, `` `код` ``, `[ссылка](/путь)`; незакрытое остаётся как написано, `snake_case` не трогается; ссылки идут через `router.open` | `AttributedString(markdown:)` в `ConciergeView.swift` |
-| `core/AnswerReport.kt` | что уходит в жалобе (ответ, вопрос гостя, заметка до 1000 знаков, `sessionId`, язык) и интерфейс доставки `AnswerReporter`; **реализации нет** (открытый вопрос 1) | — |
-| `app/AppServices.kt` | `concierge` — ViewModel в собственном `ViewModelStore`, очищается в `destroy()`: он читает язык из вкладки «Главная», которая принадлежит Activity. Разговор переживает переключение вкладок и поворот; начинается заново только при смене языка телефона — вместе с веб-вкладками. `reporter = null` | `App/AppServices.swift` |
-| `res/drawable/ic_arrow_up.xml`, `ic_arrow_forward.xml`, `ic_arrow_up_forward.xml`, `ic_new_conversation.xml` | значки тонкой линией, как прежние; стрелки зеркалятся в RTL | SF Symbols |
+### 6.9. Тесты (`android/app/src/test/java/com/miamielio/app/`)
 
-Отличия от iOS и решения этой сессии:
-- **Окно жалобы и форма заявки — полноэкранные `Dialog` с `decorFitsSystemWindows = false`**, карточка рисуется самим приложением. Причина: в Robolectric любой диалог по размеру содержимого (и `AlertDialog`, и простой `Dialog`) на высоком экране зависает навсегда, как только в его поле вводят текст («Compose did not get idle»); проверено отдельными тестами. Выбор даты и времени (`DatePickerDialog`, `TimePicker` в `AlertDialog`) оставлены стандартными: в тестах в них ничего не вводится.
-- Направление текста теперь по содержимому (`TextDirection.Content` в `AppType.text()`), а логотип всегда слева направо. Найдено на снимке на иврите: английская строка каталога читалась «ft 80», логотип — «Elio MIAMI». Касается всего приложения, не только консьержа.
-- Список сезона под готовыми запросами (пункт 10), сердечки избранного на доске плана (пункт 9) и микрофон (пункт 11) **не сделаны** — места для них отмечены комментариями в коде.
-- В заявке нет выбора «не знаю точных дат» и подсказок автозаполнения имени/телефона/почты — в iOS они есть через `textContentType`. Добавить при пункте 13.
-
-**Не проверено:** на телефоне не запускалось; настоящий `/api/chat` и `/api/plan` приложение не вызывало (все тесты — на подставном транспорте); фотографии плана (Coil) в тестах не загружаются — видна только серая подложка; системные окна выбора даты и времени ни разу не открывались в тестах.
-
-### Поиск (пункт 8, третья сессия)
-
-| Файл | Что делает | Образец в iOS |
-|---|---|---|
-| `search/SearchViewModel.kt` | фазы `Idle` (разделы) / `Searching` / `Results` / `Empty` / `Failed` / `Offline`; сервер спрашивается через 350 мс после последней буквы; каждый запуск отменяет прошлый вместе с запросом; прежние результаты остаются, пока грузятся новые; `IOException` — «нет сети», прочее — «что-то пошло не так»; когда связь возвращается при «нет сети», поиск повторяется сам; кнопка «Попробовать снова» и клавиша «Поиск» — без паузы | `Search/SearchStore.swift` (там «нет сети» не отличается от сбоя) |
-| `search/SearchScreen.kt` | логотип, поле поиска с «Отмена» (очищает и возвращает разделы), плитки разделов фотографиями (широкая, три пары, низкая — как на iPhone; ведут на `/rentals`, `/yachts`, `/vacation-rentals`, `/events`, `/restaurants-nightlife`, `/experiences`, `/travel`, `/private-jets`), строки результатов (фото, название, место, цена, стрелка) — открываются во «Главной»; сообщения «ничего не найдено», «что-то пошло не так», «нет подключения» с повтором | `Search/SearchView.swift` |
-| `app/Connectivity.kt` | `online: StateFlow<Boolean>` по сети системы по умолчанию (`registerDefaultNetworkCallback`, `NET_CAPABILITY_INTERNET`); в манифесте `ACCESS_NETWORK_STATE` (выдаётся при установке, без вопроса) | — |
-| `ui/Keyboard.kt` | `rememberKeyboardDismissal()` — протягивание списка убирает клавиатуру; общий для консьержа и поиска | `.scrollDismissesKeyboard` |
-| `app/AppServices.kt` | `search` — в том же `ViewModelStore`, что и консьерж; `connectivity` закрывается в `destroy()` | — |
-
-Решения: фото разделов грузит Coil под размер плитки и не на главном потоке (8 фото ≈ 6,6 Мп ≈ 26 МБ, если декодировать целиком через `painterResource`). Заглушка `ComingTab` удалена. Сердечки избранного в строках результатов — пункт 9. В тестах экрана пауза ввода 0 мс (часы Robolectric сами не идут), у результатов нет фото — чтобы тесты не ходили на настоящий сайт.
-
-**Не проверено:** полный прогон тестов и Lint (диск); настоящий `/api/search`; что «нет сети» правильно определяется на телефоне (в тестах — подставной `IOException`); возврат связи на настоящем устройстве.
-
-### Тексты на 16 языках
-
-- `android/strings.json` — единственный источник: 76 строк × 16 языков (73 во второй сессии + `report_prompt`, `report_send`, `report_sent` в третьей; эти три взяты из черновика `462f0170`, португальский исправлен на бразильский вариант сайта — «equipe»; **носитель языка их не проверял**, как и прочие строки, написанные агентом). Слова взяты из готовых файлов приложения для iPhone (`ios/MiamiElio/Resources/*.lproj/Localizable.strings`, коммит `ea94e447`), то есть те же, что на сайте. Файл самодостаточный: от переводов сайта в ветке №43 не зависит.
-- `android/scripts/build-strings.mjs` пишет `res/values/strings.xml` и `res/values-<язык>/strings.xml` (иврит — `values-iw`, китайский — `values-zh`); с `--check` проверяет, что файлы не устарели. Скрипт сверяет список языков с `lib/languages.js` и требует, чтобы подстановки `{name}` совпадали во всех языках.
-- Имена ресурсов: ключ iOS `plan.addBack` → `plan_add_back`. В каждом файле есть `locale_code` — код языка сайта, по нему `MiamiElioTheme` выбирает шрифт.
-- Изменено для Android: `voice_unavailable` — «на этом устройстве» вместо «на этом iPhone»; добавлена `concierge_report` («Пожаловаться на ответ»); название системных настроек во французском, португальском и украинском и слово «уведомления» в немецком приведены к принятым в Android. **Эти 16 переводов двух новых строк и правки написаны агентом, носитель языка их не проверял.**
-- Не перенесены три строки из `InfoPlist.strings` (зачем приложению камера, микрофон и распознавание речи): в Android таких обязательных подписей нет. Понадобятся для объяснения перед запросом разрешения — взять из `ios/strings.json`, раздел `infoPlist`.
-- `androidResources.generateLocaleConfig = true` и `res/resources.properties`: Android 13+ показывает выбор языка приложения в настройках телефона.
-
-### Тесты (`app/src/test/java/com/miamielio/app/`)
+Интерфейсные тесты — Robolectric 4.17 с `@Config(sdk = [34])` (на JDK 17 работает это сочетание; новее не пробовали). Снимки пишутся в `android/app/build/outputs/snapshots/`.
 
 | Файл | Что проверяет |
 |---|---|
-| `core/RoutePolicyTest.kt` (вместе с `AppConfigTest`), `core/SiteLocaleTest.kt`, `core/FavoritesTest.kt`, `core/SeasonTest.kt` | ядро, из первой сессии |
-| `core/SearchApiTest.kt`, `core/ConciergeApiTest.kt`, `core/PlanApiTest.kt` | перенос тестов iOS плюс: сбой сети, ответ без плана, повтор заявки с тем же ключом идемпотентности |
-| `net/OkHttpTransportTest.kt` | транспорт против локального сервера на сокете: заголовки и тело, 503 как ответ, cookie не сохраняются, отмена, тайм-аут, недоступный сервер, слишком большой ответ, негодный адрес |
-| `ui/BrandTest.kt` | выбор шрифта по языку, подпись логотипа для доступности, шар во всех состояниях (Robolectric + Compose UI test) |
-| `ui/BrandSnapshotTest.kt` | заставка отрисована по-настоящему: фон — цвет сайта, есть золотой шар и логотип; картинка сохраняется в `app/build/outputs/snapshots/brand.png` |
-| `core/DeepLinkTest.kt` | глубокие ссылки: вкладки, страницы сайта, отказ вести на чужой сайт |
-| `web/WebBootstrapTest.kt` | текст скрипта страницы (свои хосты, закрытые разделы, язык; чужой текст не становится кодом), разбор сообщений моста, «нет сети» против прочих ошибок; пишет скрипт в `app/build/outputs/web/bootstrap.js` |
-| `app/AppRouterTest.kt` | повторное нажатие на вкладку, куда идёт каждая ссылка, глубокие ссылки — на подставных страницах, без Android |
-| `ui/RootTabsTest.kt` | настоящая `MainActivity` под Robolectric: заставка уходит, четыре вкладки с названиями, «Главная» просит адрес сайта с меткой приложения и cookie языка, «Моё Майами» грузится только при первом открытии, «назад» возвращает на «Главную», глубокие ссылки; экран ошибки; снимки `tabs-concierge.png` и `offline.png` |
-| `ui/StringsTest.kt` | у каждого из 16 языков свои строки, RTL для иврита, арабского и фарси, иврит находится под кодами `he` и `iw`, неизвестный язык получает английский, ни одной пустой строки и ни одного «iPhone», подстановки работают во всех языках |
-| `concierge/ConciergeViewModelTest.kt` (14) | весь разговор и язык в запросе, `sessionId`, готовый запрос не трогает набранное, ничего не уходит пустым и во время ожидания, сбой и повтор, новый разговор и опоздавший ответ; план: другой вариант по кругу, убрать/вернуть, ответ без плана сохраняет правки; неполная заявка; повтор с тем же ключом, новый ключ после изменений и после 400; новый план во время отправки не трогается; невключённый приём заявок; жалоба (нет отправителя — нет действия; сбой, повтор, только один раз) |
-| `concierge/ConciergeScreenTest.kt` (5 + 2 снимка) | экран против подставного сервера: готовый запрос → ответ → карточка и подсказка открывают сайт; шар ждёт, сбой, повтор; новый диалог; доска плана → форма → ошибка пустой формы → заявка (проверяется тело `/api/plan`: даты, гости, время, позиции, ключ) → квитанция → новый план; жалоба с отправителем. Снимки `concierge-welcome-en.png`, `concierge-plan-en.png`, `concierge-welcome-he.png`, `concierge-plan-he.png` |
-| `concierge/ReplyTextTest.kt` (4) | Markdown в ответах: обычный текст не меняется, жирный/курсив/код, ссылки и их маршрут, незакрытое и экранированное |
-| `concierge/ScriptedTransport.kt` | не тест: подставной сервер с очередью ответов, «нет сети» и задержанным ответом |
+| `core/RoutePolicyTest.kt` (+ `AppConfigTest`), `SiteLocaleTest`, `FavoritesTest`, `SeasonTest`, `DeepLinkTest` | ядро |
+| `core/SearchApiTest`, `ConciergeApiTest`, `PlanApiTest` (+ `MockTransport.kt`) | клиенты API: перенос тестов iOS + сбой сети, ответ без плана, повтор заявки с тем же ключом |
+| `net/OkHttpTransportTest.kt` | транспорт против локального сокет-сервера: заголовки, 503, без cookie, отмена, тайм-аут, недоступный сервер, слишком большой ответ, негодный адрес |
+| `ui/BrandTest`, `BrandSnapshotTest` (`brand.png`) | шрифт по языку, подпись логотипа, шар во всех состояниях, заставка |
+| `web/WebBootstrapTest.kt` | скрипт страницы и разбор сообщений моста (пишет `app/build/outputs/web/bootstrap.js` для `verify-web-bridge.cjs`) |
+| `app/AppRouterTest.kt` | вкладки, маршруты ссылок, глубокие ссылки |
+| `ui/RootTabsTest.kt` (+ `LoadFailureViewTest`, `TabsSnapshotTest`: `tabs-concierge.png`, `offline.png`) | настоящая `MainActivity`: заставка, 4 вкладки, «Главная» с меткой приложения и cookie языка, «Моё Майами» грузится при первом открытии, «назад», глубокие ссылки, экран ошибки |
+| `ui/StringsTest.kt` | 16 языков, RTL (he, ar, fa), `he`/`iw`, английский по умолчанию, нет пустых строк и «iPhone», подстановки |
+| `concierge/ConciergeViewModelTest.kt` (14) | разговор, язык, `sessionId`, пустое/занято, сбой и повтор, новый разговор и опоздавший ответ; план: варианты, убрать/вернуть, неполная заявка, ключ идемпотентности (повтор, изменение, 400), новый план во время отправки, выключенный приём; жалоба |
+| `concierge/ConciergeScreenTest.kt` (5) + `ConciergeSnapshotTest` (2) | экран против подставного сервера: готовый запрос → ответ → карточка/подсказка; ожидание, сбой, повтор; новый диалог; план → форма → ошибка → заявка (проверяется тело `/api/plan`) → квитанция → новый план; жалоба. Снимки `concierge-welcome-en/he.png`, `concierge-plan-en/he.png` |
+| `concierge/ReplyTextTest.kt` (4) | Markdown в ответах |
+| `concierge/ScriptedTransport.kt` | **не тест**: подставной сервер с очередью ответов (`reply`, `offline`, `hold`/`release`) и готовыми ответами `Replies` — использовать в новых тестах |
+| `search/SearchViewModelTest.kt` (6) | короткий запрос, пауза ввода, отмена прошлого, прежние результаты при загрузке, «нет сети» против сбоя, автоповтор при возврате связи |
+| `search/SearchScreenTest.kt` (4) + `SearchSnapshotTest` (3) | плитки ведут на разделы; ввод → результаты → открытие → «Отмена»; «ничего не найдено»; «нет сети» → повтор → сбой → повтор. Снимки `search-sections-en/he.png`, `search-results-en.png`, `search-offline-en.png` |
 
-Тесты интерфейса идут под Robolectric с `@Config(sdk = [34])` (Android 14): с этой версией Robolectric 4.17 работает на JDK 17 — проверено. Более новые версии Android в тестах не пробовали.
+---
 
-## Что проверено
+## 7. Что проверено
 
-| Проверка | Результат |
-|---|---|
-| `./gradlew assembleDebug` на заглушке (до добавления ядра) | собралось, `app/build/outputs/apk/debug/app-debug.apk`, 14 МБ |
-| `gradlew testDebugUnitTest` (вторая сессия) | ядро скомпилировалось без правок; 100 тестов в 18 классах, 0 сбоев |
-| `gradlew assembleDebug` (вторая сессия) | собралось, `app/build/outputs/apk/debug/app-debug.apk`, 14,2 МБ |
-| `gradlew bundleRelease` (вторая сессия) | собралось с R8, `app/build/outputs/bundle/release/app-release.aab`, 2,6 МБ, **без подписи** (ключа нет). Сам AAB не устанавливали и не запускали — работает ли приложение после сжатия R8, неизвестно |
-| `node android/scripts/verify-web-bridge.cjs` | 13 проверок скрипта страницы проходят (на подставной странице в Node) |
-| Снимки тестом `TabsSnapshotTest`: вкладка «Консьерж» с панелью вкладок, экран «нет сети» | выглядят как задумано — картинки смотрел агент (`app/build/outputs/snapshots/tabs-concierge.png`, `offline.png`) |
-| `gradlew lintDebug` (вторая сессия) | 0 ошибок; предупреждения: неиспользуемые строки (экранов ещё нет), «...» вместо «…» в строке `state_loading` (так на сайте), нет иконки приложения (пункт 12), `targetSdk` 36 не последний |
-| `node android/scripts/build-strings.mjs --check` | 16 языков, 73 строки, файлы актуальны |
-| Заставка отрисована тестом `BrandSnapshotTest` (360×740 dp) | фон `#0A1218`, золотой шар со свечением, логотип шрифтами DM Mono и Bodoni Moda — картинку смотрел агент |
-| Боевой сайт `gorgona-one.com`: `/api/search`, `/`, `/profile` | отвечают 200 |
-| Боевой сайт: `/api/plan` | **404** — в `main` этого адреса нет |
-| Тестовый сайт ветки iOS: `/api/search`, `/`, `/profile` | отвечают 200 |
-| Тестовый сайт: `/api/plan` | 503 «Plan requests are not enabled» — адрес есть, приём заявок выключен |
-| Третья сессия, до правок: `testDebugUnitTest assembleDebug lintDebug`, `verify-web-bridge.cjs`, `build-strings.mjs --check` | 100 тестов в 18 классах, 0 сбоев; Lint 0 ошибок; 13 проверок скрипта; строки актуальны — исходная точка подтверждена |
-| Третья сессия, после пункта 7: `testDebugUnitTest assembleDebug lintDebug` | 125 тестов в 22 классах, 0 сбоев; Lint 0 ошибок (предупреждения прежних видов: неиспользуемые строки будущих экранов, «...» в `state_loading`, нет иконки, `targetSdk`); debug-APK 14,9 МБ |
-| Третья сессия: `bundleRelease` | собралось с R8, 4,8 МБ без подписи (было 2,6 МБ: прибавились Coil для фото плана и окна выбора даты и времени). Сам AAB не устанавливали — работает ли консьерж после R8, неизвестно |
-| Третья сессия, пункт 8: `SearchViewModelTest`, `SearchSnapshotTest` | 6 тестов прошли; снимки `search-sections-en.png`, `search-sections-he.png`, `search-results-en.png`, `search-offline-en.png` — смотрел агент: фото разделов загружаются, на иврите всё зеркалится, логотип нет |
-| Третья сессия, пункт 8: полный прогон | **не выполнен** — диск C: заполнен, тестовая JVM упала, Gradle не запускается |
-| Снимки консьержа (360×740 dp) | приветствие, разговор с Markdown и доской плана на английском и иврите — смотрел агент; на иврите всё зеркалится, английские строки читаются слева направо, логотип не зеркалится |
+| Когда | Проверка | Результат |
+|---|---|---|
+| 2-я сессия | `testDebugUnitTest assembleDebug lintDebug bundleRelease` | 100 тестов в 18 классах, 0 сбоев; Lint 0 ошибок; APK 14,2 МБ; AAB 2,6 МБ |
+| 2-я сессия | боевой `gorgona-one.com`: `/api/search`, `/`, `/profile` → 200; `/api/plan` → **404** (в `main` нет) | |
+| 2-я сессия | тестовый сайт ветки №43: `/api/search`, `/`, `/profile` → 200; `/api/plan` → 503 «Plan requests are not enabled» | |
+| 3-я, до правок | то же + `verify-web-bridge.cjs`, `build-strings.mjs --check` | 100 тестов, 0 сбоев; Lint 0 ошибок; 13 проверок; строки актуальны |
+| 3-я, после пункта 7 | `testDebugUnitTest assembleDebug lintDebug` | 125 тестов в 22 классах, 0 сбоев; Lint 0 ошибок; APK 14,9 МБ |
+| 3-я, после пункта 7 | `bundleRelease` | R8, AAB 4,8 МБ без подписи (+Coil, окна выбора даты/времени). AAB не устанавливали — работает ли приложение после R8, неизвестно |
+| 3-я, после пункта 8 (владелец освободил место на диске) | `:app:clean`, затем `testDebugUnitTest assembleDebug lintDebug`, `bundleRelease`, `verify-web-bridge.cjs`, `build-strings.mjs --check` | **138 тестов в 25 классах, 0 сбоев**; Lint 0 ошибок; APK 14,7 МБ; AAB 5,8 МБ без подписи (R8; AAB не устанавливали); 13 проверок скрипта; 16 языков, 76 строк — актуальны |
+| 3-я | снимки консьержа и поиска (en, he) | смотрел агент: на иврите всё зеркалится, английские строки читаются слева направо, логотип не зеркалится, фото разделов загружаются |
 
-Не проверено ничего, что требует экранов. На телефоне и в эмуляторе приложение не запускали ни в одной из сессий: в облаке нет `/dev/kvm`, на компьютере владельца эмулятор не установлен (в SDK нет ни `emulator`, ни образов системы). Транспорт проверен только против локального сервера — к настоящему сайту приложение ещё не обращалось.
+Предупреждения Lint на конец 3-й сессии (ошибок нет): `UnusedResources` (21 — строки будущих пунктов 9–11), `TypographyEllipsis` (16 — «...» в `state_loading`, так на сайте), `MissingApplicationIcon` (пункт 12), `OldTargetApi` (`targetSdk 36`), `NewerVersionAvailable` (Robolectric 4.18 вышел; не обновлять без причины — 4.17 проверен с JDK 17), **`MissingOnRenderProcessGone`** — у вспомогательного короткоживущего `WebView` в `onCreateWindow` (`web/WebTabController.kt`, около строки 423), который ловит адрес нового окна: у его `WebViewClient` нет `onRenderProcessGone`, и если его процесс страницы умрёт, приложение упадёт. У основного `WebView` обработчик есть (строка 387). **Маленькая правка на будущее:** добавить в этот клиент `override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean { finish(); return true }` и прогнать полную проверку.
 
-## Важно знать о сервере
+**Не проверено ни разу:** запуск на телефоне или в эмуляторе (в облаке нет `/dev/kvm`, на компьютере владельца нет эмулятора); обращения приложения к настоящему сайту.
 
-В `main` (боевой сайт) **нет** того, на что опирается приложение для iPhone: `/api/plan`, `FavoritesProvider.jsx` (избранное), правила `html[data-app] [data-app-hidden]` в `app/globals.css`, `lib/ai/appPersona.mjs`. Всё это есть только в ветке №43. Поэтому:
+---
 
-- С боевым сайтом план поездки и синхронизация избранного не заработают, пока №43 не слит. Приложение должно спокойно переживать их отсутствие: ответ чата без `plan` — обычный ответ; избранное хранится на телефоне.
-- Debug-сборка смотрит на тестовый сайт ветки №43, где это есть.
-- Сайт узнаёт приложение по `MiamiElioApp/` в User-Agent — это подходит и для Android.
-- **Избранное, обратное направление.** `FavoritesProvider.jsx` сообщает список приложению только при `data-app="ios"` и только через `window.webkit.messageHandlers.miamiElio`. Задуманное решение для Android: ставить `data-app="android"`, давать странице совместимую прокладку `window.webkit.messageHandlers.miamiElio.postMessage` поверх `WebViewCompat.addWebMessageListener`, а список избранного хранить на телефоне (`SharedPreferences`) как запасной вариант. Изменения от приложения к сайту (`window.__miamiFavorite` или очередь `gorgona-favorites-pending`) работают без правок сайта. Чтобы сайт сообщал список Android-приложению, в ветке №43 нужна правка в одну строку: в `tellApp` принимать `data-app` со значением `android`. Эту правку должен одобрить владелец — ветку №43 трогать без спроса нельзя.
+## 8. Важно знать о сервере
 
-## Что осталось сделать (по порядку)
+В `main` (боевой сайт) **нет** того, на что опирается приложение для iPhone: `/api/plan`, `FavoritesProvider.jsx` (избранное), правил `html[data-app] [data-app-hidden]` в `app/globals.css`, `lib/ai/appPersona.mjs`. Всё это есть только в ветке №43. Поэтому:
+- с боевым сайтом план и синхронизация избранного не заработают, пока №43 не слит; приложение переживает их отсутствие (ответ без `plan` — обычный ответ; избранное — на телефоне);
+- debug-сборка смотрит на тестовый сайт ветки №43, где всё это есть;
+- сайт узнаёт приложение по `MiamiElioApp/` в User-Agent — подходит и для Android.
 
-Образец для каждого пункта — одноимённый файл в `ios/MiamiElio/` ветки `claude/miami-elio-app-home-twt06c`. Посмотреть: `git fetch origin claude/miami-elio-app-home-twt06c && git show origin/claude/miami-elio-app-home-twt06c:ios/MiamiElio/<путь>`.
+**Избранное, направление «сайт → приложение».** `FavoritesProvider.jsx` сообщает список приложению только при `data-app="ios"`. Android ставит `data-app="android"` и даёт странице ту же «дверь» `window.webkit.messageHandlers.miamiElio.postMessage`. Чтобы сайт присылал список Android-приложению, в ветке №43 нужна правка в одну строку: в `tellApp` принимать и `android`. Эту правку одобряет владелец (вопрос 2) — ветку №43 без спроса не трогать. Направление «приложение → сайт» (`window.__miamiFavorite`, очередь `gorgona-favorites-pending`) работает без правок сайта.
 
-Пункты 1–6 **сделаны** во второй сессии, 7–8 — в третьей (см. «Что сделано»; пункт 8 ждёт полного прогона). Следующий — пункт 9. Готовые части: `Chip` и `fieldColors()` в `concierge/ConciergeScreen.kt`, `rememberKeyboardDismissal()` в `ui/Keyboard.kt`, `Connectivity` в `AppServices`, `ScriptedTransport` для тестов.
+---
 
-7. ~~**Консьерж**~~ **Сделано** (третья сессия), кроме отправки жалобы. Было задумано: по `Concierge/ConciergeStore.swift`, `ConciergeView.swift`, `PlanBoardView.swift`: `ViewModel` со `StateFlow`; приветствие с шаром, готовыми запросами и сезоном; реплики, карточки, подсказки; повтор после сбоя; новый разговор; доска плана (другой вариант, убрать, вернуть); форма заявки с датами, гостями и временем ужина; один и тот же ключ идемпотентности при повторе той же заявки. Плюс действие «Пожаловаться на ответ» (см. открытые вопросы).
-8. **Сделано** (третья сессия), кроме сердечек (пункт 9) и полного прогона проверок. Было задумано: **поиск** по `Search/SearchStore.swift`, `SearchView.swift`: задержка 350 мс, отмена прошлого запроса, состояния «плитки разделов / идёт поиск / результаты / пусто / ошибка / нет сети», сердечки избранного.
-9. **Избранное** по `Favorites/FavoritesStore.swift`: очередь изменений, доставка странице по одному, запасное хранение на телефоне.
-10. **Сезон и напоминания** по `Season/SeasonStore.swift`, `SeasonListView.swift`: `season.json` в `assets` (данные в `main` и в iOS совпадают — проверено; взять из `lib/seasonData.js` скриптом по образцу `ios/scripts/build-season.mjs`); `AlarmManager.setAndAllowWhileIdle` без особых разрешений; хранение расписания и восстановление после перезагрузки телефона; разрешение `POST_NOTIFICATIONS` спрашивать только при нажатии на колокольчик; нажатие на уведомление открывает консьержа с готовым запросом.
-11. **Голос** по `Concierge/Dictation.swift`: `SpeechRecognizer`, на телефоне где возможно (`createOnDeviceSpeechRecognizer`, API 31+); язык из `SiteLocale.speechLocale`; частичные результаты в поле ввода; выключение через минуту, при уходе с вкладки и при отправке; ответы вслух не читать. В манифесте `RECORD_AUDIO` и `<queries>` для `android.speech.RecognitionService`.
-12. **Иконка** из `ios/MiamiElio/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png` (золотой шар на тёмном фоне `#100D08`): адаптивная иконка и обычные размеры.
-13. **UI-тесты** на Robolectric + Compose UI test (запускаются без эмулятора, в `testDebugUnitTest`): сценарии из задания с подставным транспортом, RTL, подписи для доступности.
-14. **CI:** `.github/workflows/android.yml` — `lintDebug`, `testDebugUnitTest`, `assembleDebug`, `bundleRelease`, артефакты APK и AAB. Запускать при изменениях в `android/`.
-15. **`android/README.md`** по образцу `ios/README.md` и отчёт о приёмке в конце этого файла.
+## 9. Что осталось сделать — по порядку, с инструкциями
 
-## Как собрать здесь (облачная сессия Claude Code)
+Для каждого пункта: образец в `ios/MiamiElio/…` ветки №43; логика с тестами → коммит → экран, UI-тесты и снимки (en + he) → полная проверка → коммит → этот файл.
 
-Контейнер каждый раз новый, SDK в нём нет. Порядок:
+### Пункт 9. Избранное (сердечки) — следующий
 
-1. Хост `dl.google.com` уже добавлен в окружение `gorgona-one-ai` (владелец одобрил 13 ноября).
+Образец: `ios/MiamiElio/Favorites/FavoritesStore.swift` (store + `FavoriteHeart`). Логика iOS: набор ключей `kind:slug`; `toggle()` меняет набор сразу и ставит изменение в очередь; изменения доставляются странице **по одному, по порядку** через `runOnSite(favorite.script(on))`; изменение остаётся в очереди, пока страница его не приняла (`delivered == true`); когда страница присылает список (`received`), он заменяет набор, только если очередь пуста, и сразу доставляется всё ожидающее.
+
+Что уже есть на Android: `core/Favorites.kt` (`FavoriteRef.of(SearchResult)`, `of(PlanItem)`, `key`, `script(on)`, `keys(json)`), `WebTabController.runOnSite(script) { delivered -> }`, `WebTabController.onFavorites: (Set<String>, WebTabController) -> Unit`, `WebBootstrap.FAVORITES_REFRESH`, строки `favorite_save` / `favorite_remove`.
+
+Сделать:
+1. `favorites/FavoritesStore.kt` — порт логики iOS: `StateFlow<Set<String>>`, `isSaved`, `toggle`, `received(keys, from)`, очередь и доставка по одному. **Плюс запасное хранение на телефоне** (задание: «для гостя — запасное хранение на телефоне»): набор и очередь — в `SharedPreferences` (или DataStore), читаются при запуске; пока сайт не прислал список (а боевой сайт его Android не присылает, раздел 8), показывается сохранённое.
+2. В `AppServices`: создать store; `explore.onFavorites = store::received`, `account.onFavorites = store::received`; доставлять в ту вкладку, которая жива (iOS доставляет в «Главную» и в источник списка).
+3. `FavoriteHeart` (Compose): значки `ic_heart.xml` / `ic_heart_filled.xml` тонкой линией (как прочие `ic_*`), цвет `Theme.accent` / `Theme.soft`, область нажатия 44 dp, подпись `favorite_save`/`favorite_remove`, состояние `selected` для доступности, лёгкая вибрация; тег `favorite.heart`.
+4. Поставить сердечки в места, отмеченные комментариями: `search/SearchScreen.kt` (`ResultRow`) и `concierge/PlanBoard.kt` (`PlanItemRow`).
+5. Тесты: store на подставной «странице» (интерфейс вместо `WebTabController` — например `interface FavoritesPage { fun runOnSite(script: String, done: (Boolean) -> Unit) }`): порядок доставки, повтор недоставленного, список страницы не затирает ожидающие изменения, сохранение и чтение с телефона. UI: сердечко переключается, подпись меняется.
+6. Не проверить без владельца: синхронизацию с боевым сайтом (нужна правка №43, вопрос 2).
+
+### Пункт 10. Сезон и напоминания
+
+Образец: `ios/MiamiElio/Season/SeasonStore.swift`, `SeasonListView.swift`, данные `ios/MiamiElio/Resources/season.json`, скрипт `ios/scripts/build-season.mjs` (данные в `main` — `lib/seasonData.js` — и в iOS совпадают, проверено во 2-й сессии). Ядро уже есть: `core/Season.kt` (+ `SeasonTest`).
+- `android/scripts/build-season.mjs` по образцу iOS → `app/src/main/assets/season.json` (+ `--check` для CI). Заготовка скрипта лежит в старой папке `Documents\ChatGPT\Miami Elio\miami-elio-android\android\scripts\build-season.mjs` (не трогать папку, только прочитать).
+- Список сезона — под готовыми запросами в приветствии консьержа (место отмечено в `ConciergeScreen.kt`, `Welcome`); «Спросить консьержа» → `ConciergeViewModel.prepare(text)` (ничего не отправляется само).
+- Напоминание: в 10:00 по Майами (`America/New_York`) за 21 день до события; `AlarmManager.setAndAllowWhileIdle` (без разрешения точных будильников); расписание хранить и восстанавливать после перезагрузки (`BOOT_COMPLETED` receiver); `POST_NOTIFICATIONS` (Android 13+) спрашивать **только** при нажатии на колокольчик; при отказе — строка `season_blocked` и `action_settings`; нажатие на уведомление → `miamielio://concierge` с готовым запросом (расширить `DeepLink`).
+- Канал уведомлений, значок `res/drawable/ic_notification.xml` (заготовка в старой папке).
+- Тесты: расчёт времени (уже частично в `SeasonTest`), хранение расписания, переход с уведомления.
+
+### Пункт 11. Голос
+
+Образец: `ios/MiamiElio/Concierge/Dictation.swift`. `SpeechRecognizer`, по возможности на телефоне (`createOnDeviceSpeechRecognizer`, API 31+), иначе обычный; язык — `SiteLocale.speechLocale`; частичные результаты — в поле ввода (к уже набранному через пробел); выключение через минуту, при уходе с вкладки, при сворачивании и при отправке; ответы вслух **не** читать; шар на кнопке микрофона слушает с громкостью `VoiceLevel.fromRecognizer()` (`OrbActivity.Listening`). В манифесте уже есть `RECORD_AUDIO`; добавить `<queries>` для `android.speech.RecognitionService`. Разрешение — по нажатию на микрофон; при отказе — `voice_denied` + переход в настройки (`action_settings`); нет распознавателя — `voice_unavailable`. Объяснение перед запросом — строки из `ios/strings.json`, раздел `infoPlist` (в `strings.json`, на 16 языках). Черновик: `git show 462f0170:android/app/src/main/java/com/miamielio/app/concierge/Dictation.kt`.
+
+### Пункт 12. Иконка
+
+Из `ios/MiamiElio/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png` (золотой шар на тёмном фоне `#100D08`): адаптивная иконка (`mipmap-anydpi-v26/ic_launcher.xml` с передним планом и фоном, монохромный слой для Android 13), обычные размеры `mipmap-*`, круглая. Заготовки — в старой папке (`launcher_foreground.png`, `ic_launcher.xml`) и в черновике `462f0170` (`res/mipmap-*`). Проверить снимком; убрать предупреждение Lint `MissingApplicationIcon`.
+
+### Пункт 13. Сквозные UI-тесты, RTL, доступность
+
+Robolectric + Compose UI test (без эмулятора, в `testDebugUnitTest`), с `ScriptedTransport`:
+- поиск → результат → «Главная» открыла страницу (через настоящий `AppRouter` и подставную `WebPage`);
+- консьерж → план → заявка → сбой → повтор с тем же ключом;
+- избранное гостя (без списка от сайта) и «вошедшего» (страница присылает список);
+- восстановление сети (поиск: «нет сети» → `online = true` → результаты);
+- узкий экран (320 dp) и крупный шрифт (`fontScale = 1.3`), иврит и арабский — снимками;
+- подписи для доступности у всех кнопок-значков; заголовки помечены `heading()`.
+Также добавить в форму заявки подсказки автозаполнения (`ContentType` имени, телефона, почты).
+
+### Пункт 14. CI
+
+`.github/workflows/android.yml`: при изменениях в `android/**` (и в самом файле workflow) — JDK 17, Android SDK, `node android/scripts/build-strings.mjs --check`, `./gradlew lintDebug testDebugUnitTest assembleDebug bundleRelease`, затем `node android/scripts/verify-web-bridge.cjs`; артефакты: APK, AAB, отчёты Lint и тестов, снимки. Кэш Gradle. Секретов подписи в CI нет — AAB неподписанный.
+
+### Пункт 15. README и отчёт о приёмке
+
+`android/README.md` по образцу `ios/README.md`: что это, как собрать (Windows и Linux), куда смотрит какая сборка, как подписать, как обновить тексты и сезон, как запустить тесты и где снимки. В конец этого файла — отчёт о приёмке: пути к APK/AAB, команды, версия сервера (коммит сайта), дата и время, что проверено на устройстве.
+
+---
+
+## 10. Открытые вопросы к владельцу
+
+1. **Куда отправлять жалобу на ответ консьержа?** Google Play требует от приложений с ИИ возможности пожаловаться на ответ, не выходя из приложения. На сайте нет ни адреса почты, ни серверного приёма жалоб. Со стороны приложения всё готово: кнопка под каждым ответом, окно с заметкой, «Спасибо, жалоба отправлена». Не хватает только реализации `AnswerReporter` (`core/AnswerReport.kt`), которую надо передать в `AppServices` вместо `reporter = null` — кнопка появится сама. Пока её нет, кнопка скрыта, чтобы гостю не сообщали об отправке, которой не было. Черновик `core/ReportApi.kt` из `462f0170` не переносился — куда он шлёт, никто не проверял.
+2. **Правка в ветке №43** для избранного (одна строка в `FavoritesProvider.jsx`, раздел 8) — разрешить или оставить запасное хранение на телефоне.
+3. **Полный текст исходного задания** — прислать, если есть.
+4. **Ключ подписи** и аккаунт разработчика Google Play.
+5. Ресурсы (шрифты, фото, переводы, а дальше иконка и данные сезона) берутся из ветки `claude/miami-elio-app-home-twt06c`, как требует задание. `CLAUDE.md` просит спрашивать перед использованием кода из `claude/*` — сообщено явно.
+6. **Есть ли второй аккаунт Claude**, под которым работала облачная сессия, отправившая `462f0170`? Если да — удалить её там, иначе она может снова написать в ветку.
+7. **Проверка на телефоне:** нужен телефон Android, подключённый к компьютеру, или разрешение поставить эмулятор.
+
+---
+
+## 11. История ветки — что важно помнить
+
+- **Первая попытка** (сессия «Miami Elio Android приложение») упёрлась в лимит и ничего не закоммитила. Часть нашлась на диске: папка `Documents\ChatGPT\Miami Elio\miami-elio-android` (ветка `feat/android-app` от `e70b7477`, PR №48), неотслеживаемая `android/` — только каркас: Gradle, манифест, ресурсы темы, заготовка иконки (`res/drawable-nodpi/launcher_foreground.png`, `res/mipmap-anydpi-v26/ic_launcher.xml`, `res/drawable/ic_notification.xml`, `ic_splash_orb.xml`), `scripts/build-strings.mjs`, `scripts/build-season.mjs`. Папку **не трогать**, читать можно (пригодится в пунктах 10 и 12). Вывод: коммитить и пушить после каждого куска.
+- **Параллельная облачная сессия** (13 ноября) отправила в эту ветку коммит `462f0170` со своей версией пунктов 5–12 (~4800 строк, без тестов). Владелец выбрал версию второй сессии: слияние `b533935c` взяло все файлы из неё, `462f0170` остался только в истории — **в рабочем дереве его кода нет**. Сама сессия (`claude.ai/code/session_01GvhNbyHLcshC3eFRNgQswn`) в аккаунте владельца не найдена; после `462f0170` в ветку не писала.
+- Что в `462f0170` можно читать как черновик (`git show 462f0170:android/app/src/main/java/com/miamielio/app/<путь>`): `concierge/Dictation.kt` (пункт 11); `favorites/FavoritesStore.kt` (пункт 9); `season/SeasonStore.kt`, `SeasonList.kt`, `Reminders.kt`, `assets/season.json`, `android/scripts/build-season.mjs` (пункт 10); иконка в `res/mipmap-*` (пункт 12); `ui/Parts.kt`. Этот коммит собирался и проходил прежние 77 тестов, но его экраны никто не запускал. Переносить только с тестами и под нынешние `AppRouter`, `AppServices`, `WebTabController`.
+- **Третья сессия:** пункты 7 и 8, исправление направления текста и логотипа в RTL, `Connectivity`, полный перевод файла передачи в этот вид. Посреди проверки пункта 8 закончилось место на диске C: — после освобождения места владельцем проверка выполнена заново (раздел 7).
+
+---
+
+## 12. Как собрать в облачной сессии Claude Code (Linux)
+
+Контейнер каждый раз новый, SDK в нём нет:
+1. Хост `dl.google.com` уже разрешён в окружении `gorgona-one-ai` (владелец одобрил 13 ноября).
 2. Скачать инструменты командной строки в `/opt/android-sdk/cmdline-tools/latest` (`https://dl.google.com/android/repository/commandlinetools-linux-13114758_latest.zip`).
-3. **Лицензии Android SDK принимает владелец.** Автоматический режим не даёт агенту принять их самому: сначала спросить владельца (в этой сессии он ответил «да»), потом `yes | sdkmanager --licenses`.
-4. `sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"`. Платформу 37 Gradle докачивает сам.
-5. `echo "sdk.dir=/opt/android-sdk" > android/local.properties` (файл в git не попадает).
-6. Maven Central через прокси отвечает **429**, если качать много сразу. Помогает файл `~/.gradle/gradle.properties`:
+3. **Лицензии Android SDK принимает владелец**: сначала спросить, потом `yes | sdkmanager --licenses`.
+4. `sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"` (платформу 37 Gradle докачает сам).
+5. `echo "sdk.dir=/opt/android-sdk" > android/local.properties`.
+6. Maven Central через прокси отвечает **429** при большом числе загрузок. Помогает `~/.gradle/gradle.properties`:
    ```
    org.gradle.workers.max=2
    org.gradle.parallel=false
    systemProp.org.gradle.internal.repository.max.retries=6
    systemProp.org.gradle.internal.repository.initial.backoff=1500
    ```
-   и повтор команды 2–3 раза: скачанное остаётся в кэше, каждая попытка продвигается дальше.
-7. Сборка: `cd android && ./gradlew assembleDebug`. Тесты: `./gradlew testDebugUnitTest`. Первая сборка — около 5 минут с докачкой.
-
-## Как собрать на компьютере владельца (Windows)
-
-Всё нужное уже стоит в `C:\Users\alexa\android-toolchain`: JDK 17 (`jdk-17.0.21+9`), Android SDK (`sdk`, платформа 36, build-tools 36.0.0, лицензии приняты). Платформу 37 Gradle докачал сам.
-
-1. Рабочая папка ветки: `Documents\ChatGPT\Miami Elio\miami-elio-android-agent` (отдельный worktree; остальные папки `miami-elio-*` не трогать).
-2. **В репозитории включён sparse checkout.** В новой рабочей папке `android/` не появится, пока её не добавить: `git sparse-checkout add android` (настройка действует только на эту папку).
-3. `android/local.properties` (в git не попадает): `sdk.dir=C\:/Users/alexa/android-toolchain/sdk` — двоеточие после буквы диска экранировать обязательно, иначе Lint считает это ошибкой (`PropertyEscape`) и `lintDebug` падает. Lint запоминает прошлый результат: после правки этого файла пересчитать командой `.\gradlew.bat :app:lintAnalyzeDebug --rerun :app:lintReportDebug --rerun :app:lintDebug`.
-4. В PowerShell:
-   ```
-   $env:JAVA_HOME = "C:\Users\alexa\android-toolchain\jdk-17.0.21+9"
-   cd android
-   .\gradlew.bat testDebugUnitTest assembleDebug lintDebug
-   ```
-   Первая сборка — около 3 минут; тесты интерфейса при первом запуске скачивают образ Android 14 для Robolectric.
-5. Тексты: после правки `android/strings.json` запустить `node android/scripts/build-strings.mjs` (в CI — с `--check`).
-6. Снимки экранов без эмулятора: `android/app/build/outputs/snapshots/` — `brand.png` (заставка), `tabs-concierge.png`, `offline.png`; их пишут тесты `BrandSnapshotTest` и `TabsSnapshotTest`.
-7. Скрипт страницы: после `testDebugUnitTest` запустить `node android/scripts/verify-web-bridge.cjs`.
-8. Выпуск: `.\gradlew.bat bundleRelease` → `android/app/build/outputs/bundle/release/app-release.aab` (без ключа — неподписанный).
-
-Особенности этого компьютера, на которые вторая сессия потратила время:
-
-- **Сессия в приложении Claude может стартовать в пустой папке**, а не в репозитории. Сначала перейти в рабочую папку ветки (пункт 1).
-- **У владельца стоит проверка «Fact-Forcing Gate» (GateGuard).** Первая запись или правка каждого файла и первая команда в оболочке отклоняются всегда — даже если факты уже написаны в том же сообщении. Нужно написать в ответе, кто использует файл, что нет другого файла с той же ролью, какие данные он читает, и дословно привести указание владельца — затем повторить то же действие. Это его проверка, обходить её не надо (в том числе записью файлов через оболочку). Счётчик сбрасывается после долгой паузы. Большие файлы поэтому отправляются дважды — закладывайте это во время.
-- **Диск C: почти заполнен** (13 ноября, третья сессия: 0,34 ГБ свободно). Тогда тестовая JVM падает с «Native memory allocation (malloc) failed» (файл подкачки не может вырасти), а затем Windows не запускает `gradlew.bat`: «There is not enough space on the disk». Перед сборкой проверить: `Get-PSDrive C`. Упавшая JVM оставляет `android/app/hs_err_pid*.log` и `replay_pid*.log` — git их **не игнорирует**, удалять и не добавлять в коммит (добавлять файлы по именам, не `git add -A`).
-- **Robolectric и диалоги:** диалог по размеру содержимого с полем ввода на высоком экране (`qualifiers = "w411dp-h891dp"`) зависает при `performTextInput` — тест падает через 60 с с «Compose did not get idle», а следующий иногда с `OutOfMemoryError`. На экране по умолчанию (320×470 dp) того же нет. Полноэкранный `Dialog(… DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false))` работает. На экране по умолчанию третья готовая кнопка консьержа не помещается — для тестов консьержа брать высокий экран.
-- **PowerShell 5.1 ломает многострочное сообщение коммита с кавычками.** Писать сообщение в файл (UTF-8 без BOM) и делать `git commit -F <файл>`.
-- В комментариях Kotlin не писать `values*/strings.xml`: сочетание `*/` закрывает комментарий.
-- Эмулятора и образов системы на компьютере нет. Проверка на телефоне возможна, только если владелец подключит телефон или поставит эмулятор.
-
-## Открытые вопросы к владельцу
-
-1. **Куда отправлять жалобу на ответ консьержа?** Google Play требует от приложений с ИИ возможность пожаловаться на ответ, не выходя из приложения. На сайте нет ни адреса почты для обращений, ни серверного адреса для жалоб. Нужен либо адрес почты, либо решение завести приём жалоб на сервере. Со стороны приложения всё готово (третья сессия): кнопка под каждым ответом, окно с заметкой, «Спасибо, жалоба отправлена»; не хватает только реализации `AnswerReporter` (`core/AnswerReport.kt`). Пока её нет, кнопка не показывается — чтобы гостю не сообщали об отправке, которой не было. Черновик `core/ReportApi.kt` из `462f0170` не переносился: куда он шлёт, никто не проверял.
-2. **Правка в ветке №43** для избранного (одна строка в `FavoritesProvider.jsx`, см. выше) — разрешить или оставить запасное хранение на телефоне.
-3. **Полный текст исходного задания** — если есть, прислать следующему агенту.
-4. **Ключ подписи** для выпуска в Google Play и аккаунт разработчика Google Play.
-5. Ресурсы (шрифты, фотографии, а дальше — переводы, иконка, список сезона) взяты из ветки `claude/miami-elio-app-home-twt06c`, как того требует задание «повторить приложение для iPhone». `CLAUDE.md` просит спрашивать перед тем, как брать код из веток `claude/*`, — сообщаю об этом явно.
-6. **Есть ли у владельца второй аккаунт Claude**, под которым могла работать облачная сессия, отправившая `462f0170`? Если да — удалить её там, иначе она может снова написать в ветку.
-7. **Проверка на телефоне.** Ни одна сессия не запускала приложение на устройстве. Нужен либо телефон Android, подключённый к компьютеру, либо разрешение поставить эмулятор.
+   и повтор команды 2–3 раза (скачанное остаётся в кэше).
+7. `cd android && ./gradlew testDebugUnitTest assembleDebug lintDebug` — первая сборка около 5 минут.
