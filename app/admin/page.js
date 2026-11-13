@@ -6,6 +6,7 @@ import {useAuth} from '../components/AuthProvider';
 import {supabase} from '../../lib/supabase';
 import RequestBoard,{NotificationSummary,DiningOverview} from '../components/dashboard/RequestBoard';
 import ListingWorkspace from '../components/dashboard/ListingWorkspace';
+import AppSupport from '../components/dashboard/AppSupport';
 function AdminWorkspace(){
  const auth=useAuth(),router=useRouter(),msg=useSavedText();
  const [stats,setStats]=useState({users:null,partners:null,pending:null}),[recent,setRecent]=useState([]),[error,setError]=useState(false);
@@ -35,6 +36,7 @@ function AdminWorkspace(){
   <ListingWorkspace scope="admin"/>
   <RequestBoard scope="admin"/>
   <NotificationSummary/>
+  <AppSupport userId={auth.session.id}/>
   <DiningOverview key={auth.session.id}/>
   <section className="mt-10 min-w-0"><h2 className="mb-5 font-display text-3xl">{msg('Recent Registrations')}</h2><div className="overflow-x-auto"><table className="w-full text-start text-sm"><thead><tr><th className="py-3 text-start">{msg('Name / Company')}</th><th className="text-start">{msg('Email')}</th><th className="text-start">{msg('Role')}</th></tr></thead><tbody>{recent.map(u=><tr key={u.id} className="border-t border-villa-obsidian/20"><td className="py-4 pe-3">{u.company_name||u.name||msg('Unknown')}</td><td className="pe-3">{u.email}</td><td>{({user:msg('User'),partner:msg('Business partner'),admin:msg('Administrator')})[u.role]||u.role}</td></tr>)}</tbody></table></div></section>
  </div></main>;

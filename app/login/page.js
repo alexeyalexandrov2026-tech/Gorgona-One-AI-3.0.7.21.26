@@ -38,7 +38,8 @@ export default function LoginPage() {
       });
       setSuccess(t.auth.successSignIn);
       auth?.refresh();
-      setTimeout(() => router.push('/profile'), 900);
+      const next = new URLSearchParams(window.location.search).get('next');
+      setTimeout(() => router.push(next === '/account/delete' ? next : '/profile'), 900);
     } catch (err) {
       setError(err);
     } finally {

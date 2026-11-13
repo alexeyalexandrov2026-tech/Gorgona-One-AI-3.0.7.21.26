@@ -31,5 +31,27 @@ try{
   await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
   console.log('PASS dialog traps keyboard focus and restores the clicked opener');
  }
+ const reports=[];
+ await page.route('**/api/chat', route => route.fulfill({json:{reply:'A Miami itinerary', locale:'en'}}));
+ await page.route('**/api/concierge/report', route => {
+  reports.push({key:route.request().headers()['idempotency-key'],body:route.request().postDataJSON()});
+  return route.fulfill({status:reports.length===1?503:202,json:{received:reports.length>1}});
+ });
+ await page.getByRole('button',{name:'Open the Discovery Room concierge',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'MIAMI ELIO AI Dock',exact:true});
+ const question=dialog.getByRole('textbox');
+ await expect(question).toBeEnabled();
+ await question.fill('Plan a day in Miami');
+ await question.press('Enter');
+ await dialog.getByRole('button',{name:'Report this answer'}).click();
+ await dialog.getByRole('textbox',{name:'What is wrong with this answer? (optional)'}).fill('Please review this answer.');
+ await dialog.getByRole('button',{name:'Send report'}).click();
+ await expect(dialog.getByRole('alert')).toHaveText('Could not send the request. Try again.');
+ await dialog.getByRole('button',{name:'Send report'}).click();
+ await expect(dialog.getByRole('status')).toHaveText('Thank you. The report was sent to our team.');
+ assert.match(reports[0].key,/^[0-9a-f-]{36}$/);
+ assert.deepEqual(reports,[reports[0],reports[0]]);
+ assert.deepEqual(reports[0].body,{question:'Plan a day in Miami',answer:'A Miami itinerary',locale:'en',note:'Please review this answer.'});
+ console.log('PASS a web concierge report retries with the same key and confirms server receipt');
  assert.deepEqual(errors,[]);
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

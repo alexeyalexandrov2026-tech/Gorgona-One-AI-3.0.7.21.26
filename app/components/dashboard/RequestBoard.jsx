@@ -40,6 +40,14 @@ export default function RequestBoard({ scope = 'customer' }) {
 
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
   useEffect(()=>{
+    if(!userId||scope!=='customer')return;
+    const controller=new AbortController();
+    api(userId,'/api/dashboard/requests/claim',{method:'POST',signal:controller.signal})
+      .then(result=>{if(!controller.signal.aborted&&(result.requests>0||result.plans>0))setReload(value=>value+1);})
+      .catch(()=>{});
+    return()=>controller.abort();
+  },[userId,scope]);
+  useEffect(()=>{
     if(!userId)return;
     const controller=new AbortController();let active=true;
     setLoading(true);setError(false);
@@ -105,6 +113,15 @@ export default function RequestBoard({ scope = 'customer' }) {
         <h4 className="text-lg font-medium [overflow-wrap:anywhere]">{detail.request.item_title}</h4>
         <p className="mt-2 text-sm [overflow-wrap:anywhere]">{detail.request.dates}</p>
         <p className="mt-3 text-sm">{msg('Status')}: {labels[detail.request.status]||msg('Unknown')}</p>
+        {detail.plan&&<div className="my-4 grid gap-2 text-sm">
+          <p>{detail.plan.start_date} — {detail.plan.end_date}</p>
+          {detail.plan.note&&<p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{detail.plan.note}</p>}
+          <ul className="grid gap-1">
+            {detail.plan.items.map(item=><li key={item.id} className="[overflow-wrap:anywhere]">
+              {item.item_title} · {labels[item.status]||msg('Unknown')}
+            </li>)}
+          </ul>
+        </div>}
         {detail.request.hospitality&&<div className="my-4 grid gap-2 text-sm">{detail.request.status!=='closed'&&<p>{dining.pending}</p>}{detail.request.hospitality.note&&<p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{detail.request.hospitality.note}</p>}{scope==='customer'&&detail.request.status!=='closed'&&<button type="button" className={button+' w-fit'} disabled={busy} onClick={()=>command('withdraw')}>{dining.withdraw}</button>}</div>}
         {scope!=='customer'&&<div className="my-4 grid gap-2 text-sm [overflow-wrap:anywhere]"><p>{copy.name}: {detail.request.client_name}</p><p>{copy.email}: {detail.request.client_email}</p><p>{copy.phone}: {detail.request.client_phone}</p></div>}
         <h4 className="mb-3 mt-6 font-medium">{msg('History')}</h4>
