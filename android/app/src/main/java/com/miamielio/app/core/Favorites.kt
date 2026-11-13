@@ -2,6 +2,7 @@ package com.miamielio.app.core
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -28,28 +29,31 @@ class FavoriteRef private constructor(
      * to true once the change is with the page.
      */
     fun script(on: Boolean): String {
-        val change = buildJsonObject {
-            put("kind", kind)
-            put("slug", slug)
-            put("title", title)
-            if (subtitle != null) put("subtitle", subtitle)
-            if (image != null) put("image", image)
-            put("on", on)
-        }
         // JSON is valid JavaScript except for these two line separators.
-        val literal = change.toString().replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
+        val literal = changeJson(on).toString().replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
         return """
             (function (change) {
               try {
                 if (window.__miamiFavorite) { window.__miamiFavorite(change); return true; }
                 var key = '$pendingKey';
                 var queue = JSON.parse(window.localStorage.getItem(key) || '[]');
+                if (!Array.isArray(queue) || queue.length >= 50) return false;
                 queue.push(change);
-                window.localStorage.setItem(key, JSON.stringify(queue.slice(-50)));
+                window.localStorage.setItem(key, JSON.stringify(queue));
                 return true;
               } catch (e) { return false; }
             })($literal)
         """.trimIndent()
+    }
+
+    /** The same validated catalogue fields are used on the site and in the native queue. */
+    internal fun changeJson(on: Boolean): JsonObject = buildJsonObject {
+        put("kind", kind)
+        put("slug", slug)
+        put("title", title)
+        if (subtitle != null) put("subtitle", subtitle)
+        if (image != null) put("image", image)
+        put("on", on)
     }
 
     override fun equals(other: Any?): Boolean =
@@ -72,7 +76,7 @@ class FavoriteRef private constructor(
                 slug = slug,
                 title = name.take(240),
                 subtitle = subtitle?.takeIf { it.isNotEmpty() }?.take(300),
-                image = image?.takeIf { it.isNotEmpty() },
+                image = image?.takeIf { it.isNotEmpty() && it.length <= 2_048 },
             )
         }
 
@@ -111,8 +115,15 @@ class FavoriteRef private constructor(
         internal fun keys(list: JsonArray): Set<String> =
             list.asSequence()
                 .mapNotNull { (it as? JsonPrimitive)?.takeIf { value -> value.isString }?.content }
-                .filter { it.length <= 160 && it.contains(":") }
+                .filter(::isKey)
+                .distinct()
                 .take(200)
                 .toSet()
+
+        internal fun isKey(value: String): Boolean {
+            val separator = value.indexOf(':')
+            return separator > 0 && value.substring(0, separator) in kinds &&
+                PlanRules.isSlug(value.substring(separator + 1))
+        }
     }
 }
