@@ -59,6 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miamielio.app.R
 import com.miamielio.app.app.AppServices
 import com.miamielio.app.app.AppTab
+import com.miamielio.app.concierge.ConciergeScreen
 import com.miamielio.app.web.WebTab
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -182,7 +183,11 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
         ) {
             when (tab) {
                 AppTab.Explore -> WebTab(services.explore, Modifier.testTag("content.Explore"))
-                AppTab.Concierge -> ComingTab(stringResource(R.string.concierge_title), orb = true, tag = "content.Concierge")
+                AppTab.Concierge -> ConciergeScreen(
+                    model = services.concierge,
+                    onOpen = router::open,
+                    modifier = Modifier.testTag("content.Concierge"),
+                )
                 AppTab.Search -> ComingTab(stringResource(R.string.tab_search), orb = false, tag = "content.Search")
                 AppTab.Account -> WebTab(services.account, Modifier.testTag("content.Account"))
             }

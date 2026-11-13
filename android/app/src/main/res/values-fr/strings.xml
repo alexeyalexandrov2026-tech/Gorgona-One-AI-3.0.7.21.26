@@ -44,6 +44,9 @@
     <string name="plan_sent_text" formatted="false">Éléments dans la demande : {count}. Notre équipe vous contactera rapidement.</string>
     <string name="plan_submit" formatted="false">Envoyer la demande</string>
     <string name="plan_title" formatted="false">Votre programme</string>
+    <string name="report_prompt" formatted="false">Qu’est-ce qui ne va pas dans cette réponse ? (facultatif)</string>
+    <string name="report_send" formatted="false">Envoyer le signalement</string>
+    <string name="report_sent" formatted="false">Merci. Le signalement a été transmis à notre équipe.</string>
     <string name="search_empty" formatted="false">Aucun résultat trouvé pour votre recherche.</string>
     <string name="search_popular" formatted="false">Recherches populaires</string>
     <string name="season_ask" formatted="false">{name}, {dates}. Aidez-moi à organiser : une voiture, un hébergement, un dîner et des billets.</string>

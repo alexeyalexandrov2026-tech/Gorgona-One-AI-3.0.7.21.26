@@ -44,6 +44,9 @@
     <string name="plan_sent_text" formatted="false">تعداد موارد در درخواست: {count}. تیم ما به‌زودی با شما تماس می‌گیرد.</string>
     <string name="plan_submit" formatted="false">ارسال درخواست</string>
     <string name="plan_title" formatted="false">برنامه شما</string>
+    <string name="report_prompt" formatted="false">مشکل این پاسخ چیست؟ (اختیاری)</string>
+    <string name="report_send" formatted="false">ارسال گزارش</string>
+    <string name="report_sent" formatted="false">سپاسگزاریم. گزارش برای تیم ما ارسال شد.</string>
     <string name="search_empty" formatted="false">نتیجه‌ای برای جستجوی شما یافت نشد.</string>
     <string name="search_popular" formatted="false">جستجوهای محبوب</string>
     <string name="season_ask" formatted="false">{name}، {dates}. برای برنامه‌ریزی خودرو، اقامت، شام و بلیت کمکم کن.</string>

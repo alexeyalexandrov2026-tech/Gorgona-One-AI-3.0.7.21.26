@@ -44,6 +44,9 @@
     <string name="plan_sent_text" formatted="false">请求中的项目数：{count}。我们的团队将尽快联系您。</string>
     <string name="plan_submit" formatted="false">发送需求</string>
     <string name="plan_title" formatted="false">您的行程计划</string>
+    <string name="report_prompt" formatted="false">这个回答有什么问题？（选填）</string>
+    <string name="report_send" formatted="false">发送举报</string>
+    <string name="report_sent" formatted="false">谢谢。举报已发送给我们的团队。</string>
     <string name="search_empty" formatted="false">未找到与您的搜索匹配的结果。</string>
     <string name="search_popular" formatted="false">热门搜索</string>
     <string name="season_ask" formatted="false">{name}，{dates}。请帮我安排汽车、住宿、晚餐和门票。</string>

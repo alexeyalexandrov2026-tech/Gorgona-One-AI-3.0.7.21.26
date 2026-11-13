@@ -44,6 +44,9 @@
     <string name="plan_sent_text" formatted="false">リクエストの項目数：{count}。スタッフより近日中にご連絡します。</string>
     <string name="plan_submit" formatted="false">問い合わせを送信</string>
     <string name="plan_title" formatted="false">あなたのプラン</string>
+    <string name="report_prompt" formatted="false">この回答の問題点を教えてください（任意）</string>
+    <string name="report_send" formatted="false">報告を送信</string>
+    <string name="report_sent" formatted="false">ありがとうございます。報告をチームに送信しました。</string>
     <string name="search_empty" formatted="false">検索結果が見つかりませんでした。</string>
     <string name="search_popular" formatted="false">人気の検索</string>
     <string name="season_ask" formatted="false">{name}、{dates}。車、宿泊先、夕食、チケットの手配を手伝ってください。</string>

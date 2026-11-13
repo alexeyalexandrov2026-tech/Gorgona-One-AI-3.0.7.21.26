@@ -44,6 +44,9 @@
     <string name="plan_sent_text" formatted="false">Позиций в заявке: {count}. Наша команда скоро свяжется с вами.</string>
     <string name="plan_submit" formatted="false">Отправить заявку</string>
     <string name="plan_title" formatted="false">Ваш план</string>
+    <string name="report_prompt" formatted="false">Что не так с этим ответом? (необязательно)</string>
+    <string name="report_send" formatted="false">Отправить жалобу</string>
+    <string name="report_sent" formatted="false">Спасибо. Жалоба отправлена нашей команде.</string>
     <string name="search_empty" formatted="false">По вашему запросу ничего не найдено.</string>
     <string name="search_popular" formatted="false">Популярные запросы</string>
     <string name="season_ask" formatted="false">{name}, {dates}. Помогите спланировать: машина, жильё, ужин и билеты.</string>
