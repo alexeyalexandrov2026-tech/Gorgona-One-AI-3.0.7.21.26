@@ -8,6 +8,7 @@ import {askWorkersBrain} from '../../../lib/ai/workersBrain.mjs';
 import {groundedReply,CATALOGUE_PROTOCOL} from '../../../lib/ai/groundedReply.mjs';
 import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
 import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
+import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
@@ -50,7 +51,7 @@ function logRouterIssue(...args) {
   console.error('AI router:', ...args);
 }
 
-function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, navigation = null, responsePolicy = null } = {}) {
+function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null } = {}) {
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
@@ -59,6 +60,7 @@ function reply(text, { messages = [], latestUserMessage = '', source = null, ses
     // canned line, so it is excluded entirely.
     ...(navigation||conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale})),
     ...(responsePolicy?{responsePolicy}:{}),
+    ...(plan ? { plan } : {}),
     configured: !error,
     ...(source ? { source } : {}),
     // Handle for the local brain's server-side conversation memory. The
@@ -154,7 +156,12 @@ export async function POST(request) {
     navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY});
 
   const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
-  const respond=(text,options)=>reply(fact?fact.reply+'\n\n'+text:text,{messages:modelMessages,locale,...options});
+  const plan = /^MiamiElioApp\//.test(request.headers.get('user-agent') || '') ||
+    (request.headers.get('user-agent') || '').includes(' MiamiElioApp/')
+    ? conversationPlan(modelMessages, { locale }) : null;
+  const respond=async(text,options)=>reply(fact?fact.reply+'\n\n'+text:text,{
+    messages:modelMessages,locale,...options,plan:await plan
+  });
   const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages});
   if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy});
   // A denied/failed metered engine must not start another unmetered engine.

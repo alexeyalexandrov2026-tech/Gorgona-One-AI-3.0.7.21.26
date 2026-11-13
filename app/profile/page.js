@@ -6,6 +6,7 @@ import RequestBoard from '../components/dashboard/RequestBoard';
 import { getTranslation } from '../../lib/i18n';
 import { useLocale } from '../components/LocaleProvider';
 import { useAuth } from '../components/AuthProvider';
+import MyMiami from '../components/MyMiami';
 
 export default function ProfilePage() {
   const msg = useSavedText();
@@ -27,6 +28,7 @@ export default function ProfilePage() {
             <Link href="/login" className="mt-8 inline-block border-b border-villa-obsidian pb-1 font-fira text-sm font-medium uppercase tracking-[0.18em] text-villa-obsidian transition-opacity hover:opacity-60">
               {t.auth.signInTab}
             </Link>
+            <MyMiami />
           </div>
         </div>
       </main>
@@ -48,8 +50,10 @@ export default function ProfilePage() {
         <nav className="flex flex-wrap gap-5 text-sm text-villa-obsidian">
           {auth?.session?.role === 'admin' && <Link href="/admin" className="underline">{msg('Admin Portal')}</Link>}
           {['partner','admin'].includes(auth?.session?.role) && <Link href="/partner" className="underline">{msg('Partner Portal')}</Link>}
+          <Link href="/account/delete" className="underline">{msg('Request account deletion')}</Link>
         </nav>
         {auth?.session && <RequestBoard key={auth.session.id} scope="customer" />}
+        <MyMiami />
 
       </div>
     </main>

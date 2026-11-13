@@ -1,5 +1,5 @@
 "use client";
-import { LocalizedText } from "../LocalizedText";
+import { LocalizedText, useSavedText } from "../LocalizedText";
 
 
 import { useEffect, useRef, useState } from 'react';
@@ -26,7 +26,64 @@ function MicIcon({ className }) {
   );
 }
 
-function Message({ role, content }) {
+function AnswerReport({ question, answer, locale }) {
+  const msg = useSavedText();
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState('');
+  const [state, setState] = useState('idle');
+  const inFlight = useRef(false);
+  const attempt = useRef(null);
+
+  async function send(event) {
+    event.preventDefault();
+    if (inFlight.current || state === 'received') return;
+    inFlight.current = true;
+    setState('sending');
+    try {
+      const trimmed = note.trim();
+      if (attempt.current?.note !== trimmed) attempt.current = { note: trimmed, key: crypto.randomUUID() };
+      const response = await fetch('/api/concierge/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': attempt.current.key },
+        body: JSON.stringify({ question: question.slice(0, 4000), answer: answer.slice(0, 6000), locale, note: trimmed }),
+        signal: AbortSignal.timeout(15000),
+      });
+      if (response.status !== 202 || (await response.json())?.received !== true) throw new Error('Report not received');
+      setState('received');
+    } catch {
+      setState('failed');
+    } finally {
+      inFlight.current = false;
+    }
+  }
+
+  if (state === 'received') {
+    return <p role="status" className="text-xs text-zinc-300">{msg('Thank you. The report was sent to our team.')}</p>;
+  }
+  if (!open) {
+    return <button type="button" className="min-h-11 text-start text-xs text-zinc-300 underline" onClick={() => setOpen(true)}>{msg('Report this answer')}</button>;
+  }
+  return (
+    <form onSubmit={send} className="grid gap-2 text-xs">
+      <label className="grid gap-1">
+        <span>{msg('What is wrong with this answer? (optional)')}</span>
+        <textarea value={note} onChange={event => setNote(event.target.value)} maxLength={1000}
+          disabled={state === 'sending'} className="rounded-lg border border-white/20 bg-black/20 p-2" />
+      </label>
+      {state === 'failed' && <p role="alert">{msg('Could not send the request. Try again.')}</p>}
+      <div className="flex flex-wrap gap-3">
+        <button type="submit" disabled={state === 'sending'} className="min-h-11 text-brand-gold underline">
+          {state === 'sending' ? msg('Loading...') : msg('Send report')}
+        </button>
+        <button type="button" disabled={state === 'sending'} className="min-h-11 underline" onClick={() => setOpen(false)}>
+          {msg('Cancel')}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function Message({ role, content, question, locale }) {
   const isUser = role === 'user';
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -36,6 +93,11 @@ function Message({ role, content }) {
         }`}
       >
         {content}
+        {!isUser && content.trim() && (
+          <div className="mt-1">
+            <AnswerReport key={JSON.stringify([question, content])} question={question} answer={content} locale={locale} />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -110,7 +172,8 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         )}
 
         {messages.map((message, index) => (
-          <Message key={index} role={message.role} content={message.content} />
+          <Message key={index} role={message.role} content={message.content}
+            question={messages[index - 1]?.role === 'user' ? messages[index - 1].content : ''} locale={locale} />
         ))}
 
         {isLoading && (
