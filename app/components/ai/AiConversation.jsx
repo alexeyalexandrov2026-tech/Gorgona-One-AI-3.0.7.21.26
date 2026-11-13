@@ -4,27 +4,16 @@ import { LocalizedText } from "../LocalizedText";
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useVoice } from './useVoice';
 import { useConciergeChat } from './ChatProvider';
 import { AiActionCards } from './AiActionCard';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
-import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 
 // i18n carries per-locale AI copy; this is the English original, used when a
 // locale has not translated the key yet.
 const DEFAULT_INTRO =
   'Ask for anything across the MIAMI ELIO ecosystem — travel, dining, yachts, villas, events — and receive elegant, personal recommendations.';
-
-function MicIcon({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <rect x="9" y="2" width="6" height="12" rx="3" />
-      <path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v3" />
-    </svg>
-  );
-}
 
 function Message({ role, content }) {
   const isUser = role === 'user';
@@ -46,11 +35,11 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // in the layout), so this component is a VIEW of the conversation rather
   // than an owner of it - the homepage bar, the sphere dock and the Discovery
   // Room all render the same thread.
-  const { messages, cards, suggestions, isLoading, hydrated, send } = useConciergeChat();
+  const { messages, latestReply, cards, suggestions, isLoading, hydrated, send } = useConciergeChat();
   const [input, setInput] = useState('');
+  const [announcement, setAnnouncement] = useState(null);
+  const lastObservedReply = useRef(latestReply);
   const listRef = useRef(null);
-  const voice = useVoice();
-  useEffect(()=>{if(!active||!messages.length)voice.stopListening();},[active,messages.length,voice.stopListening]);
   // Every visible string follows the global switcher, so the surface a guest
   // is reading and the language the concierge answers in never disagree.
   const locale = useLocale();
@@ -61,13 +50,22 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, isLoading, cards]);
 
+  useEffect(() => {
+    if (!active || !hydrated) {
+      setAnnouncement(null);
+    } else if (lastObservedReply.current !== latestReply) {
+      setAnnouncement(latestReply);
+    }
+    // Inactive views observe each reply so reopening them cannot replay it.
+    lastObservedReply.current = latestReply;
+  }, [active, hydrated, latestReply]);
+
   // send() never throws and never logs - an offline AI backend is an expected
   // state, and the guest still gets a concierge line plus working navigation
-  // cards. The concierge answers in text only; nothing here plays audio.
+  // cards.
   async function submit(rawText) {
     const content = String(rawText || '').trim();
     if (!content || isLoading) return;
-    voice.stopListening();
     setInput('');
     await send(content);
   }
@@ -77,19 +75,14 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // crowding the transcript.
   const extraChips = suggestions.filter((s) => !cards.some((c) => c.href === s.href));
 
-  function handleMicClick() {
-    if (voice.isListening) {
-      voice.stopListening();
-      return;
-    }
-    // Dictation is transcribed in the language selected in the global
-    // switcher - see useVoice.
-    voice.startListening((text) => submit(text));
-  }
-
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-col" aria-busy={!hydrated||isLoading}>
-      <div ref={listRef} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
+    <div className="flex h-full min-h-0 min-w-0 flex-col">
+      <p role="status" aria-atomic="true" className="sr-only">
+        {active && hydrated && announcement && (
+          <span key={announcement.id} lang={announcement.lang} dir="auto">{announcement.content}</span>
+        )}
+      </p>
+      <div ref={listRef} aria-busy={!hydrated||isLoading} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
         {messages.length === 0 && (
           <div className="space-y-3">
             <p className="text-sm text-zinc-400">{t.ai?.conciergeIntro || DEFAULT_INTRO}</p>
@@ -153,31 +146,13 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         <input
           aria-label={t.ai?.askPlaceholder || 'Ask the concierge anything…'}
           maxLength={4000}
-          disabled={!hydrated||isLoading}
+          disabled={!hydrated}
+          readOnly={isLoading}
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          placeholder={voice.isListening ? `${t.ai?.listening || 'Listening'}…` : (t.ai?.askPlaceholder || 'Ask the concierge anything…')}
+          placeholder={t.ai?.askPlaceholder || 'Ask the concierge anything…'}
           className="min-w-0 flex-1 bg-transparent py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none"
         />
-        {voice.recognitionSupported && (
-          <button
-            type="button"
-            disabled={!hydrated||isLoading}
-            onClick={handleMicClick}
-            aria-label={voice.isListening ? (t.ai?.stopListening || 'Stop listening') : (t.ai?.speakRequest || 'Speak your request')}
-            aria-pressed={voice.isListening}
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition ${
-              voice.isListening
-                ? 'border-brand-gold bg-brand-gold text-black'
-                : 'border-white/10 text-zinc-300 hover:border-brand-gold hover:text-brand-gold'
-            }`}
-          >
-            <MicIcon className="h-4 w-4" />
-          </button>
-        )}
-        {/* No speaker toggle: the concierge is text-only. The spoken-reply
-            button and the male/female voice picker that used to sit here are
-            gone along with the speechSynthesis code behind them. */}
         <button
           type="submit"
           disabled={!hydrated||isLoading||!input.trim()}
@@ -186,7 +161,6 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
           {t.ai?.ask || <LocalizedText source={"Ask"} />}
         </button>
       </form>
-      {voice.error&&<p role="alert" className="mt-2 text-xs text-zinc-300">{voiceInputUnavailable(locale)}</p>}
     </div>
   );
 }

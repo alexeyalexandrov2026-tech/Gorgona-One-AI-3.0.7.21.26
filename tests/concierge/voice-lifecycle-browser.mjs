@@ -1,16 +1,22 @@
-// Real voice hook, synthetic browser recognition failures; no microphone or AI.
+// Real chat and voice hooks with controlled recognition and chat transport.
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import {build} from 'esbuild';
 import {expect} from '@playwright/test';
 import {launchConciergeBrowser} from './browser-engine.mjs';
-const entry=`import React,{useEffect} from 'react';
+const reply='Take a short cruise on Biscayne Bay.';
+const entry=`import React,{useEffect,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {useVoice} from './app/components/ai/useVoice.js';
-import {ChatProvider} from './app/components/ai/ChatProvider.jsx';
+import {ChatProvider,useConciergeChat} from './app/components/ai/ChatProvider.jsx';
 import {AiConversation} from './app/components/ai/AiConversation.jsx';
 window.results=[];window.mode='constructor';window.sessions=[];
-window.fetch=async()=>{throw Error('Fixture offline transport; no provider access');};
+window.fetch=async()=>{
+ const response=()=>Response.json({reply:${JSON.stringify(reply)},configured:true});
+ if(window.mode==='reply')return response();
+ if(window.mode==='pending')return new Promise(resolve=>{window.completeReply=()=>resolve(response());});
+ throw Error('Fixture offline transport; no provider access');
+};
 window.SpeechRecognition=class {
  constructor(){if(window.mode==='constructor')throw Error('Fixture constructor failure');window.sessions.push(this);}
  set lang(value){if(window.mode==='configuration')throw Error('Fixture language failure');this.language=value;}
@@ -18,7 +24,17 @@ window.SpeechRecognition=class {
  stop(){this.onend?.();}
 };
 function Probe(){const voice=useVoice();useEffect(()=>{window.voice=voice;});return <><button id="mic" disabled={!voice.recognitionSupported} onClick={()=>voice.startListening(text=>window.results.push(text))}>Mic</button><output>{voice.error||'ready'}</output></>;}
-createRoot(document.getElementById('root')).render(<ChatProvider><Probe/><AiConversation/></ChatProvider>);`;
+function ChatFixture(){
+ const {reset}=useConciergeChat();
+ const [primaryActive,setPrimaryActive]=useState(true);
+ return <>
+  <button onClick={reset}>Reset thread</button>
+  <button onClick={()=>setPrimaryActive(value=>!value)}>Switch active chat</button>
+  <section aria-label="Primary chat"><AiConversation active={primaryActive}/></section>
+  <section aria-label="Secondary chat"><AiConversation active={!primaryActive}/></section>
+ </>;
+}
+createRoot(document.getElementById('root')).render(<ChatProvider><Probe/><ChatFixture/></ChatProvider>);`;
 const compiled=await build({stdin:{contents:entry,resolveDir:process.cwd(),loader:'jsx'},bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',define:{'process.env.NODE_ENV':'"development"'},plugins:[{name:'navigation-fixture',setup(b){
  b.onResolve({filter:/^next\/navigation$/},()=>({path:'navigation',namespace:'fixture'}));
  b.onResolve({filter:/^next\/link$/},()=>({path:'link',namespace:'fixture'}));
@@ -51,15 +67,58 @@ try{
   await page.evaluate(()=>window.results=[]);
   console.log('PASS '+mode+' failure is contained; stale result ignored; next dictation recovers');
  }
- await page.evaluate(()=>window.mode='constructor');
- const form=page.locator('form');
- await expect(form.locator('button[aria-pressed]')).toBeEnabled();
- await form.locator('button[aria-pressed]').click();
- await expect(page.getByRole('alert')).toBeVisible();
+ await page.evaluate(()=>window.mode='offline');
+ const primary=page.getByRole('region',{name:'Primary chat',exact:true});
+ const secondary=page.getByRole('region',{name:'Secondary chat',exact:true});
+ const form=primary.locator('form');
+ for (const view of [primary,secondary]) {
+  const composer=view.locator('form');
+  await expect(composer.getByRole('textbox')).toBeEditable();
+  await expect(composer.getByRole('button')).toHaveCount(1);
+  await expect(composer.getByRole('button',{name:'Ask',exact:true})).toHaveAttribute('type','submit');
+ }
+ console.log('PASS both chat composers only expose text input and the send button');
  await form.locator('input').fill('Rent a yacht');
  await form.locator('button[type="submit"]').click();
- await expect(page.locator('a[href="/yachts"]').first()).toBeVisible();
- await expect(page.getByRole('alert')).toHaveCount(0);
- console.log('PASS real conversation recovers from constructor failure through text and yacht recommendation');
+ await expect(primary.locator('a[href="/yachts"]')).toBeVisible();
+ console.log('PASS the text conversation offers navigation when the transport is offline');
+ const announcement=primary.getByRole('status'),secondaryAnnouncement=secondary.getByRole('status');
+ await expect(announcement).toHaveText('The concierge is temporarily unavailable. Please try again shortly.');
+ await expect(secondaryAnnouncement).toBeEmpty();
+ await page.reload();
+ await expect(primary.locator('a[href="/yachts"]')).toBeVisible();
+ await expect(announcement).toBeEmpty();
+ await page.evaluate(()=>window.mode='reply');
+ const primaryInput=form.getByRole('textbox');
+ await primaryInput.fill('Help me choose a yacht outing.');
+ await primaryInput.press('Enter');
+ await expect(announcement).toHaveText(reply);
+ await expect(primaryInput).toBeFocused();
+ await expect(primaryInput).toBeEditable();
+ await expect(announcement.locator('span')).toHaveAttribute('lang','en');
+ await expect(secondary.getByText(reply,{exact:true})).toBeVisible();
+ await expect(secondaryAnnouncement).toBeEmpty();
+
+ const switchChat=page.getByRole('button',{name:'Switch active chat',exact:true});
+ await switchChat.click();
+ await expect(announcement).toBeEmpty();
+ await expect(secondaryAnnouncement).toBeEmpty();
+ await page.evaluate(()=>window.mode='pending');
+ const secondaryInput=secondary.getByRole('textbox');
+ await secondaryInput.fill('What would you pick for a short outing?');
+ await secondaryInput.press('Enter');
+ await expect(secondary.locator('[aria-busy="true"]')).toHaveCount(1);
+ await expect(secondaryInput).toBeFocused();
+ await expect(secondaryInput).not.toBeEditable();
+ await expect(secondaryAnnouncement).toBeEmpty();
+ await switchChat.click();
+ await page.evaluate(()=>window.completeReply());
+ await expect(announcement).toHaveText(reply);
+ await expect(secondaryAnnouncement).toBeEmpty();
+
+ await page.getByRole('button',{name:'Reset thread',exact:true}).click();
+ await expect(announcement).toBeEmpty();
+ await expect(secondaryAnnouncement).toBeEmpty();
+ console.log('PASS reply announcements cover transport failure, history restoration, in-flight switching and reset');
  assert.deepEqual(errors,[]);
 }finally{await browser?.close();await new Promise(resolve=>server.close(resolve));}

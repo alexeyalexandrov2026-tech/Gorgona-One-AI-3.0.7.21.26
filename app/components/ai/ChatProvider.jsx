@@ -47,6 +47,7 @@ const CLIENT_TIMEOUT_MS = 60_000;
 // it): inert, but shaped like the real thing so no consumer needs a guard.
 const NOOP = {
   messages: [],
+  latestReply: null,
   cards: [],
   suggestions: [],
   isLoading: false,
@@ -62,6 +63,8 @@ export function ChatProvider({ children }) {
   const locale = useLocale();
   const localeReady = useLocaleReady();
   const [messages, setMessages] = useState([]);
+  // Announcements are only for replies received during this page session.
+  const [latestReply, setLatestReply] = useState(null);
   const [cards, setCards] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -111,6 +114,7 @@ export function ChatProvider({ children }) {
     inFlightRef.current = true;
     const nextMessages = [...messages, { role: 'user', content }].slice(-MAX_MESSAGES);
     setMessages(nextMessages);
+    setLatestReply(null);
     setIsLoading(true);
     setCards([]);
     setSuggestions([]);
@@ -161,6 +165,7 @@ export function ChatProvider({ children }) {
     // A real outage must be visible. Navigation remains available alongside
     // the localized unavailable response; never impersonate a working model.
     setMessages(prev=>[...prev,{role:'assistant',content:answer}].slice(-MAX_MESSAGES));
+    setLatestReply({ id: generation, content: answer, lang: locale });
     setCards(nextCards);
     setSuggestions(nextSuggestions);
     setIsLoading(false);
@@ -173,6 +178,7 @@ export function ChatProvider({ children }) {
     generationRef.current++;operationRef.current?.abort();operationRef.current=null;
     inFlightRef.current=false;setIsLoading(false);
     setMessages([]);
+    setLatestReply(null);
     setCards([]);
     setSuggestions([]);
     sessionIdRef.current = null;
@@ -184,8 +190,8 @@ export function ChatProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ messages, cards, suggestions, isLoading, hydrated, send, reset }),
-    [messages, cards, suggestions, isLoading, hydrated, send, reset]
+    () => ({ messages, latestReply, cards, suggestions, isLoading, hydrated, send, reset }),
+    [messages, latestReply, cards, suggestions, isLoading, hydrated, send, reset]
   );
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
