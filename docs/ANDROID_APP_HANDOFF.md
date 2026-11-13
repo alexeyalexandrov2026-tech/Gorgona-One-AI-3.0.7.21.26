@@ -5,14 +5,16 @@
 ## Коротко
 
 - **Ветка:** `claude/android-app-agent-rr0ij5`, создана от `main` на коммите `477e39b3` (Merge pull request #50). Всё лежит в папке `android/` и в этом файле. Сайт, `ios/` и ветка №43 не тронуты.
-- **Готово:** каркас проекта Gradle, ядро приложения (логика без экранов) и модульные тесты к нему.
-- **Не готово:** все экраны, веб-вью, голос, напоминания, переводы, иконка, CI, сборка AAB. Приложение пока показывает одну строку текста — это заглушка для проверки сборки.
-- **Проверено:** пробный debug-APK собирается (`./gradlew assembleDebug`). Результат запуска модульных тестов — в разделе «Что проверено» ниже.
+- **Готово:** каркас проекта Gradle, ядро приложения (логика без экранов), сетевой транспорт, тема и бренд (цвета, шрифты, логотип, шар консьержа), тексты на 16 языках, тесты ко всему этому.
+- **Не готово:** вкладки и все экраны, веб-вью, голос, напоминания, иконка, CI, сборка AAB. Приложение пока показывает шар и логотип на тёмном фоне — заготовку заставки.
+- **Проверено** (13 ноября, компьютер владельца, Windows): `testDebugUnitTest assembleDebug lintDebug` проходят — 77 тестов в 12 классах, 0 сбоев; debug-APK 14,2 МБ. Подробности — в разделе «Что проверено».
 - **Pull request не открыт** — владелец не просил.
 
 ## Что случилось с предыдущей попыткой
 
 До этой сессии над приложением работал другой агент (сессия «Miami Elio Android приложение»). Он упёрся в лимит и **ничего не закоммитил**: на GitHub от него нет ни ветки, ни папки `android/`. Его код недоступен, поэтому работа начата заново. Вывод для следующего агента: **коммитить и пушить после каждого законченного куска**, а не в конце.
+
+**Уточнение (вторая сессия, на компьютере владельца).** Часть той попытки нашлась на диске: рабочая папка `Documents\ChatGPT\Miami Elio\miami-elio-android` (ветка `feat/android-app` от коммита `e70b7477`, PR №48) с неотслеживаемой папкой `android/`. В ней только каркас: настройки Gradle, манифест, ресурсы темы, заготовка иконки (`res/drawable-nodpi/launcher_foreground.png`, `res/mipmap-anydpi-v26/ic_launcher.xml`, `res/drawable/ic_notification.xml`, `ic_splash_orb.xml`) и два скрипта (`scripts/build-strings.mjs`, `scripts/build-season.mjs`). Кода на Kotlin там нет. Папка не тронута; заготовки иконки и `build-season.mjs` могут пригодиться в пунктах 10 и 12.
 
 Полного текста исходного задания владельца в этой сессии нет — есть только его краткое изложение (скриншоты владельца). Оно приведено в разделе «Задание». Если владелец пришлёт полный текст, сверить с ним.
 
@@ -71,24 +73,62 @@
 - `AppConfig.resolve()` отвергает ссылки с пробелами и управляющими символами.
 - `VoiceLevel.fromRecognizer()` — Android отдаёт громкость сразу в децибелах.
 
-### Модульные тесты (`app/src/test/java/com/miamielio/app/core/`)
+### Сеть (`app/src/main/java/com/miamielio/app/net/`)
 
-Написаны: `RoutePolicyTest.kt` (вместе с `AppConfigTest`), `SiteLocaleTest.kt`, `FavoritesTest.kt`, `SeasonTest.kt`, вспомогательный `MockTransport.kt`.
+`OkHttpTransport.kt` — `HttpTransport` поверх OkHttp: `enqueue` + `suspendCancellableCoroutine`, отмена корутины обрывает запрос, cookie и кэша нет, срок на весь вызов (поиск 20 с, чат 45 с, план 30 с — `OkHttpTransport.search()`, `.chat()`, `.plan()`), переход с https на http по перенаправлению запрещён, ответ больше 2 МБ считается сбоем. Недоступный сервер и тайм-аут — `IOException`; негодный адрес — `ApiError.InvalidRequest`.
 
-**Ещё не написаны** тесты для `SearchApi`, `ConciergeApi`, `PlanApi`. Их нужно перенести из `ios/MiamiElioKit/Tests/MiamiElioKitTests/` (`SearchAPITests.swift`, `ConciergeAPITests.swift`, `PlanAPITests.swift`) — случаи там готовые.
+### Тема и бренд (`app/src/main/java/com/miamielio/app/ui/`)
+
+| Файл | Что делает | Образец в iOS |
+|---|---|---|
+| `Theme.kt` | цвета сайта (`Theme.paper`, `card`, `ink`, `soft`, `rule`, `accent`, `accentWash`, золото), `MiamiElioTheme` (единственная тёмная схема Material 3), `LocalReduceMotion` (системная настройка «Убрать анимации») | `Support/Theme.swift` |
+| `Typography.kt` | `AppFont` / `AppType`: Jost для en, es, pt, de, tr, it, fr, pl, ru, системный шрифт для остальных; роли `hero`, `title`, `cardTitle`, `rowTitle`, `body`, `detail`, `button`, `eyebrow`; `Eyebrow()` | `Support/Typography.swift` |
+| `Brand.kt` | `Wordmark` («MIAMI Elio», читается экранным диктором как одно название), `ConciergeMark` (шар: покой, слушает, думает, вспышка при появлении ответа), `Hairline` | `Support/Brand.swift` |
+| `Motion.kt` | `Modifier.arrives(order)` — появление содержимого по очереди; `Modifier.pressable { }` — нажатие с лёгким проседанием | `Support/Motion.swift` |
+| `L10n.kt` | `String.filled("count" to 3)` — подстановка в переведённую строку | `Support/L10n.swift` |
+
+Окно тёмное с первого кадра: `res/values/themes.xml` (`Theme.MiamiElio`), `res/values/colors.xml`. `MainActivity` пока показывает шар и логотип (`BrandScreen`) — это заготовка заставки, вкладок ещё нет.
+
+Отличие от iOS: свечение шара нарисовано радиальным градиентом, а не размытием — размытие в Compose работает только с Android 12.
+
+### Тексты на 16 языках
+
+- `android/strings.json` — единственный источник: 73 строки × 16 языков. Слова взяты из готовых файлов приложения для iPhone (`ios/MiamiElio/Resources/*.lproj/Localizable.strings`, коммит `ea94e447`), то есть те же, что на сайте. Файл самодостаточный: от переводов сайта в ветке №43 не зависит.
+- `android/scripts/build-strings.mjs` пишет `res/values/strings.xml` и `res/values-<язык>/strings.xml` (иврит — `values-iw`, китайский — `values-zh`); с `--check` проверяет, что файлы не устарели. Скрипт сверяет список языков с `lib/languages.js` и требует, чтобы подстановки `{name}` совпадали во всех языках.
+- Имена ресурсов: ключ iOS `plan.addBack` → `plan_add_back`. В каждом файле есть `locale_code` — код языка сайта, по нему `MiamiElioTheme` выбирает шрифт.
+- Изменено для Android: `voice_unavailable` — «на этом устройстве» вместо «на этом iPhone»; добавлена `concierge_report` («Пожаловаться на ответ»); название системных настроек во французском, португальском и украинском и слово «уведомления» в немецком приведены к принятым в Android. **Эти 16 переводов двух новых строк и правки написаны агентом, носитель языка их не проверял.**
+- Не перенесены три строки из `InfoPlist.strings` (зачем приложению камера, микрофон и распознавание речи): в Android таких обязательных подписей нет. Понадобятся для объяснения перед запросом разрешения — взять из `ios/strings.json`, раздел `infoPlist`.
+- `androidResources.generateLocaleConfig = true` и `res/resources.properties`: Android 13+ показывает выбор языка приложения в настройках телефона.
+
+### Тесты (`app/src/test/java/com/miamielio/app/`)
+
+| Файл | Что проверяет |
+|---|---|
+| `core/RoutePolicyTest.kt` (вместе с `AppConfigTest`), `core/SiteLocaleTest.kt`, `core/FavoritesTest.kt`, `core/SeasonTest.kt` | ядро, из первой сессии |
+| `core/SearchApiTest.kt`, `core/ConciergeApiTest.kt`, `core/PlanApiTest.kt` | перенос тестов iOS плюс: сбой сети, ответ без плана, повтор заявки с тем же ключом идемпотентности |
+| `net/OkHttpTransportTest.kt` | транспорт против локального сервера на сокете: заголовки и тело, 503 как ответ, cookie не сохраняются, отмена, тайм-аут, недоступный сервер, слишком большой ответ, негодный адрес |
+| `ui/BrandTest.kt` | выбор шрифта по языку, подпись логотипа для доступности, шар во всех состояниях (Robolectric + Compose UI test) |
+| `ui/BrandSnapshotTest.kt` | экран бренда отрисован по-настоящему: фон — цвет сайта, есть золотой шар и логотип; картинка сохраняется в `app/build/outputs/snapshots/brand.png` |
+| `ui/StringsTest.kt` | у каждого из 16 языков свои строки, RTL для иврита, арабского и фарси, иврит находится под кодами `he` и `iw`, неизвестный язык получает английский, ни одной пустой строки и ни одного «iPhone», подстановки работают во всех языках |
+
+Тесты интерфейса идут под Robolectric с `@Config(sdk = [34])` (Android 14): с этой версией Robolectric 4.17 работает на JDK 17 — проверено. Более новые версии Android в тестах не пробовали.
 
 ## Что проверено
 
 | Проверка | Результат |
 |---|---|
 | `./gradlew assembleDebug` на заглушке (до добавления ядра) | собралось, `app/build/outputs/apk/debug/app-debug.apk`, 14 МБ |
-| `./gradlew testDebugUnitTest` (ядро и тесты) | см. последний коммит этой ветки: результат записан в его сообщении. Если там сказано «не запускались» — ядро ещё ни разу не компилировалось, начните с этой команды |
+| `gradlew testDebugUnitTest` (вторая сессия) | ядро скомпилировалось без правок; 77 тестов в 12 классах, 0 сбоев |
+| `gradlew assembleDebug` (вторая сессия) | собралось, `app/build/outputs/apk/debug/app-debug.apk`, 14,2 МБ |
+| `gradlew lintDebug` (вторая сессия) | 0 ошибок; предупреждения: неиспользуемые строки (экранов ещё нет), «...» вместо «…» в строке `state_loading` (так на сайте), нет иконки приложения (пункт 12), `targetSdk` 36 не последний |
+| `node android/scripts/build-strings.mjs --check` | 16 языков, 73 строки, файлы актуальны |
+| Экран бренда отрисован тестом `BrandSnapshotTest` (360×740 dp) | фон `#0A1218`, золотой шар со свечением, логотип шрифтами DM Mono и Bodoni Moda — картинку смотрел агент |
 | Боевой сайт `gorgona-one.com`: `/api/search`, `/`, `/profile` | отвечают 200 |
 | Боевой сайт: `/api/plan` | **404** — в `main` этого адреса нет |
 | Тестовый сайт ветки iOS: `/api/search`, `/`, `/profile` | отвечают 200 |
 | Тестовый сайт: `/api/plan` | 503 «Plan requests are not enabled» — адрес есть, приём заявок выключен |
 
-Не проверено ничего, что требует экранов. Эмулятор здесь запустить нельзя (нет `/dev/kvm`), настоящего телефона нет.
+Не проверено ничего, что требует экранов. На телефоне и в эмуляторе приложение не запускали ни в одной из сессий: в облаке нет `/dev/kvm`, на компьютере владельца эмулятор не установлен (в SDK нет ни `emulator`, ни образов системы). Транспорт проверен только против локального сервера — к настоящему сайту приложение ещё не обращалось.
 
 ## Важно знать о сервере
 
@@ -103,10 +143,8 @@
 
 Образец для каждого пункта — одноимённый файл в `ios/MiamiElio/` ветки `claude/miami-elio-app-home-twt06c`. Посмотреть: `git fetch origin claude/miami-elio-app-home-twt06c && git show origin/claude/miami-elio-app-home-twt06c:ios/MiamiElio/<путь>`.
 
-1. **Запустить `./gradlew testDebugUnitTest`**, починить ошибки компиляции ядра, дописать тесты поиска, чата и плана. Закоммитить.
-2. **Сетевой транспорт** на OkHttp (зависимость уже добавлена): `HttpTransport` через `enqueue` и `suspendCancellableCoroutine`, отмена вызова при отмене корутины, без cookie и кэша, тайм-ауты 20 с (поиск), 45 с (чат), 30 с (план).
-3. **Тема и бренд:** цвета из `Support/Theme.swift` (фон `#0A1218`, карточка `#111D25`, текст `#EDF2F3`, приглушённый `#9AAAB2`, линия `#22323C`, акцент `#FF6E93`, золото `#C9A45C` / `#F3E2B8` / `#7A5C24`, фон реплики гостя `#3A1623`); шрифты по `Support/Typography.swift` (Jost только для en, es, pt, de, tr, it, fr, pl, ru; остальным — системный); логотип и шар консьержа по `Support/Brand.swift`; появление содержимого по `Support/Motion.swift`. Только тёмная тема.
-4. **Тексты на 16 языках:** перевести `ios/MiamiElio/Resources/*.lproj/Localizable.strings` в `res/values-*/strings.xml`. Китайский — `values-zh`, иврит — `values-iw`. Строку `voice.unavailable` переписать без слова «iPhone». Добавить строку «Пожаловаться на ответ» на всех языках. В манифесте `android:supportsRtl="true"`.
+Пункты 1–4 **сделаны** во второй сессии (см. «Что сделано»): тесты ядра, сетевой транспорт, тема и бренд, тексты на 16 языках. Следующий — пункт 5.
+
 5. **Веб-вкладки** по `Web/WebViewModel.swift`: два `WebView` («/» и «/profile»), живущие всё время работы Activity; User-Agent с `MiamiElioApp/1.0`; cookie `gorgona-locale` до первой загрузки; скрипт начала документа через `WebViewCompat.addDocumentStartJavaScript` с правилами происхождения только для своих хостов; мост через `addWebMessageListener` (не `addJavascriptInterface`); маршрутизация ссылок через `RoutePolicy` в `shouldOverrideUrlLoading`, `onCreateWindow` и `doUpdateVisitedHistory`; полоса загрузки; экран ошибки и «нет сети» с повтором; обновление жестом вниз (`SwipeRefreshLayout`); перезагрузка при смене входа в другой вкладке; выбор файлов; разрешение микрофона только своим страницам; кнопка «назад» листает историю веб-вью.
 6. **Навигация** по `App/AppRouter.swift` и `App/RootTabView.swift`: четыре вкладки, повторное нажатие на веб-вкладку возвращает к началу; чужие сайты — в Custom Tabs; телефон, почта, WhatsApp — системе; глубокие ссылки `miamielio://open?path=/yachts`, `miamielio://concierge`, `miamielio://search`, `miamielio://account`. Заставка по `App/SplashView.swift`.
 7. **Консьерж** по `Concierge/ConciergeStore.swift`, `ConciergeView.swift`, `PlanBoardView.swift`: `ViewModel` со `StateFlow`; приветствие с шаром, готовыми запросами и сезоном; реплики, карточки, подсказки; повтор после сбоя; новый разговор; доска плана (другой вариант, убрать, вернуть); форма заявки с датами, гостями и временем ужина; один и тот же ключ идемпотентности при повторе той же заявки. Плюс действие «Пожаловаться на ответ» (см. открытые вопросы).
@@ -137,6 +175,23 @@
    ```
    и повтор команды 2–3 раза: скачанное остаётся в кэше, каждая попытка продвигается дальше.
 7. Сборка: `cd android && ./gradlew assembleDebug`. Тесты: `./gradlew testDebugUnitTest`. Первая сборка — около 5 минут с докачкой.
+
+## Как собрать на компьютере владельца (Windows)
+
+Всё нужное уже стоит в `C:\Users\alexa\android-toolchain`: JDK 17 (`jdk-17.0.21+9`), Android SDK (`sdk`, платформа 36, build-tools 36.0.0, лицензии приняты). Платформу 37 Gradle докачал сам.
+
+1. Рабочая папка ветки: `Documents\ChatGPT\Miami Elio\miami-elio-android-agent` (отдельный worktree; остальные папки `miami-elio-*` не трогать).
+2. **В репозитории включён sparse checkout.** В новой рабочей папке `android/` не появится, пока её не добавить: `git sparse-checkout add android` (настройка действует только на эту папку).
+3. `android/local.properties` (в git не попадает): `sdk.dir=C\:/Users/alexa/android-toolchain/sdk` — двоеточие после буквы диска экранировать обязательно, иначе Lint считает это ошибкой (`PropertyEscape`) и `lintDebug` падает. Lint запоминает прошлый результат: после правки этого файла пересчитать командой `.\gradlew.bat :app:lintAnalyzeDebug --rerun :app:lintReportDebug --rerun :app:lintDebug`.
+4. В PowerShell:
+   ```
+   $env:JAVA_HOME = "C:\Users\alexa\android-toolchain\jdk-17.0.21+9"
+   cd android
+   .\gradlew.bat testDebugUnitTest assembleDebug lintDebug
+   ```
+   Первая сборка — около 3 минут; тесты интерфейса при первом запуске скачивают образ Android 14 для Robolectric.
+5. Тексты: после правки `android/strings.json` запустить `node android/scripts/build-strings.mjs` (в CI — с `--check`).
+6. Снимок экрана бренда без эмулятора: `android/app/build/outputs/snapshots/brand.png` (пишет тест `BrandSnapshotTest`).
 
 ## Открытые вопросы к владельцу
 
