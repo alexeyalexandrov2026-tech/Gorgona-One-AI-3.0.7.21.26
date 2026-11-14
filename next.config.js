@@ -27,7 +27,13 @@ const nextConfig = {
       { source: '/draftkings-promos', destination: '/', permanent: false },
       { source: '/fanduel-promos', destination: '/', permanent: false },
       // Promo codes and offers now live in Stores.
-      { source: '/coupons', destination: '/experiences', permanent: false }
+      { source: '/coupons', destination: '/experiences', permanent: false },
+      // The promo-code pages and store deal pages were removed; old addresses lead to Experiences.
+      { source: '/amazon-promo-codes', destination: '/experiences', permanent: true },
+      { source: '/nike-coupons', destination: '/experiences', permanent: true },
+      { source: '/best-shopping-deals', destination: '/experiences', permanent: true },
+      { source: '/fashion-discounts', destination: '/experiences', permanent: true },
+      { source: '/deals/:path*', destination: '/experiences', permanent: true }
     ];
   }
 };

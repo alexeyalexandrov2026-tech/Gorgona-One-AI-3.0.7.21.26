@@ -1,6 +1,5 @@
 import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
 import { getRentals } from '../lib/rentalsData.js';
-import { allDeals } from '../lib/dealsData';
 import { EVENT_CATEGORIES, LEAGUES } from '../lib/mockEventsData';
 import { getAllEvents } from '../lib/eventsData';
 
@@ -11,11 +10,7 @@ export default async function sitemap() {
     '',
     '/experiences',
     '/private-jets',
-    '/events',
-    '/best-shopping-deals',
-    '/nike-coupons',
-    '/amazon-promo-codes',
-    '/fashion-discounts'
+    '/events'
   ];
 
   const staticRoutes = routes.map((route) => ({
@@ -26,13 +21,6 @@ export default async function sitemap() {
   }));
 
   const categoryRoutes = HEADOUT_COLLECTIONS.map(item=>({url:baseUrl+'/experiences/'+item.slug,changeFrequency:'weekly',priority:0.7}));
-
-  const dealRoutes = allDeals.map((deal) => ({
-    url: `${baseUrl}/deals/${deal.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.6
-  }));
 
   const eventCategoryRoutes = EVENT_CATEGORIES.map((category) => ({
     url: `${baseUrl}/events/category/${category.slug}`,
@@ -57,5 +45,5 @@ export default async function sitemap() {
   }));
 
   const carRoutes = getRentals().map(car=>({url:`${baseUrl}/rentals/${car.slug}`,changeFrequency:'weekly',priority:0.7}));
-  return [...staticRoutes, ...categoryRoutes, ...dealRoutes, ...eventCategoryRoutes, ...leagueRoutes, ...eventRoutes, {url:baseUrl+'/rentals',changeFrequency:'weekly',priority:0.8}, ...carRoutes];
+  return [...staticRoutes, ...categoryRoutes, ...eventCategoryRoutes, ...leagueRoutes, ...eventRoutes, {url:baseUrl+'/rentals',changeFrequency:'weekly',priority:0.8}, ...carRoutes];
 }
