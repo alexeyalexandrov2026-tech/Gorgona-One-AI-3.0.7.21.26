@@ -8,6 +8,7 @@ import {askWorkersBrain} from '../../../lib/ai/workersBrain.mjs';
 import {groundedReply,CATALOGUE_PROTOCOL} from '../../../lib/ai/groundedReply.mjs';
 import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
 import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
+import {conciergeCopy} from '../../../lib/ai/conciergeCopy.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 
 // ===========================================================================
@@ -19,12 +20,13 @@ import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 //   1. native Workers AI, opt-in with durable usage limits
 //   2. the local Miami Elio AI Brain (FastAPI + Ollama) — lib/ai/localBrain.js
 //   3. the hosted ai-router on :20128 (OpenAI-compatible)
-//   4. a localized unavailable reply
+//   4. a local catalogue plan if available, or a localized unavailable reply
 //
 // The contract this route returns NEVER changes shape and the status is
 // ALWAYS 200 for a well-formed request, whatever happens upstream. A degraded
 // answer is explicitly labelled error:true/configured:false, with locally
-// computed navigation buttons still available. Invalid requests return 400/413.
+// computed navigation buttons and any matching catalogue plan still available.
+// Invalid requests return 400/413.
 // ===========================================================================
 
 export const runtime = 'nodejs';
@@ -159,13 +161,21 @@ export async function POST(request) {
   const plan = /^MiamiElioApp\//.test(request.headers.get('user-agent') || '') ||
     (request.headers.get('user-agent') || '').includes(' MiamiElioApp/')
     ? conversationPlan(modelMessages, { locale }) : null;
-  const respond=async(text,options)=>reply(fact?fact.reply+'\n\n'+text:text,{
-    messages:modelMessages,locale,...options,plan:await plan
-  });
+  const respond = async (text, options) => {
+    const draft = await plan;
+    const answer = text ?? (draft ? conciergeCopy[locale].cataloguePlan : unavailableReply(locale));
+    return reply(fact ? fact.reply + '\n\n' + answer : answer, {
+      messages: modelMessages,
+      locale,
+      source: draft ? 'catalogue-plan' : 'navigation',
+      ...options,
+      plan: draft,
+    });
+  };
   const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages});
   if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy});
   // A denied/failed metered engine must not start another unmetered engine.
-  if(cloud.kind!=='disabled')return respond(unavailableReply(locale),{source:'navigation',error:true});
+  if(cloud.kind!=='disabled')return respond(null,{error:true});
 
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
@@ -173,7 +183,7 @@ export async function POST(request) {
   if (local.ok) {
     const projection=groundedReply(local.reply,{messages:modelMessages,locale});
     if(projection)return respond(projection.reply,{source:'local',sessionId:local.sessionId,navigation:projection.navigation,responsePolicy:projection.responsePolicy});
-    return respond(unavailableReply(locale),{source:'navigation',error:true});
+    return respond(null,{error:true});
   }
 
   // Link 2 - the hosted router.
@@ -185,7 +195,7 @@ export async function POST(request) {
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the
   // widget renders this like any other answer instead of hitting an error path.
-  return respond(unavailableReply(locale),{source:'navigation',error:true});
+  return respond(null,{error:true});
 }
 
 // Non-LLM diagnostics: confirms which engines are wired up without spending a

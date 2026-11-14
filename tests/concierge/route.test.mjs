@@ -117,3 +117,72 @@ test('public Workers AI requires the production hostname, database and durable a
     else process.env.CONCIERGE_WORKERS_AI_ENABLED = previousFlag;
   }
 });
+
+test('an Android itinerary keeps useful catalogue copy and a requestable plan when inference fails', async () => {
+  const contextKey = Symbol.for('__cloudflare-context__');
+  const originalContext = globalThis[contextKey];
+  const originalFetch = globalThis.fetch;
+  const settings = { CONCIERGE_WORKERS_AI_ENABLED: 'true', PLAN_REQUESTS_ENABLED: 'true' };
+  const originalSettings = Object.fromEntries(Object.keys(settings).map(key => [key, process.env[key]]));
+  Object.assign(process.env, settings);
+  let calls = 0;
+  globalThis[contextKey] = { env: {
+    ...settings,
+    APP_ENV: 'dashboard-staging',
+    NEXT_PUBLIC_SUPABASE_URL: 'https://quota-fixture.supabase.co',
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: 'fixture-anon',
+    SUPABASE_SERVICE_ROLE_KEY: 'fixture-service',
+    BOOKING_RATE_SECRET: 'fixture-secret-with-at-least-32-characters',
+    CONCIERGE_AI: { async run() {
+      calls++;
+      return { choices: [{ finish_reason: 'stop', message: { content: '{"version":2,"action":"plan","days":[["unverified-stop"]]}' } }] };
+    } },
+  } };
+  globalThis.fetch = async url => {
+    if (String(url).endsWith('/rest/v1/rpc/concierge_ai_reserve')) return Response.json({allowed:true});
+    throw new Error('Unexpected provider call');
+  };
+  const { POST } = load('app/api/chat/route.js');
+  const chat = async (content, agent, locale = 'en') => {
+    const response = await POST(new Request('https://example.test/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'CF-Connecting-IP': '198.51.100.42', 'User-Agent': agent },
+      body: JSON.stringify({ locale, messages: [{ role: 'user', content }] }),
+    }));
+    assert.equal(response.status, 200);
+    return response.json();
+  };
+  try {
+    const prompt = 'Help me plan a weekend with a car, a yacht and dinner in Miami for four guests.';
+    const result = await chat(prompt, 'MiamiElioApp/1.0');
+    assert.equal(result.plan?.requestable, true);
+    assert.ok(result.plan.sections.some(section => section.href === '/yachts'));
+    assert.ok(result.plan.sections.some(section => section.href === '/rentals'));
+    assert.equal(result.source, 'catalogue-plan');
+    assert.equal(result.configured, false);
+    assert.equal(result.error, true);
+    assert.match(result.reply, /options from the Miami Elio catalogue/);
+    assert.doesNotMatch(result.reply, /unavailable|unverified-stop/i);
+
+    const translated = await chat('Хочу яхту и арендовать машину в Майами.', 'Mozilla/5.0 MiamiElioApp/1.0', 'ru');
+    assert.equal(translated.source, 'catalogue-plan');
+    assert.match(translated.reply, /варианты из каталога/);
+
+    for (const [content, agent] of [[prompt, 'Mozilla/5.0'], ['Show me yachts in Miami', 'MiamiElioApp/1.0']]) {
+      const fallback = await chat(content, agent);
+      assert.equal(fallback.plan, undefined);
+      assert.equal(fallback.source, 'navigation');
+      assert.equal(fallback.error, true);
+      assert.match(fallback.reply, /temporarily unavailable/);
+    }
+    assert.equal(calls, 4);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalContext === undefined) delete globalThis[contextKey];
+    else globalThis[contextKey] = originalContext;
+    for (const [key, value] of Object.entries(originalSettings)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  }
+});
