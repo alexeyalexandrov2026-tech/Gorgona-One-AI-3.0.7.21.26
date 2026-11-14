@@ -36,7 +36,7 @@ jobs:
           node tests/concierge/focus-browser.mjs
           node tests/concierge/voice-lifecycle-browser.mjs
       # Only the Next.js build: the full `npm run build` also packages the
-      # Cloudflare worker and the ai-router, which Workers Builds does on deploy.
+      # Cloudflare worker, which Workers Builds does on deploy.
       - run: npx next build
         env:
           NEXT_TELEMETRY_DISABLED: 1
