@@ -1287,50 +1287,6 @@
     "sourceHash": "5b2b2555bcf58322e473d620be1fb0afe413716e144ea98c8cada6bc646e4fa8",
     "description": "app/ai-ready/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.315709c636f67f6c": {
-    "sourceHash": "315709c636f67f6c869047399b1848999f50c44520d55502dc2d43d39eac5d45",
-    "description": "app/amazon-promo-codes/page.js; app/fashion-discounts/page.js; app/nike-coupons/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.992e00f044172b9a": {
-    "sourceHash": "992e00f044172b9acea4563bb19cf3c1e1e2994500bc42f5be0d47bbdce76293",
-    "description": "app/amazon-promo-codes/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.482243157ab5b234": {
-    "sourceHash": "482243157ab5b234a949cfd5b0c06c71c59567d68c5e8929be78a0f0dc4da34b",
-    "description": "app/amazon-promo-codes/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.1ea43652e2b9f1a4": {
-    "sourceHash": "1ea43652e2b9f1a41f93503de23e8c0a2c5232294961a43e9e0e1ee78fdba566",
-    "description": "app/best-shopping-deals/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3e8185b21a3d9888": {
-    "sourceHash": "3e8185b21a3d9888cccae67a39df92a62bef1181718672a0f3c91a80376fe80a",
-    "description": "app/best-shopping-deals/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.dfeb389b4ea46f9f": {
-    "sourceHash": "dfeb389b4ea46f9fc57a30240d172e3ccd34b946e418e8242040cfd4f86fb162",
-    "description": "app/best-shopping-deals/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.6425a81df827fc49": {
-    "sourceHash": "6425a81df827fc4987a3a8e7632cfab237ff6e2d49bc5fa0042981230dbbb072",
-    "description": "app/best-shopping-deals/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.d4df3e83648af981": {
-    "sourceHash": "d4df3e83648af981ffde5f4068d1320e6d253fb03bc0d2c8188674b7e95ed876",
-    "description": "app/betmgm-promos/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.9201f98bef4ed7ad": {
-    "sourceHash": "9201f98bef4ed7ad0c74dd86d777a17e16be5dad35a31f80781ee6147f4e8876",
-    "description": "app/betmgm-promos/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.eb62b9f73f58a70c": {
-    "sourceHash": "eb62b9f73f58a70c95a7482c9c03d5dd054cf86dc817b0877b52780910cec86c",
-    "description": "app/caesars-sportsbook-promos/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.a9099f7918dcb7ca": {
-    "sourceHash": "a9099f7918dcb7ca2fc768bb26a51a4ed319c1686352a6efe852a6810c057a12",
-    "description": "app/caesars-sportsbook-promos/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.0f7664c62a90fb50": {
     "sourceHash": "0f7664c62a90fb50b89b4dbc42cc24074acbadc50db392494a65baa67a3c07a1",
     "description": "app/components/CategoryOrb.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -1430,62 +1386,6 @@
   "ui.ee290b3ddbc8e7e9": {
     "sourceHash": "ee290b3ddbc8e7e90bd0028e8315a02570ee24d83cc8b0c14f860146bb24fd80",
     "description": "app/cookie-policy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.889dcbd00222d6db": {
-    "sourceHash": "889dcbd00222d6db39f44ed3790de1b589d3b41c954463d5d6c8350f8b8ba818",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.cb16d5dd60d53f63": {
-    "sourceHash": "cb16d5dd60d53f63b953b2367319634b8d51f5ba4c47d786a9857cf98624dac3",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e38748b264549f62": {
-    "sourceHash": "e38748b264549f62b520a02ce73bb7e96061f43119c72f93c86f078b4ad7b6d3",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.4302fca1bee65d84": {
-    "sourceHash": "4302fca1bee65d841df32f166d41e32334ce6a8e832a5baa59c89414615bc287",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f5805504bbeca496": {
-    "sourceHash": "f5805504bbeca496c234519e41f7eabd9530a7798e2ab0f2b9f0568c1a0e6ebf",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.9a1bf413b2baf72d": {
-    "sourceHash": "9a1bf413b2baf72d29f949dff5fb46658f0734cc43b25017809132b54c79edcd",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.8fd084c063a84b66": {
-    "sourceHash": "8fd084c063a84b66757a107d52ca461225abc8ed874feccbce6b645621ee437f",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.4b593e210e514f60": {
-    "sourceHash": "4b593e210e514f605ec51f5d12132d5fb7cacfce92720c130b22a932bcc2ce81",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.a23495777bd82841": {
-    "sourceHash": "a23495777bd82841ff8ce07787cc3c959060c1f64d3fc4c1b9847ce48bf49865",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3e6159ba85a97561": {
-    "sourceHash": "3e6159ba85a97561cf323572838b17c3256b3f089e18130ac66f9a364477c4fd",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e449f81a2bf05f87": {
-    "sourceHash": "e449f81a2bf05f87eafcdea4a868495e0bb33d9dcb145e11671516b87eaa278d",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.723735c4aab66bb6": {
-    "sourceHash": "723735c4aab66bb604a7447ef7b2555e56211c79704d13503f01879dcdb67d18",
-    "description": "app/draft/homepage-preview/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.52065d36c24b4433": {
-    "sourceHash": "52065d36c24b44330c9920f1c576fbd43440051f5e583ae75be98bcc6a4c3d6f",
-    "description": "app/draftkings-promos/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.d56b53fc5649bea8": {
-    "sourceHash": "d56b53fc5649bea8025a875b47ab50c2bf0c285b0af852e2dad93783ee01d0ec",
-    "description": "app/draftkings-promos/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.d696a35bdd1883da": {
     "sourceHash": "d696a35bdd1883da07a8d6c41bb7a3153381b23aa197629ee273479a6eaa5a9c",
@@ -1655,22 +1555,6 @@
     "sourceHash": "9bd1d21d8b22024697d70ec42e5c2036f665375afe3f1eb7090355521ca828c8",
     "description": "app/events/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.7d2225263b71dcb9": {
-    "sourceHash": "7d2225263b71dcb9a906ef74c3c74a686f2a31ce506c0672efa642b68099f22d",
-    "description": "app/fanduel-promos/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.72e04dd5c1cad8c4": {
-    "sourceHash": "72e04dd5c1cad8c44902218086b40afb251a8c65fbcd9d22616a4b398dd6eed3",
-    "description": "app/fanduel-promos/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.161e70b716e4cf63": {
-    "sourceHash": "161e70b716e4cf63d04c9c756fab721d63dd34e414701aa9b84c802e58d7feae",
-    "description": "app/fashion-discounts/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.eec213e2f7de5529": {
-    "sourceHash": "eec213e2f7de552910dbbbceb2d52547bd4413d9ea699d3150356978df3b88eb",
-    "description": "app/fashion-discounts/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.0c3310a647b03717": {
     "sourceHash": "0c3310a647b0371768e3373166353876d685dc45f853d65f2e00a271fa649d30",
     "description": "app/login/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -1710,14 +1594,6 @@
   "ui.dd4be29d50b8e01e": {
     "sourceHash": "dd4be29d50b8e01ea0bc0b5752727516a442582e1f663348a57ed058abe0d097",
     "description": "app/login/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.27d4a5f6139f0823": {
-    "sourceHash": "27d4a5f6139f08236c18dd5e0d557e69f41e650d2b5e507e1b2b98f5b38a6fca",
-    "description": "app/nike-coupons/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.166ec781288f0fb3": {
-    "sourceHash": "166ec781288f0fb3856a49384f08e613e601742bad4c3b44851bc23c784959b8",
-    "description": "app/nike-coupons/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.ec44a2cb0a7008d3": {
     "sourceHash": "ec44a2cb0a7008d3bc4a25d43d19470429fc0221cd00795a8c40152bb344257f",
@@ -1850,62 +1726,6 @@
   "ui.af22e1e131d89932": {
     "sourceHash": "af22e1e131d89932c3259421a267492e57de140c4ff040154afb02e58c33b35f",
     "description": "app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e04f86166086668d": {
-    "sourceHash": "e04f86166086668d6f0688ceb8df160ddb841da2341fef4e58e47cb9ba7223cf",
-    "description": "app/sports-betting-promos/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.abaa91406103091e": {
-    "sourceHash": "abaa91406103091e90fea66765d7ea4774a76454151f4811d2476e572d89752d",
-    "description": "app/sports-betting-promos/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.fb25d2f29282f4cc": {
-    "sourceHash": "fb25d2f29282f4cc139c9df6156cf0e70f08563b4f986259a0e324e38ad375ee",
-    "description": "app/sportsbook/[slug]/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.cf2da96cb1a51c60": {
-    "sourceHash": "cf2da96cb1a51c6068ca0eaa2f9b96fb4597d4f8816bc2aa0d96f1c70805f748",
-    "description": "app/sportsbook/[slug]/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.cf2fb5335e4f1d99": {
-    "sourceHash": "cf2fb5335e4f1d99804b09f155f469aaa255d5569a4d16429417818c9f82a2fb",
-    "description": "app/sportsbook/[slug]/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.2562ab385824d749": {
-    "sourceHash": "2562ab385824d7490bcf991b182b487eedce9f0ff51e2a2f52aeabf6e41d5bf5",
-    "description": "app/sportsbook/[slug]/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.06a6dfdab6184898": {
-    "sourceHash": "06a6dfdab61848983dfd1a828de61907af7164c60c930d1de568790fb33ceccf",
-    "description": "app/sportsbook/[slug]/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.173f5f9f26b45592": {
-    "sourceHash": "173f5f9f26b455922e092b9d5ec237ec4aeccd07547dac7a16af5fce9fed7ba8",
-    "description": "app/sportsbook/[slug]/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.37777d333d155631": {
-    "sourceHash": "37777d333d155631c913559e20ea8486d9f08be112a7ef1a6339e308b3097579",
-    "description": "app/sportsbook/[slug]/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.53602f50735526ac": {
-    "sourceHash": "53602f50735526ac604702eda93682a1610fbc632ceb4cc9475780b3dd6321b6",
-    "description": "app/sportsbook/[slug]/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.659739ab85f10df8": {
-    "sourceHash": "659739ab85f10df84118ec6881cb655ea13c5640e751cbd90bb6cf8aa4f7df0d",
-    "description": "app/sportsbook/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f00ffe6e9ed9f046": {
-    "sourceHash": "f00ffe6e9ed9f046bbb045610fd0196337df2fad05f712a529427af85eac451b",
-    "description": "app/sportsbook/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.ae58a414d328865c": {
-    "sourceHash": "ae58a414d328865cd6d26c0fd95ecc73f18dc92ad5927b476945e02496e737a5",
-    "description": "app/sportsbook/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.41a634bed37381ba": {
-    "sourceHash": "41a634bed37381ba1bd3b4353d5579ebea99894310b4e3ffb6f628b85e5df631",
-    "description": "app/sportsbook/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.ede5489964834a51": {
     "sourceHash": "ede5489964834a514b61c7a4a8370be2452dd4a7d807180f14991ccc11ad2430",
@@ -2130,10 +1950,6 @@
   "ui.fcfeb7aebd6bab9d": {
     "sourceHash": "fcfeb7aebd6bab9d2a5d236c30041387a88a3ac0966b44702bacb8504d0bd0a7",
     "description": "app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.ed67fb7637e3ff09": {
-    "sourceHash": "ed67fb7637e3ff09f8657f4a0ab4a0e38a17f788e3ea05d6655f5189212bd383",
-    "description": "app/sportsbook/[slug]/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.21a2463f1e5b8750": {
     "sourceHash": "21a2463f1e5b87507334f3ea8861cc9ecd8172e139a82aab2ca4260f8dd125cb",
@@ -2395,441 +2211,13 @@
     "sourceHash": "f981d725a2252c3bc8c23f93d543382a560f970add041b16c744db081240f593",
     "description": "Owned fictional concierge conversation example. Brand and place names retained."
   },
-  "ui.0c0bf9202ac42a4e": {
-    "sourceHash": "0c0bf9202ac42a4e1f3558a97cb1c406137718c5c71306241e45b060e1b56411",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0d75c354ab58dfe3": {
-    "sourceHash": "0d75c354ab58dfe3c7ef679dd320ecb1bc74fd64d706125fc492b0b468c1a377",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.2d24cb5a394969bf": {
-    "sourceHash": "2d24cb5a394969bf0be9d52aa96d074ac57f262930225ed1e80309864b597527",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.c4a18fe95ae4beb5": {
-    "sourceHash": "c4a18fe95ae4beb5c89f7b6eb05c5c9cc46f0ff8ef2ac79a3849c8d4f732e2cf",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.10683f331f8e64b3": {
-    "sourceHash": "10683f331f8e64b387f5c7d329c6a9560b1b8f57591a858d5057631d18004f68",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.6ba876a1dd14e1d0": {
-    "sourceHash": "6ba876a1dd14e1d00bbd573b8eae5e9fdd3270ac0812a2c3bf400e063f9e9c4d",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.72f25d2c122b1480": {
-    "sourceHash": "72f25d2c122b1480f24998cd3c7035f7340c39e801715b4ac8c2a9d47608c309",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.725a450e86e684a4": {
-    "sourceHash": "725a450e86e684a4e5f1d46f4ce18d96979f1e4611407e96960430214c3c0f5f",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.393428f234a2a1a5": {
-    "sourceHash": "393428f234a2a1a5c14e7456e6bdb697838fe5c5b15f6217e0ca1f58d159da2c",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.2499431c41ba21d6": {
-    "sourceHash": "2499431c41ba21d667ea637ac392a7bbafd81bc778e1330e8008ac6e5929eae5",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.da9c8d184b561a28": {
-    "sourceHash": "da9c8d184b561a281a99fd05c7b3cf2a4d79d26ad78fdae21b8afc756e59de2a",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.af4ac5ef41d2367c": {
-    "sourceHash": "af4ac5ef41d2367c010f25079c4306e0a7f55b764b3f7c9b6dd60241e6922b05",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.24980cfbba703d0a": {
-    "sourceHash": "24980cfbba703d0a4a77cedf6835731c7f7191bf57639c7880e2bb89b9a9900d",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.93ee0e60e7f90510": {
-    "sourceHash": "93ee0e60e7f90510b18efb5c44bdbb58a2858d5bc45d3f131c30e68179a9e1dc",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.920017ffdb72dd38": {
-    "sourceHash": "920017ffdb72dd3820559fb149509962b84883426d3603c3092b52037a625945",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.9a8effa9cec00cb3": {
-    "sourceHash": "9a8effa9cec00cb33b057a4ced3de0035896945dc234178fcb66879a62526357",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0ac50fd7e2ffd7c0": {
-    "sourceHash": "0ac50fd7e2ffd7c02d373539badca1c7872450bd88790d30c47e739bbb31dd86",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.88586157e65dc8ec": {
-    "sourceHash": "88586157e65dc8ec5283aff44e508a0b3341ffd2876056d159158362daa7c0da",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.692ac079c51be3c0": {
-    "sourceHash": "692ac079c51be3c0e49ce35624aa0d05f210b5c435ab68755f4e13b811fa7183",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b36b05a08b88d12a": {
-    "sourceHash": "b36b05a08b88d12a3a04482b025ad14a00528a13f714b51b8360042ea71adc30",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.ac6c90715a589ce8": {
-    "sourceHash": "ac6c90715a589ce8a884137a23e50bc19582d51276ede088e53be83380509dff",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b09ec1acb32b3f8f": {
-    "sourceHash": "b09ec1acb32b3f8f2bb955d44051d4fef3c14046184563480bcf7bb341718a38",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.a688b16446455e93": {
-    "sourceHash": "a688b16446455e935f50d7218d6f846e1c3d2cfcb2263674feb32de04bdfc58c",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.1d430646fedae4d7": {
-    "sourceHash": "1d430646fedae4d72b52fef54173241bde4b9241f3a99a59242a7f72c294effb",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f6c7ee99be1792b7": {
-    "sourceHash": "f6c7ee99be1792b7140b0f6be7fad93bed5daaed4cc6fe49fb0c55a6579a4066",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.2d242d5e67c9f1ce": {
-    "sourceHash": "2d242d5e67c9f1ce5a6e63624c8e882fd0df5707839e8d0f4ac1296e729d512a",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.940e4b3f50ab1f77": {
-    "sourceHash": "940e4b3f50ab1f776c8c6f3ffd05bce76e95f77848be5afc76a304368a5fecfb",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.30f60b700e8dfef1": {
-    "sourceHash": "30f60b700e8dfef102a67e1147cff1392abdae5aaddc4a26d00e3cbaa1107dd2",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f298e6d11d6ce87c": {
-    "sourceHash": "f298e6d11d6ce87ccfaa029dc80e9858ce9a9dc500f7b5d4e6fde0c39c563cf1",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0d5c6ab43e397fa8": {
-    "sourceHash": "0d5c6ab43e397fa8b4aa3c0a6238cdbbf675c2b82745237bf023fba310d7bb0f",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.50798770238c1b6f": {
-    "sourceHash": "50798770238c1b6f22deee5d762ab807ba684d085c73116d2f69e0f303d05f8a",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.ff58d4fd94df9867": {
-    "sourceHash": "ff58d4fd94df986768c0511c82275ad1ca5f49a3d91e60880d107a16e1421a97",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.2681339475d99e94": {
-    "sourceHash": "2681339475d99e944a52eabb717de2be808c1694cfa5f938d6ee3260af1d073c",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.06760255f4577435": {
-    "sourceHash": "06760255f45774354ef7f5427fbbcb972823885899314febdd27ac83699d2e44",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.76de4607b07323d8": {
-    "sourceHash": "76de4607b07323d88940f1c187342c17494aafdabd415321069ce79465a09712",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.01cc27e1f0a05913": {
-    "sourceHash": "01cc27e1f0a05913d7bb49fcdf95aa3e7fd561d73c9d63a3cad464440ff20352",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.87e0b50db34b2155": {
-    "sourceHash": "87e0b50db34b215503762cc44866043e64745a9454a2ce0bda62211b9ab1a899",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e1c418565bc9402f": {
-    "sourceHash": "e1c418565bc9402f6f542e108b14710a1a73719ee42d69d81e52723369045a6e",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.199b169ede9c45b5": {
-    "sourceHash": "199b169ede9c45b587d79aca365839ba92cec5fd2fc96eea2c1905f71f3799bc",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f0d2ac8a93019b3c": {
-    "sourceHash": "f0d2ac8a93019b3c5a544cc1b470c362e37cb3c96b1007f7ead616d7af7a81b7",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.5113378e31fea5dd": {
-    "sourceHash": "5113378e31fea5ddacbed3ff91e3f19465eab79cacfb8a888df3c270e93288ef",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.ee1785e533c1aa98": {
-    "sourceHash": "ee1785e533c1aa98db67ec2bc279c519e7994eba6e1423ffdd8e2659aa7a408c",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0a6fd877be2d195d": {
-    "sourceHash": "0a6fd877be2d195d13e60edb3e96bdfec1eb82769bdbecbbf93c6d88c751f793",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.13f9f55252bfbfb3": {
-    "sourceHash": "13f9f55252bfbfb35500480933de7f370896f2c08690e776803950717f531c23",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.5c2017c12fb5caa4": {
-    "sourceHash": "5c2017c12fb5caa41884e2cdc1debcc3780c84ef3076c33db4541a33907baa94",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0456b172bde03ad2": {
-    "sourceHash": "0456b172bde03ad23a5696f4aa1dfb10f98281febd2e0d71a552e73d613cb6b9",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.d295b0791260c593": {
-    "sourceHash": "d295b0791260c5930f8160c69c96dd32be427935da86e9091f4170c89ac5e4f7",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.d436485e04f38fd1": {
-    "sourceHash": "d436485e04f38fd14c021a6d642741bef6a8d0d447569da37d6c475efb9822f0",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.a224a32b13da707a": {
-    "sourceHash": "a224a32b13da707a5cf1832d461bc524520a34c09d73da54ea0e6bd172a80b60",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.4db516e2bbe927df": {
-    "sourceHash": "4db516e2bbe927df4256fcabbafa6f47f7032dd4233f3244cfcacf86fb4bc5db",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b3e9254cf1042089": {
-    "sourceHash": "b3e9254cf1042089eb82615473c07b2501085edab34d74c1657f8e734d8485d7",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.69f0fb389005a8ec": {
-    "sourceHash": "69f0fb389005a8ecaa533a8141aa874c40956401bfc8570a73dcfe26e78406bb",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.c77f6f5385d3f5a5": {
-    "sourceHash": "c77f6f5385d3f5a56709eb374ad6003108d83bee2f2196a1e247c7cc1d620f01",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.d70c98bb534d1bf8": {
-    "sourceHash": "d70c98bb534d1bf8c257bcd6c4ebf133b360862a101e59b4418497ce0c5cdf38",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.4a212c867586fba1": {
-    "sourceHash": "4a212c867586fba1697ecbaec770505dc49cf1e22db2bc14ff71b14a0e37d0eb",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.661d082ac81b7103": {
-    "sourceHash": "661d082ac81b7103ee3cf6af891c203152f846ca799ac0ffc94fda37a026e216",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e1d18ed29a14f07e": {
-    "sourceHash": "e1d18ed29a14f07eb5918999b5e451d5dac3598de1d808405ec3ca9bd769fc32",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.4bcb9de81cc428a2": {
-    "sourceHash": "4bcb9de81cc428a2490ed84eb6a5c466ebb0d8bcf8fca8f81df0f986e8bbbb47",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0bc158cfea91bb66": {
-    "sourceHash": "0bc158cfea91bb66f540cb32b29c49475e62a23bf801198f2390caa2615c85aa",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.fd381885806eb43c": {
-    "sourceHash": "fd381885806eb43c2195a0076326bd5eb74c7c8a6de89cb43468fafb7f5f77d1",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3a465d9f9f5e09cd": {
-    "sourceHash": "3a465d9f9f5e09cdaf84b31c2d107d736508235bc1fbb0bed679e21cf87f6523",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.2ca29130954591de": {
-    "sourceHash": "2ca29130954591de69ac79323906fb37f95aaf00af6b3e39625643af1fd2d215",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.340f35f03cbab674": {
-    "sourceHash": "340f35f03cbab67497a37ffb0aabffe1da3cebe947410c248882ac1bc8ba589e",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.5e9934f4adf494ca": {
-    "sourceHash": "5e9934f4adf494cad0f18560f0860c857b36cc91ed07c4644141c4e3e49f977d",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.5e6ebe900d442827": {
-    "sourceHash": "5e6ebe900d442827004375513ac8ab7cdbb4913f47ebf8270ef9c0769f359a10",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.570544742310a5df": {
-    "sourceHash": "570544742310a5df2d61d85c00b26a94d289263e60e024c92896e58bb480a785",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.8f0333a8b2503ce8": {
-    "sourceHash": "8f0333a8b2503ce890afc542e045d90c986c6e59fa9e2266d7f320f88501d20d",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.23d2c5bc02bacd3e": {
-    "sourceHash": "23d2c5bc02bacd3e3acba4bf15d05c52f6346c332a8f0b77524e34c9148f4145",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.aab49138f772b85b": {
-    "sourceHash": "aab49138f772b85b1590717ed4b87d34f296a5253b1fc11f21c2f571d692eb4e",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.7becdae1653b24b5": {
-    "sourceHash": "7becdae1653b24b59d1834136a1aea8eb3dd500193a5195124196bcb46b779aa",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3a68810acdd0d416": {
-    "sourceHash": "3a68810acdd0d416b02123102e53dfe9528b1381c54bdb6cb06706cb609da503",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.442b486ac62f7270": {
-    "sourceHash": "442b486ac62f72708e70d95dde559d1cb167c410b06dfaa4c86b4598eb1e140e",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.48e20a61dea13bc3": {
-    "sourceHash": "48e20a61dea13bc305a158e242553a0a6aed989f3bccc1245f036a953eff1abb",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.d3ab501361921b34": {
-    "sourceHash": "d3ab501361921b34f60fa6d6b0286d7acd41375ca8bfc982536e447fd66d9a98",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.998513721f7cc437": {
-    "sourceHash": "998513721f7cc4376371bd253479fda616e38a2c0540d4f40963808d17beabbc",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f173ba25d5496cf7": {
-    "sourceHash": "f173ba25d5496cf725a1b55305640a6af13bd358ed27fa90b899499e27cceacd",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0dfffda124204d4a": {
-    "sourceHash": "0dfffda124204d4a9f3724afb4bfef6e65abb1445edf70e2de725a19469c0672",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.dda06a4a8bb88490": {
-    "sourceHash": "dda06a4a8bb8849028d640ad06a801b8830a36ac61a4fd8651a769757fef6f9e",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.fde76864e54d8666": {
-    "sourceHash": "fde76864e54d86660dbe8a1766d8e35f4e675ee010ceb95c861acf7fbb32b0dd",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.18cade20c69d3832": {
-    "sourceHash": "18cade20c69d383226e6cd783e1d4354e3c22904ab07cff4339f1783e54d7dad",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f160881745f48ac4": {
-    "sourceHash": "f160881745f48ac49227d92465b6e7dc474200431734771af65b062b0537b798",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3e55858a6334ae4d": {
-    "sourceHash": "3e55858a6334ae4de1db4af8dfcbd7a2bfc4381a514fd53f81d6929bc9aec459",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b73533a63a6977df": {
-    "sourceHash": "b73533a63a6977df4afef52a1529493445631250b9a28cdace3d68818fd59bea",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f6f35551edc10f03": {
-    "sourceHash": "f6f35551edc10f03aea4bba44c72765b5b64cbfbb59d51d205673ee072ea3994",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0352aee320c786de": {
-    "sourceHash": "0352aee320c786de25d6fc03de19dc1134559723def91c83cb9675159142f34f",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0045ff891f3e0263": {
-    "sourceHash": "0045ff891f3e02632ec754c12ff7cf79a66dbb67b730cce3bfe80b129b088e76",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.dc26101ada2c1e08": {
-    "sourceHash": "dc26101ada2c1e08a6f5f48784292b4107308088778b7d3f36d09199939ef4c6",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.73a94cbf1fd21185": {
-    "sourceHash": "73a94cbf1fd211853682dfbfe2f63fdd51ed61eca62934b56b2e9875c87fbd8f",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.54609816778eb962": {
-    "sourceHash": "54609816778eb9621d333b2b52b8bfe0f9343065196b6c95c55dc540a067f959",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.af4e2e3d1b96bec7": {
-    "sourceHash": "af4e2e3d1b96bec7c50501053931c4cffd6536bfb158f290da988daa5dd90b41",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.d7aa59307d3fe6f2": {
-    "sourceHash": "d7aa59307d3fe6f2f038db9c5e3a8a67ee1c45f0f12b11e11b9006f79c1c5028",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.26620ccd0a19af67": {
-    "sourceHash": "26620ccd0a19af6739e142b21c06f11811812b4e81e5f2c9b82f08db0dbc22c1",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.9afebd9b5bd9e430": {
-    "sourceHash": "9afebd9b5bd9e43044982779bbfaf64e8cceae559de83129150acb8d4f9e2bb3",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0caee71a78d5820a": {
-    "sourceHash": "0caee71a78d5820ad0037e65e67299d057682444af3d089bf962d08bd75977b9",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f67b68292b25e357": {
-    "sourceHash": "f67b68292b25e35725df8014de1c9c3e1de6281d910e4e219ab096d6ad65e44c",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.55571c176b13e59f": {
-    "sourceHash": "55571c176b13e59f0580e7d622c2f0ed63135a850419b4c23e4ab9a04ae2c141",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.7a9706f88f3e6ad0": {
-    "sourceHash": "7a9706f88f3e6ad089547bc4ee9ba249c4ea6da5c7227e6a53a69f43754b3690",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.327d12f08ce66f0d": {
-    "sourceHash": "327d12f08ce66f0d44065019efb30a1eef0f580ea2892b4931163d7b13912938",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b3a3862fec13e117": {
-    "sourceHash": "b3a3862fec13e1170fece4a119d46fa8a44bfe510c6c5db5a85e35ae597c79ca",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0608a3e9cfa515ff": {
-    "sourceHash": "0608a3e9cfa515ff8eb17b57222c354b3393e57dbccab52c1ebbd133e9e9c4eb",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.32ff77ab0426c67e": {
-    "sourceHash": "32ff77ab0426c67e133c1eb5ecfd729da7efa8ddd11c838eff5b34799bef9df2",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.4c6308ae5615dcf2": {
-    "sourceHash": "4c6308ae5615dcf20cb92a8cb4130e38bb1acf3ad0d191201689f7f9ba823037",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.96352002a8681167": {
-    "sourceHash": "96352002a8681167a1a6fa68c75cb553949069004cc923a4feb16ef7fa3dbbe2",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.db0c4f5e6aa21140": {
-    "sourceHash": "db0c4f5e6aa211405ab05e9515e8815508236da592a0e55b9fa65f7481d852c7",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.4a4a553fb8f89630": {
-    "sourceHash": "4a4a553fb8f896301c3033483627859e5d33270682fd96e81b1bb30ce2e75fcd",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b737357bf307b644": {
-    "sourceHash": "b737357bf307b6441fcc7225f7d72e07e2d940950e6feaeae3210c4f42efc0ac",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.c94325b43dbe8ddb": {
-    "sourceHash": "c94325b43dbe8ddb25dbacd476c6d253e07a511ccdd5eadb3f72385540915f07",
-    "description": "owned offer terms: lib/dealsData.js / lib/storeDirectory.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.30c483046c04dc81": {
     "sourceHash": "30c483046c04dc8119b63f62c2551fbdec153323a91ec1aa54cbc90ddde0956a",
-    "description": "app/travel/ovago/page.js: owned editorial card; app/components/SearchBar.jsx: owned offer summary. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/ovago/page.js: owned editorial card; app/travel/ovago/page.js: owned offer summary. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.ce4b7e898e45ee20": {
     "sourceHash": "ce4b7e898e45ee205437a62e6bd05a2a789f402ab446cffbafd00b05eb23b104",
-    "description": "app/components/SearchBar.jsx: owned offer summary. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/ovago/page.js: owned offer summary. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.7db2ab62a28f08e2": {
     "sourceHash": "7db2ab62a28f08e201a20a5d814a90856719d0f0348c131d507a6730c6d3c7cc",
@@ -2889,11 +2277,7 @@
   },
   "ui.d2b98fb53714f23c": {
     "sourceHash": "d2b98fb53714f23cc0aa7b0ad6dbf910dd537237d7debe818a142590a322b992",
-    "description": "lib/aiSuggestions.js: owned section navigation label; owned ecosystem navigation; owned store category; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b5b68f9d45ff0c20": {
-    "sourceHash": "b5b68f9d45ff0c205f6e21dd44e123f7081055866e2ff91394d417cb6fbd0bf0",
-    "description": "lib/aiSuggestions.js: owned section navigation label; owned store category. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "lib/aiSuggestions.js: owned section navigation label; owned ecosystem navigation; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.b43f6b039bd11440": {
     "sourceHash": "b43f6b039bd11440cf08bded450ff95a4a31be74142a455d0a55f3cbd5fc32e4",
@@ -2905,7 +2289,7 @@
   },
   "ui.21c0991561f3da92": {
     "sourceHash": "21c0991561f3da922c699c461c2bd72b0530ca52ec0a6e14b26f7728f8e9a9fb",
-    "description": "app/draft/homepage-preview/page.js: owned preview card; lib/aiSuggestions.js: owned section navigation label; owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "lib/aiSuggestions.js: owned section navigation label; owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.17f2d12df9fd0997": {
     "sourceHash": "17f2d12df9fd099784d307f1f192c50cc7d5db2ebe669239edc31c296d5c22f1",
@@ -2913,19 +2297,11 @@
   },
   "ui.8583dcedff837cd5": {
     "sourceHash": "8583dcedff837cd552185d8cb44efed6de7218c8164c9790c717b92aa95eb1d1",
-    "description": "app/draft/homepage-preview/page.js: owned preview card; lib/aiSuggestions.js: owned section navigation label; owned ecosystem navigation; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "lib/aiSuggestions.js: owned section navigation label; owned ecosystem navigation; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.f70ce2beec3c26bd": {
     "sourceHash": "f70ce2beec3c26bda26782dfea2718ebbf104b03bb017e15fda31714270750dd",
     "description": "owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f7474ad5d2591329": {
-    "sourceHash": "f7474ad5d25913294e47e575c5355d577b6dd42c5db243acc2c2130d96c942cd",
-    "description": "lib/aiSuggestions.js: owned section navigation label; owned ecosystem navigation; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.2c2a993d6dd195fb": {
-    "sourceHash": "2c2a993d6dd195fb51216fa34ed6c65e3157b1c989e5a1517dc66c55a1fb78c8",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.4d76e3a17d5d00f7": {
     "sourceHash": "4d76e3a17d5d00f78e9c9b523fbdc01d4cec50bcbdaf7098f7b602291ebee53c",
@@ -2939,101 +2315,13 @@
     "sourceHash": "dcfa02444f085724add4326c007748692635af97b79a855e557a5329b9d8bf82",
     "description": "owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.420aa07ebd201636": {
-    "sourceHash": "420aa07ebd20163649443308db6365401021fec94a16a725116ed638cd5a617c",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.00d20d0632f5e1ef": {
-    "sourceHash": "00d20d0632f5e1ef354e41b97ff4eb34c1db8e987af11dac9408b184f79d1297",
-    "description": "owned store category. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.01140e6496d1f1fb": {
-    "sourceHash": "01140e6496d1f1fb2ea28a51fff47ef2bd054d1237d23adc72b34194e7e47c2e",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.7ae9c23d65928182": {
-    "sourceHash": "7ae9c23d6592818270a3e5210b194d5d7f22ff2f23da777779041ebc1ab5a3cc",
-    "description": "owned store category. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.8d8f6d94412a803f": {
-    "sourceHash": "8d8f6d94412a803f663bc7e19297466c0daf8883bb425e06cbb3c91fbe938c08",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.7d249ed4eb75246b": {
-    "sourceHash": "7d249ed4eb75246b3d0eee0799069b044136ea2d1fe30996b9f11fe59d8c1b2a",
-    "description": "owned store category. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.836bd4bae2f8dbe5": {
-    "sourceHash": "836bd4bae2f8dbe516ca2b78f4efebd1cbaf102787efc45c6b5d767df56dae6c",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3a78695388b38b5c": {
-    "sourceHash": "3a78695388b38b5cceefaf6796b0137877514593543b91af2752d5a17e3d736c",
-    "description": "owned store category. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.87feb0976edf2c30": {
-    "sourceHash": "87feb0976edf2c30786dea3dbdce9b787df5329fe13344483638e517be785b17",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.c76b2aebc82f5ea2": {
-    "sourceHash": "c76b2aebc82f5ea2db453f72bc7844681c8e09df8b537d67153502158e3613bd",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.9a085dd854f03306": {
-    "sourceHash": "9a085dd854f03306988189d9b57c89b54a9303bdbba275ea9fc5739d64e3b50c",
-    "description": "owned store category. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.31e214b0bb4f1a36": {
-    "sourceHash": "31e214b0bb4f1a36264e21291995acd36a3844aecc1feb80e0afe4e40139ccfc",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.26513ed8d20d8b63": {
-    "sourceHash": "26513ed8d20d8b6321086cd485f5542b1ab36b3931a485bb762a5663ae359210",
-    "description": "owned store category. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.24cef72d9d037a29": {
-    "sourceHash": "24cef72d9d037a29f5e6d54a8b6efedbf30a1d94d5a7f746d7c3ea6b313dae0b",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.0beeae358e6644c8": {
     "sourceHash": "0beeae358e6644c8c9137d88260ecd52fceea599ef073432930ecdabeb162253",
-    "description": "owned store category; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.5653916eee7dcb90": {
-    "sourceHash": "5653916eee7dcb9033116bcad5a366e4023622737f2edf6a19ebc47ab50dd7cc",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e4eb18069d65aaa9": {
-    "sourceHash": "e4eb18069d65aaa901cecb66371155f389643796428e9d54c5f5127c91ab3fdc",
-    "description": "owned store category. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3b97c6b151841d22": {
-    "sourceHash": "3b97c6b151841d22e75d60087b20ef9cae767dcf8bf5fc0a67ef430ab4ec19fe",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.ceaa553e838fb9f1": {
     "sourceHash": "ceaa553e838fb9f12e3e473ec6a8fe0c53329041cdee871874a3e4b2769e36ea",
-    "description": "owned store category; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.abd591cf7561146e": {
-    "sourceHash": "abd591cf7561146eb9c0c5ceedf0799245977fd11b33e7f96669c3d0c47e4620",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b8e29328818e0e06": {
-    "sourceHash": "b8e29328818e0e066ba2ec047365ed37a86e4aa59ee040f1f9e761027ce9ec00",
-    "description": "owned store category. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.15a4c43295f8f622": {
-    "sourceHash": "15a4c43295f8f622d712a415d4f80b7dce97d0cc1f6ca9032d4b48c36aad87aa",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.cb4e5c8b61887d76": {
-    "sourceHash": "cb4e5c8b61887d767d4e9769a02db21fcc7e05f30c047eea769ce0e6cddfa04e",
-    "description": "owned store category. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.1c976a37c03b6858": {
-    "sourceHash": "1c976a37c03b6858533239e1f14e1e8e4fb911545268048b10e2e08993ac2512",
-    "description": "owned store category introduction. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.9e499e4cdaf42f92": {
     "sourceHash": "9e499e4cdaf42f925ad7808ad0e28c6fd652eb11599b9a933a1326b521cda783",
@@ -3049,10 +2337,6 @@
   },
   "ui.e11bca916afd0cf4": {
     "sourceHash": "e11bca916afd0cf45012486c57a7a003aa2fc0f304e4b604045ec2b723ee3fbd",
-    "description": "owned rotating concierge placeholder. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.74c580dddec8f242": {
-    "sourceHash": "74c580dddec8f2422bed0be2dda226cfa966a59ffb76f260c56ca7759742a75a",
     "description": "owned rotating concierge placeholder. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.8f55df9a8721e896": {
@@ -3199,10 +2483,6 @@
     "sourceHash": "4b9be66676208143c191bf940ac77ccf48e05a5718eb966903d95e558fe2e5e3",
     "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.ec8a9b38916933f8": {
-    "sourceHash": "ec8a9b38916933f878d214710a298f04f649538f1c43ca740bd3a5aa272c4130",
-    "description": "app/components/Footer.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.e219439281f24ad1": {
     "sourceHash": "e219439281f24ad1442865ace73b5db3793c067814a7bef6bc5a8670a234ef6a",
     "description": "app/components/Footer.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -3263,33 +2543,9 @@
     "sourceHash": "4ece45e30b0daa149a7da17a9bdaf2c500db0ed11608c18c54ad8ecc06af0a19",
     "description": "app/events/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.f731c2dc116966f8": {
-    "sourceHash": "f731c2dc116966f8ca6cadace9b226087358d1e28f660947e99c936117a792d3",
-    "description": "app/sportsbook/[slug]/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.209579ef933fc733": {
     "sourceHash": "209579ef933fc7330c3c17ccbe3bbf523df48cf46d093505761203bf04d00e20",
     "description": "app/travel/ovago/page.js: owned editorial card; app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b98491dc94b2cb34": {
-    "sourceHash": "b98491dc94b2cb34d4a3061b01de8bf639708b327418d1f951e1e425b2240d37",
-    "description": "app/sportsbook/[slug]/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3e743275825133f9": {
-    "sourceHash": "3e743275825133f92fb12103df6b8218970c26f2c3c084f7ec3e614e42b086a2",
-    "description": "app/sportsbook/[slug]/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.2989845a8658029c": {
-    "sourceHash": "2989845a8658029c7fa7a697faaacf75998074459af18f48f330dcbdd54c580a",
-    "description": "app/sportsbook/[slug]/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.04421a254cdcab2a": {
-    "sourceHash": "04421a254cdcab2a037bfd819bd20097d04e96d1df5c4b0eb7fbf2784bc992c1",
-    "description": "app/sportsbook/[slug]/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.efce226d87049bb6": {
-    "sourceHash": "efce226d87049bb6870e012f9308b41b680deb95d8c335e44483f490bbfd7333",
-    "description": "app/sportsbook/[slug]/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.f994fcecfb3a67e1": {
     "sourceHash": "f994fcecfb3a67e1978abe63d05c4077a9ebedaa632cc2f667ad4092a9477e29",
@@ -3371,106 +2627,6 @@
     "sourceHash": "5047cac03700a453b4cf95498a4b8c0a5ba9983c5522b66d156bc600c53b4386",
     "description": "app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.c74def82fff13700": {
-    "sourceHash": "c74def82fff1370038eb2cb7b7ce7dc1d7d408bf253dd0803a028d725c077a6a",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.fb5ad594f83156dd": {
-    "sourceHash": "fb5ad594f83156dd1f12db16f55b6c5003ec47078813d5ef6904e8c2ca58e1ee",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.f09024a91c2b6eaa": {
-    "sourceHash": "f09024a91c2b6eaa1b5c1c14ff4c1d58568ae4dcbef56e970c39550a7c4aa32e",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.47fce14a4014bccd": {
-    "sourceHash": "47fce14a4014bccde633f5754fbe8b9db64de90619e4c42de9061569e4e64045",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e62c720e003360f1": {
-    "sourceHash": "e62c720e003360f11493f1a9a6dbd2c2951a6467c4aac1cf771c55032a53b124",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b444429db9d8db7d": {
-    "sourceHash": "b444429db9d8db7d06d11b5a10965cd6f838f6bedc5fc29c1cf8be2eb81efce0",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.eadd0c342b45bd70": {
-    "sourceHash": "eadd0c342b45bd7024d5eaec90b322b597df8400268e6ffcf503b691f354eb6a",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.759ec82d76425ce7": {
-    "sourceHash": "759ec82d76425ce73b82f65ec0147270b5f6c8615c59e92611284f59c24e1c26",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.9b79d9937c9910a6": {
-    "sourceHash": "9b79d9937c9910a60cf30ddace5aa398638c52a9b71f9e649349f516600bb841",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3b26e5c7c8e729f2": {
-    "sourceHash": "3b26e5c7c8e729f218d4536d0cfb4e9364012e561e3c6d3806467d1dff318505",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.49f9a7bb7c453a1f": {
-    "sourceHash": "49f9a7bb7c453a1fc58956516c7b690cbd57e08fb2ebe0c4108507e7e8a6ef24",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.8651ebe8aabd1e75": {
-    "sourceHash": "8651ebe8aabd1e7523da99448c39768605fdb742fc8b2183c0be67555e30d3df",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e2fe78ebca153b18": {
-    "sourceHash": "e2fe78ebca153b18f0638dee92fe4e1b75af3da1c4e1e16914798275fdf2f289",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.57bff90bd2bb0b4e": {
-    "sourceHash": "57bff90bd2bb0b4ef5890718f5f8c661dc11173dfbb5730e3ddfefd4d2cfcca9",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.024064b18281d92c": {
-    "sourceHash": "024064b18281d92c6437fe06747bbf312e27cc2f545181e5fa78333353ed804a",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.cc1a11bc2e21c9d8": {
-    "sourceHash": "cc1a11bc2e21c9d899f90d673773ff428c217b34bfd5d803b59eaade64017ec8",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.218c682d2e4c8afb": {
-    "sourceHash": "218c682d2e4c8afb8bfe3739f591ac9ad09e19c9f7cfbdaa8acad70a96142c2a",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.cd877a11b45e1a47": {
-    "sourceHash": "cd877a11b45e1a4706c8545f1b6934e0c5d3abd45a642b7a9e1c7c29989d615d",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b4cc952ec3950471": {
-    "sourceHash": "b4cc952ec3950471a60cbbe038f8ee16b7d20d22a2305bf8d8404188044d735b",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.28242fc2f1eecc23": {
-    "sourceHash": "28242fc2f1eecc230d10fca399aaad846d6bbf188f70ccedf3799cf7b24f2670",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.1bd4c098b95a5b4b": {
-    "sourceHash": "1bd4c098b95a5b4bfc0a1257b298b277415575c0e3746fbf8b1ce555fae0775b",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e805b79a1c56c10f": {
-    "sourceHash": "e805b79a1c56c10f3762e9edf82e7046ff8c53250c2a8a0778a8d3cf4b33c836",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.257f40afe454be12": {
-    "sourceHash": "257f40afe454be127de62b72e2699beb6085806a7a2829e7a60af97e41285576",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.6eb8c1c2ba70ad50": {
-    "sourceHash": "6eb8c1c2ba70ad5078770f3ad8d7b1f9c603bb1832882a140ce4cbe25fd18463",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.68e94caae1584b54": {
-    "sourceHash": "68e94caae1584b54eb922c86ab24868a462e5a2a219ac29c51a5c085c0381e86",
-    "description": "app/draft/homepage-preview/page.js: owned preview card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.b23e302253a54c36": {
     "sourceHash": "b23e302253a54c366dc63e10e758d5639cebd640d68b62fcd4b3af89b5920756",
     "description": "lib/aiSuggestions.js: owned section navigation label. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -3478,10 +2634,6 @@
   "ui.7bbfe2b5c6976cfa": {
     "sourceHash": "7bbfe2b5c6976cfaf1d0a687e10564a0dfcd28ea90289e8f5258dd4751c2a945",
     "description": "lib/aiSuggestions.js: owned section navigation label; owned ecosystem navigation; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3f7fc68df107cb35": {
-    "sourceHash": "3f7fc68df107cb356b8332cb575b8db7f180af640156ddfeae22f3ef8e81c19e",
-    "description": "lib/aiSuggestions.js: owned section navigation label. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "listing.maserati-levante-q4-white-red.description": {
     "sourceHash": "e1a1dc8d71ed2179602a8aa1fddc10d0379d754c9963557e44af0cd5d53435a2",

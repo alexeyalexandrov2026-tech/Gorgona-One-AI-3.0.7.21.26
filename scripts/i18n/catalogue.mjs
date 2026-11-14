@@ -6,12 +6,9 @@ import { parse } from '@babel/parser';
 import { translations } from '../../lib/i18n.js';
 import { coreMessages } from './core-sources.mjs';
 import { OWNED_RECORDS, ownedMessages } from './owned-inventory.mjs';
-import { allDeals } from '../../lib/dealsData.js';
 import { ecosystem } from '../../lib/ecosystemData.js';
 import { EXAMPLE_PROMPTS, discoveryCategories } from '../../lib/discoveryCategories.js';
-import { categories } from '../../lib/dealsData.js';
 import { EVENT_CATEGORIES, EVENT_CATEGORY_GROUPS, LEAGUES } from '../../lib/mockEventsData.js';
-import { ROWE_AND_TAYLOR_DEAL } from '../../lib/storeDirectory.js';
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url));
 export const LOCALES = ['en','ru','es','he','zh','pt','uk','ja','ko','de','ar','tr','fa','it','fr','pl'];
@@ -75,7 +72,7 @@ export function discoverMessages() {
       if (['app/register/partner/page.js','app/events/TicketNetworkEvents.jsx'].includes(file) && node.type === 'StringLiteral' && node.value !== 'AbortError' && parents.some(p => (p.type === 'CallExpression' && p.callee.name === 'setError') || (p.type === 'NewExpression' && p.callee.name === 'Error'))) add(node.value,file);
     });
   }
-  // Editorial feature strips, supplied promotion cards and our draft preview.
+  // Editorial feature strips and supplied promotion cards.
   // Only display fields from these reviewed local arrays; URLs and enums stay out.
   const arrays = new Map([
     ['app/travel/ovago/page.js',new Map([['OVAGO_FEATURES',['title','sub']],['OVAGO_DEALS',['name','description']]])],
@@ -85,10 +82,6 @@ export function discoverMessages() {
     const variable=parents.find(p=>p.type==='VariableDeclarator')?.id.name;
     if(node.type==='ObjectProperty' && variables.get(variable)?.includes(node.key.name) && node.value.type==='StringLiteral' && node.value.value!=='Rentcars.com') add(node.value.value,file+': owned editorial card');
   });
-  const draft='app/draft/homepage-preview/page.js';
-  walk(parseFile(draft),(node,parents)=>{
-    if(node.type==='ObjectProperty' && ['title','detail','value','description','body'].includes(node.key.name) && node.value.type==='StringLiteral' && parents.some(p=>p.type==='ArrayExpression')) add(node.value.value,draft+': owned preview card');
-  });
   walk(parseFile('lib/aiSuggestions.js'),node=>{
     if(node.type==='ObjectProperty' && node.key.name==='label' && node.value.type==='StringLiteral') add(node.value.value,'lib/aiSuggestions.js: owned section navigation label');
   });
@@ -96,12 +89,10 @@ export function discoverMessages() {
   // corresponding API/filter values remain unchanged.
   for (const text of ['Miami & South Florida','All Florida','All cities','Team','Team or artist','Artist','Any team','Any team or artist','Any artist','Sport tickets','Concert tickets','Boxing','Tennis','Golf','All sports','Pop & Rock','Hip-Hop & R&B','Jazz & Blues','Electronic / EDM','Classical & Opera','Country','Comedy & Stand-up','Theater & Broadway','Festivals','All live shows','From {amount}','Please check the event filters and date range.']) add(text,'owned calendar filter and category labels');
   for (const {record,world} of OWNED_RECORDS) if (world === 'experiences') add(record.duration,'lib/experiencesData.js: owned display duration');
-  for (const deal of [...allDeals,ROWE_AND_TAYLOR_DEAL]) add(deal.discount,'owned offer terms: lib/dealsData.js / lib/storeDirectory.js');
-  for (const text of ['Worldwide car rental deals','Flight deals and discounts']) add(text,'app/components/SearchBar.jsx: owned offer summary');
+  for (const text of ['Worldwide car rental deals','Flight deals and discounts']) add(text,'app/travel/ovago/page.js: owned offer summary');
   for (const item of [...EVENT_CATEGORIES,...EVENT_CATEGORY_GROUPS]) if (!['NFL','NHL','NBA','MLB','MLS','UFC','F1','NASCAR'].includes(item.label)) add(item.label,'owned event category navigation; event records remain English');
   for (const item of LEAGUES) add(item.sport,'owned sport taxonomy; league and team names remain English');
   for (const item of ecosystem) for (const field of ['label','tagline']) add(item[field],'owned ecosystem navigation');
-  for (const item of categories) { add(item.label,'owned store category'); add(item.description,'owned store category introduction'); }
   for (const item of discoveryCategories) add(item.label,'owned discovery navigation');
   for (const text of EXAMPLE_PROMPTS) add(text,'owned rotating concierge placeholder');
   for (const text of ['Daily rate: {rate}','Guest capacity: {count}','Bedrooms: {count}','Guests: {count}','World','Category','Destination']) add(text,'owned discovery result labels; original search data is retained');
@@ -146,12 +137,6 @@ export function extract() {
       if (!legacy.has(normalized)) legacy.set(normalized,new Set());
       legacy.get(normalized).add(legacyTarget[key]);
     }
-    const categoryCopy = new Map();
-    for (const category of categories) {
-      const key = category.slug.replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase());
-      if (translations.en.categories[key] === category.label) categoryCopy.set(category.label,translations[locale].categories[key]);
-      if (translations.en.categoryDescriptions[key] === category.description) categoryCopy.set(category.description,translations[locale].categoryDescriptions[key]);
-    }
     const revisionsPath = path.join(ROOT,`i18n/revisions/${locale}.json`);
     const revisions = fs.existsSync(revisionsPath) ? JSON.parse(fs.readFileSync(revisionsPath,'utf8')) : {};
     const nextRevisions = {};
@@ -160,7 +145,6 @@ export function extract() {
     for (const [id,text] of Object.entries(source)) {
       if (locale === 'en') next[id] = text;
       else if (old[id]) { next[id] = old[id]; if (revisions[id]) nextRevisions[id] = revisions[id]; }
-      else if (categoryCopy.has(text)) { next[id] = categoryCopy.get(text); nextRevisions[id] = hash(text); }
       else if (known.has(text.trim()) && knownBasis.has(text.trim())) {
         next[id] = known.get(text.trim()); nextRevisions[id] = hash(text);
       } else if (legacy.get(normalize(text))?.size === 1) {
