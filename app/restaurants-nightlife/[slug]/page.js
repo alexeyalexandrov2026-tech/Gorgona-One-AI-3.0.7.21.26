@@ -29,7 +29,7 @@ export default async function VenueDetailPage({params}) {
     <p className="text-g1-soft">{venue.address||venue.location}</p>
     <p className="text-sm text-g1-soft">{venue.features.filter(feature=>styles[feature]).map(feature=>styles[feature]).join(' · ')}</p>
     <Specs items={[[t.restaurantsNightlife.location,venue.neighborhood||venue.location],[t.category.categoryLabel,kind]]}/>
-    <AskButton prompt={fill(copy.tablePrompt,{name:venue.name})} className="w-fit">{copy.requestTable}</AskButton>
+    <AskButton prompt={fill(copy.tablePrompt,{name:venue.name})} className="w-fit">{t.home.askConcierge}</AskButton>
    </div>
    {venue.status==='verified'?<DiningBooking venue={{slug:venue.slug,name:venue.name,category:venue.category,features:venue.features}} channels={channelsFor(venue).map(channel=>({...channel,name:PROVIDERS.find(provider=>provider.id===channel.provider)?.name}))} enabled={process.env.DINING_REQUESTS_ENABLED==='true'&&process.env.DINING_SCHEMA_ENABLED==='true'}/>:<p role="status" className="rounded-[22px] border border-g1-rule p-5">{dining.held}</p>}
   </div>
