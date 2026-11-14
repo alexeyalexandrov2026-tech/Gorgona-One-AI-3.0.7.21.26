@@ -13,7 +13,6 @@ import { getYachts } from '../../lib/yachtsData.js';
 import { getVacationRentals } from '../../lib/vacationRentalsData.js';
 import { getExperiences } from '../../lib/experiencesData.js';
 import { getVenues } from '../../lib/restaurantsNightlifeData.js';
-import { allDeals, categories } from '../../lib/dealsData.js';
 
 const baseURL = process.env.I18N_BASE_URL || 'http://127.0.0.1:3024';
 const output = process.env.I18N_QA_OUTPUT || '/tmp/miami-elio-i18n-qa';
@@ -279,7 +278,7 @@ for (const [name, viewport] of [
     const selected=document.cookie.match(/(?:^|; )gorgona-locale=([^;]*)/)?.[1]||'en';
     localStorage.setItem('gorgona-locale',decodeURIComponent(selected));
   });
-  const samples={'/rentals/[slug]':'/rentals/'+getRentals()[0].slug,'/yachts/[slug]':'/yachts/'+getYachts()[0].slug,'/vacation-rentals/[slug]':'/vacation-rentals/'+getVacationRentals()[0].slug,'/experiences/[slug]':'/experiences/'+getExperiences()[0].slug,'/restaurants-nightlife/[slug]':'/restaurants-nightlife/'+getVenues()[0].slug,'/deals/[slug]':'/deals/'+allDeals[0].slug,'/stores/[category]':'/stores/'+categories[0].slug,'/sportsbook/[slug]':'/sportsbook/hard-rock-bet','/events/category/[category]':'/events/category/nba','/events/league/[league]':'/events/league/nba','/events/[slug]':'/events/i18n-no-published-event'};
+  const samples={'/rentals/[slug]':'/rentals/'+getRentals()[0].slug,'/yachts/[slug]':'/yachts/'+getYachts()[0].slug,'/vacation-rentals/[slug]':'/vacation-rentals/'+getVacationRentals()[0].slug,'/experiences/[slug]':'/experiences/'+getExperiences()[0].slug,'/restaurants-nightlife/[slug]':'/restaurants-nightlife/'+getVenues()[0].slug,'/sportsbook/[slug]':'/sportsbook/hard-rock-bet','/events/category/[category]':'/events/category/nba','/events/league/[league]':'/events/league/nba','/events/[slug]':'/events/i18n-no-published-event'};
   const matrix=[], failures=[];
   const normalize=text=>text.replace(/\s+/g,' ').trim();
   const prose=Object.values(SAVED_MESSAGES.en).filter(text=>
