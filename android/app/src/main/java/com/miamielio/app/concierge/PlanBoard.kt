@@ -7,6 +7,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -192,6 +194,7 @@ internal fun PlanBoard(
 }
 
 /** One item of the plan with its section, photo and the two ways to change it. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PlanItemRow(
     section: PlanSection,
@@ -238,7 +241,12 @@ private fun PlanItemRow(
                 }
                 if (onFavorite != null) FavoriteHeart(saved, onFavorite)
             }
-            Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(18.dp)) {
+            // Wraps on narrow screens with large text instead of squeezing "Remove" to a letter's width.
+            FlowRow(
+                Modifier.padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(18.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
                 if (section.candidates.size > 1) {
                     Text(
                         another,
