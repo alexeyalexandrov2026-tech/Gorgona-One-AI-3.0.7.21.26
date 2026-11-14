@@ -3002,5 +3002,129 @@
   "ui.a44d35311325e654": {
     "sourceHash": "a44d35311325e654d827529a7713c7dc07309ef4de66a4741807b5eb252d0eaa",
     "description": "app/components/ai/AiConversation.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.8bd93a2f43904ccc": {
+    "sourceHash": "8bd93a2f43904ccce4e8ccdb251c342ae18211d2470e0b6c9f5d9d1069a453ba",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.6a61a31afe8be9b0": {
+    "sourceHash": "6a61a31afe8be9b0a5fefef5f93f5377d8c1604e8e0ef35109be21551e0d86d2",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.8835d2656427b1c5": {
+    "sourceHash": "8835d2656427b1c58ef020be5f4ff40f0e726e6a41d945b30fc20aea078a523a",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.bef04e58c3f6e250": {
+    "sourceHash": "bef04e58c3f6e2505a8e57cac0bca3c7c700952a2a4032a879bafcd2e99c9bb6",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.974daf7d7843750f": {
+    "sourceHash": "974daf7d7843750f46989f6936e6fb75e0cf9e6927fb9d94a29bea242a8c767b",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.d5f8cf9cece198ec": {
+    "sourceHash": "d5f8cf9cece198ec847bad9aa2b597dca6d5e0645c4da74adca3f21056d8ad99",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.e39930d15197afc1": {
+    "sourceHash": "e39930d15197afc1294ca96ca231d4bae7b5b2b2c9512c0f4c065553a215bb2c",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.25d1295d21a9ce07": {
+    "sourceHash": "25d1295d21a9ce07f3895f7908c36446c90aa2896e58f8a71ed8ea02787582dd",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.15e2f6f793fb4c50": {
+    "sourceHash": "15e2f6f793fb4c50ab9f594444cc9730b811fcb29b4adce6d35cf77813bdec84",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.64baabf4dbd6f5a7": {
+    "sourceHash": "64baabf4dbd6f5a74ac31771b4661b5d136e7873c3f0b2c7ac3d476440752ced",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.714c295dad8bc36b": {
+    "sourceHash": "714c295dad8bc36b6b878dd13664e32514387e7b1c59069f2de5b9af799b13ae",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.dc8a88f8ccf2f485": {
+    "sourceHash": "dc8a88f8ccf2f485a720f8575104fd677957d549ca6fb55b0dd2a0b3c905a6f5",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.fde8857d1f86bbe7": {
+    "sourceHash": "fde8857d1f86bbe7e3ff1f23e0d8d9b74cc80554e9f584e36b46cc5c9c3a38ae",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.9ea4d38b0a160303": {
+    "sourceHash": "9ea4d38b0a1603037a6ef61e97c918e5b944aebb941aa7f874cddd6499a75c30",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.d20b05144c376bc1": {
+    "sourceHash": "d20b05144c376bc1196a4f32d2fc80478b911afb961602254e0d63eee5296ea9",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.b005767dfbdb9683": {
+    "sourceHash": "b005767dfbdb96832f16f15b1da50fd73e0414c57d99848d41695ea290ebd990",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.a37efe89b9d228de": {
+    "sourceHash": "a37efe89b9d228de92a171d552292264c57d9d45511f9ec1460f1e22e81eeea0",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.a27d12bad0ac1a97": {
+    "sourceHash": "a27d12bad0ac1a97a46cfd7ada6121db8a7bd722cac80e39ac6e58b10e2e5535",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.1db8c30974123bb0": {
+    "sourceHash": "1db8c30974123bb0870462e65f685341bb0e0868cd09f79955dab7c222822724",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.dc7dc0b9563dd7c6": {
+    "sourceHash": "dc7dc0b9563dd7c6744ddaf6edaf9771e8aaeac983cb48a89fd7c392054f0c78",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.5d00bf9350af1674": {
+    "sourceHash": "5d00bf9350af1674e97833fbf35c8f6c9e05e0bd73b6d06592802d14edbce9cf",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.173da0b24ea04e8f": {
+    "sourceHash": "173da0b24ea04e8f749532bcda91e56a165d24d4d5da565397698d9270308fda",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.94b29be19989a45e": {
+    "sourceHash": "94b29be19989a45e0a17b77c2e31fbc56ec734a20bffd7e57818e06ada1abe14",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.08440e966836527e": {
+    "sourceHash": "08440e966836527e8f38135621ce658a5a9dd031396b6d1af5d72fe6dccd9f15",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.ded4b8ad4f68fb8e": {
+    "sourceHash": "ded4b8ad4f68fb8e95fcd2d21a630a60252acc5b7925da59705c3b04df73c3df",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.3583a358a585b13b": {
+    "sourceHash": "3583a358a585b13b6d6228f12d2baf3ef937fcf50bed4a521b70f95a520bc933",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.44656efe89b53f21": {
+    "sourceHash": "44656efe89b53f2126dd8d8c619bc130912e2ef85e88a530f5c59a86215fa7d2",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.141395eb35564fe5": {
+    "sourceHash": "141395eb35564fe50baa1839eb43315ec1880ae19f53b926611a483029a5a603",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.9eaca12cc5af7738": {
+    "sourceHash": "9eaca12cc5af77381fadc4642d864f9a419149176966a3b488052d3c207518bd",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.86cb08a84ff4d12d": {
+    "sourceHash": "86cb08a84ff4d12d0d7e1741c28362b6c4923971cd8eb2b4bf0b7a9e5277534f",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.b7ed2269e144f6a7": {
+    "sourceHash": "b7ed2269e144f6a71ef066385fdc2d1a63504ce9876eb459d60443092aae9b0d",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   }
 }
