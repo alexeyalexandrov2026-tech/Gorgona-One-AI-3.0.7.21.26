@@ -12,7 +12,7 @@ export default function CookiePolicyPage() {
       <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium">
         <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{msg("Cookie Policy")}</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">{t.legal.cookiesTitle}</h1>
-        <p className="mt-4 max-w-3xl text-zinc-400">{t.legal.cookiesBody}</p>
+        <p className="mt-4 max-w-3xl text-zinc-400">{msg('We use cookies only to remember your language and keep you signed in.')}</p>
       </div>
     </main>
   );
