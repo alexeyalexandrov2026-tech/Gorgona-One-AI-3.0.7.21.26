@@ -745,10 +745,9 @@ export default {
   "ui.43c5a322e4b76af6": "Usuń z Moje Miami",
   "ui.07bccc90d8b508ba": "Zapisz w Moje Miami",
   "ui.f241dfe7c5029dec": "Zapisano w Moje Miami",
-  "ui.77145db4404087ce": "Gdy zgłaszasz odpowiedź konsjerża, Miami Elio otrzymuje pytanie, odpowiedź i dodaną notatkę do weryfikacji przez zespół.",
-  "ui.8a2947831d8bc571": "Opcjonalne dyktowanie korzysta z usługi rozpoznawania mowy urządzenia. Zależnie od urządzenia i języka usługa może przetwarzać głos online.",
   "ui.8e125a6cef43fa60": "Dziękujemy. Zgłoszenie zostało wysłane do naszego zespołu.",
   "ui.34bcbd00138bc2a9": "Zgłoś tę odpowiedź",
   "ui.2bc3116a87d32cce": "Co jest nie tak z tą odpowiedzią? (opcjonalnie)",
-  "ui.a44d35311325e654": "Wyślij zgłoszenie"
+  "ui.a44d35311325e654": "Wyślij zgłoszenie",
+  "ui.ea9c9cbaf2ac4f30": "Ta polityka prywatności jest dostępna wyłącznie w języku angielskim. Wiążąca jest wersja angielska."
 };

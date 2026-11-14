@@ -2979,14 +2979,6 @@
     "sourceHash": "f241dfe7c5029dece06dedcd5eb30962b1ddec3cc50cf4bbc96d2f9dda0a64b0",
     "description": "app/components/SaveButton.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.77145db4404087ce": {
-    "sourceHash": "77145db4404087ce5bc3d5d972d07871f2a2341672953f6840b700f571c938bb",
-    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.8a2947831d8bc571": {
-    "sourceHash": "8a2947831d8bc5710ac30a8c9caec59cdbac578ac0ccfcdfa5d034430de77a35",
-    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.8e125a6cef43fa60": {
     "sourceHash": "8e125a6cef43fa60cf550b198ce42d292ac6dedf1e1a47d0eaea77f7cba12759",
     "description": "app/components/ai/AiConversation.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -3002,5 +2994,9 @@
   "ui.a44d35311325e654": {
     "sourceHash": "a44d35311325e654d827529a7713c7dc07309ef4de66a4741807b5eb252d0eaa",
     "description": "app/components/ai/AiConversation.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.ea9c9cbaf2ac4f30": {
+    "sourceHash": "ea9c9cbaf2ac4f30f4cbde4079545002776c59eb61e5b88c0f38e0eb4d049b98",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   }
 }

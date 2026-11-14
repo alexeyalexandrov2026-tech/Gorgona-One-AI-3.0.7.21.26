@@ -745,10 +745,9 @@ export default {
   "ui.43c5a322e4b76af6": "Retirer de Mon Miami",
   "ui.07bccc90d8b508ba": "Ajouter à Mon Miami",
   "ui.f241dfe7c5029dec": "Dans Mon Miami",
-  "ui.77145db4404087ce": "Lorsque vous signalez une réponse du concierge, Miami Elio reçoit la question, la réponse et votre éventuelle note afin que notre équipe puisse les examiner.",
-  "ui.8a2947831d8bc571": "La dictée facultative utilise le service de reconnaissance vocale de votre appareil. Selon l’appareil et la langue, ce service peut traiter votre voix en ligne.",
   "ui.8e125a6cef43fa60": "Merci. Le signalement a été transmis à notre équipe.",
   "ui.34bcbd00138bc2a9": "Signaler cette réponse",
   "ui.2bc3116a87d32cce": "Qu’est-ce qui ne va pas dans cette réponse ? (facultatif)",
-  "ui.a44d35311325e654": "Envoyer le signalement"
+  "ui.a44d35311325e654": "Envoyer le signalement",
+  "ui.ea9c9cbaf2ac4f30": "Cette politique de confidentialité est disponible uniquement en anglais. Seule la version anglaise fait foi."
 };

@@ -745,10 +745,9 @@ export default {
   "ui.43c5a322e4b76af6": "Remove from My Miami",
   "ui.07bccc90d8b508ba": "Save to My Miami",
   "ui.f241dfe7c5029dec": "Saved to My Miami",
-  "ui.77145db4404087ce": "When you report a concierge answer, Miami Elio receives the question, answer and any note you add so our team can review it.",
-  "ui.8a2947831d8bc571": "Optional dictation uses your device’s speech recognition service. Depending on your device and language, that service may process your voice online.",
   "ui.8e125a6cef43fa60": "Thank you. The report was sent to our team.",
   "ui.34bcbd00138bc2a9": "Report this answer",
   "ui.2bc3116a87d32cce": "What is wrong with this answer? (optional)",
-  "ui.a44d35311325e654": "Send report"
+  "ui.a44d35311325e654": "Send report",
+  "ui.ea9c9cbaf2ac4f30": "This privacy policy is available in English only. The English text is the governing version."
 };

@@ -745,10 +745,9 @@ export default {
   "ui.43c5a322e4b76af6": "Benim Miami’mden kaldır",
   "ui.07bccc90d8b508ba": "Benim Miami’me kaydet",
   "ui.f241dfe7c5029dec": "Benim Miami’me kaydedildi",
-  "ui.77145db4404087ce": "Bir konsiyerj yanıtını bildirdiğinizde Miami Elio, ekibimizin inceleyebilmesi için soruyu, yanıtı ve eklediğiniz notu alır.",
-  "ui.8a2947831d8bc571": "İsteğe bağlı dikte, cihazınızın konuşma tanıma hizmetini kullanır. Hizmet, cihazınıza ve dilinize bağlı olarak sesinizi çevrimiçi işleyebilir.",
   "ui.8e125a6cef43fa60": "Teşekkürler. Bildiriminiz ekibimize iletildi.",
   "ui.34bcbd00138bc2a9": "Bu yanıtı bildir",
   "ui.2bc3116a87d32cce": "Bu yanıtta sorun nedir? (isteğe bağlı)",
-  "ui.a44d35311325e654": "Bildirimi gönder"
+  "ui.a44d35311325e654": "Bildirimi gönder",
+  "ui.ea9c9cbaf2ac4f30": "Bu gizlilik politikası yalnızca İngilizce olarak sunulmaktadır. Geçerli olan İngilizce metindir."
 };

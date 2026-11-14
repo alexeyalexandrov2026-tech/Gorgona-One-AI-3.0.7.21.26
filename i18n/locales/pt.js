@@ -745,10 +745,9 @@ export default {
   "ui.43c5a322e4b76af6": "Remover do Meu Miami",
   "ui.07bccc90d8b508ba": "Salvar no Meu Miami",
   "ui.f241dfe7c5029dec": "Salvo no Meu Miami",
-  "ui.77145db4404087ce": "Ao denunciar uma resposta do concierge, a Miami Elio recebe a pergunta, a resposta e sua observação para análise da equipe.",
-  "ui.8a2947831d8bc571": "O ditado opcional usa o serviço de reconhecimento de fala do seu dispositivo. Dependendo do dispositivo e do idioma, esse serviço pode processar sua voz on-line.",
   "ui.8e125a6cef43fa60": "Obrigado. A denúncia foi enviada à nossa equipe.",
   "ui.34bcbd00138bc2a9": "Denunciar esta resposta",
   "ui.2bc3116a87d32cce": "O que está errado nesta resposta? (opcional)",
-  "ui.a44d35311325e654": "Enviar denúncia"
+  "ui.a44d35311325e654": "Enviar denúncia",
+  "ui.ea9c9cbaf2ac4f30": "Esta política de privacidade está disponível apenas em inglês. A versão em inglês é a que prevalece."
 };

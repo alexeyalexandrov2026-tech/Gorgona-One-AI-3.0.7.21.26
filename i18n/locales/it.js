@@ -745,10 +745,9 @@ export default {
   "ui.43c5a322e4b76af6": "Rimuovi da La mia Miami",
   "ui.07bccc90d8b508ba": "Salva in La mia Miami",
   "ui.f241dfe7c5029dec": "Salvato in La mia Miami",
-  "ui.77145db4404087ce": "Se segnali una risposta del concierge, Miami Elio riceve la domanda, la risposta e l’eventuale nota affinché il team possa esaminarle.",
-  "ui.8a2947831d8bc571": "La dettatura facoltativa usa il servizio di riconoscimento vocale del dispositivo. In base al dispositivo e alla lingua, il servizio può elaborare la voce online.",
   "ui.8e125a6cef43fa60": "Grazie. La segnalazione è stata inviata al nostro team.",
   "ui.34bcbd00138bc2a9": "Segnala questa risposta",
   "ui.2bc3116a87d32cce": "Cosa non va in questa risposta? (facoltativo)",
-  "ui.a44d35311325e654": "Invia segnalazione"
+  "ui.a44d35311325e654": "Invia segnalazione",
+  "ui.ea9c9cbaf2ac4f30": "Questa informativa sulla privacy è disponibile solo in inglese. Fa fede il testo in inglese."
 };

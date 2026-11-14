@@ -745,10 +745,9 @@ export default {
   "ui.43c5a322e4b76af6": "Aus Mein Miami entfernen",
   "ui.07bccc90d8b508ba": "In Mein Miami speichern",
   "ui.f241dfe7c5029dec": "In Mein Miami gespeichert",
-  "ui.77145db4404087ce": "Wenn Sie eine Concierge-Antwort melden, erhält Miami Elio die Frage, die Antwort und Ihre Anmerkung zur Prüfung durch unser Team.",
-  "ui.8a2947831d8bc571": "Die optionale Diktierfunktion nutzt die Spracherkennung Ihres Geräts. Je nach Gerät und Sprache kann der Dienst Ihre Stimme online verarbeiten.",
   "ui.8e125a6cef43fa60": "Danke. Die Meldung wurde an unser Team gesendet.",
   "ui.34bcbd00138bc2a9": "Antwort melden",
   "ui.2bc3116a87d32cce": "Was stimmt mit dieser Antwort nicht? (optional)",
-  "ui.a44d35311325e654": "Meldung senden"
+  "ui.a44d35311325e654": "Meldung senden",
+  "ui.ea9c9cbaf2ac4f30": "Diese Datenschutzrichtlinie ist nur auf Englisch verfügbar. Maßgeblich ist die englische Fassung."
 };

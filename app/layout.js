@@ -2,7 +2,7 @@ import './fonts.css';
 import './globals.css';
 import './design-system.css';
 import './ai-overlays.css';                              
-import Script from 'next/script';
+import { AnalyticsBeacon } from './components/AnalyticsBeacon';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { LocaleProvider } from './components/LocaleProvider';
@@ -89,14 +89,7 @@ export default function RootLayout({ children }) {
             </FavoritesProvider>
           </AuthProvider>
         </LocaleProvider>
-        {process.env.NEXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN && (
-          <Script
-            defer
-            src="https://static.cloudflareinsights.com/beacon.min.js"
-            data-cf-beacon={`{"token": "${process.env.NEXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN}"}`}
-            strategy="afterInteractive"
-          />
-        )}
+        <AnalyticsBeacon token={process.env.NEXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN} />
       </body>
     </html>
   );
