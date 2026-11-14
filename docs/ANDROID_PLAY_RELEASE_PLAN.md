@@ -33,6 +33,12 @@
 - Возраст аудитории: рекомендую **только 18+** (яхты, ночные клубы, бронирования) — так приложение не попадает под правила для детей.
 - Кто оператор запросов на удаление аккаунта (по `docs/ANDROID_RELEASE_SERVICES.md` нужен названный человек и репетиция).
 
+## 3а. Аналитика в приложении — решение и важная находка (14 ноября)
+
+Владелец выбрал: полная политика + не грузить Cloudflare Web Analytics в приложении. Ветка **`feat/privacy-android-beacon`** (`4b468ae6`) = `feat/privacy-policy-android` + компонент `app/components/AnalyticsBeacon.jsx` (не грузит счётчик при `MiamiElioApp/` в User-Agent или `data-app="android"`), контакт `support@gorgona-one.com`. Сливается в `main` (`c2fda0fc`) без конфликтов, меняет только политику, переводы, `app/layout.js` и тест. PR не открыт: `gh` не авторизован, браузеры без входа в GitHub.
+
+**Находка:** на живом сайте счётчик вставляет сам Cloudflare на своей стороне (автоматическая установка Web Analytics: `beacon.min.js/vce…`, `data-cf-beacon` с `version 2024.11.0`, токен `fc0790156d184ab3a8aa664be86189ad` — публичный), а переменная `NEXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN` при сборке не задана. Поэтому компонент сам по себе счётчик в приложении **не уберёт**. Нужно в панели Cloudflare: (1) Web Analytics → сайт `gorgona-one.com` → выключить автоматическую вставку; (2) в настройках сборки сайта (Workers Builds) добавить переменную `NEXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN` с этим токеном и пересобрать. Проверка после: в обычном браузере на странице есть `static.cloudflareinsights.com/beacon.min.js`, а с User-Agent, содержащим `MiamiElioApp/1.0`, — нет (страницу проверять в браузере: скрипт добавляется после загрузки). Пока это не сделано, фраза политики «в Android-приложении нет аналитики» неверна.
+
 ## 4. Черновик ответов Data safety («Безопасность данных»)
 
 Основа: код приложения (нет SDK аналитики, рекламы и сбоев; разрешения `INTERNET`, `ACCESS_NETWORK_STATE`, `RECORD_AUDIO`, `MODIFY_AUDIO_SETTINGS`, `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`) и страницы сайта, открытые в приложении. «Передача» (sharing) по правилам Google не включает обработчиков, действующих от имени разработчика (Supabase, Cloudflare, поставщик ИИ, Telegram для уведомлений своей команды).
