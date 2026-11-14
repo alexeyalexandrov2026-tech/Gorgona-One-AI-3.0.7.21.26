@@ -3117,7 +3117,7 @@
   },
   "ui.9eaca12cc5af7738": {
     "sourceHash": "9eaca12cc5af77381fadc4642d864f9a419149176966a3b488052d3c207518bd",
-    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/cookie-policy/page.js; app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.86cb08a84ff4d12d": {
     "sourceHash": "86cb08a84ff4d12d0d7e1741c28362b6c4923971cd8eb2b4bf0b7a9e5277534f",
