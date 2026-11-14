@@ -5,7 +5,7 @@ import { useLocale } from '../components/LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
 import Link from 'next/link';
 
-const CONTACT = 'miami-elio@gorgona-one.com';
+const CONTACT = 'support@gorgona-one.com';
 
 function Section({ title, children }) {
   return (
