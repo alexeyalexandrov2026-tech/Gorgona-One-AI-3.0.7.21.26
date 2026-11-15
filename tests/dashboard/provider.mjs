@@ -14,7 +14,7 @@ export function provider(db) {
       if(url.pathname.startsWith('/rest/v1/rpc/')){
         if(token!==fixtureEnv.SUPABASE_SERVICE_ROLE_KEY)return Response.json({error:'denied'},{status:403});
         const name=url.pathname.split('/').at(-1),args=await request.json();
-        if(!['dashboard_submit','dashboard_command','dashboard_claim','dashboard_settle','dashboard_delivery_status','dashboard_reserve_email','partner_listing_command','partner_listing_media_register','partner_listing_media_access','dining_venue_read','dining_venue_command','dashboard_submit_plan','dashboard_plan_receipt','dashboard_claim_requests','favorites_change','submit_app_support_request','resolve_app_support_request'].includes(name))throw new Error('Unexpected RPC');
+        if(!['dashboard_submit','dashboard_command','dashboard_claim','dashboard_settle','dashboard_delivery_status','dashboard_reserve_email','dashboard_reserve_sms','partner_listing_command','partner_listing_media_register','partner_listing_media_access','dining_venue_read','dining_venue_command','dashboard_submit_plan','dashboard_plan_receipt','dashboard_claim_requests','favorites_change','submit_app_support_request','resolve_app_support_request'].includes(name))throw new Error('Unexpected RPC');
         if(name==='dashboard_claim'){
           await db.exec('set role service_role');
           try{return Response.json((await db.query('select * from public.dashboard_claim($1,$2)',[args.p_channels,args.p_limit])).rows);}finally{await db.exec('reset role');}
