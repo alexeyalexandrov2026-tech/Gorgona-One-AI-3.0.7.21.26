@@ -39,9 +39,15 @@ test('Android Explore shows the native concierge link and the same navigation', 
   const concierge = page.getByRole('link', { name: /Miami Elio AI Concierge/ });
   await expect(concierge).toBeVisible();
   await expect(concierge).toHaveAttribute('href', 'miamielio://concierge');
-  await expect(page.locator('.g1-home-sections').getByRole('link')).toHaveCount(sections.length);
+  const rail = page.locator('.g1-home-sections');
+  await expect(rail.getByRole('link')).toHaveCount(sections.length);
   await expect(page.locator('.g1-home-sections__pause')).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(360);
+
+  const events = rail.getByRole('link', { name: 'Events', exact: true });
+  await events.click();
+  await expect(page).toHaveURL(/\/events$/, { timeout: 15_000 });
+  await expect(page.locator('main').first()).toBeVisible();
 });
 
 test('the section rail advances and can be paused', async ({ page }) => {
