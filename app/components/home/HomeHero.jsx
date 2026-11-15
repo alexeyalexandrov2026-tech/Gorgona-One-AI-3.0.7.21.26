@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { HERO_CAR, carThumb } from '../../../lib/homeData';
 import { useAskConcierge } from './shared';
 import {useConciergeChat} from '../ai/ChatProvider';
+import { AiSphereArtwork } from '../ai/AiSphere';
+import HomeSectionRail from './HomeSectionRail';
 import { btn, chipClass } from '../g1/ui';
 import Icon from '../g1/icons';
 
@@ -39,10 +41,19 @@ export default function HomeHero({ copy }) {
   }
 
   return (
-    <section className="pb-[clamp(44px,6vw,90px)] pt-[clamp(28px,5vw,70px)]">
-      <div className="grid items-center gap-[clamp(30px,5vw,76px)] lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
+    <section className="pb-[clamp(32px,5vw,76px)] pt-[clamp(16px,3vw,36px)]">
+      <HomeSectionRail copy={copy} />
+      <div className="g1-home-app-hero">
+        <h1>
+          <a href="miamielio://concierge" className="g1-home-concierge-link">
+            <span className="g1-home-concierge-orb" aria-hidden="true"><AiSphereArtwork /></span>
+            <span>{msg('Miami Elio AI Concierge')}</span>
+            <span className="g1-home-concierge-action">{copy.open} <Icon name="arrow" className="g1-flip h-4 w-4" /></span>
+          </a>
+        </h1>
+      </div>
+      <div className="g1-home-web-hero grid items-center gap-[clamp(30px,5vw,76px)] lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
         <div className="grid min-w-0 grid-cols-1 gap-[clamp(18px,2.4vw,28px)]">
-          <p className="font-g1sans text-[0.74rem] font-medium uppercase leading-[1.3] tracking-[0.2em] text-g1-soft">{copy.eyebrow}</p>
           <h1 className="g1-display min-w-0 font-g1display text-[clamp(2.1rem,4.6vw+1rem,5.8rem)] font-medium leading-none tracking-[-0.015em] text-g1-ink [overflow-wrap:anywhere] [text-wrap:balance]">
             <LocalizedText source="Save on the everyday. {highlight} on the extraordinary." values={{ highlight: <em className="[word-break:keep-all]">{copy.titleEm}</em> }} />
           </h1>

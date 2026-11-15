@@ -10,7 +10,7 @@ import { getHomeCopy } from '../lib/homeCopy';
 import {getHeadoutCopy} from '../lib/headoutCopy.mjs';
 import {getPrivateJetsCopy} from '../lib/privateJetsCopy.mjs';
 import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
-import { FLEET, HOME_YACHTS, HOME_STAYS, carThumb } from '../lib/homeData';
+import { FLEET, HOME_SECTIONS, HOME_YACHTS, HOME_STAYS, carThumb } from '../lib/homeData';
 import HomeHero from './components/home/HomeHero';
 import SeasonShelf from './components/home/SeasonShelf';
 import TicketCarousel from './components/home/TicketCarousel';
@@ -21,16 +21,11 @@ import Icon from './components/g1/icons';
 
 const WORLDS = [
   { id: 'experiences', href: '/experiences', image: HEADOUT_COLLECTIONS[0].image },
-  // Its own picture: the wing belongs to Private Jets below.
-  { id: 'travel', href: '/travel', image: '/images/home/deco-hotel.jpg' },
-  { id: 'stays', href: '/vacation-rentals', img: 'stay-miami-beach' },
-  { id: 'yachts', href: '/yachts', img: 'yacht-princess' },
-  { id: 'cars', href: '/rentals', img: null },
-  { id: 'events', href: '/events', img: 'events-stage' },
+  ...HOME_SECTIONS,
   { id: 'dining', href: '/restaurants-nightlife', img: 'deco-street' },
   { id: 'privateJets', href: '/private-jets', img: 'travel-wing' }
 ];
-const worldImage = (world) => world.image || (world.img ? `/images/home/worlds/${world.img}.jpg` : carThumb(FLEET[0]));
+const worldImage = (world) => world.image || `/images/home/worlds/${world.img}.jpg`;
 
 export default function HomePage() {
   const msg = useSavedText();
