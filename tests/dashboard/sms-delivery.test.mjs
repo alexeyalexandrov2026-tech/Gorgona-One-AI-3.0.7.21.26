@@ -70,6 +70,7 @@ test('SMS uses Twilio API key only on server and omits customer PII',async()=>{
     assert.equal(body.get('MessagingServiceSid'),twilio.TWILIO_MESSAGING_SERVICE_SID);
     assert.match(body.get('Body'),/^Miami Elio: request created/);
     assert.match(body.get('Body'),/https:\/\/gorgona-one\.com\/admin/);
+    assert.match(body.get('Body'),/Reply STOP to opt out\.$/);
     assert.ok(body.get('Body').length<=160);
     for(const pii of [sample.name,sample.email,sample.phone])assert.ok(!call.options.body.includes(pii));
     const saved=(await f.db.query("select status,provider_id from private.notification_deliveries where channel='sms'")).rows[0];
@@ -92,6 +93,80 @@ test('Twilio API rejection becomes a failure with no repeated paid attempts',asy
     assert.equal((await dispatchNotifications(f.env,fetcher)).claimed,0);
     assert.equal(count,1);
   }finally{await f.db.close();}
+});
+
+for (const [name, twilioResponse] of [
+  ['a transport timeout', () => { throw new DOMException('Timed out', 'TimeoutError'); }],
+  ['an upstream error', () => Response.json({code:20500},{status:500})],
+  ['a successful HTTP response without a Message SID', () => Response.json({status:'accepted'})],
+]) {
+  test('SMS stays failed for reconciliation after ' + name, async () => {
+    const {db,sql,env}=await setup();
+    try {
+      let posts=0;
+      const fetcher=(url,options)=>{
+        if(String(url).startsWith(fixtureEnv.NEXT_PUBLIC_SUPABASE_URL))return sql(url,options);
+        posts++;
+        return twilioResponse();
+      };
+      assert.equal((await dispatchNotifications(env,fetcher)).sent,0);
+      const {rows}=await db.query(
+        "select status,error_code,provider_id from private.notification_deliveries where channel='sms'");
+      assert.deepEqual(rows,[{status:'failed',error_code:'sms_outcome_unknown',provider_id:null}]);
+      assert.equal((await dispatchNotifications(env,fetcher)).claimed,0);
+      assert.equal(posts,1);
+    } finally {await db.close();}
+  });
+}
+
+test('an SMS attempt survives an expired lease without a second Twilio request',async()=>{
+  const {db,sql,env}=await setup();
+  try {
+    const claimed=await sql(fixtureEnv.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/rpc/dashboard_claim',{
+      method:'POST',headers:{Authorization:'Bearer '+fixtureEnv.SUPABASE_SERVICE_ROLE_KEY},
+      body:JSON.stringify({p_channels:['sms'],p_limit:1})
+    });
+    const [{id,lease_id}]=await claimed.json();
+    const args={p_id:id,p_lease:lease_id};
+    await assert.rejects(asUser(db,ids.customer,
+      "select public.dashboard_begin_sms_attempt($1,$2)",[id,lease_id]),/permission denied/);
+    assert.equal(await rpc(db,'dashboard_begin_sms_attempt',{...args,p_lease:randomUUID()}),'lease_lost');
+    assert.equal(await rpc(db,'dashboard_begin_sms_attempt',args),'reserved');
+    assert.equal(await rpc(db,'dashboard_begin_sms_attempt',args),'outcome_unknown');
+    await db.query("update private.notification_deliveries set lease_until=now()-interval '1 second' where id=$1",[id]);
+    let posts=0;
+    const fetcher=(url,options)=>{
+      if(String(url).startsWith(fixtureEnv.NEXT_PUBLIC_SUPABASE_URL))return sql(url,options);
+      posts++;
+      throw new Error('An uncertain attempt must not be repeated');
+    };
+    assert.equal((await dispatchNotifications(env,fetcher)).sent,0);
+    const {rows}=await db.query("select status,error_code from private.notification_deliveries where id=$1",[id]);
+    assert.deepEqual(rows,[{status:'failed',error_code:'sms_outcome_unknown'}]);
+    assert.equal((await dispatchNotifications(env,fetcher)).claimed,0);
+    assert.equal(posts,0);
+  } finally {await db.close();}
+});
+
+test('an explicitly rejected Twilio rate-limit response can be retried',async()=>{
+  const {db,sql,env}=await setup();
+  try {
+    let posts=0;
+    const fetcher=(url,options)=>{
+      if(String(url).startsWith(fixtureEnv.NEXT_PUBLIC_SUPABASE_URL))return sql(url,options);
+      posts++;
+      return posts===1 ? Response.json({code:20429},{status:429,headers:{'Retry-After':'90'}})
+        : Response.json({sid:'SM'+'b'.repeat(32),status:'accepted'});
+    };
+    assert.equal((await dispatchNotifications(env,fetcher)).sent,0);
+    const {rows}=await db.query(
+      "select status,error_code,next_at>now()+interval '60 seconds' as backed_off from private.notification_deliveries where channel='sms'");
+    assert.deepEqual(rows,[{status:'pending',error_code:'rate_limit',backed_off:true}]);
+    assert.equal((await dispatchNotifications(env,fetcher)).claimed,0);
+    await db.exec("update private.notification_deliveries set next_at=now() where channel='sms'");
+    assert.equal((await dispatchNotifications(env,fetcher)).sent,1);
+    assert.equal(posts,2);
+  } finally {await db.close();}
 });
 
 test('daily SMS budget prevents dispatch to Twilio; settings are not writable by clients',async()=>{
