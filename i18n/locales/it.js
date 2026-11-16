@@ -781,5 +781,13 @@ export default {
   "ui.141395eb35564fe5": "Cookie",
   "ui.9eaca12cc5af7738": "Usiamo i cookie solo per ricordare la tua lingua e mantenere l’accesso.",
   "ui.86cb08a84ff4d12d": "Modifiche a questa informativa",
-  "ui.b7ed2269e144f6a7": "Se modifichiamo questa informativa, pubblicheremo la nuova versione in questa pagina con una nuova data."
+  "ui.b7ed2269e144f6a7": "Se modifichiamo questa informativa, pubblicheremo la nuova versione in questa pagina con una nuova data.",
+  "ui.c3eb02a44df5b5df": "Miami Elio (il sito gorgona-one.com e l’app Android Miami Elio) è gestito da ALEXEY AAA LOGISTICS LLC, che opera con il nome Gorgona One AI.",
+  "ui.0bf30da4c87b5de5": "Come richiedere l’eliminazione",
+  "ui.5eb859dff1d12a38": "Accedi all’account che vuoi eliminare. Nell’app: scheda «La mia Miami», poi «Accedi».",
+  "ui.ea81fe58ce04c3f1": "Seleziona la casella di conferma qui sotto e tocca «Invia richiesta».",
+  "ui.8df8a5a678866608": "Confermiamo via email all’indirizzo del tuo account ed eliminiamo account e preferiti entro 30 giorni dalla tua richiesta.",
+  "ui.bfef2a81a663f04b": "Non riesci ad accedere? Scrivi a support@gorgona-one.com dall’indirizzo email del tuo account e gestiremo la richiesta allo stesso modo.",
+  "ui.e12796a571a160e9": "Cosa conserviamo",
+  "ui.f56b7a2ccae8dd57": "Le richieste inviate prima dell’eliminazione, compresi nome, email e numero di telefono in esse contenuti, vengono conservate per 24 mesi dalla data della richiesta per finalità di prenotazione, contabilità e obblighi di legge, e poi eliminate o rese anonime. Le risposte del concierge segnalate vengono conservate per 12 mesi."
 };

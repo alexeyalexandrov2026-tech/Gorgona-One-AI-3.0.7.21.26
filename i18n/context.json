@@ -1289,7 +1289,7 @@
   },
   "ui.0f7664c62a90fb50": {
     "sourceHash": "0f7664c62a90fb50b89b4dbc42cc24074acbadc50db392494a65baa67a3c07a1",
-    "description": "app/components/CategoryOrb.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/CategoryOrb.jsx; app/components/home/HomeHero.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.0ae1096fdd45527e": {
     "sourceHash": "0ae1096fdd45527eac7be41cf4f923297d4e716490e71be4e25135d1a08d14b0",
@@ -3126,5 +3126,37 @@
   "ui.b7ed2269e144f6a7": {
     "sourceHash": "b7ed2269e144f6a71ef066385fdc2d1a63504ce9876eb459d60443092aae9b0d",
     "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.c3eb02a44df5b5df": {
+    "sourceHash": "c3eb02a44df5b5df20afd120951ddc841a724f3c274437f7ccbfc6da7dcba20a",
+    "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.0bf30da4c87b5de5": {
+    "sourceHash": "0bf30da4c87b5de52b8cf44645c0494e214eec771b09ddcb859fa41e438b330a",
+    "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.ea81fe58ce04c3f1": {
+    "sourceHash": "ea81fe58ce04c3f170d891e3651964c7c5e69a62231159aa03ee4248e60d63d0",
+    "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.8df8a5a678866608": {
+    "sourceHash": "8df8a5a678866608e60d15b2da6285cf23444da496abb8c49b645d7d01d0d372",
+    "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.bfef2a81a663f04b": {
+    "sourceHash": "bfef2a81a663f04be11be23ee5827cdf9820f4e4953543609553ba07834421f6",
+    "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.e12796a571a160e9": {
+    "sourceHash": "e12796a571a160e9b4bb7e42c6dbf601485b1ec32986540be96e7d2b22c2be33",
+    "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.f56b7a2ccae8dd57": {
+    "sourceHash": "f56b7a2ccae8dd572020ba7cda952d260e63f11a1defac48c1b6b366aad1a03f",
+    "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.5eb859dff1d12a38": {
+    "sourceHash": "5eb859dff1d12a38d1fc65d8d8ec4c6a838b9bdeee29934eb5b4269dbf9b2802",
+    "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   }
 }

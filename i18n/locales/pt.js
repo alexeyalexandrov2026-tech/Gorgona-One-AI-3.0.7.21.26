@@ -781,5 +781,13 @@ export default {
   "ui.141395eb35564fe5": "Cookies",
   "ui.9eaca12cc5af7738": "Usamos cookies apenas para memorizar o seu idioma e manter a sessão iniciada.",
   "ui.86cb08a84ff4d12d": "Alterações a esta política",
-  "ui.b7ed2269e144f6a7": "Se alterarmos esta política, publicaremos a nova versão nesta página com uma nova data."
+  "ui.b7ed2269e144f6a7": "Se alterarmos esta política, publicaremos a nova versão nesta página com uma nova data.",
+  "ui.c3eb02a44df5b5df": "O Miami Elio (o site gorgona-one.com e o app Android Miami Elio) é operado pela ALEXEY AAA LOGISTICS LLC, que atua sob o nome Gorgona One AI.",
+  "ui.0bf30da4c87b5de5": "Como solicitar a exclusão",
+  "ui.5eb859dff1d12a38": "Entre na conta que você quer excluir. No app: aba «Meu Miami» e depois «Entrar».",
+  "ui.ea81fe58ce04c3f1": "Marque a caixa de confirmação abaixo e toque em «Enviar pedido».",
+  "ui.8df8a5a678866608": "Confirmamos por e-mail para o endereço da sua conta e excluímos sua conta e seus favoritos em até 30 dias após o seu pedido.",
+  "ui.bfef2a81a663f04b": "Não consegue entrar? Escreva para support@gorgona-one.com a partir do e-mail da sua conta e trataremos o pedido da mesma forma.",
+  "ui.e12796a571a160e9": "O que mantemos",
+  "ui.f56b7a2ccae8dd57": "Os pedidos que você enviou antes da exclusão, incluindo o nome, o e-mail e o telefone neles, são mantidos por 24 meses a partir da data do pedido para fins de reservas, contabilidade e obrigações legais, e depois são excluídos ou anonimizados. As respostas do concierge denunciadas são mantidas por 12 meses."
 };

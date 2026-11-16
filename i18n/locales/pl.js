@@ -781,5 +781,13 @@ export default {
   "ui.141395eb35564fe5": "Pliki cookie",
   "ui.9eaca12cc5af7738": "Używamy plików cookie wyłącznie do zapamiętania języka i utrzymania zalogowania.",
   "ui.86cb08a84ff4d12d": "Zmiany tej polityki",
-  "ui.b7ed2269e144f6a7": "Jeśli zmienimy tę politykę, opublikujemy nową wersję na tej stronie z nową datą."
+  "ui.b7ed2269e144f6a7": "Jeśli zmienimy tę politykę, opublikujemy nową wersję na tej stronie z nową datą.",
+  "ui.c3eb02a44df5b5df": "Miami Elio (witryna gorgona-one.com i aplikacja Miami Elio na Androida) jest prowadzone przez ALEXEY AAA LOGISTICS LLC, działającą pod nazwą Gorgona One AI.",
+  "ui.0bf30da4c87b5de5": "Jak poprosić o usunięcie",
+  "ui.5eb859dff1d12a38": "Zaloguj się na konto, które chcesz usunąć. W aplikacji: karta „Moje Miami”, potem „Zaloguj się”.",
+  "ui.ea81fe58ce04c3f1": "Zaznacz pole potwierdzenia poniżej i dotknij „Wyślij zapytanie”.",
+  "ui.8df8a5a678866608": "Potwierdzimy to e-mailem na adres Twojego konta i usuniemy konto oraz ulubione w ciągu 30 dni od Twojej prośby.",
+  "ui.bfef2a81a663f04b": "Nie możesz się zalogować? Napisz na support@gorgona-one.com z adresu e-mail swojego konta, a rozpatrzymy prośbę w ten sam sposób.",
+  "ui.e12796a571a160e9": "Co przechowujemy",
+  "ui.f56b7a2ccae8dd57": "Zapytania wysłane przed usunięciem, w tym zawarte w nich imię i nazwisko, adres e-mail i numer telefonu, są przechowywane przez 24 miesiące od daty zapytania w celach rezerwacji, księgowości i prawnych, a następnie usuwane lub anonimizowane. Zgłoszone odpowiedzi konsjerża są przechowywane przez 12 miesięcy."
 };

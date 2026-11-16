@@ -781,5 +781,13 @@ export default {
   "ui.141395eb35564fe5": "Çerezler",
   "ui.9eaca12cc5af7738": "Çerezleri yalnızca dilinizi hatırlamak ve oturumunuzu açık tutmak için kullanırız.",
   "ui.86cb08a84ff4d12d": "Bu politikadaki değişiklikler",
-  "ui.b7ed2269e144f6a7": "Bu politikayı değiştirirsek yeni sürümü bu sayfada yeni bir tarihle yayımlarız."
+  "ui.b7ed2269e144f6a7": "Bu politikayı değiştirirsek yeni sürümü bu sayfada yeni bir tarihle yayımlarız.",
+  "ui.c3eb02a44df5b5df": "Miami Elio (gorgona-one.com web sitesi ve Miami Elio Android uygulaması), Gorgona One AI adıyla faaliyet gösteren ALEXEY AAA LOGISTICS LLC tarafından işletilmektedir.",
+  "ui.0bf30da4c87b5de5": "Silme talebi nasıl yapılır",
+  "ui.5eb859dff1d12a38": "Silmek istediğiniz hesapta oturum açın. Uygulamada: «Benim Miami’m» sekmesi, ardından «Giriş Yap».",
+  "ui.ea81fe58ce04c3f1": "Aşağıdaki onay kutusunu işaretleyin ve «Talep gönder» düğmesine dokunun.",
+  "ui.8df8a5a678866608": "Hesabınızın e-posta adresine e-posta ile onaylar, hesabınızı ve favorilerinizi talebinizden sonraki 30 gün içinde sileriz.",
+  "ui.bfef2a81a663f04b": "Oturum açamıyor musunuz? Hesabınızın e-posta adresinden support@gorgona-one.com adresine yazın, talebi aynı şekilde işleme alırız.",
+  "ui.e12796a571a160e9": "Neleri saklarız",
+  "ui.f56b7a2ccae8dd57": "Silmeden önce gönderdiğiniz talepler, içindeki ad, e-posta ve telefon numarası dahil, rezervasyon, muhasebe ve yasal amaçlarla talep tarihinden itibaren 24 ay saklanır, ardından silinir veya anonimleştirilir. Bildirilen konsiyerj yanıtları 12 ay saklanır."
 };
