@@ -5,8 +5,19 @@ import { Logo } from '../../../components/Logo';
 import { EventGrid } from '../../EventGrid';
 import { EventPagination } from '../../EventPagination';
 import { getServerTranslations } from '../../../../lib/serverLocale';
+import { pageMetadata } from '../../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  const league = getLeagueBySlug((await params).league);
+  if (!league) return {};
+  return pageMetadata({
+    title: `${league.name} tickets in Miami`,
+    description: `${league.name} ${league.sport ? league.sport.toLowerCase() + ' ' : ''}games and tickets in Miami, with teams, dates and an AI concierge to plan the trip.`,
+    path: `/events/league/${league.slug}`
+  });
+}
 
 export default async function LeaguePage({ params, searchParams }) {
   params = await params;

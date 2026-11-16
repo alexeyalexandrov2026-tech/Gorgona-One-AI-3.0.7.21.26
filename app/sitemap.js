@@ -1,49 +1,27 @@
-import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
+import { HEADOUT_COLLECTIONS } from '../lib/headoutCatalog.mjs';
 import { getRentals } from '../lib/rentalsData.js';
-import { EVENT_CATEGORIES, LEAGUES } from '../lib/mockEventsData';
+import { EVENT_CATEGORIES, EVENT_CATEGORY_GROUPS, LEAGUES } from '../lib/mockEventsData';
 import { getAllEvents } from '../lib/eventsData';
+import { getVacationRentals } from '../lib/data/listings';
+import { diningCatalogue } from '../lib/server/diningCatalogue.mjs';
+import { sitemapEntries } from '../lib/seo.mjs';
+
+// A section whose source is briefly unavailable drops out of this build's
+// sitemap instead of failing the whole file.
+const slugs = async (load) => {
+  try { return (await load()).map((item) => item.slug).filter(Boolean); }
+  catch { return []; }
+};
 
 export default async function sitemap() {
-  const baseUrl = 'https://gorgona-one.com';
-
-  const routes = [
-    '',
-    '/experiences',
-    '/private-jets',
-    '/events'
-  ];
-
-  const staticRoutes = routes.map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.8
-  }));
-
-  const categoryRoutes = HEADOUT_COLLECTIONS.map(item=>({url:baseUrl+'/experiences/'+item.slug,changeFrequency:'weekly',priority:0.7}));
-
-  const eventCategoryRoutes = EVENT_CATEGORIES.map((category) => ({
-    url: `${baseUrl}/events/category/${category.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: 0.7
-  }));
-
-  const leagueRoutes = LEAGUES.map((league) => ({
-    url: `${baseUrl}/events/league/${league.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.6
-  }));
-
-  const events = await getAllEvents();
-  const eventRoutes = events.map((event) => ({
-    url: `${baseUrl}/events/${event.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: 0.8
-  }));
-
-  const carRoutes = getRentals().map(car=>({url:`${baseUrl}/rentals/${car.slug}`,changeFrequency:'weekly',priority:0.7}));
-  return [...staticRoutes, ...categoryRoutes, ...eventCategoryRoutes, ...leagueRoutes, ...eventRoutes, {url:baseUrl+'/rentals',changeFrequency:'weekly',priority:0.8}, ...carRoutes];
+  return sitemapEntries({
+    experiences: HEADOUT_COLLECTIONS.map((item) => item.slug),
+    eventCategories: [...EVENT_CATEGORY_GROUPS, ...EVENT_CATEGORIES].map((category) => category.slug),
+    leagues: LEAGUES.map((league) => league.slug),
+    events: await slugs(getAllEvents),
+    rentals: getRentals().map((car) => car.slug),
+    stays: await slugs(() => getVacationRentals({ editorial: true })),
+    // The same filter the restaurants directory shows.
+    venues: await slugs(async () => (await diningCatalogue(process.env, fetch)).filter((venue) => venue.status === 'verified'))
+  });
 }

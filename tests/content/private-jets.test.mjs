@@ -22,7 +22,8 @@ test('Private Jets replaces Discovery in navigation and the home directory',()=>
   assert.match(source,/href: '\/private-jets'/);
   assert.doesNotMatch(source,/href: '\/discovery'/);
  }
- assert.match(read('app/sitemap.js'),/'\/private-jets'/);
+ assert.match(read('lib/seo.mjs'),/'\/private-jets'/);
+ assert.match(read('app/sitemap.js'),/sitemapEntries/);
 });
 
 test('the official partner widget is isolated and an attributed fallback is always available',()=>{

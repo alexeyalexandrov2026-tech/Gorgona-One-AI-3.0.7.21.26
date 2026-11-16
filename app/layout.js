@@ -16,39 +16,37 @@ import { ChatProvider } from './components/ai/ChatProvider';
 import { AiSphere } from './components/ai/AiSphere';         
 import { AiDock } from './components/ai/AiDock';             
 import { InstallPrompt } from './components/InstallPrompt';   
+import { DEFAULT_IMAGE } from '../lib/seo.mjs';
 
 const baseUrl = 'https://gorgona-one.com';
 
-// Site content is served from a single URL per page (language is chosen via
-// cookie/localStorage, not a URL prefix), so every hreflang variant points
-// at the same canonical URL - a valid pattern for search engines when
-// language is determined client-side rather than through distinct routes.
-const HREFLANG_CODES = ['en-US', 'ru', 'es', 'he-IL', 'zh', 'pt', 'uk', 'ja', 'ko', 'de', 'ar', 'tr', 'fa', 'it', 'fr', 'pl'];
-
+// Every language shares one address per page (the language is a cookie, not
+// a URL prefix), so there are no hreflang alternates. './' resolves against
+// the current page, so a page without its own metadata still names itself as
+// canonical instead of claiming to be a copy of the home page.
 export const metadata = {
   title: 'MIAMI ELIO | Yachts, villas, cars, events and shopping in Miami',
   description: 'Yachts, villas, cars, events and shopping in Miami, with one AI concierge in your language.',
   keywords: ['Miami', 'yacht charters', 'car rentals', 'villas', 'events', 'AI concierge'],
   metadataBase: new URL(baseUrl),
-  alternates: {
-    canonical: baseUrl,
-    languages: {
-      ...Object.fromEntries(HREFLANG_CODES.map((code) => [code, baseUrl])),
-      'x-default': baseUrl
-    }
+  alternates: { canonical: './' },
+  icons: {
+    icon: [{ url: '/favicon-32.png', sizes: '32x32', type: 'image/png' }],
+    apple: '/apple-touch-icon.png'
   },
   openGraph: {
     title: 'MIAMI ELIO',
     description: 'Yachts, villas, cars, tickets and an AI concierge in Miami.',
-    url: 'https://gorgona-one.com',
+    url: './',
     siteName: 'MIAMI ELIO',
-    images: [{ url: '/og-image.svg', width: 1200, height: 630 }],
+    images: [DEFAULT_IMAGE],
     type: 'website'
   },
   twitter: {
     card: 'summary_large_image',
     title: 'MIAMI ELIO',
-    description: 'Yachts, villas, cars, tickets and an AI concierge in Miami.'
+    description: 'Yachts, villas, cars, tickets and an AI concierge in Miami.',
+    images: [DEFAULT_IMAGE.url]
   },
   verification: {
     other: {

@@ -10,8 +10,18 @@ import {Crumbs,Specs,eyebrowClass} from '../../components/g1/ui';
 import DiningBooking from '../../components/dining/DiningBooking';
 import {channelsFor,PROVIDERS} from '../../../lib/dining/gateway.mjs';
 import {getDiningCopy,getDiningStyles} from '../../../lib/dining/copy.mjs';
+import {pageMetadata} from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({params}) {
+ const {slug}=await params;
+ // A catalogue outage renders the page's own error; metadata just stays generic.
+ const venue=await diningVenue(slug,process.env,fetch,{strict:true}).catch(()=>null);
+ if(!venue)return {};
+ const place=[venue.cuisine,venue.neighborhood].filter(Boolean).join(', ');
+ return pageMetadata({title:`${venue.name}${venue.neighborhood?` in ${venue.neighborhood}`:''}, Miami`,description:venue.description||`${venue.name}${place?` (${place})`:''}: reservations through MIAMI ELIO.`,path:`/restaurants-nightlife/${venue.slug}`});
+}
 export default async function VenueDetailPage({params}) {
  const venue=await diningVenue((await params).slug,process.env,fetch,{strict:true});
  if(!venue)notFound();
