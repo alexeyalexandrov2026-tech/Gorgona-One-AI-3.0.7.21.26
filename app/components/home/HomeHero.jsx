@@ -1,44 +1,150 @@
 "use client";
-import { LocalizedText, useSavedText } from "../LocalizedText";
 
-import { useState } from 'react';
-import { HERO_CAR, carThumb } from '../../../lib/homeData';
+import { useEffect, useRef, useState } from 'react';
+import { useSavedText } from '../LocalizedText';
+import { useLocale } from '../LocaleProvider';
 import { useAskConcierge } from './shared';
-import {useConciergeChat} from '../ai/ChatProvider';
+import { useConciergeChat } from '../ai/ChatProvider';
+import { useVoice } from '../ai/useVoice';
+import { voiceInputUnavailable } from '../../../lib/ai/voiceInputCopy.mjs';
 import { AiSphereArtwork } from '../ai/AiSphere';
 import HomeSectionRail from './HomeSectionRail';
-import { btn, chipClass } from '../g1/ui';
+import HeroShowcase from './HeroShowcase';
 import Icon from '../g1/icons';
 
-// Valet tag for a car from our own fleet, hanging off the hero photo.
-function ValetTag({ copy }) {
+const ICONS = {
+  spark: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z',
+  yacht: 'M3 17h18l-2.5 4h-13zM12 3v12M12 4l6 10h-6M11 7l-5 7h5',
+  villa: 'M3 11l9-7 9 7M5 9.5V21h14V9.5M10 21v-6h4v6',
+  car: 'M5 16l1.6-5.2A2 2 0 0 1 8.5 9.4h7a2 2 0 0 1 1.9 1.4L19 16M3.5 16h17v3h-17zM7 19v2M17 19v2',
+  jet: 'M21 4 3 11l7 2.5L12.5 21 21 4zM10 13.5l5-4.5',
+  dine: 'M7 3v18M4.5 3v5a2.5 2.5 0 0 0 5 0V3M17 21V3c-2.2 1.6-3 4.5-3 7.5 0 1.4.9 2.5 3 2.5',
+  ticket: 'M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4zM15 7v10',
+  peak: 'M2.5 20 9 9l4 6 3-4 5.5 9z',
+  mic: 'M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3'
+};
+
+function LineIcon({ name, className = 'h-4 w-4' }) {
   return (
-    <div className="g1-valet" aria-label={HERO_CAR.title}>
-      <img src={carThumb(HERO_CAR)} alt="" width="720" height="480" />
-      <span className="font-g1mono text-[0.7rem] font-medium tracking-[0.08em] text-g1-soft">{copy.valet.no} 0417</span>
-      <span className="font-g1display text-[1.18rem] font-medium leading-[1.1] text-g1-ink">{HERO_CAR.title}</span>
-      <dl>
-        <dt>{copy.valet.from}</dt>
-        <dd className="text-g1-ink">{copy.valet.fromValue}</dd>
-        <dt>{copy.valet.to}</dt>
-        <dd className="text-g1-ink">{copy.valet.toValue}</dd>
-      </dl>
-      <span className="ready">{copy.valet.ready}</span>
-    </div>
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path d={ICONS[name]} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
-export default function HomeHero({ copy }) {
+export default function HomeHero({ copy, showcase = [] }) {
   const msg = useSavedText();
+  const locale = useLocale();
   const ask = useAskConcierge();
-  const {hydrated,isLoading}=useConciergeChat();
+  const { hydrated, isLoading } = useConciergeChat();
+  const voice = useVoice();
   const [query, setQuery] = useState('');
+  const [focused, setFocused] = useState(false);
+  const [promptIndex, setPromptIndex] = useState(0);
+  const [typed, setTyped] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const [showcaseHold, setShowcaseHold] = useState(true);
+  const [horizon, setHorizon] = useState(false);
+  const [clock, setClock] = useState('');
+  const introRef = useRef(null);
+  const glassRef = useRef(null);
+  const prompts = copy.prompts || [];
+  const busy = !hydrated || isLoading;
+  const showGhost = !query && !focused && !reduceMotion && prompts.length > 0;
+
+  useEffect(() => {
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => setReduceMotion(motion.matches);
+    apply();
+    motion.addEventListener('change', apply);
+    return () => motion.removeEventListener('change', apply);
+  }, []);
+
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let seen = false;
+    try { seen = sessionStorage.getItem('elio-horizon') === '1'; } catch { /* keep the concierge usable */ }
+    if (reduce || seen) {
+      const timer = window.setTimeout(() => setShowcaseHold(false), 280);
+      return () => window.clearTimeout(timer);
+    }
+    try { sessionStorage.setItem('elio-horizon', '1'); } catch { /* play anyway; the tab may block storage */ }
+    setHorizon(true);
+    const done = window.setTimeout(() => {
+      setHorizon(false);
+      setShowcaseHold(false);
+    }, 3400);
+    return () => window.clearTimeout(done);
+  }, []);
+
+  useEffect(() => {
+    if (!horizon) return undefined;
+    const measure = () => {
+      const intro = introRef.current;
+      const glass = glassRef.current;
+      const stack = intro?.querySelector('.g1-horizon-stack');
+      if (!intro || !glass || !stack) return;
+      const brand = stack.getBoundingClientRect();
+      const box = glass.getBoundingClientRect();
+      const center = brand.top + brand.height / 2;
+      intro.style.setProperty('--gy', `${box.top - center}px`);
+      intro.style.setProperty('--bh', `${brand.height}px`);
+      intro.style.setProperty('--sx', (box.width / Math.max(brand.width, 1)).toFixed(3));
+    };
+    const frame = window.requestAnimationFrame(measure);
+    return () => window.cancelAnimationFrame(frame);
+  }, [horizon]);
+
+  useEffect(() => {
+    if (!showGhost) return undefined;
+    const text = prompts[promptIndex] || '';
+    if (typed < text.length) {
+      const timer = window.setTimeout(() => setTyped((count) => count + 1), 42);
+      return () => window.clearTimeout(timer);
+    }
+    const timer = window.setTimeout(() => {
+      setTyped(0);
+      setPromptIndex((index) => (index + 1) % prompts.length);
+    }, 1600);
+    return () => window.clearTimeout(timer);
+  }, [showGhost, prompts, promptIndex, typed]);
+
+  useEffect(() => {
+    const format = () => new Intl.DateTimeFormat(locale || 'en', {
+      hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York'
+    }).format(new Date());
+    const apply = () => setClock(format());
+    apply();
+    const timer = window.setInterval(apply, 30000);
+    return () => window.clearInterval(timer);
+  }, [locale]);
 
   function submit(event) {
     event.preventDefault();
     if (!query.trim()) return;
-    if(ask(query))setQuery('');
+    if (ask(query)) setQuery('');
   }
+
+  function speak() {
+    if (voice.isListening) {
+      voice.stopListening();
+      return;
+    }
+    voice.startListening((text) => {
+      setQuery(text);
+      if (ask(text)) setQuery('');
+    });
+  }
+
+  const picks = [
+    ['yachts', 'yacht', copy.worldItems.yachts[0], copy.chips[0]],
+    ['villas', 'villa', copy.picks.villas, copy.chips[3]],
+    ['cars', 'car', copy.worldItems.cars[0], copy.chips[1]],
+    ['jets', 'jet', copy.picks.jets, copy.picksAsk.jets],
+    ['dining', 'dine', copy.picks.dining, copy.chips[4]],
+    ['events', 'ticket', copy.worldItems.events[0], copy.chips[2]],
+    ['adventures', 'peak', copy.picks.adventures, copy.picksAsk.adventures]
+  ];
 
   return (
     <section className="pb-[clamp(32px,5vw,76px)] pt-[clamp(16px,3vw,36px)]">
@@ -52,62 +158,91 @@ export default function HomeHero({ copy }) {
           </a>
         </h1>
       </div>
-      <div className="g1-home-web-hero grid items-center gap-[clamp(30px,5vw,76px)] lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
-        <div className="grid min-w-0 grid-cols-1 gap-[clamp(18px,2.4vw,28px)]">
-          <h1 className="g1-display min-w-0 font-g1display text-[clamp(2.1rem,4.6vw+1rem,5.8rem)] font-medium leading-none tracking-[-0.015em] text-g1-ink [overflow-wrap:anywhere] [text-wrap:balance]">
-            <LocalizedText source="Save on the everyday. {highlight} on the extraordinary." values={{ highlight: <em className="[word-break:keep-all]">{copy.titleEm}</em> }} />
-          </h1>
-          <p className="max-w-[58ch] text-[clamp(1.06rem,0.35vw+1rem,1.22rem)] text-g1-soft [text-wrap:pretty]">
-            {copy.lede}
-          </p>
-
-          <form
-            role="search"
-            onSubmit={submit}
-            className="flex max-w-[640px] items-center gap-2 rounded-full border border-g1-rule bg-g1-card py-1.5 pe-1.5 ps-[18px] shadow-[0_1px_2px_var(--g1-drop),0_14px_34px_-18px_var(--g1-drop)] focus-within:outline focus-within:outline-2 focus-within:outline-offset-[3px] focus-within:outline-g1-accent"
-          >
-            <Icon name="search" className="h-5 w-5 text-g1-soft" />
-            <label htmlFor="g1-hero-q" className="sr-only">{copy.searchLabel}</label>
-            <input
-              id="g1-hero-q"
-              maxLength={4000}
-              disabled={!hydrated||isLoading}
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={copy.searchPlaceholder}
-              autoComplete="off"
-              enterKeyHint="send"
-              className="min-w-0 flex-1 border-0 bg-transparent py-3 text-[1.05rem] text-g1-ink outline-none placeholder:text-g1-soft"
-            />
-            <button type="submit" disabled={!hydrated||isLoading||!query.trim()} className={`${btn.base} ${btn.primary}`}>{copy.searchGo}</button>
-          </form>
-
-          <div className="flex flex-wrap gap-2" aria-label={copy.chipsLabel}>
-            {copy.chips.map((chip) => (
-              <button key={chip} type="button" disabled={!hydrated||isLoading} className={chipClass} onClick={() => ask(chip)}>
+      <div className={`g1-home-web-hero g1-stage${horizon ? ' is-horizon' : ''}`}>
+        <img
+          className="g1-stage__bg"
+          src="/images/home/hero-tower.jpg"
+          alt={msg('Lifeguard tower on Miami Beach')}
+          width="1600"
+          height="2400"
+          fetchPriority="high"
+        />
+        <h1 className="sr-only">{copy.titleA}{copy.titleEm}{copy.titleB}</h1>
+        <p className="sr-only">{copy.lede}</p>
+        <div className="g1-horizon" ref={introRef} aria-hidden="true">
+          <div className="g1-horizon-stack">
+            <div className="g1-horizon-clip">
+              <div className="g1-horizon-brand">Elio</div>
+            </div>
+          </div>
+        </div>
+        <HeroShowcase items={showcase} copy={copy} hold={showcaseHold} />
+        <div className="g1-hero-dock">
+          <div className="g1-hero-sugg" aria-label={copy.chipsLabel}>
+            {copy.chips.map((chip, index) => (
+              <button key={chip} type="button" disabled={busy} style={{ '--k': index }} onClick={() => ask(chip)}>
+                <LineIcon name="spark" className="h-3.5 w-3.5" />
                 {chip}
               </button>
             ))}
           </div>
-
+          <form id="g1-hero-glass" ref={glassRef} role="search" onSubmit={submit} className="g1-hero-glass">
+            <div className="g1-hero-head">
+              <span className="g1-hero-orb" aria-hidden="true"><AiSphereArtwork /></span>
+              <span>{msg('Miami Elio AI Concierge')}</span>
+              <span className="g1-hero-live"><i />{copy.live}</span>
+            </div>
+            <div className="g1-hero-grow">
+              <div className="g1-hero-field">
+                {showGhost && (
+                  <span className="g1-hero-ph" aria-hidden="true">
+                    {(prompts[promptIndex] || '').slice(0, typed)}
+                    <i />
+                  </span>
+                )}
+                <label htmlFor="g1-hero-q" className="sr-only">{copy.searchLabel}</label>
+                <input
+                  id="g1-hero-q"
+                  maxLength={4000}
+                  disabled={busy}
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  onFocus={() => setFocused(true)}
+                  onBlur={() => setFocused(false)}
+                  placeholder={showGhost ? '' : (prompts[0] || copy.searchPlaceholder)}
+                  autoComplete="off"
+                  enterKeyHint="send"
+                  className={showGhost ? 'is-ghost' : undefined}
+                />
+              </div>
+              {voice.recognitionSupported && (
+                <button
+                  type="button"
+                  className={`g1-hero-mic${voice.isListening ? ' is-on' : ''}`}
+                  aria-pressed={voice.isListening}
+                  aria-label={voice.isListening ? copy.micStop : copy.mic}
+                  onClick={speak}
+                >
+                  <LineIcon name="mic" className="h-5 w-5" />
+                </button>
+              )}
+              <button type="submit" disabled={busy || !query.trim()} className="g1-hero-ask">
+                {copy.searchGo} <Icon name="arrow" className="g1-flip h-4 w-4" />
+              </button>
+            </div>
+            <div className="g1-hero-picks">
+              {picks.map(([id, icon, label, prompt]) => (
+                <button key={id} type="button" disabled={busy} onClick={() => ask(prompt)}>
+                  <LineIcon name={icon} />
+                  {label}
+                </button>
+              ))}
+            </div>
+            {voice.error && <p role="alert" className="g1-hero-voice">{voiceInputUnavailable(locale)}</p>}
+          </form>
         </div>
-
-        <div className="relative min-h-[400px] w-full sm:min-h-[440px] lg:aspect-[4/5] lg:min-h-0 lg:max-w-[520px] lg:justify-self-end">
-          <figure className="absolute inset-y-0 end-0 start-[18%] overflow-hidden rounded-[26px] bg-g1-rule lg:start-[14%]">
-            <img
-              src="/images/home/hero-tower.jpg"
-              alt={msg("Lifeguard tower on Miami Beach")}
-              width="1600"
-              height="2400"
-              fetchPriority="high"
-              className="h-full w-full object-cover"
-            />
-          </figure>
-          <div className="g1-ticket-wrap g1-hero-tag absolute end-[2%] top-[5%] z-[1] origin-top-right scale-[0.86] sm:end-[3%] sm:scale-100">
-            <ValetTag copy={copy} />
-          </div>
-        </div>
+        <p className="g1-hero-wx"><span className="g1-hero-wx__dot" aria-hidden="true" />{copy.beach}{clock ? ` · ${clock}` : ''}</p>
       </div>
     </section>
   );

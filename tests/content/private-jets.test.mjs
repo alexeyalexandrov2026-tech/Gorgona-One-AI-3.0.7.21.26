@@ -17,7 +17,7 @@ test('every site language has Private Jets interface text and a navigation label
 });
 
 test('Private Jets replaces Discovery in navigation and the home directory',()=>{
- for(const file of ['app/components/Header.jsx','app/page.js']){
+ for(const file of ['app/components/Header.jsx','app/HomePage.jsx']){
   const source=read(file);
   assert.match(source,/href: '\/private-jets'/);
   assert.doesNotMatch(source,/href: '\/discovery'/);

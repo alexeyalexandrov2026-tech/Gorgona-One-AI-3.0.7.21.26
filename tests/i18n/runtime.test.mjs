@@ -90,7 +90,9 @@ test('new visible JSX text must be localized or explicitly exempted', () => {
     ['app/events/TicketProviders.jsx',new Set(['TicketNetwork'])],
     ['app/partner/page.js',new Set(['USD ($)','EUR (€)','AED (د.إ)','THB (฿)'])],
     ['app/register/partner/page.js',new Set(['WhatsApp','Telegram'])],
-    ['app/travel/ovago/page.js',new Set(['Ovago'])]
+    ['app/travel/ovago/page.js',new Set(['Ovago'])],
+    ['app/HomePage.jsx',new Set(['A1A'])],
+    ['app/components/home/HomeHero.jsx',new Set(['Elio'])]
   ]);
   for (const file of appFiles()) {
     if (file.endsWith('YatrCatalog.jsx') || file.endsWith('Stay22Browse.jsx')) continue;
