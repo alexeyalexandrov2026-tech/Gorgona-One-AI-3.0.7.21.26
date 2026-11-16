@@ -2,8 +2,6 @@
 
 import { memo } from 'react';
 import { useAiDock } from './AiDockProvider';
-import { useLocale } from '../LocaleProvider';
-import { getTranslation } from '../../../lib/i18n';
 
 export function AiSphereArtwork() {
   return (
@@ -20,10 +18,8 @@ export function AiSphereArtwork() {
 // thread at a flat cost regardless of page complexity, and it freezes
 // automatically under prefers-reduced-motion (see globals.css). This is
 // what keeps the sphere smooth site-wide instead of dragging FPS down.
-function AiSphereBase({ size = 60, label: labelOverride, className = '' }) {
+function AiSphereBase({ size = 60, label = 'Open the Discovery Room concierge', className = '' }) {
   const { toggle, isOpen } = useAiDock();
-  // Screen readers announce this in the visitor's language, like the dock it opens.
-  const label = labelOverride || getTranslation(useLocale()).ai.openAI;
 
   return (
     <button
