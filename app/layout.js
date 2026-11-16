@@ -34,6 +34,15 @@ export const metadata = {
     icon: [{ url: '/favicon-32.png', sizes: '32x32', type: 'image/png' }],
     apple: '/apple-touch-icon.png'
   },
+  // The "ME" monogram already in public/: the tab and search results only
+  // show it when the page links it.
+  icons: {
+    icon: [
+      { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }
+    ],
+    apple: '/apple-touch-icon.png'
+  },
   openGraph: {
     title: 'MIAMI ELIO',
     description: 'Yachts, villas, cars, tickets and an AI concierge in Miami.',
