@@ -76,3 +76,12 @@ test('only exact section IDs are accepted, regardless of prose or path wrapper',
  assert.equal((await workersAiChat(environment(async()=>({response:'Visit /yachts/%2e%2e%2fadmin.'})),input)).ok,false);
  assert.equal((await workersAiChat(environment(async()=>({response:'Open /discovery for more help.'})),input)).ok,false);
 });
+test('a slow usage reservation comes out of the model budget and is released',async()=>{
+ let calls=0,released=0;
+ const authorize=async()=>{await new Promise(r=>setTimeout(r,60));return true;};
+ authorize.release=async()=>{released++;return true;};
+ const result=await meteredChat(environment(async()=>{calls++;return {};}),input,{timeoutMs:40,authorize});
+ assert.equal(result.kind,'timeout');
+ assert.equal(calls,0);
+ assert.equal(released,1);
+});
