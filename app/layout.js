@@ -30,10 +30,6 @@ export const metadata = {
   keywords: ['Miami', 'yacht charters', 'car rentals', 'villas', 'events', 'AI concierge'],
   metadataBase: new URL(baseUrl),
   alternates: { canonical: './' },
-  icons: {
-    icon: [{ url: '/favicon-32.png', sizes: '32x32', type: 'image/png' }],
-    apple: '/apple-touch-icon.png'
-  },
   // The "ME" monogram already in public/: the tab and search results only
   // show it when the page links it.
   icons: {
