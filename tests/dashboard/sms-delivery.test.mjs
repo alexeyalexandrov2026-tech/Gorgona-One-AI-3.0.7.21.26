@@ -169,6 +169,30 @@ test('an explicitly rejected Twilio rate-limit response can be retried',async()=
   } finally {await db.close();}
 });
 
+test('a failed reservation call is retried because Twilio was never contacted',async()=>{
+  const {db,sql,env}=await setup();
+  try {
+    let begins=0,posts=0;
+    const fetcher=(url,options)=>{
+      const target=String(url);
+      if(target.endsWith('/rest/v1/rpc/dashboard_begin_sms_attempt')&&++begins===1)
+        return Promise.resolve(Response.json({message:'unavailable'},{status:503}));
+      if(target.startsWith(fixtureEnv.NEXT_PUBLIC_SUPABASE_URL))return sql(url,options);
+      posts++;
+      return Promise.resolve(Response.json({sid:'SM'+'c'.repeat(32),status:'accepted'}));
+    };
+    assert.equal((await dispatchNotifications(env,fetcher)).sent,0);
+    assert.equal(posts,0);
+    let {rows}=await db.query("select status,error_code from private.notification_deliveries where channel='sms'");
+    assert.deepEqual(rows,[{status:'pending',error_code:'provider_unavailable'}]);
+    await db.exec("update private.notification_deliveries set next_at=now() where channel='sms'");
+    assert.equal((await dispatchNotifications(env,fetcher)).sent,1);
+    assert.equal(posts,1);
+    ({rows}=await db.query("select status,provider_id from private.notification_deliveries where channel='sms'"));
+    assert.deepEqual(rows,[{status:'sent',provider_id:'SM'+'c'.repeat(32)}]);
+  } finally {await db.close();}
+});
+
 test('daily SMS budget prevents dispatch to Twilio; settings are not writable by clients',async()=>{
   const f=await setup();
   try {
