@@ -57,3 +57,9 @@ test('listing cards, seat filter, dining plan, and catalogue fallback',()=>{
  assert.ok(cars.candidates.every(item=>seatsForCar({slug:item.slug,title:item.title})>=6));
  assert.equal(CLIENT_TIMEOUT_MS>=8000&&CLIENT_TIMEOUT_MS<=14000,true);
 });
+test('a vague mood request gets no catalogue row matched on a single word',()=>{
+ const {listingCards:cards}=load('lib/ai/listingCards.mjs');
+ for(const q of ['something fun','Something fun to do tonight','anything cool'])assert.deepEqual(cards(q),[],q);
+ assert.ok(cards('rent a Lamborghini Urus').length>0);
+ assert.ok(cards('dinner at Komodo').length>0);
+});
