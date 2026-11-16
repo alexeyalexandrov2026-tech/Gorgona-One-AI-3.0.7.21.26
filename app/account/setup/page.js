@@ -9,9 +9,10 @@ import {useSavedText} from '../../components/LocalizedText';
 import {getTranslation} from '../../../lib/i18n';
 import {setPassword} from '../../../lib/auth';
 import {authErrorSource} from '../../../lib/authMessages';
+import {getPasswordRecoveryCopy} from '../../../lib/passwordRecoveryCopy.mjs';
 
 function PasswordSetup(){
-  const auth=useAuth(),locale=useLocale(),msg=useSavedText(),router=useRouter(),t=getTranslation(locale).auth;
+  const auth=useAuth(),locale=useLocale(),msg=useSavedText(),router=useRouter(),t=getTranslation(locale).auth,recovery=getPasswordRecoveryCopy(locale);
   const [password,updatePassword]=useState(''),[confirmPassword,updateConfirmation]=useState('');
   const [saving,setSaving]=useState(false),[error,setError]=useState(null);
   useEffect(()=>{
@@ -25,7 +26,8 @@ function PasswordSetup(){
     event.preventDefault();if(saving)return;setSaving(true);setError(null);
     try{
       await setPassword({password,confirmPassword},auth?.session?.id);
-      updatePassword('');updateConfirmation('');router.replace('/profile');
+      updatePassword('');updateConfirmation('');
+      router.replace(auth?.session?.role==='admin'?'/admin':auth?.session?.role==='partner'?'/partner':'/profile');
     }catch(failure){setError(authErrorSource(failure));}
     finally{setSaving(false);}
   }
@@ -46,7 +48,13 @@ function PasswordSetup(){
         {error&&<p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">{msg(error)}</p>}
         <button type="submit" disabled={saving} className="min-h-[44px] w-full rounded-full bg-brand-gold px-4 py-3 font-medium text-black disabled:opacity-60">{saving?t.loading:msg('Save')}</button>
         <Link href="/profile" className="inline-block py-2 text-sm text-zinc-300 underline">{msg('Cancel')}</Link>
-      </form> : <Link href="/login" className="mt-6 inline-block rounded-full bg-brand-gold px-4 py-3 text-black">{t.signInTab}</Link>}
+      </form> : <div className="mt-5 space-y-4">
+        <p className="text-sm text-zinc-300">{recovery.expired}</p>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link href="/forgot-password" className="text-sm font-medium text-brand-gold underline-offset-4 hover:underline">{recovery.link}</Link>
+          <Link href="/login" className="inline-block rounded-full bg-brand-gold px-4 py-3 text-sm text-black">{t.signInTab}</Link>
+        </div>
+      </div>}
     </section>
   </main>;
 }

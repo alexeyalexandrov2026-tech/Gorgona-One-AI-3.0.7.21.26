@@ -9,11 +9,13 @@ import { getTranslation } from '../../lib/i18n';
 import { useLocale } from '../components/LocaleProvider';
 import { useAuth } from '../components/AuthProvider';
 import { signIn } from '../../lib/auth';
+import { getPasswordRecoveryCopy } from '../../lib/passwordRecoveryCopy.mjs';
 
 export default function LoginPage() {
   const msg = useSavedText();
   const locale = useLocale();
   const t = getTranslation(locale);
+  const recoveryCopy = getPasswordRecoveryCopy(locale);
   const auth = useAuth();
   const router = useRouter();
 
@@ -69,6 +71,10 @@ export default function LoginPage() {
             className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition"
             placeholder={msg("Password")}
           />
+
+          <div className="text-right">
+            <Link href="/forgot-password" className="text-sm text-brand-gold underline-offset-4 hover:underline focus-visible:underline">{recoveryCopy.link}</Link>
+          </div>
 
           {error && <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">{msg(authErrorSource(error))}</p>}
           {success && <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">{msg(success)}</p>}
