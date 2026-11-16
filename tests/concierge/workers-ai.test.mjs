@@ -25,11 +25,11 @@ test('cloud adapter is off without an enabled and authorized Worker environment'
 test('cloud adapter uses real catalogue context, bounded history and selected language',async()=>{
  let sent;
  const result=await workersAiChat(environment(async(model,body)=>{sent={model,body};return {choices:[{message:{content:valid},finish_reason:'stop'}]};}),input);
- assert.equal(result.ok,true);assert.match(result.reply,/Условия/);assert.equal(result.responsePolicy,'catalogue-v1');assert.equal(sent.model,WORKERS_AI_MODEL);
- assert.equal(sent.model,'@cf/qwen/qwen3.8-27b');
+ assert.equal(result.ok,true);assert.match(result.reply,/яхт/);assert.doesNotMatch(result.reply,/Условия/);assert.equal(result.responsePolicy,'catalogue-v1');assert.equal(sent.model,WORKERS_AI_MODEL);
+ assert.equal(sent.model,'@cf/deepseek-ai/deepseek-v4.1-flash-1017');
  assert.equal(sent.body.stream,false);assert.equal(sent.body.max_completion_tokens,384);assert.equal(sent.body.store,false);
+ assert.equal(sent.body.reasoning_effort,'none');
  assert.deepEqual(sent.body.response_format,{type:'json_object'});
- assert.deepEqual(sent.body.chat_template_kwargs,{enable_thinking:false});
  assert.equal(sent.body.messages[0].role,'system');
  assert.match(sent.body.messages[0].content,/Russian/);assert.match(sent.body.messages[0].content,/\/yachts/);assert.match(sent.body.messages[0].content,/\/private-jets/);assert.doesNotMatch(sent.body.messages[0].content,/\/stores|\/coupons/);
  assert.deepEqual(sent.body.messages.at(-1),input.messages[0]);
@@ -39,6 +39,17 @@ test('cloud adapter uses real catalogue context, bounded history and selected la
 test('cloud adapter never forwards malformed, empty, truncated or reasoning-only replies',async()=>{
  for(const result of [null,{}, {response:42},{response:' '},{response:'<think>private reasoning'},{choices:[{message:{content:'Partial'},finish_reason:'length'}]},{response:'x'.repeat(4001)},{response:'x'.repeat(12001)}])assert.equal((await workersAiChat(environment(async()=>result),input)).ok,false);
  const projected=await workersAiChat(environment(async()=>({response:'<think>hidden</think>'+valid})),input);assert.equal(projected.ok,true);assert.doesNotMatch(projected.reply,/hidden|version|sections/);
+});
+test('a failed model reply gives the reservation back',async()=>{
+ let released=0;
+ const authorize=async()=>true;
+ authorize.release=async()=>{released++;return true;};
+ const failed=await meteredChat(environment(async()=>({response:'not-json'})),input,{authorize});
+ assert.equal(failed.kind,'invalid_reply');
+ assert.equal(released,1);
+ const kept=await meteredChat(environment(async()=>({response:valid})),input,{authorize});
+ assert.equal(kept.ok,true);
+ assert.equal(released,1);
 });
 test('cloud adapter bounds waiting and isolates upstream errors',async()=>{
  assert.equal((await workersAiChat(environment(async()=>{throw Error('sensitive provider diagnostic');}),input)).kind,'unavailable');

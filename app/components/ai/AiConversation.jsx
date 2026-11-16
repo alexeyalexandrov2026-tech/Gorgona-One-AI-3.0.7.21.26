@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useVoice } from './useVoice';
 import { useConciergeChat } from './ChatProvider';
-import { AiActionCards } from './AiActionCard';
+import { AiActionCards, AiListingCards, AiPlan } from './AiActionCard';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
@@ -108,7 +108,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // in the layout), so this component is a VIEW of the conversation rather
   // than an owner of it - the homepage bar, the sphere dock and the Discovery
   // Room all render the same thread.
-  const { messages, cards, suggestions, isLoading, hydrated, send } = useConciergeChat();
+  const { messages, cards, suggestions, listings, plan, isLoading, hydrated, send } = useConciergeChat();
   const [input, setInput] = useState('');
   const listRef = useRef(null);
   const voice = useVoice();
@@ -121,7 +121,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, isLoading, cards]);
+  }, [messages, isLoading, cards, listings, plan]);
 
   // send() never throws and never logs - an offline AI backend is an expected
   // state, and the guest still gets a concierge line plus working navigation
@@ -187,10 +187,13 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         )}
 
         {/* Rich frames for the strongest intents... */}
-        <AiActionCards cards={cards} onNavigate={onNavigate} />
+        {plan ? <AiPlan plan={plan} onNavigate={onNavigate} /> : <>
+          <AiListingCards listings={listings} onNavigate={onNavigate} />
+          <AiActionCards cards={cards} onNavigate={onNavigate} />
+        </>}
 
         {/* ...and compact chips for any further section they did not cover. */}
-        {extraChips.length > 0 && (
+        {!plan && extraChips.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
             {extraChips.map((s) => (
               <Link

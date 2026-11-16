@@ -107,7 +107,8 @@ test('public Workers AI requires the production hostname, database and durable a
     assert.equal(result.configured, true);
     assert.equal(result.responsePolicy, 'catalogue-v1');
     assert.equal(result.cards[0].href, '/yachts');
-    assert.match(result.reply, /Условия/);
+    assert.match(result.reply, /яхт/i);
+    assert.doesNotMatch(result.reply, /Условия/);
     assert.deepEqual(calls, [rpc, rpc, 'model']);
   } finally {
     globalThis.fetch = previousFetch;

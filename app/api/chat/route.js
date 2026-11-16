@@ -9,6 +9,7 @@ import {groundedReply,CATALOGUE_PROTOCOL} from '../../../lib/ai/groundedReply.mj
 import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
 import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
+import { catalogueAnswer } from '../../../lib/ai/catalogueAnswer.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
@@ -51,7 +52,7 @@ function logRouterIssue(...args) {
   console.error('AI router:', ...args);
 }
 
-function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null } = {}) {
+function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null, listings = [] } = {}) {
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
@@ -59,6 +60,7 @@ function reply(text, { messages = [], latestUserMessage = '', source = null, ses
     // lead; the reply only reinforces - and on the degraded path it is a
     // canned line, so it is excluded entirely.
     ...(navigation||conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale})),
+    listings: Array.isArray(listings) ? listings.slice(0, 4) : [],
     ...(responsePolicy?{responsePolicy}:{}),
     ...(plan ? { plan } : {}),
     configured: !error,
@@ -156,16 +158,17 @@ export async function POST(request) {
     navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY});
 
   const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
-  const plan = /^MiamiElioApp\//.test(request.headers.get('user-agent') || '') ||
-    (request.headers.get('user-agent') || '').includes(' MiamiElioApp/')
-    ? conversationPlan(modelMessages, { locale }) : null;
+  const plan = conversationPlan(modelMessages, { locale });
+  const localAnswer = catalogueAnswer(modelMessages, locale);
+  const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(locale);
   const respond=async(text,options)=>reply(fact?fact.reply+'\n\n'+text:text,{
-    messages:modelMessages,locale,...options,plan:await plan
+    messages:modelMessages,locale,listings:localAnswer.listings,...options,plan:await plan
   });
   const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages});
   if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy});
   // A denied/failed metered engine must not start another unmetered engine.
-  if(cloud.kind!=='disabled')return respond(unavailableReply(locale),{source:'navigation',error:true});
+  // The guest still gets the catalogue sentence and the links the keywords found.
+  if(cloud.kind!=='disabled')return respond(degraded,{source:'navigation',error:true,navigation:localAnswer.navigation});
 
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
@@ -173,7 +176,7 @@ export async function POST(request) {
   if (local.ok) {
     const projection=groundedReply(local.reply,{messages:modelMessages,locale});
     if(projection)return respond(projection.reply,{source:'local',sessionId:local.sessionId,navigation:projection.navigation,responsePolicy:projection.responsePolicy});
-    return respond(unavailableReply(locale),{source:'navigation',error:true});
+    return respond(degraded,{source:'navigation',error:true,navigation:localAnswer.navigation});
   }
 
   // Link 2 - the hosted router.
@@ -185,7 +188,9 @@ export async function POST(request) {
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the
   // widget renders this like any other answer instead of hitting an error path.
-  return respond(unavailableReply(locale),{source:'navigation',error:true});
+  // A recognised request gets the catalogue sentence and listing links, not
+  // the "temporarily unavailable" line.
+  return respond(degraded,{source:'navigation',error:true,navigation:localAnswer.navigation});
 }
 
 // Non-LLM diagnostics: confirms which engines are wired up without spending a

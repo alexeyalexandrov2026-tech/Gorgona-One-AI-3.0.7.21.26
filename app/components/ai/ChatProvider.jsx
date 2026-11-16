@@ -6,6 +6,7 @@ import { chatSnapshot } from '../../../lib/ai/session.mjs';
 import {chatPayload} from '../../../lib/ai/chatRequest.mjs';
 import { useLocale, useLocaleReady } from '../LocaleProvider';
 import { unavailableReply } from '../../../lib/ai/locale';
+import { CLIENT_TIMEOUT_MS } from '../../../lib/ai/chatDeadline.mjs';
 import {useHydratedValue} from '../useHydratedValue';
 
 // ===========================================================================
@@ -41,7 +42,6 @@ const STORAGE_KEY = 'gorgona-concierge-thread';
 const MAX_MESSAGES = 40;
 // Above the server's own budget so the server's graceful answer wins the race
 // in the normal case; this only fires if the request never comes back at all.
-const CLIENT_TIMEOUT_MS = 60_000;
 
 // Used before the provider mounts (or if a surface is ever rendered outside
 // it): inert, but shaped like the real thing so no consumer needs a guard.
@@ -49,6 +49,8 @@ const NOOP = {
   messages: [],
   cards: [],
   suggestions: [],
+  listings: [],
+  plan: null,
   isLoading: false,
   hydrated: false,
   send() {},
@@ -64,6 +66,8 @@ export function ChatProvider({ children }) {
   const [messages, setMessages] = useState([]);
   const [cards, setCards] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
+  const [listings, setListings] = useState([]);
+  const [plan, setPlan] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [storageReady, setHydrated] = useState(false);
   const hydrated = storageReady && localeReady;
@@ -82,7 +86,7 @@ export function ChatProvider({ children }) {
       const raw = sessionStorage.getItem(STORAGE_KEY);
       if (raw) {
         const data = chatSnapshot(JSON.parse(raw));
-        setMessages(data.messages);setCards(data.cards);setSuggestions(data.suggestions);
+        setMessages(data.messages);setCards(data.cards);setSuggestions(data.suggestions);setListings(data.listings||[]);setPlan(data.plan||null);
         sessionIdRef.current = data.sessionId;
       }
     } catch {
@@ -97,12 +101,12 @@ export function ChatProvider({ children }) {
     try {
       sessionStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ messages, cards, suggestions, sessionId: sessionIdRef.current })
+        JSON.stringify({ messages, cards, suggestions, listings, plan, sessionId: sessionIdRef.current })
       );
     } catch {
       /* storage full or blocked - non-fatal, the thread just won't survive a reload */
     }
-  }, [messages, cards, suggestions, hydrated]);
+  }, [messages, cards, suggestions, listings, plan, hydrated]);
 
   const send = useCallback(async (rawText) => {
     const content = String(rawText || '').trim();
@@ -112,23 +116,35 @@ export function ChatProvider({ children }) {
     const nextMessages = [...messages, { role: 'user', content }].slice(-MAX_MESSAGES);
     setMessages(nextMessages);
     setIsLoading(true);
-    setCards([]);
-    setSuggestions([]);
+    // Links appear before the model answers, so a slow or hung request never
+    // leaves an empty dock. The same matcher runs if the network never returns.
+    const navigation=conversationNavigation(nextMessages,{locale});
+    setCards(navigation.cards);
+    setSuggestions(navigation.suggestions);
+    setListings([]);
+    setPlan(null);
 
-    // A stalled request must never leave the typing indicator spinning
-    // forever. Local models are slow, so the budget is generous.
     const controller = new AbortController();
     const generation=++generationRef.current;operationRef.current=controller;
     const timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
 
-    let answer = unavailableReply(locale);
-    // Computed up front from the guest's own words: if the request never
-    // reaches the server, these are the cards the guest still gets. The
-    // matcher is multilingual, so this holds for any of the 16 UI languages.
-    const navigation=conversationNavigation(nextMessages,{locale});
-    let nextCards=navigation.cards,nextSuggestions=navigation.suggestions;
+    let answer = '';
+    let nextCards=navigation.cards,nextSuggestions=navigation.suggestions,nextListings=[],nextPlan=null;
+    let prepared=null;
 
     try {
+      prepared=await import('../../../lib/ai/catalogueAnswer.mjs').then(async (mod)=>{
+        const answerSet=mod.catalogueAnswer(nextMessages,locale);
+        const [{buildPlan},{syncPlanCatalog}]=await Promise.all([
+          import('../../../lib/ai/plan.mjs'),
+          import('../../../lib/ai/syncPlanCatalog.mjs')
+        ]);
+        return {...answerSet,plan:buildPlan(nextMessages,{catalog:syncPlanCatalog(),locale})};
+      }).catch(()=>null);
+      if(generation===generationRef.current&&prepared){
+        if(prepared.listings?.length){nextListings=prepared.listings;setListings(prepared.listings);}
+        if(prepared.plan){nextPlan=prepared.plan;setPlan(prepared.plan);}
+      }
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',...(globalThis.crypto?.randomUUID?{'Idempotency-Key':crypto.randomUUID()}:{}) },
@@ -140,7 +156,7 @@ export function ChatProvider({ children }) {
       // null instead of throwing, so one code path covers every outcome.
       const data = await response.json().catch(() => null);
 
-      if (typeof data?.reply === 'string' && data.reply.trim()) {
+      if (response.ok && typeof data?.reply === 'string' && data.reply.trim()) {
         answer = data.reply.trim();
       }
       // Conversation replies can explicitly omit navigation, even when the
@@ -149,22 +165,27 @@ export function ChatProvider({ children }) {
       const authoritative=response.ok&&data?.responsePolicy==='conversation-v1';
       if (safe.cards.length||(authoritative&&Array.isArray(data.cards))) nextCards = safe.cards;
       if (safe.suggestions.length||(authoritative&&Array.isArray(data.suggestions))) nextSuggestions = safe.suggestions;
+      if (response.ok && Array.isArray(data?.listings)) nextListings = safe.listings;
+      if (response.ok && data && Object.prototype.hasOwnProperty.call(data,'plan')) nextPlan = safe.plan;
       if (generation===generationRef.current&&safe.sessionId)sessionIdRef.current=safe.sessionId;
     } catch {
       /* aborted, offline, or blocked - the locally matched cards stand */
     } finally {
       clearTimeout(timeout);
+      if(generation!==generationRef.current){
+        inFlightRef.current=false;
+        return;
+      }
+      if(!answer) answer = prepared?.matched ? prepared.reply : unavailableReply(locale);
+      operationRef.current=null;
+      setMessages(prev=>[...prev,{role:'assistant',content:answer}].slice(-MAX_MESSAGES));
+      setCards(nextCards);
+      setSuggestions(nextSuggestions);
+      setListings(nextListings);
+      setPlan(nextPlan);
+      setIsLoading(false);
+      inFlightRef.current = false;
     }
-
-    if(generation!==generationRef.current)return;
-    operationRef.current=null;
-    // A real outage must be visible. Navigation remains available alongside
-    // the localized unavailable response; never impersonate a working model.
-    setMessages(prev=>[...prev,{role:'assistant',content:answer}].slice(-MAX_MESSAGES));
-    setCards(nextCards);
-    setSuggestions(nextSuggestions);
-    setIsLoading(false);
-    inFlightRef.current = false;
 
     return answer;
   }, [messages, locale, hydrated]);
@@ -175,6 +196,8 @@ export function ChatProvider({ children }) {
     setMessages([]);
     setCards([]);
     setSuggestions([]);
+    setListings([]);
+    setPlan(null);
     sessionIdRef.current = null;
     try {
       sessionStorage.removeItem(STORAGE_KEY);
@@ -184,8 +207,8 @@ export function ChatProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ messages, cards, suggestions, isLoading, hydrated, send, reset }),
-    [messages, cards, suggestions, isLoading, hydrated, send, reset]
+    () => ({ messages, cards, suggestions, listings, plan, isLoading, hydrated, send, reset }),
+    [messages, cards, suggestions, listings, plan, isLoading, hydrated, send, reset]
   );
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

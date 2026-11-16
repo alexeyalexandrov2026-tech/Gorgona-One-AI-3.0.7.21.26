@@ -34,6 +34,22 @@ test('AI limits use database UTC days, expire owned rate state and never touch b
   assert.equal((await db.query("select count(*)::int as n from private.request_rate_limits where key='concierge-ai:old'")).rows[0].n,0);
  }finally{await db.close();}
 });
+test('a failed inference releases the daily reservation and the client rate slot',async()=>{
+ const db=await fixture({migrationFiles:['20261023145628_dashboard_workspaces.sql','20261102030000_concierge_usage.sql','20261116120000_concierge_usage_release.sql']});
+ try{
+  const reserved=claim();
+  assert.equal((await rpc(db,'concierge_ai_reserve',reserved)).allowed,true);
+  assert.equal((await db.query('select calls from private.concierge_ai_days')).rows[0].calls,1);
+  assert.equal((await rpc(db,'concierge_ai_release',{p_key:reserved.p_key,p_client:reserved.p_client})).released,true);
+  assert.equal((await db.query('select calls,input_bytes,output_tokens from private.concierge_ai_days')).rows[0].calls,0);
+  assert.equal((await db.query('select count(*)::int as n from private.concierge_ai_claims')).rows[0].n,0);
+  assert.equal((await rpc(db,'concierge_ai_release',{p_key:reserved.p_key,p_client:reserved.p_client})).reason,'absent');
+  assert.equal((await rpc(db,'concierge_ai_reserve',reserved)).allowed,true);
+  await db.exec('set role anon');
+  try{await assert.rejects(()=>db.query('select public.concierge_ai_release($1,$2)',[reserved.p_key,reserved.p_client]));}
+  finally{await db.exec('reset role');}
+ }finally{await db.close();}
+});
 test('quota state and RPC are inaccessible to anonymous, customer, partner and admin browser identities',async()=>{
  const db=await database();try{
   for(const role of ['anon','authenticated']){

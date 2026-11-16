@@ -50,6 +50,59 @@ export function AiActionCard({ card, onNavigate }) {
   );
 }
 
+function ListingLink({ card, onNavigate }) {
+  const name = card.title || card.label;
+  return (
+    <Link
+      href={card.href}
+      onClick={onNavigate}
+      aria-label={[name, card.price].filter(Boolean).join(' — ')}
+      className="group flex items-center gap-3 rounded-2xl border border-brand-gold/25 bg-gradient-to-br from-brand-gold/[0.09] to-white/[0.02] p-3 transition hover:border-brand-gold/70 hover:from-brand-gold/[0.16] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+    >
+      {card.image ? (
+        <img src={card.image} alt="" className="h-16 w-20 shrink-0 rounded-xl object-cover" />
+      ) : null}
+      <span className="min-w-0 flex-1">
+        {card.label ? <span className="block font-mono text-[0.58rem] uppercase tracking-[0.28em] text-brand-gold/80">{card.label}</span> : null}
+        <span className="mt-1 block text-sm font-semibold text-white">{name}</span>
+        {card.price ? <span className="mt-1 block text-xs text-brand-gold">{card.price}</span> : null}
+      </span>
+      <span aria-hidden="true" className="text-brand-gold transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
+    </Link>
+  );
+}
+
+/** Catalogue rows: photo, stored price, title, and the listing page. */
+export function AiListingCards({ listings, onNavigate, className = '' }) {
+  if (!listings?.length) return null;
+  return (
+    <div className={`grid gap-2.5 pt-1 ${className}`}>
+      {listings.map((card) => (
+        <ListingLink key={card.href} card={card} onNavigate={onNavigate} />
+      ))}
+    </div>
+  );
+}
+
+/** A multi-item plan: one row of real catalogue choices per section. */
+export function AiPlan({ plan, onNavigate }) {
+  if (!plan?.sections?.length) return null;
+  return (
+    <div className="grid gap-4 pt-1">
+      {plan.sections.map((section) => (
+        <div key={section.href}>
+          <p className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-brand-gold/80">{section.label}</p>
+          <div className="mt-2 grid gap-2">
+            {section.candidates.slice(0, 2).map((card) => (
+              <ListingLink key={card.href} card={card} onNavigate={onNavigate} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** The frames under one reply. Renders nothing when there is no match. */
 export function AiActionCards({ cards, onNavigate, className = '' }) {
   if (!cards?.length) return null;
