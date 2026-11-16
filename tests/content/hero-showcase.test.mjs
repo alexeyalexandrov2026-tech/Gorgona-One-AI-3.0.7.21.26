@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { HOME_SECTIONS } from '../../lib/homeData.js';
-import { assembleShowcase, cornerSide, nextShowcaseStep, showcasePrice } from '../../lib/heroShowcase.js';
+import { assembleShowcase, cornerSide, localPhotoPresent, nextShowcaseStep, showcasePrice } from '../../lib/heroShowcase.js';
 
 const pageFor = (href) => new URL(`../../app${href}/page.js`, import.meta.url);
 
@@ -36,6 +36,44 @@ test('showcase cards keep only real photos, prices and listing links', () => {
   ]);
   assert.equal(cards[1].price, '$2,000');
   assert.equal(cards[0].price, null);
+});
+
+test('local photos stay on the worker when public/ is not a directory', () => {
+  const shipped = new Set([
+    '/images/rentals/lamborghini-urus-se/cover-s.jpg',
+    '/images/home/worlds/travel-wing.jpg',
+    '/images/home/tickets/basketball-1100.webp'
+  ]);
+  const worker = { diskReady: false, onDisk: () => false, shipped };
+  assert.equal(localPhotoPresent('/images/rentals/lamborghini-urus-se/cover-s.jpg', worker), true);
+  assert.equal(localPhotoPresent('/images/home/worlds/travel-wing.jpg', worker), true);
+  assert.equal(localPhotoPresent('/images/home/tickets/basketball-1100.webp', worker), true);
+  assert.equal(localPhotoPresent('/images/rentals/not-in-the-build.jpg', worker), false);
+  assert.equal(localPhotoPresent('https://images.unsplash.com/photo-1567899378494-47b22a2ae96a', worker), true);
+  assert.equal(localPhotoPresent('/images/../secret.jpg', worker), false);
+  assert.equal(localPhotoPresent('', worker), false);
+
+  const cards = assembleShowcase({
+    rentals: [
+      { slug: 'urus', id: 'urus', title: 'Urus', image: '/images/rentals/lamborghini-urus-se/cover-s.jpg', supplier: 'Elio', category: 'SUV', location: 'Miami', featured: true },
+      { slug: 'ghost', id: 'ghost', title: 'Ghost', image: '/images/rentals/not-in-the-build.jpg', supplier: 'Elio', category: 'SUV', location: 'Miami' }
+    ],
+    yachts: [{ slug: 'sea', id: 'sea', title: 'Sea', image: 'https://images.unsplash.com/photo-1', location: 'Miami' }],
+    stays: [],
+    tickets: [{ id: 'nba', href: '/events/category/nba', image: '/images/home/tickets/basketball-1100.webp', label: 'NBA' }],
+    jetImage: '/images/home/worlds/travel-wing.jpg'
+  }).filter((card) => localPhotoPresent(card.image, worker));
+  assert.deepEqual(cards.map((card) => card.cat).sort(), ['car', 'event', 'jet', 'yacht']);
+});
+
+test('a file missing from disk is dropped even if a stale asset list names it', () => {
+  const decision = {
+    diskReady: true,
+    onDisk: (src) => src === '/images/rentals/real.jpg',
+    shipped: new Set(['/images/rentals/real.jpg', '/images/rentals/deleted.jpg'])
+  };
+  assert.equal(localPhotoPresent('/images/rentals/real.jpg', decision), true);
+  assert.equal(localPhotoPresent('/images/rentals/deleted.jpg', decision), false);
 });
 
 test('rotation changes category and side, and does not repeat an item early', () => {
