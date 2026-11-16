@@ -3,7 +3,7 @@ import fs from 'node:fs';
 
 export const ids = { customer:'11111111-1111-4111-8111-111111111111', other:'22222222-2222-4222-8222-222222222222',
   partner:'33333333-3333-4333-8333-333333333333', admin:'44444444-4444-4444-8444-444444444444' };
-export async function fixture({migrationFiles} = {}) {
+export async function fixture({migrationFiles,enableTelegram = true} = {}) {
   const available=fs.readdirSync(new URL('../../supabase/migrations/',import.meta.url)).sort();
   const selected=migrationFiles??available;
   if(!Array.isArray(selected)||selected.some(file=>!available.includes(file)))throw Error('Unknown fixture migration');
@@ -41,6 +41,9 @@ export async function fixture({migrationFiles} = {}) {
     await db.query('insert into public.profiles(id,email,name,role,company_name) values($1,$2,$3,$4,$5)',[id,name+'@example.com','Demo '+name,['partner','admin'].includes(name)?name:'user',name==='partner'?'Demo Partner Company':null]);
   }
   for (const file of selected) await db.exec(fs.readFileSync(new URL('../../supabase/migrations/'+file,import.meta.url),'utf8'));
+  if (enableTelegram && selected.includes('20261116210000_owner_telegram_traffic.sql')) {
+    await db.exec("update private.owner_notification_settings set telegram_from='-infinity'");
+  }
   await db.exec('create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_user()');
   return db;
 }
