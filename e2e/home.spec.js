@@ -11,10 +11,15 @@ const sections = [
   ['Yachts', '/yachts'],
   ['Cars', '/rentals'],
   ['Events', '/events'],
+  ['Private Jets', '/private-jets'],
+  ['Experiences', '/experiences'],
+  ['Adventures', '/entertainment/adrenaline-365'],
+  ['Dining & Nightlife', '/restaurants-nightlife'],
+  ['AI Concierge', '/discovery'],
 ];
 
 test('homepage cards navigate to each section', async ({ page }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(120_000);
   await page.emulateMedia({ reducedMotion: 'reduce' });
 
   for (const [name, path] of sections) {

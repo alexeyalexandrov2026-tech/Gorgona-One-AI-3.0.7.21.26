@@ -12,7 +12,8 @@ const exempt = new Map([
   ['app/partner/page.js',new Set(['USD ($)','EUR (€)','AED (د.إ)','THB (฿)'])],
   ['app/register/partner/page.js',new Set(['WhatsApp','Telegram'])],
   ['app/travel/ovago/page.js',new Set(['Ovago'])],
-  ['app/page.js',new Set(['A1A'])]
+  ['app/HomePage.jsx',new Set(['A1A'])],
+  ['app/components/home/HomeHero.jsx',new Set(['Elio'])]
 ]);
 const displayAttributes = new Set(['placeholder','aria-label','title','alt']);
 export function unmarkedDisplayText(file, ast, onFinding) {
