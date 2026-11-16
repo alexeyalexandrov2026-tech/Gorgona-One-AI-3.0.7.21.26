@@ -3,18 +3,21 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { HOME_SECTIONS } from '../../../lib/homeData';
+import { useLocale } from '../LocaleProvider';
+import { getExperienceCopy } from '../../../lib/experienceCopy.mjs';
 import { AiSphereArtwork } from '../ai/AiSphere';
 import Icon from '../g1/icons';
 
 const RAIL_INTERVAL_MS = 2500;
 
-function sectionLabel(copy, id) {
+function sectionLabel(copy, id, exclusive) {
   if (id === 'concierge') return copy.railConcierge;
+  if (id === 'exclusive') return exclusive;
   return copy.worldItems[id][0];
 }
 
-function Tile({ section, copy, hidden = false }) {
-  const label = sectionLabel(copy, section.id);
+function Tile({ section, copy, exclusive, hidden = false }) {
+  const label = sectionLabel(copy, section.id, exclusive);
   return (
     <Link
       href={section.href}
@@ -32,6 +35,7 @@ function Tile({ section, copy, hidden = false }) {
 }
 
 export default function HomeSectionRail({ copy }) {
+  const exclusive = getExperienceCopy(useLocale()).exclusiveTitle;
   const railRef = useRef(null);
   const holdUntil = useRef(0);
   const [scrollable, setScrollable] = useState(false);
@@ -78,8 +82,8 @@ export default function HomeSectionRail({ copy }) {
   return (
     <nav aria-label={copy.eyebrow} className="g1-home-sections">
       <div ref={railRef} className="g1-home-sections__track" onPointerDown={holdMotion} onPointerUp={holdMotion} onPointerCancel={holdMotion} onWheel={holdMotion}>
-        {HOME_SECTIONS.map((section) => <Tile key={section.id} section={section} copy={copy} />)}
-        {HOME_SECTIONS.map((section) => <Tile key={`${section.id}-loop`} section={section} copy={copy} hidden />)}
+        {HOME_SECTIONS.map((section) => <Tile key={section.id} section={section} copy={copy} exclusive={exclusive} />)}
+        {HOME_SECTIONS.map((section) => <Tile key={`${section.id}-loop`} section={section} copy={copy} exclusive={exclusive} hidden />)}
       </div>
       {scrollable && (
         <button type="button" className="g1-tkt-toggle g1-home-sections__pause" aria-label={paused ? copy.tickets.play : copy.tickets.pause} onClick={() => setPaused(!paused)}>
