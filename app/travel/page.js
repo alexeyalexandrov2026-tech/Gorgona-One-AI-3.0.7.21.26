@@ -12,7 +12,7 @@ const experiences = [
   {
     title: 'Exclusive Destinations',
     copy: 'Hand-picked escapes across coastlines, capitals and hidden retreats.',
-    href: '/experiences',
+    href: '/exclusive-destinations',
     image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80',
     tag: 'Destinations'
   },
