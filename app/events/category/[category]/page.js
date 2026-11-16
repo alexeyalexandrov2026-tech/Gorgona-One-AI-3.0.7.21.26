@@ -18,8 +18,21 @@ import { LiveShowsBanner } from '../../LiveShowsBanner';
 import { TicketProviders } from '../../TicketProviders';
 import { TicketNetworkCatalogue } from '../../TicketNetworkCatalogue';
 import { getTicketNetworkCatalogue } from '../../../../lib/ticketnetwork';
+import { pageMetadata } from '../../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  const { category } = await params;
+  const entry = EVENT_CATEGORY_GROUPS.find((group) => group.slug === category) || getEventCategoryBySlug(category);
+  if (!entry) return {};
+  const label = /tickets$/i.test(entry.label) ? entry.label : `${entry.label} tickets`;
+  return pageMetadata({
+    title: `${label} in Miami`,
+    description: `${label} in Miami: dates, venues and an AI concierge to plan the night.`,
+    path: `/events/category/${entry.slug}`
+  });
+}
 
 export default async function EventsCategoryPage({ params }) {
   params = await params;

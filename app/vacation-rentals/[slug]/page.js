@@ -9,8 +9,16 @@ import Gallery from '../../components/g1/Gallery';
 import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import BookedStatus from '../../components/g1/BookedStatus';
 import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
+import { pageMetadata } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const stay = await getVacationRentalBySlug(slug, { editorial: true });
+  if (!stay) return {};
+  return pageMetadata({ title: stay.title, description: stay.description, path: `/vacation-rentals/${stay.slug}`, image: stay.image });
+}
 
 export default async function VacationRentalDetailPage({ params }) {
   params = await params;

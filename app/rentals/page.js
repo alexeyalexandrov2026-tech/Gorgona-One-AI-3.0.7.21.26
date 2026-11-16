@@ -8,8 +8,15 @@ import { carThumb } from '../../lib/homeData';
 import { WorldHero, ListingCard, Steps, chipClass } from '../components/g1/ui';
 import { getSunsetCopy } from '../../lib/sunsetCopy.mjs';
 import { rentalPage } from '../../lib/sunsetFleet.mjs';
+import { pageMetadata } from '../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata = pageMetadata({
+  title: 'Exotic and luxury car rentals in Miami',
+  description: 'Exotic, luxury and SUV rentals in Miami, with photos, daily rates and an AI concierge to help you choose the car.',
+  path: '/rentals'
+});
 
 // Our own fleet: filter by body type with ?type=, so it works without JS.
 export default async function RentalsPage({ searchParams }) {
