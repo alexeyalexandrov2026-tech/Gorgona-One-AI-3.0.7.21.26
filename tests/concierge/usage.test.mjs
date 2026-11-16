@@ -20,3 +20,7 @@ test('a stable client and request body produce stable separate HMAC identities',
  for(const value of [input,input,{...input,locale:'ru'}])await createUsageGate(env,request(),value,fetcher)({inputBytes:1000,outputTokens:384});
  assert.equal(bodies[0].p_client,bodies[1].p_client);assert.equal(bodies[0].p_fingerprint,bodies[1].p_fingerprint);assert.equal(bodies[1].p_client,bodies[2].p_client);assert.notEqual(bodies[1].p_fingerprint,bodies[2].p_fingerprint);assert.notEqual(bodies[0].p_client,bodies[0].p_fingerprint);
 });
+test('usage reservation calls use the short database timeout',async()=>{
+ const {USAGE_RPC_TIMEOUT_MS}=load('lib/server/conciergeUsage.mjs');
+ assert.ok(USAGE_RPC_TIMEOUT_MS>0&&USAGE_RPC_TIMEOUT_MS<=3000);
+});
