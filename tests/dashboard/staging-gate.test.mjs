@@ -30,12 +30,14 @@ test('expired, future, forged and rotated-secret cookies cannot reuse staging ac
 test('wrong database, stale client key, enabled delivery or missing secret fails closed',async()=>{
  let calls=0;const worker=stagingWorker({fetch(){calls++;return new Response('unsafe');}},release);
  for(const changed of [{NEXT_PUBLIC_SUPABASE_URL:'https://production.supabase.co'},{STAGING_PROJECT_REF:'production'},{NEXT_PUBLIC_SUPABASE_ANON_KEY:'other-key'},{TELEGRAM_BOT_TOKEN:'configured'},{RESEND_API_KEY:'configured'},{SUPABASE_SERVICE_ROLE_KEY:''},{BOOKING_RATE_SECRET:'short'},{DASHBOARD_STAGING_ACCESS_SECRET:''},{APP_ENV:'production'}])assert.equal((await worker.fetch(request('/',auth),{...env,...changed},{})).status,503);
+ assert.equal((await worker.fetch(request('/',auth),{...env,CLOUDFLARE_WEB_ANALYTICS_API_TOKEN:'configured'},{})).status,503);
  assert.equal(calls,0);
 });
 test('readiness exposes only stage identity and notification dispatch stays disabled',async()=>{
  const worker=stagingWorker({fetch(){throw Error('Must not run');}},release);
  const r=await worker.fetch(request('/__dashboard_staging/health',auth),env,{});assert.deepEqual(await r.json(),{environment:'dashboard-staging',projectRef:STAGING_PROJECT,commit});
  assert.equal((await worker.fetch(request('/api/internal/notifications',auth),env,{})).status,503);
+ assert.equal((await worker.fetch(request('/api/internal/notifications/traffic',auth),env,{})).status,503);
  assert.match(await (await worker.fetch(request('/robots.txt',auth),env,{})).text(),/Disallow: \//);
 });
 test('authorized assets use the asset binding and dynamic requests fall through',async()=>{

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import worker from '../../workers/notifications.mjs';
+import worker, { trafficCron } from '../../workers/notifications.mjs';
 
 test('the scheduled worker authenticates its server request and has no public handler',async()=>{
   const original=globalThis.fetch,calls=[];
@@ -11,7 +11,12 @@ test('the scheduled worker authenticates its server request and has no public ha
     await pending;
     assert.equal(calls.length,1);assert.equal(calls[0].method,'POST');assert.equal(calls[0].headers.Authorization,'Bearer fixture-secret');
     assert.equal(worker.fetch().status,404);
+    await worker.scheduled({cron:trafficCron}, {NOTIFICATIONS_JOB_URL:'https://example.com/api/internal/notifications',DASHBOARD_OUTBOX_TOKEN:'fixture-secret'}, {waitUntil:p=>{pending=p;}});
+    await pending;
+    assert.equal(calls[1].url,'https://example.com/api/internal/notifications/traffic');
+    assert.equal(calls[1].headers.Authorization,'Bearer fixture-secret');
+    assert.equal(calls[1].redirect,'error');
     await worker.scheduled({}, {NOTIFICATIONS_JOB_URL:'http://example.com/job',DASHBOARD_OUTBOX_TOKEN:'fixture-secret'}, {waitUntil:p=>{pending=p;}});
-    await assert.rejects(pending,/HTTPS is required/);assert.equal(calls.length,1);
+    await assert.rejects(pending,/HTTPS is required/);assert.equal(calls.length,2);
   } finally {globalThis.fetch=original;}
 });
