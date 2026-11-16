@@ -1,6 +1,4 @@
 "use client";
-import { savedListing } from '../lib/savedCopy';
-import { LocalizedListing } from './components/LocalizedText';
 import { useSavedText } from "./components/LocalizedText";
 
 import Link from 'next/link';
@@ -10,7 +8,7 @@ import { getHomeCopy } from '../lib/homeCopy';
 import {getHeadoutCopy} from '../lib/headoutCopy.mjs';
 import {getPrivateJetsCopy} from '../lib/privateJetsCopy.mjs';
 import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
-import { FLEET, HOME_SECTIONS, HOME_YACHTS, HOME_STAYS, carThumb } from '../lib/homeData';
+import { FLEET, HOME_SECTIONS, carThumb } from '../lib/homeData';
 import HomeHero from './components/home/HomeHero';
 import SeasonShelf from './components/home/SeasonShelf';
 import TicketCarousel from './components/home/TicketCarousel';
@@ -91,42 +89,6 @@ export default function HomePage({ showcase = [] }) {
               rate={<>{copy.ratesOnRequest}<small className="block text-[0.76rem] font-normal text-g1-soft">{copy.delivered}</small></>}
             />
           ))}
-        </div>
-      </section>
-
-      <section className="grid gap-[clamp(26px,4vw,56px)] py-[clamp(36px,5vw,72px)] md:grid-cols-2">
-        <div>
-          <SectionHead title={copy.water} href="/yachts" cta={copy.seeAll} />
-          <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2">
-            {HOME_YACHTS.map((yacht) => (
-              <ListingCard
-                key={yacht.slug}
-                href={`/yachts/${yacht.slug}`}
-                img={yacht.image}
-                title={yacht.title}
-                meta={`${yacht.length} · ${yacht.location}`}
-                note={<LocalizedListing itemId={yacht.id} source={yacht.description} />}
-                rate={copy.ratesOnRequest}
-              />
-            ))}
-          </div>
-        </div>
-        <div>
-          <SectionHead title={copy.stays} href="/vacation-rentals" cta={copy.seeAll} />
-          <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2">
-            {HOME_STAYS.map((stay) => (
-              <ListingCard
-                key={stay.slug}
-                href={`/vacation-rentals/${stay.slug}`}
-                img={stay.image}
-                title={savedListing(locale, stay, 'title')}
-                meta={stay.location}
-                note={<LocalizedListing itemId={stay.id} source={stay.description} />}
-                rate={copy.ratesOnRequest}
-                booked={stay.availability === 'booked'}
-              />
-            ))}
-          </div>
         </div>
       </section>
 
