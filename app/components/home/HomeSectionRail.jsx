@@ -8,7 +8,7 @@ import { getExperienceCopy } from '../../../lib/experienceCopy.mjs';
 import { AiSphereArtwork } from '../ai/AiSphere';
 import Icon from '../g1/icons';
 
-const RAIL_INTERVAL_MS = 1500;
+const RAIL_SPEED_PX_PER_S = 25;
 
 function sectionLabel(copy, id, exclusive) {
   if (id === 'concierge') return copy.railConcierge;
@@ -50,29 +50,37 @@ export default function HomeSectionRail({ copy }) {
     return () => observer.disconnect();
   }, []);
 
+  // A slow, continuous drift. The position is kept as a float because the
+  // browser rounds scrollLeft, which would stall sub-pixel steps.
   useEffect(() => {
     if (!scrollable || paused) return undefined;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const hover = window.matchMedia('(hover: hover)');
-    const timer = window.setInterval(() => {
+    let frame = 0;
+    let last = 0;
+    let pos = null;
+    const tick = (now) => {
+      frame = window.requestAnimationFrame(tick);
+      const dt = last ? Math.min(now - last, 100) / 1000 : 0;
+      last = now;
       const rail = railRef.current;
       if (!rail || reducedMotion.matches || document.hidden || Date.now() < holdUntil.current ||
-          rail.matches(':focus-within') || (hover.matches && rail.matches(':hover'))) return;
+          rail.matches(':focus-within') || (hover.matches && rail.matches(':hover'))) { pos = null; return; }
       const box = rail.getBoundingClientRect();
       if (box.bottom <= 0 || box.top >= window.innerHeight) return;
       const [first, second] = rail.children;
       if (!second) return;
-      const step = Math.abs(second.offsetLeft - first.offsetLeft);
-      if (!step) return;
-      const setWidth = step * HOME_SECTIONS.length;
-      const rtl = getComputedStyle(rail).direction === 'rtl';
-      const progress = rtl && rail.scrollLeft < 0 ? -rail.scrollLeft : rail.scrollLeft;
-      if (progress >= setWidth - 1) {
-        rail.scrollLeft += rtl && rail.scrollLeft < 0 ? setWidth : -setWidth;
-      }
-      rail.scrollBy({ left: rtl ? -step : step, behavior: 'smooth' });
-    }, RAIL_INTERVAL_MS);
-    return () => window.clearInterval(timer);
+      const setWidth = Math.abs(second.offsetLeft - first.offsetLeft) * HOME_SECTIONS.length;
+      if (!setWidth) return;
+      const sign = getComputedStyle(rail).direction === 'rtl' && rail.scrollLeft <= 0 ? -1 : 1;
+      const actual = rail.scrollLeft * sign;
+      if (pos === null || Math.abs(actual - pos) > 2) pos = actual;
+      pos += RAIL_SPEED_PX_PER_S * dt;
+      if (pos >= setWidth) pos -= setWidth;
+      rail.scrollLeft = pos * sign;
+    };
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
   }, [paused, scrollable]);
 
   function holdMotion() {
