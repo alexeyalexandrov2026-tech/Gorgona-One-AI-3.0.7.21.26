@@ -1,5 +1,8 @@
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { chromium, expect } from '@playwright/test';
 
 const origin = 'http://127.0.0.1:3048';
@@ -17,6 +20,9 @@ const session = { user, access_token: accessToken, refresh_token: 'fixture', tok
 const testPassword = 'FixturePassword2026!';
 const redirectRequests = [];
 let passwordUpdates = 0;
+let refreshes = 0;
+let profileStatus = 200;
+let profileChecks = 0;
 let browser;
 try {
   for (let attempt = 0; ; attempt++) {
@@ -26,10 +32,14 @@ try {
     await new Promise(resolve => setTimeout(resolve, 250));
   }
   const executablePath = process.env.I18N_BROWSER_EXECUTABLE;
-  browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
+  const options = { headless: true, ...(executablePath ? { executablePath } : {}) };
+  browser = await chromium.launch(options);
 
-  async function test(name, run) {
-    const context = await browser.newContext({ locale: 'en-US', viewport: { width: 390, height: 844 } });
+  async function openContext(profile) {
+    const viewport = { locale: 'en-US', viewport: { width: 390, height: 844 } };
+    const context = profile
+      ? await chromium.launchPersistentContext(profile, { ...options, ...viewport })
+      : await browser.newContext(viewport);
     await context.addInitScript(() => localStorage.setItem('gorgona-locale', 'en'));
     await context.route(url => url.hostname === 'placeholder.supabase.co', async route => {
       const request = route.request();
@@ -44,6 +54,11 @@ try {
           redirectRequests.push(url.searchParams.get('redirect_to'));
           return respond({});
         case '/auth/v1/token':
+          if (url.searchParams.get('grant_type') === 'refresh_token') {
+            refreshes++;
+            expect(body.refresh_token).toBe(session.refresh_token);
+            return respond({ ...session, refresh_token: 'refreshed-fixture' });
+          }
           if (body.password !== testPassword) {
             return respond({ error_code: 'invalid_credentials', message: 'Invalid login credentials' }, 400);
           }
@@ -56,11 +71,18 @@ try {
           }
           return respond(user);
         case '/rest/v1/profiles':
+          profileChecks++;
+          if (profileStatus !== 200) return respond({ message: 'Fixture profile lookup failed' }, profileStatus);
           return respond({ id: user.id, name: 'Customer Fixture', email: user.email, role: 'user', metadata: {} });
         default:
           return respond([]);
       }
     });
+    return context;
+  }
+
+  async function test(name, run) {
+    const context = await openContext();
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -128,6 +150,49 @@ try {
     await expect(page).toHaveURL(origin + '/profile');
     expect(passwordUpdates).toBe(1);
   });
+
+  const profile = await mkdtemp(join(tmpdir(), 'miami-account-'));
+  try {
+    const first = await openContext(profile);
+    try {
+      const page = first.pages()[0] ?? await first.newPage();
+      await register(page, user.email);
+      await expect(page.locator('main').getByText(/Customer Fixture/)).toBeVisible();
+      await page.reload();
+      await expect(page.locator('main').getByText(/Customer Fixture/)).toBeVisible();
+      await page.evaluate(() => {
+        const key = 'sb-placeholder-auth-token';
+        const session = JSON.parse(localStorage.getItem(key));
+        session.expires_at = Math.floor(Date.now() / 1000) - 10;
+        localStorage.setItem(key, JSON.stringify(session));
+      });
+    } finally {
+      await first.close();
+    }
+    const reopened = await openContext(profile);
+    try {
+      const page = reopened.pages()[0] ?? await reopened.newPage();
+      await page.goto(origin + '/profile');
+      await expect(page.locator('main').getByText(/Customer Fixture/)).toBeVisible();
+      expect(refreshes).toBeGreaterThan(0);
+      const account = page.locator('main').getByText(/Customer Fixture/);
+
+      for (const status of [503, 403]) {
+        const before = profileChecks;
+        profileStatus = status;
+        await page.evaluate(() => window.dispatchEvent(new Event('online')));
+        await expect.poll(() => profileChecks).toBeGreaterThan(before);
+        if (status === 503) await expect(account).toBeVisible();
+        else await expect(account).toHaveCount(0);
+      }
+      console.log('PASS browser restart refreshes an expired token and preserves only verified sessions');
+    } finally {
+      profileStatus = 200;
+      await reopened.close();
+    }
+  } finally {
+    await rm(profile, { recursive: true, force: true });
+  }
 
   await test('expired recovery link offers a fresh link', async page => {
     await page.goto(origin + '/account/setup#error=access_denied&error_code=otp_expired');

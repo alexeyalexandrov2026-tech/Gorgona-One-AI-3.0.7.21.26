@@ -114,6 +114,23 @@ test('late session reads cannot restore a signed-out identity',async()=>{
   let resolve;const published=[];const loader=sessionLoader(()=>new Promise(r=>resolve=r),value=>published.push(value));
   const pending=loader.refresh();loader.clear();resolve({id:ids.admin});await pending;assert.equal(published.at(-1),null);loader.dispose();
 });
+test('a temporary profile error preserves the verified account but an access denial clears it', async () => {
+  const verified = { id: ids.customer, role: 'user' };
+  const published = [];
+  let failure;
+  const loader = sessionLoader(async () => {
+    if (failure) throw failure;
+    return verified;
+  }, (session, loading, error) => published.push({ session, loading, error }));
+  await loader.refresh();
+  failure = Object.assign(new Error('Profile service temporarily unavailable'), { status: 503 });
+  await loader.refresh(true);
+  assert.deepEqual(published.at(-1), { session: verified, loading: false, error: failure });
+  failure = Object.assign(new Error('Profile access denied'), { status: 403 });
+  await loader.refresh(true);
+  assert.deepEqual(published.at(-1), { session: null, loading: false, error: failure });
+  loader.dispose();
+});
 test('anonymous API access and invalid keys fail without reaching a provider',async()=>{
   let calls=0;const handlers=dashboardHandlers({},async()=>{calls++;throw new Error();});
   assert.equal((await handlers.book(new Request('https://example.com',{method:'POST',body:JSON.stringify(input)}))).status,400);
