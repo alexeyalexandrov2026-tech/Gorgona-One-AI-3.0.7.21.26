@@ -150,19 +150,20 @@ export default function HomeHero({ copy, showcase = [] }) {
     <section className="pb-[clamp(32px,5vw,76px)] pt-[clamp(16px,3vw,36px)]">
       <HomeSectionRail copy={copy} />
       <div className="g1-home-app-hero">
-        <h1>
+        {/* The Android WebView exposes this heading when the web hero is hidden. */}
+        <div role="heading" aria-level={1}>
           <a href="miamielio://concierge" className="g1-home-concierge-link">
             <span className="g1-home-concierge-orb" aria-hidden="true"><AiSphereArtwork /></span>
             <span>{msg('Miami Elio AI Concierge')}</span>
             <span className="g1-home-concierge-action">{copy.open} <Icon name="arrow" className="g1-flip h-4 w-4" /></span>
           </a>
-        </h1>
+        </div>
       </div>
       <div className={`g1-home-web-hero g1-stage${horizon ? ' is-horizon' : ''}`}>
         <img
           className="g1-stage__bg"
           src="/images/home/hero-tower.jpg"
-          alt={msg('Lifeguard tower on Miami Beach')}
+          alt=""
           width="1600"
           height="2400"
           fetchPriority="high"
