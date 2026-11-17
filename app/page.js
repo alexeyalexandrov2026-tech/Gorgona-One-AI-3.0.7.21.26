@@ -3,12 +3,14 @@ import JsonLd from './components/JsonLd';
 import { buildHeroShowcase } from '../lib/heroShowcaseData.js';
 import { organizationJsonLd, websiteJsonLd } from '../lib/seo.mjs';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
-  title: 'Miami Elio | Miami Travel & AI Concierge',
-  description: 'Explore yacht charters, villa stays, car rentals, events and experiences in Miami. Plan your trip with the Miami Elio AI concierge.'
+  title: 'Miami Elio | Official Website — Yachts, Villas, Cars & Events',
+  description: 'Official Miami Elio website. Explore partner yacht charters, villas, car rentals, event tickets, experiences and AI concierge services in Miami.',
+  alternates: { canonical: 'https://gorgona-one.com/' }
 };
 
-export const dynamic = 'force-dynamic';
 
 export default async function Page() {
   const showcase = await buildHeroShowcase();
