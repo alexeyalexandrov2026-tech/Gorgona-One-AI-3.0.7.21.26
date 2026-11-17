@@ -8,7 +8,7 @@ import { getExperienceCopy } from '../../../lib/experienceCopy.mjs';
 import { AiSphereArtwork } from '../ai/AiSphere';
 import Icon from '../g1/icons';
 
-const RAIL_INTERVAL_MS = 2500;
+const RAIL_INTERVAL_MS = 1500;
 
 function sectionLabel(copy, id, exclusive) {
   if (id === 'concierge') return copy.railConcierge;
