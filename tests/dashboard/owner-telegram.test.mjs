@@ -37,6 +37,7 @@ test('Telegram starts at cutover, omits customer data, and leaves email eligible
   const sql = provider(db), messages = [];
   const fetcher = async (url,options) => {
     if (new URL(url).hostname === 'api.telegram.org') {
+      assert.equal(options.redirect,'manual');
       messages.push(JSON.parse(options.body));
       return Response.json({ ok:true,result:{ message_id:1 } });
     }
@@ -67,6 +68,7 @@ test('parallel schedules record a single site-only, bot-filtered digest',async t
   const fetcher = async (url,options) => {
     const { hostname } = new URL(url);
     if (hostname === 'api.cloudflare.com') {
+      assert.equal(options.redirect,'manual');
       queries.push(JSON.parse(options.body));
       return analyticsResponse();
     }
