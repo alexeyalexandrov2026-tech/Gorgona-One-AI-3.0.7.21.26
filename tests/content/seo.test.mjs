@@ -68,13 +68,15 @@ test('section, legal and listing pages declare their own titles', () => {
   }
 });
 
-test('the sitemap lists each public page once and leaves /yachts and private pages out', () => {
+test('the sitemap includes the yachts section once and excludes yacht details and private pages', () => {
   const entries = sitemapEntries({ rentals: ['urus', 'urus'], stays: ['villa-a'], venues: ['komodo'], events: [undefined], eventCategories: ['nba'] });
   const paths = entries.map((entry) => entry.url.slice(SITE_URL.length));
   assert.equal(new Set(paths).size, paths.length);
+  assert.equal(paths.filter((path) => path === '/yachts').length, 1);
   for (const path of [...SECTION_ROUTES, ...LEGAL_ROUTES, '/rentals/urus', '/vacation-rentals/villa-a', '/restaurants-nightlife/komodo', '/events/category/nba']) assert.ok(paths.includes(path), path);
   assert.ok(!paths.some((path) => path.includes('undefined')));
-  assert.ok(!paths.some((path) => /^\/(yachts|admin|login|register|profile|account|api)(\/|$)/.test(path)), 'private or excluded address listed');
+  assert.ok(!paths.some((path) => path.startsWith('/yachts/')), 'yacht detail address listed');
+  assert.ok(!paths.some((path) => /^\/(admin|login|register|profile|account|api)(\/|$)/.test(path)), 'private address listed');
   for (const path of [...SECTION_ROUTES, ...LEGAL_ROUTES]) assert.ok(exists(`app${path}/page.js`), `no page for ${path || '/'}`);
 });
 
