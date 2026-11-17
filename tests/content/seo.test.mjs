@@ -20,11 +20,12 @@ test('pages without their own metadata name themselves as canonical, not the hom
 });
 
 test('share card is a raster image search engines and messengers can show', () => {
-  assert.equal(DEFAULT_IMAGE.url, '/og-image.png');
-  const png = readFileSync(new URL('../../public/og-image.png', import.meta.url));
-  assert.deepEqual([...png.subarray(1, 4)], [0x50, 0x4e, 0x47]);
-  assert.equal(png.readUInt32BE(16), 1200);
-  assert.equal(png.readUInt32BE(20), 630);
+  assert.equal(DEFAULT_IMAGE.url, '/miami-elio-turquoise-wave.jpg');
+  const jpeg = readFileSync(new URL(`../../public${DEFAULT_IMAGE.url}`, import.meta.url));
+  assert.deepEqual([...jpeg.subarray(0, 3)], [0xff, 0xd8, 0xff]);
+  assert.deepEqual([...jpeg.subarray(-2)], [0xff, 0xd9]);
+  assert.equal(DEFAULT_IMAGE.width, 1200);
+  assert.equal(DEFAULT_IMAGE.height, 630);
   for (const icon of ['public/favicon-32.png', 'public/apple-touch-icon.png']) assert.ok(exists(icon), icon);
 });
 
@@ -35,7 +36,8 @@ test('page metadata carries title, description, canonical and share card', () =>
   assert.equal(meta.alternates.canonical, '/vacation-rentals');
   assert.ok(!('languages' in meta.alternates));
   assert.equal(meta.openGraph.url, '/vacation-rentals');
-  assert.equal(meta.openGraph.images[0].url, '/og-image.png');
+  assert.deepEqual(meta.openGraph.images, [DEFAULT_IMAGE]);
+  assert.deepEqual(meta.twitter.images, [DEFAULT_IMAGE.url]);
   const withImage = pageMetadata({ title: 'Urus', path: '/rentals/urus', image: '/cars/urus.jpg' });
   assert.ok(!('description' in withImage), 'an empty description must not hide the site description');
   assert.deepEqual(withImage.twitter.images, ['/cars/urus.jpg']);
