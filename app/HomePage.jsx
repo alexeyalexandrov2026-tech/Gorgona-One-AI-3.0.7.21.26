@@ -8,13 +8,13 @@ import { getHomeCopy } from '../lib/homeCopy';
 import {getHeadoutCopy} from '../lib/headoutCopy.mjs';
 import {getPrivateJetsCopy} from '../lib/privateJetsCopy.mjs';
 import {HEADOUT_COLLECTIONS} from '../lib/headoutCatalog.mjs';
-import { FLEET, HOME_SECTIONS, carThumb } from '../lib/homeData';
+import { HOME_SECTIONS } from '../lib/homeData';
 import HomeHero from './components/home/HomeHero';
 import SeasonShelf from './components/home/SeasonShelf';
 import TicketCarousel from './components/home/TicketCarousel';
 import A1ALine from './components/home/A1ALine';
 import ConciergeBand from './components/home/ConciergeBand';
-import { SectionHead, ListingCard, btn } from './components/g1/ui';
+import { SectionHead, btn } from './components/g1/ui';
 import Icon from './components/g1/icons';
 
 const DIRECTORY_IDS = new Set(['travel', 'stays', 'yachts', 'cars', 'events']);
@@ -76,27 +76,11 @@ export default function HomePage({ showcase = [] }) {
         </ul>
       </section>
 
-      <section className="py-[clamp(36px,5vw,72px)]">
-        <SectionHead title={copy.fleet} sub={copy.worldItems.cars[1]} href="/rentals" cta={copy.seeAll} />
-        <div className="g1-shelf" tabIndex={0} aria-label={copy.fleet}>
-          {FLEET.slice(0, 8).map((car) => (
-            <ListingCard
-              key={car.slug}
-              href={`/rentals/${car.slug}`}
-              img={carThumb(car)}
-              title={car.title}
-              meta={`${car.category} · ${car.location}`}
-              rate={<>{copy.ratesOnRequest}<small className="block text-[0.76rem] font-normal text-g1-soft">{copy.delivered}</small></>}
-            />
-          ))}
-        </div>
-      </section>
-
       <ConciergeBand copy={copy} locale={locale} />
 
       <section className="grid items-center gap-[clamp(26px,4vw,56px)] pb-8 pt-[clamp(52px,7vw,110px)] md:grid-cols-2">
         <figure className="aspect-[4/3] overflow-hidden rounded-[26px] bg-g1-rule">
-          <img src="/images/home/deco-hotel.jpg" alt={msg("Art Deco hotel facade on Ocean Drive")} loading="lazy" width="1600" height="2400" className="h-full w-full object-cover" />
+          <img src="/images/experiences/miami-aerial.webp" alt={msg("Downtown Miami and Biscayne Bay from the air")} loading="lazy" width="960" height="720" className="h-full w-full object-cover" />
         </figure>
         <div className="grid gap-[18px]">
           <p className="font-g1sans text-[0.74rem] font-medium uppercase tracking-[0.2em] text-g1-soft">{copy.partnersEyebrow}</p>
