@@ -44,6 +44,8 @@ jobs:
         run: node tests/content/yachts-browser.mjs
       - name: Verify homepage SEO in a browser
         run: node tests/content/homepage-seo-browser.mjs
+      - name: Verify experience page SEO in a browser
+        run: node tests/content/experiences-seo-browser.mjs
       - name: Account browser regressions without external services
         run: node tests/dashboard/account-browser.mjs
       - name: Verify rentals in the built sitemap
