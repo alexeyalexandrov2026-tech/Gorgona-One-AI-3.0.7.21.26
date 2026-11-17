@@ -399,7 +399,7 @@ export default {
   "ui.910217011197c2ec": "Créez-en un maintenant",
   "ui.8cac8b5ea26c9718": "Vous dirigez une entreprise ?",
   "ui.dd4be29d50b8e01e": "Devenir Partenaire",
-  "ui.ec44a2cb0a7008d3": "Façade d’hôtel Art déco sur Ocean Drive",
+  "ui.123c8d6b00223641": "Le centre de Miami et la baie de Biscayne vus du ciel",
   "ui.66b0855543b0212f": "Portail Partenaires",
   "ui.105e4167be6a748f": "Description et informations",
   "ui.3ac1a9ec4fa7a9fa": "Devise",

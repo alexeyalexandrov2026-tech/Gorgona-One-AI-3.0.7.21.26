@@ -399,7 +399,7 @@ export default {
   "ui.910217011197c2ec": "Utwórz je teraz",
   "ui.8cac8b5ea26c9718": "Prowadzisz firmę?",
   "ui.dd4be29d50b8e01e": "Zostań Partnerem",
-  "ui.ec44a2cb0a7008d3": "Fasada hotelu Art Déco przy Ocean Drive",
+  "ui.123c8d6b00223641": "Centrum Miami i zatoka Biscayne z lotu ptaka",
   "ui.66b0855543b0212f": "Portal Partnerski",
   "ui.105e4167be6a748f": "Opis i informacje",
   "ui.3ac1a9ec4fa7a9fa": "Waluta",

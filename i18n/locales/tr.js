@@ -399,7 +399,7 @@ export default {
   "ui.910217011197c2ec": "Hemen oluşturun",
   "ui.8cac8b5ea26c9718": "İşletme sahibi misiniz?",
   "ui.dd4be29d50b8e01e": "Ortak Ol",
-  "ui.ec44a2cb0a7008d3": "Ocean Drive’da Art Deco otel cephesi",
+  "ui.123c8d6b00223641": "Havadan Miami şehir merkezi ve Biscayne Körfezi",
   "ui.66b0855543b0212f": "Ortak Portalı",
   "ui.105e4167be6a748f": "Açıklama ve bilgiler",
   "ui.3ac1a9ec4fa7a9fa": "Para birimi",
