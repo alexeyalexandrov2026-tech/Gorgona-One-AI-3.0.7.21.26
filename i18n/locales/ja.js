@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "言語：{language}",
   "ui.f8416d793a642faa": "言語を選択",
   "ui.4197828a99712897": "このページは見つかりませんでした。",
-  "ui.eca5eea16e066283": "アカウントを作成しました！移動しています…",
   "ui.1118b16a02fb1eff": "管理者{break}コンソール",
   "ui.fa941aa855f7e22b": "{highlight}を{break}体験しよう。",
   "ui.4b909cfeb60b9b19": "パートナー{break}デスク",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "料金は要問い合わせ",
   "home.showcase.flights": "フライトを検索",
   "home.showcase.perDay": "{price} / 日",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "再設定リンクをリクエスト",
+  "ui.afd25fdf17c7f534": "パスワードをお忘れですか？",
+  "ui.50ce2ade7c2e4c8b": "このメールアドレスにアカウントが登録されている場合は、パスワード再設定用のリンクを送信します。",
+  "ui.091f0d0bc02c7d7b": "確認リンクが届いているか、メールをご確認ください。"
 };

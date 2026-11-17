@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "Sprache: {language}",
   "ui.f8416d793a642faa": "Sprache auswählen",
   "ui.4197828a99712897": "Diese Seite wurde nicht gefunden.",
-  "ui.eca5eea16e066283": "Konto erfolgreich erstellt! Weiterleitung…",
   "ui.1118b16a02fb1eff": "Admin{break}Konsole",
   "ui.fa941aa855f7e22b": "Erleben Sie das{break}{highlight}.",
   "ui.4b909cfeb60b9b19": "Partner{break}Portal",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "Preis auf Anfrage",
   "home.showcase.flights": "Flüge suchen",
   "home.showcase.perDay": "{price} / Tag",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "Link zum Zurücksetzen anfordern",
+  "ui.afd25fdf17c7f534": "Passwort vergessen?",
+  "ui.50ce2ade7c2e4c8b": "Wenn zu dieser E-Mail-Adresse ein Konto existiert, senden wir einen Link zum Zurücksetzen des Passworts.",
+  "ui.091f0d0bc02c7d7b": "Prüfe deinen Posteingang auf einen Bestätigungslink."
 };

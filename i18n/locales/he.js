@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "שפה: {language}",
   "ui.f8416d793a642faa": "בחירת שפה",
   "ui.4197828a99712897": "הדף הזה לא נמצא.",
-  "ui.eca5eea16e066283": "החשבון נוצר בהצלחה! מתבצעת העברה…",
   "ui.1118b16a02fb1eff": "מסוף{break}ניהול",
   "ui.fa941aa855f7e22b": "חוו משהו{break}{highlight}.",
   "ui.4b909cfeb60b9b19": "מרכז{break}שותפים",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "מחיר לפי בקשה",
   "home.showcase.flights": "חיפוש טיסות",
   "home.showcase.perDay": "{price} ליום",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "בקשת קישור לאיפוס",
+  "ui.afd25fdf17c7f534": "שכחת סיסמה?",
+  "ui.50ce2ade7c2e4c8b": "אם קיים חשבון עם כתובת זו, נשלח קישור לאיפוס הסיסמה.",
+  "ui.091f0d0bc02c7d7b": "כדאי לבדוק בתיבת הדואר אם התקבל קישור לאישור."
 };

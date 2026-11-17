@@ -15,23 +15,28 @@ export default function RegisterUserPage() {
   
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [pendingConfirmation, setPendingConfirmation] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (loading || pendingConfirmation) return;
     setError('');
     setLoading(true);
     try {
-      await signUp(form, {
+      const result = await signUp(form, {
         errorRequired: "Please fill out all fields",
         errorEmail: "Invalid email",
         errorPasswordLength: "Password must be at least 6 characters",
         errorPasswordMatch: "Passwords do not match",
       });
-      auth?.refresh();
-      setSuccess("Account created successfully! Redirecting...");
-      setTimeout(() => router.push('/profile'), 1500);
+      if (result.requiresEmailConfirmation) {
+        setForm(prev => ({ ...prev, password: '', confirmPassword: '' }));
+        setPendingConfirmation(true);
+        return;
+      }
+      void auth?.refresh();
+      router.replace('/profile');
     } catch (err) {
       setError(err);
     } finally {
@@ -46,19 +51,22 @@ export default function RegisterUserPage() {
         <p className="mt-2 text-zinc-400">{msg("Join Miami Elio for exclusive access")}</p>
         
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder={msg("Your Name")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
-          <input type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder={msg("Email Address")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
-          <input type="password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder={msg("Password (min 6 chars)")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required minLength={6} />
-          <input type="password" value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} placeholder={msg("Confirm Password")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
+        {pendingConfirmation ? (
+          <p role="status" className="mt-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300">
+            {msg("Check your email for a confirmation link.")}
+          </p>
+        ) : <form onSubmit={handleSubmit} className="space-y-4">
+          <input autoComplete="name" aria-label={msg("Your Name")} value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder={msg("Your Name")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
+          <input type="email" autoComplete="username" aria-label={msg("Email Address")} value={form.email} onChange={e => setForm({...form, email: e.target.value})} placeholder={msg("Email Address")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
+          <input type="password" autoComplete="new-password" aria-label={msg("Password")} value={form.password} onChange={e => setForm({...form, password: e.target.value})} placeholder={msg("Password (min 6 chars)")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required minLength={6} />
+          <input type="password" autoComplete="new-password" aria-label={msg("Confirm Password")} value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} placeholder={msg("Confirm Password")} className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition" required />
           
-          {error && <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{msg(authErrorSource(error))}</p>}
-          {success && <p className="text-emerald-400 text-sm bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/30">{msg(success)}</p>}
+          {error && <p role="alert" className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/30">{msg(authErrorSource(error))}</p>}
           
           <button type="submit" disabled={loading} className="w-full rounded-full bg-brand-gold px-4 py-3 font-medium text-black transition hover:brightness-110 disabled:opacity-60">
             {loading ? msg("Creating account...") : msg("Sign Up")}
           </button>
-        </form>
+        </form>}
 
         <p className="mt-6 text-center text-sm text-zinc-500">{msg("Already have an account? ")}<Link href="/login" className="text-white hover:underline">{msg("Sign In")}</Link>
         </p>

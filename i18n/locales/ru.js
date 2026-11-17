@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "Язык: {language}",
   "ui.f8416d793a642faa": "Выберите язык",
   "ui.4197828a99712897": "Страница не найдена.",
-  "ui.eca5eea16e066283": "Аккаунт успешно создан! Перенаправляем…",
   "ui.1118b16a02fb1eff": "Панель{break}администратора",
   "ui.fa941aa855f7e22b": "Почувствуйте{break}{highlight}.",
   "ui.4b909cfeb60b9b19": "Кабинет{break}партнёра",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "Цена по запросу",
   "home.showcase.flights": "Искать рейсы",
   "home.showcase.perDay": "{price} / день",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "Получить ссылку для сброса",
+  "ui.afd25fdf17c7f534": "Забыли пароль?",
+  "ui.50ce2ade7c2e4c8b": "Если на этот email зарегистрирован аккаунт, мы отправим ссылку для сброса пароля.",
+  "ui.091f0d0bc02c7d7b": "Проверьте почту и перейдите по ссылке для подтверждения email."
 };

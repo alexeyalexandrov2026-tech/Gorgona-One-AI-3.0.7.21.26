@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "语言：{language}",
   "ui.f8416d793a642faa": "选择语言",
   "ui.4197828a99712897": "找不到此页面。",
-  "ui.eca5eea16e066283": "账号创建成功！正在跳转…",
   "ui.1118b16a02fb1eff": "管理{break}控制台",
   "ui.fa941aa855f7e22b": "体验{break}{highlight}。",
   "ui.4b909cfeb60b9b19": "合作伙伴{break}服务台",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "价格面议",
   "home.showcase.flights": "搜索航班",
   "home.showcase.perDay": "{price} / 天",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "获取重置链接",
+  "ui.afd25fdf17c7f534": "忘记密码？",
+  "ui.50ce2ade7c2e4c8b": "如果此邮箱已注册账户，我们将发送密码重置链接。",
+  "ui.091f0d0bc02c7d7b": "请查收包含确认链接的邮件。"
 };

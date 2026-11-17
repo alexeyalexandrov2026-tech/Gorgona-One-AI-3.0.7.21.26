@@ -4,10 +4,14 @@ import { LocalizedText, useSavedText } from "../../components/LocalizedText";
 import { authErrorSource } from '../../../lib/authMessages';
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../../components/AuthProvider';
 import { signUpPartner } from '../../../lib/auth';
 
 export default function RegisterPartnerPage() {
   const msg = useSavedText();
+  const router = useRouter();
+  const auth = useAuth();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ 
     name: '', email: '', phone: '', contactMethod: 'WhatsApp', password: '', confirmPassword: '',
@@ -18,6 +22,7 @@ export default function RegisterPartnerPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (loading) return;
     if (!form.agreement) {
       setError("You must agree to the Miami Elio Partnership Agreement.");
       return;
@@ -25,13 +30,19 @@ export default function RegisterPartnerPage() {
     setError('');
     setLoading(true);
     try {
-      await signUpPartner(form, {
+      const result = await signUpPartner(form, {
         errorRequired: "Please fill out all required fields",
         errorEmail: "Invalid email",
         errorPasswordLength: "Password must be at least 6 characters",
         errorPasswordMatch: "Passwords do not match",
       });
-      setStep('success');
+      if (result.requiresEmailConfirmation) {
+        setForm(prev => ({ ...prev, password: '', confirmPassword: '' }));
+        setStep('success');
+        return;
+      }
+      void auth?.refresh();
+      router.replace('/partner');
     } catch (err) {
       setError(err);
     } finally {

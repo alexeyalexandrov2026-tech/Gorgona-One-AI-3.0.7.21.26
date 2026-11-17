@@ -1409,7 +1409,7 @@
   },
   "ui.d8b8392e2c542950": {
     "sourceHash": "d8b8392e2c542950ca64867168e4ef87d4ad606882d5898f826b51c6d553988f",
-    "description": "app/components/dashboard/ListingWorkspace.jsx; app/error.js; app/events/TicketNetworkEvents.jsx; app/global-error.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/dashboard/ListingWorkspace.jsx; app/error.js; app/events/TicketNetworkEvents.jsx; app/global-error.js; app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.30556a7a38a54f79": {
     "sourceHash": "30556a7a38a54f7935b69b5d80d7f577dc5b1430b12689538d78929950b213a0",
@@ -1565,11 +1565,11 @@
   },
   "ui.09bf25ef30833633": {
     "sourceHash": "09bf25ef308336338ea33f83d6e4f4a0e5345e5d43d397864a8f5d0e6b9b923c",
-    "description": "app/login/page.js; app/register/page.js; app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/forgot-password/page.js; app/login/page.js; app/register/page.js; app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.e7cf3ef4f17c3999": {
     "sourceHash": "e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e19398b23bd38ec221a",
-    "description": "app/account/setup/page.js; app/login/page.js; app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/account/setup/page.js; app/login/page.js; app/register/page.js; app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.1f96f5d016bd94a8": {
     "sourceHash": "1f96f5d016bd94a83f38c77e810b0754e3ca60ebf8470e7ebaaf8b5b8d0946d7",
@@ -1665,7 +1665,7 @@
   },
   "ui.fdc5ded3540d4fc8": {
     "sourceHash": "fdc5ded3540d4fc81a337e6954fc10108fbfbc3901a01ed4bed927fe7bebf174",
-    "description": "app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/forgot-password/page.js; app/profile/page.js; app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.f4114db89d911fcf": {
     "sourceHash": "f4114db89d911fcf134683fc88c08af70c032505a6d6a1dad4b58299323a1f1d",
@@ -2459,10 +2459,6 @@
     "sourceHash": "4197828a99712897bc5772ee26de1ad43114ca3b9d30d46e1f49d1669c76af61",
     "description": "app/not-found.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.eca5eea16e066283": {
-    "sourceHash": "eca5eea16e0662831162f9e2e1a90af59efd4b9367647c284b9a993738c79a24",
-    "description": "app/register/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.1118b16a02fb1eff": {
     "sourceHash": "1118b16a02fb1effbbd4234de1279ce7ef147aff7138594cf47433d40947aec4",
     "description": "app/admin/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -2729,7 +2725,7 @@
   },
   "ui.47d2a515ef2f05b8": {
     "sourceHash": "47d2a515ef2f05b87d688656286a61e4f743da4b878684c7654969db17711c40",
-    "description": "app/account/delete/page.js; app/account/setup/page.js; app/admin/page.js; app/components/ai/AiConversation.jsx; app/components/BookingForm.jsx; app/components/dashboard/AppSupport.jsx; app/components/dashboard/ListingWorkspace.jsx; app/components/dashboard/RequestBoard.jsx; app/components/dining/VenueEditor.jsx; app/components/MyMiami.jsx; app/partner/page.js; app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/account/delete/page.js; app/account/setup/page.js; app/admin/page.js; app/components/BookingForm.jsx; app/components/MyMiami.jsx; app/components/ai/AiConversation.jsx; app/components/dashboard/AppSupport.jsx; app/components/dashboard/ListingWorkspace.jsx; app/components/dashboard/RequestBoard.jsx; app/components/dining/VenueEditor.jsx; app/forgot-password/page.js; app/partner/page.js; app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.ea923f45a415c408": {
     "sourceHash": "ea923f45a415c408812651a3b319fc3fbe19d63fe4261add03667a95d2c7292e",
@@ -3346,5 +3342,21 @@
   "home.showcase.jetPartner": {
     "sourceHash": "61b44ceafbb1fcf3e74a92030a7da7fb06ef6ab93b646bd0cc4614e1f313c030",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "ui.485aefb8f7c19c8c": {
+    "sourceHash": "485aefb8f7c19c8cafbfd7f1c1b3f4b943064404ae94beabf53d470effa213e0",
+    "description": "app/account/setup/page.js; app/forgot-password/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.afd25fdf17c7f534": {
+    "sourceHash": "afd25fdf17c7f534649b98afa8673ef6c78d83355950192912a5cadcbd56eb39",
+    "description": "app/forgot-password/page.js; app/login/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.50ce2ade7c2e4c8b": {
+    "sourceHash": "50ce2ade7c2e4c8b329d53e7b2278a51c54b97f8b09a0fab90cb13b4135daceb",
+    "description": "app/forgot-password/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.091f0d0bc02c7d7b": {
+    "sourceHash": "091f0d0bc02c7d7b5e0f73ef926b35741e630f7c9b9cc095fe37fd39bb6c407b",
+    "description": "app/register/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   }
 }

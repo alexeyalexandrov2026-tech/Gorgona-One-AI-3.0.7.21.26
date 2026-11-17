@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "Мова: {language}",
   "ui.f8416d793a642faa": "Виберіть мову",
   "ui.4197828a99712897": "Сторінку не знайдено.",
-  "ui.eca5eea16e066283": "Обліковий запис успішно створено! Перенаправлення…",
   "ui.1118b16a02fb1eff": "Панель{break}адміністратора",
   "ui.fa941aa855f7e22b": "Відчуйте{break}{highlight}.",
   "ui.4b909cfeb60b9b19": "Кабінет{break}партнера",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "Ціна на запит",
   "home.showcase.flights": "Шукати рейси",
   "home.showcase.perDay": "{price} / день",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "Отримати посилання для скидання",
+  "ui.afd25fdf17c7f534": "Забули пароль?",
+  "ui.50ce2ade7c2e4c8b": "Якщо на цю адресу зареєстровано обліковий запис, ми надішлемо посилання для скидання пароля.",
+  "ui.091f0d0bc02c7d7b": "Перевірте пошту й перейдіть за посиланням для підтвердження."
 };
