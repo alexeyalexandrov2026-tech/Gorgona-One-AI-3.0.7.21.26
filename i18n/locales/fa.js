@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "زبان: {language}",
   "ui.f8416d793a642faa": "انتخاب زبان",
   "ui.4197828a99712897": "این صفحه پیدا نشد.",
-  "ui.eca5eea16e066283": "حساب با موفقیت ساخته شد! در حال انتقال…",
   "ui.1118b16a02fb1eff": "پنل{break}مدیریت",
   "ui.fa941aa855f7e22b": "تجربه‌ای{break}{highlight} داشته باشید.",
   "ui.4b909cfeb60b9b19": "میز{break}شرکا",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "نرخ با درخواست",
   "home.showcase.flights": "جستجوی پرواز",
   "home.showcase.perDay": "{price} / روز",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "درخواست پیوند بازنشانی",
+  "ui.afd25fdf17c7f534": "رمز عبور خود را فراموش کرده‌اید؟",
+  "ui.50ce2ade7c2e4c8b": "اگر حسابی با این نشانی ایمیل وجود داشته باشد، پیوند بازنشانی رمز عبور را ارسال می‌کنیم.",
+  "ui.091f0d0bc02c7d7b": "ایمیل خود را برای یافتن پیوند تأیید بررسی کنید."
 };

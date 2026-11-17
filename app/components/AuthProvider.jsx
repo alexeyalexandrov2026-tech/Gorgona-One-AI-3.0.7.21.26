@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { getSession, signOut as authSignOut } from '../../lib/auth';
-import { sessionLoader } from '../../lib/authSession.mjs';
+import { isTemporarySessionError, sessionLoader } from '../../lib/authSession.mjs';
 import { supabase } from '../../lib/supabase';
 import {useHydratedValue} from './useHydratedValue';
 
@@ -15,24 +15,47 @@ export function AuthProvider({ children }) {
   const identity = useRef(null);
 
   useEffect(() => {
-    const loader = sessionLoader(getSession, (session, loading, error) => { identity.current=session?.id||null; setState({ session, loading, error }); });
-    controller.current = loader;
-    let timer;
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      clearTimeout(timer);
-      if (['TOKEN_REFRESHED','SIGNED_IN'].includes(event) && session?.user?.id === identity.current) {
-        timer = setTimeout(() => loader.refresh(true), 0);
-        return;
-      }
-      loader.clear();
-      if (event !== 'SIGNED_OUT') {
-        setState({ session: null, loading: true, error: null });
-        // Defer API calls until Supabase releases the auth callback lock.
-        timer = setTimeout(() => loader.refresh(), 0);
+    let eventTimer;
+    let retryTimer;
+    let retries = 0;
+    const loader = sessionLoader(getSession, (session, loading, error) => {
+      clearTimeout(retryTimer);
+      identity.current = session?.id ?? null;
+      // Keep an already verified account visible through a temporary outage.
+      setState({ session, loading, error: session ? null : error });
+      if (isTemporarySessionError(error) && retries < 3) {
+        retryTimer = setTimeout(() => loader.refresh(true), 2000 * 2 ** retries++);
+      } else if (!error && !loading) {
+        retries = 0;
       }
     });
-    loader.refresh();
-    return () => { clearTimeout(timer); subscription.unsubscribe(); loader.dispose(); controller.current = null; };
+    controller.current = loader;
+    const resume = () => {
+      retries = 0;
+      void loader.refresh(true);
+    };
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION') return; // The explicit initial load below also validates the profile.
+      clearTimeout(eventTimer);
+      if (event === 'SIGNED_OUT') {
+        loader.clear();
+        return;
+      }
+      const sameUser = Boolean(identity.current && session?.user?.id === identity.current);
+      if (!sameUser) loader.clear();
+      // Defer API calls until Supabase releases the auth callback lock.
+      eventTimer = setTimeout(() => loader.refresh(sameUser), 0);
+    });
+    window.addEventListener('online', resume);
+    void loader.refresh();
+    return () => {
+      clearTimeout(eventTimer);
+      clearTimeout(retryTimer);
+      window.removeEventListener('online', resume);
+      subscription.unsubscribe();
+      loader.dispose();
+      controller.current = null;
+    };
   }, []);
 
   const value = useMemo(() => ({ ...state,

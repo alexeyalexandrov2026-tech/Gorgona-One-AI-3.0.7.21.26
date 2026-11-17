@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "언어: {language}",
   "ui.f8416d793a642faa": "언어 선택",
   "ui.4197828a99712897": "페이지를 찾을 수 없습니다.",
-  "ui.eca5eea16e066283": "계정이 생성되었습니다! 이동 중…",
   "ui.1118b16a02fb1eff": "관리자{break}콘솔",
   "ui.fa941aa855f7e22b": "{highlight}을{break}경험하세요.",
   "ui.4b909cfeb60b9b19": "파트너{break}데스크",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "요금 문의",
   "home.showcase.flights": "항공편 검색",
   "home.showcase.perDay": "{price} / 일",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "재설정 링크 요청",
+  "ui.afd25fdf17c7f534": "비밀번호를 잊으셨나요?",
+  "ui.50ce2ade7c2e4c8b": "이 이메일 주소로 등록된 계정이 있으면 비밀번호 재설정 링크를 보내 드립니다.",
+  "ui.091f0d0bc02c7d7b": "이메일에서 확인 링크를 찾아보세요."
 };

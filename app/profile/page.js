@@ -6,6 +6,7 @@ import RequestBoard from '../components/dashboard/RequestBoard';
 import { getTranslation } from '../../lib/i18n';
 import { useLocale } from '../components/LocaleProvider';
 import { useAuth } from '../components/AuthProvider';
+import { authErrorSource } from '../../lib/authMessages';
 import MyMiami from '../components/MyMiami';
 
 export default function ProfilePage() {
@@ -15,7 +16,18 @@ export default function ProfilePage() {
   const auth = useAuth();
 
   if (auth?.loading) return <main className="flex-1 theme-villa bg-villa-parchment p-10 text-villa-obsidian" role="status">{msg('Loading...')}</main>;
-  if (auth && !auth.session) {
+  if (auth?.error) {
+    return (
+      <main className="flex-1 p-10">
+        <p role="alert">{msg(authErrorSource(auth.error))}</p>
+        <button type="button" onClick={() => auth.refresh()} className="mt-4 text-brand-gold underline">
+          {msg("Try again")}
+        </button>
+        <Link href="/login" className="ms-4 underline">{msg("Return to Login")}</Link>
+      </main>
+    );
+  }
+  if (!auth?.session) {
     return (
       <main className="flex-1 theme-villa full-bleed bg-villa-parchment text-villa-obsidian pb-20 pt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "اللغة: {language}",
   "ui.f8416d793a642faa": "اختر لغة",
   "ui.4197828a99712897": "تعذّر العثور على هذه الصفحة.",
-  "ui.eca5eea16e066283": "تم إنشاء الحساب بنجاح! جارٍ إعادة التوجيه…",
   "ui.1118b16a02fb1eff": "لوحة{break}المسؤول",
   "ui.fa941aa855f7e22b": "عِش تجارب{break}{highlight}.",
   "ui.4b909cfeb60b9b19": "مكتب{break}الشركاء",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "السعر عند الطلب",
   "home.showcase.flights": "ابحث عن رحلات",
   "home.showcase.perDay": "{price} / يوم",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "اطلب رابط إعادة التعيين",
+  "ui.afd25fdf17c7f534": "هل نسيت كلمة المرور؟",
+  "ui.50ce2ade7c2e4c8b": "إذا كان هناك حساب مرتبط بهذا البريد الإلكتروني، فسنرسل رابطًا لإعادة تعيين كلمة المرور.",
+  "ui.091f0d0bc02c7d7b": "تحقّق من بريدك الإلكتروني للعثور على رابط التأكيد."
 };

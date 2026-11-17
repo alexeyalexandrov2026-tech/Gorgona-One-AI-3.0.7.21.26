@@ -19,7 +19,6 @@ export default function LoginPage() {
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   function handleChange(field, value) {
@@ -28,18 +27,17 @@ export default function LoginPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (loading) return;
     setError('');
-    setSuccess('');
     setLoading(true);
     try {
       await signIn(form, {
         errorRequired: 'Please fill out all fields',
         errorEmail: 'Invalid email'
       });
-      setSuccess(t.auth.successSignIn);
-      auth?.refresh();
+      void auth?.refresh();
       const next = new URLSearchParams(window.location.search).get('next');
-      setTimeout(() => router.push(next === '/account/delete' ? next : '/profile'), 900);
+      router.replace(next === '/account/delete' ? next : '/profile');
     } catch (err) {
       setError(err);
     } finally {
@@ -57,6 +55,8 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-4">
           <input
             type="email"
+            autoComplete="username"
+            aria-label={msg("Email Address")}
             value={form.email}
             onChange={(event) => handleChange('email', event.target.value)}
             className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition"
@@ -64,14 +64,17 @@ export default function LoginPage() {
           />
           <input
             type="password"
+            autoComplete="current-password"
+            aria-label={msg("Password")}
             value={form.password}
             onChange={(event) => handleChange('password', event.target.value)}
             className="w-full rounded-2xl border border-white/10 bg-black/50 px-4 py-3 text-white outline-none focus:border-brand-gold transition"
             placeholder={msg("Password")}
           />
 
-          {error && <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">{msg(authErrorSource(error))}</p>}
-          {success && <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400">{msg(success)}</p>}
+          <Link href="/forgot-password" className="inline-block text-sm text-brand-gold hover:underline">{msg("Forgot your password?")}</Link>
+
+          {error && <p role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">{msg(authErrorSource(error))}</p>}
 
           <button
             type="submit"

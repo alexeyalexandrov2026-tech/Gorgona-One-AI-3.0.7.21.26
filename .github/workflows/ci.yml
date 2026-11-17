@@ -40,5 +40,7 @@ jobs:
       - run: npx next build
         env:
           NEXT_TELEMETRY_DISABLED: 1
+      - name: Account browser regressions without external services
+        run: node tests/dashboard/account-browser.mjs
       - name: Verify rentals in the built sitemap
         run: node scripts/check-rental-sitemap.mjs

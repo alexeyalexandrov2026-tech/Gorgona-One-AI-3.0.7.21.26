@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "Język: {language}",
   "ui.f8416d793a642faa": "Wybierz język",
   "ui.4197828a99712897": "Nie znaleziono tej strony.",
-  "ui.eca5eea16e066283": "Konto utworzone! Przekierowanie…",
   "ui.1118b16a02fb1eff": "Panel{break}administratora",
   "ui.fa941aa855f7e22b": "Doświadcz{break}czegoś {highlight}.",
   "ui.4b909cfeb60b9b19": "Panel{break}partnera",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "Stawka na zapytanie",
   "home.showcase.flights": "Szukaj lotów",
   "home.showcase.perDay": "{price} / dzień",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "Poproś o link do resetowania",
+  "ui.afd25fdf17c7f534": "Nie pamiętasz hasła?",
+  "ui.50ce2ade7c2e4c8b": "Jeśli do tego adresu e-mail jest przypisane konto, wyślemy link do resetowania hasła.",
+  "ui.091f0d0bc02c7d7b": "Sprawdź skrzynkę e-mail w poszukiwaniu linku potwierdzającego."
 };

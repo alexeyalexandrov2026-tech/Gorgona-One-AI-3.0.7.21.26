@@ -615,7 +615,6 @@ export default {
   "ui.c09c83fed7aa493f": "Dil: {language}",
   "ui.f8416d793a642faa": "Bir dil seçin",
   "ui.4197828a99712897": "Bu sayfa bulunamadı.",
-  "ui.eca5eea16e066283": "Hesap oluşturuldu! Yönlendiriliyor…",
   "ui.1118b16a02fb1eff": "Yönetici{break}konsolu",
   "ui.fa941aa855f7e22b": "{highlight}{break}deneyimler yaşayın.",
   "ui.4b909cfeb60b9b19": "İş ortağı{break}masası",
@@ -836,5 +835,9 @@ export default {
   "home.showcase.nightly": "Ücret talep üzerine",
   "home.showcase.flights": "Uçuş ara",
   "home.showcase.perDay": "{price} / gün",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "Sıfırlama bağlantısı iste",
+  "ui.afd25fdf17c7f534": "Parolanızı mı unuttunuz?",
+  "ui.50ce2ade7c2e4c8b": "Bu e-posta adresine bağlı bir hesap varsa parola sıfırlama bağlantısı göndereceğiz.",
+  "ui.091f0d0bc02c7d7b": "Onay bağlantısı için e-posta kutunuzu kontrol edin."
 };

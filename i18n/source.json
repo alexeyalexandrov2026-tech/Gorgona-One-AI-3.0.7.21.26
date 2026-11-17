@@ -614,7 +614,6 @@
   "ui.c09c83fed7aa493f": "Language: {language}",
   "ui.f8416d793a642faa": "Choose a language",
   "ui.4197828a99712897": "This page could not be found.",
-  "ui.eca5eea16e066283": "Account created successfully! Redirecting...",
   "ui.1118b16a02fb1eff": "Admin{break}Console",
   "ui.fa941aa855f7e22b": "Experience the{break}{highlight}",
   "ui.4b909cfeb60b9b19": "Partner{break}Desk",
@@ -835,5 +834,9 @@
   "home.showcase.nightly": "Rate on request",
   "home.showcase.flights": "Search flights",
   "home.showcase.perDay": "{price} / day",
-  "home.showcase.jetPartner": "PrivateJetFinder"
+  "home.showcase.jetPartner": "PrivateJetFinder",
+  "ui.485aefb8f7c19c8c": "Request a reset link",
+  "ui.afd25fdf17c7f534": "Forgot your password?",
+  "ui.50ce2ade7c2e4c8b": "If an account exists for this email, we’ll send a password reset link.",
+  "ui.091f0d0bc02c7d7b": "Check your email for a confirmation link."
 }
