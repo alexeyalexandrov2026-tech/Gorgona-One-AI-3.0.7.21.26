@@ -115,6 +115,17 @@ try {
     await register(page, user.email);
     await expect(page).toHaveURL(origin + '/profile');
     await expect(page.locator('main').getByText(/Customer Fixture/)).toBeVisible();
+    // The favourites block sits on the light parchment while the site theme is dark.
+    const heading = page.locator('#my-miami-saved');
+    await expect(heading).toBeVisible();
+    const ratio = await heading.evaluate(el => {
+      const rgb = c => c.match(/[\d.]+/g).slice(0, 3).map(Number);
+      const lum = ([r, g, b]) => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+      let bg = el; while (bg && getComputedStyle(bg).backgroundColor.replace(/\s/g, '').match(/rgba\(0,0,0,0\)|transparent/)) bg = bg.parentElement;
+      const a = lum(rgb(getComputedStyle(el).color)), b = lum(rgb(getComputedStyle(bg || document.body).backgroundColor));
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    });
+    expect(ratio).toBeGreaterThan(4.5);
   });
 
   await test('sign-in displays invalid credentials and opens the verified account on retry', async page => {
