@@ -128,6 +128,31 @@
 /* The sphere moves to bottom-8 right-8 at the sm breakpoint. */
 @media (min-width: 640px) { .aidock { right: 32px; bottom: 108px; } }
 
+/* Live manager on Telegram: a round chip in the AI pill's surface, stacked
+   above the pill (pill: bottom 96px, ~42px tall). Rendered only when a
+   Telegram username is configured (lib/managerContact.mjs). */
+.aitg {
+  position: fixed; right: 20px; bottom: 150px; z-index: 55;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 999px;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+.aitg[data-ai-theme="dark"] {
+  background: rgba(26, 22, 15, 0.7); border: 1px solid rgba(216, 180, 120, 0.4); color: #d8b478;
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.7), 0 0 22px rgba(216, 180, 120, 0.14);
+}
+.aitg[data-ai-theme="light"] {
+  background: rgba(255, 253, 248, 0.85); border: 1px solid rgba(198, 160, 94, 0.45); color: #8a6528;
+  box-shadow: 0 12px 30px -14px rgba(60, 45, 12, 0.4);
+}
+.aitg:hover { transform: translateY(-2px); }
+.aitg:focus-visible { outline: 2px solid #c6a05e; outline-offset: 3px; }
+.aitg.is-hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+.aitg__icon { width: 20px; height: 20px; }
+@media (min-width: 640px) { .aitg { right: 32px; bottom: 162px; } }
+@media (prefers-reduced-motion: reduce) { .aitg { transition: none; } }
+
 .aidock__orb {
   position: relative; width: 22px; height: 22px; border-radius: 50%;
   background: radial-gradient(circle at 34% 30%, #fffdf6 0%, #d8b478 55%, #8a6528 100%);
