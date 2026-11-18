@@ -553,7 +553,6 @@ export default {
   "sample.plan.0": "Maybach GLS · MIA",
   "sample.plan.1": "Azimut 68 Fly · sáb",
   "sample.plan.2": "Pedido de mesa",
-  "ui.30c483046c04dc81": "Ofertas de aluguel de carros no mundo todo",
   "ui.ce4b7e898e45ee20": "Ofertas e descontos de voos",
   "ui.7db2ab62a28f08e2": "Verifique os filtros de eventos e o intervalo de datas.",
   "ui.3d131368b43397ff": "Ingressos",

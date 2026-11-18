@@ -553,7 +553,6 @@ export default {
   "sample.plan.0": "Maybach GLS · MIA",
   "sample.plan.1": "Azimut 68 Fly · 周六",
   "sample.plan.2": "申请订桌",
-  "ui.30c483046c04dc81": "全球租车优惠",
   "ui.ce4b7e898e45ee20": "航班优惠与折扣",
   "ui.7db2ab62a28f08e2": "请检查活动筛选条件及日期范围。",
   "ui.3d131368b43397ff": "门票",

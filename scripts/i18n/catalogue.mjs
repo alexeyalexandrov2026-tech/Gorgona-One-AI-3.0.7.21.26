@@ -80,7 +80,7 @@ export function discoverMessages() {
   ]);
   for (const [file,variables] of arrays) walk(parseFile(file),(node,parents)=>{
     const variable=parents.find(p=>p.type==='VariableDeclarator')?.id.name;
-    if(node.type==='ObjectProperty' && variables.get(variable)?.includes(node.key.name) && node.value.type==='StringLiteral' && node.value.value!=='Rentcars.com') add(node.value.value,file+': owned editorial card');
+    if(node.type==='ObjectProperty' && variables.get(variable)?.includes(node.key.name) && node.value.type==='StringLiteral') add(node.value.value,file+': owned editorial card');
   });
   walk(parseFile('lib/aiSuggestions.js'),node=>{
     if(node.type==='ObjectProperty' && node.key.name==='label' && node.value.type==='StringLiteral') add(node.value.value,'lib/aiSuggestions.js: owned section navigation label');
@@ -89,7 +89,7 @@ export function discoverMessages() {
   // corresponding API/filter values remain unchanged.
   for (const text of ['Miami & South Florida','All Florida','All cities','Team','Team or artist','Artist','Any team','Any team or artist','Any artist','Sport tickets','Concert tickets','Boxing','Tennis','Golf','All sports','Pop & Rock','Hip-Hop & R&B','Jazz & Blues','Electronic / EDM','Classical & Opera','Country','Comedy & Stand-up','Theater & Broadway','Festivals','All live shows','From {amount}','Please check the event filters and date range.']) add(text,'owned calendar filter and category labels');
   for (const {record,world} of OWNED_RECORDS) if (world === 'experiences') add(record.duration,'lib/experiencesData.js: owned display duration');
-  for (const text of ['Worldwide car rental deals','Flight deals and discounts']) add(text,'app/travel/ovago/page.js: owned offer summary');
+  for (const text of ['Flight deals and discounts']) add(text,'app/travel/ovago/page.js: owned offer summary');
   for (const item of [...EVENT_CATEGORIES,...EVENT_CATEGORY_GROUPS]) if (!['NFL','NHL','NBA','MLB','MLS','UFC','F1','NASCAR'].includes(item.label)) add(item.label,'owned event category navigation; event records remain English');
   for (const item of LEAGUES) add(item.sport,'owned sport taxonomy; league and team names remain English');
   for (const item of ecosystem) for (const field of ['label','tagline']) add(item[field],'owned ecosystem navigation');
