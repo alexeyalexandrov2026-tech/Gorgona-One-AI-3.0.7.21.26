@@ -174,3 +174,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) { .aidock__core { animation: none; } .aidock { transition: none; } }
+
+/* On phones the "Add to Home Screen" hint opens at the pill's height; the
+   floating launchers step aside until it is dismissed (InstallPrompt.jsx). */
+@media (max-width: 639px) {
+  html[data-install-prompt="open"] .aidock,
+  html[data-install-prompt="open"] [data-floating-launcher] { opacity: 0; visibility: hidden; pointer-events: none; }
+}
