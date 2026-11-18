@@ -127,12 +127,6 @@
 .aidock.is-open { opacity: 0.85; }
 /* The sphere moves to bottom-8 right-8 at the sm breakpoint. */
 @media (min-width: 640px) { .aidock { right: 32px; bottom: 108px; } }
-/* On phones the "Add to Home Screen" hint opens at the pill's height; the
-   floating launchers step aside until it is dismissed (InstallPrompt.jsx). */
-@media (max-width: 639px) {
-  html[data-install-prompt="open"] .aidock,
-  html[data-install-prompt="open"] [data-floating-launcher] { opacity: 0; visibility: hidden; pointer-events: none; }
-}
 
 .aidock__orb {
   position: relative; width: 22px; height: 22px; border-radius: 50%;
@@ -155,3 +149,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) { .aidock__core { animation: none; } .aidock { transition: none; } }
+
+/* On phones the "Add to Home Screen" hint opens at the pill's height; the
+   floating launchers step aside until it is dismissed (InstallPrompt.jsx). */
+@media (max-width: 639px) {
+  html[data-install-prompt="open"] .aidock,
+  html[data-install-prompt="open"] [data-floating-launcher] { opacity: 0; visibility: hidden; pointer-events: none; }
+}
