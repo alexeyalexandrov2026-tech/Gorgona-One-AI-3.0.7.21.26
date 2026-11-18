@@ -17,12 +17,13 @@ test('only plain public Telegram usernames become a t.me link', () => {
   }
 });
 
-test('the button stays hidden until a username is configured', () => {
-  assert.equal(MANAGER_TELEGRAM, '');
+test('the configured manager opens t.me, and the button hides without a username', () => {
+  assert.equal(managerTelegramUrl(MANAGER_TELEGRAM), 'https://t.me/alexeyalexand07');
+  assert.equal(managerTelegramUrl(''), null);
   const saved = process.env.NEXT_PUBLIC_MANAGER_TELEGRAM;
   try {
     delete process.env.NEXT_PUBLIC_MANAGER_TELEGRAM;
-    assert.equal(configuredManagerTelegram(), null);
+    assert.equal(configuredManagerTelegram(), 'https://t.me/alexeyalexand07');
     process.env.NEXT_PUBLIC_MANAGER_TELEGRAM = '@miamielio_concierge';
     assert.equal(configuredManagerTelegram(), 'https://t.me/miamielio_concierge');
   } finally {
