@@ -399,7 +399,7 @@ export default {
   "ui.910217011197c2ec": "Create one now",
   "ui.8cac8b5ea26c9718": "Are you a business owner?",
   "ui.dd4be29d50b8e01e": "Become a Partner",
-  "ui.ec44a2cb0a7008d3": "Art Deco hotel facade on Ocean Drive",
+  "ui.123c8d6b00223641": "Downtown Miami and Biscayne Bay from the air",
   "ui.66b0855543b0212f": "Partner Portal",
   "ui.105e4167be6a748f": "Description & Info",
   "ui.3ac1a9ec4fa7a9fa": "Currency",

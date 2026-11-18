@@ -399,7 +399,7 @@ export default {
   "ui.910217011197c2ec": "Crie uma agora",
   "ui.8cac8b5ea26c9718": "Você é proprietário de uma empresa?",
   "ui.dd4be29d50b8e01e": "Torne-se um Parceiro",
-  "ui.ec44a2cb0a7008d3": "Fachada de hotel Art Déco na Ocean Drive",
+  "ui.123c8d6b00223641": "O centro de Miami e a baía de Biscayne vistos do alto",
   "ui.66b0855543b0212f": "Portal do Parceiro",
   "ui.105e4167be6a748f": "Descrição e informações",
   "ui.3ac1a9ec4fa7a9fa": "Moeda",

@@ -9,6 +9,7 @@ import { getTranslation } from '../../lib/i18n';
 import { useLocale } from '../components/LocaleProvider';
 import { useAuth } from '../components/AuthProvider';
 import { signIn } from '../../lib/auth';
+import { postLoginPath } from '../../lib/postLoginPath.mjs';
 
 export default function LoginPage() {
   const msg = useSavedText();
@@ -35,9 +36,11 @@ export default function LoginPage() {
         errorRequired: 'Please fill out all fields',
         errorEmail: 'Invalid email'
       });
-      void auth?.refresh();
+      // The verified profile decides the landing page: partners open the partner
+      // portal and admins the admin panel; a same-site ?next= wins over both.
+      const session = await auth?.refresh();
       const next = new URLSearchParams(window.location.search).get('next');
-      router.replace(next === '/account/delete' ? next : '/profile');
+      router.replace(postLoginPath(session?.role, next));
     } catch (err) {
       setError(err);
     } finally {
