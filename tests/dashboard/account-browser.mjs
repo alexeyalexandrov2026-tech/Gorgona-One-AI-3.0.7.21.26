@@ -23,6 +23,7 @@ let passwordUpdates = 0;
 let refreshes = 0;
 let profileStatus = 200;
 let profileChecks = 0;
+let profileRole = 'user';
 let browser;
 try {
   for (let attempt = 0; ; attempt++) {
@@ -73,7 +74,7 @@ try {
         case '/rest/v1/profiles':
           profileChecks++;
           if (profileStatus !== 200) return respond({ message: 'Fixture profile lookup failed' }, profileStatus);
-          return respond({ id: user.id, name: 'Customer Fixture', email: user.email, role: 'user', metadata: {} });
+          return respond({ id: user.id, name: 'Customer Fixture', email: user.email, role: profileRole, metadata: {} });
         default:
           return respond([]);
       }
@@ -115,6 +116,44 @@ try {
     await register(page, user.email);
     await expect(page).toHaveURL(origin + '/profile');
     await expect(page.locator('main').getByText(/Customer Fixture/)).toBeVisible();
+    // The favourites block sits on the light parchment while the site theme is dark.
+    const heading = page.locator('#my-miami-saved');
+    await expect(heading).toBeVisible();
+    const ratio = await heading.evaluate(el => {
+      const rgb = c => c.match(/[\d.]+/g).slice(0, 3).map(Number);
+      const lum = ([r, g, b]) => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+      let bg = el; while (bg && getComputedStyle(bg).backgroundColor.replace(/\s/g, '').match(/rgba\(0,0,0,0\)|transparent/)) bg = bg.parentElement;
+      const a = lum(rgb(getComputedStyle(el).color)), b = lum(rgb(getComputedStyle(bg || document.body).backgroundColor));
+      return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+    });
+    expect(ratio).toBeGreaterThan(4.5);
+  });
+
+  await test('sign-in opens the workspace of the verified role and honours a same-site next', async page => {
+    const signIn = async path => {
+      await page.goto(origin + path);
+      const form = page.locator('main form');
+      await form.getByLabel('Email Address', { exact: true }).fill(user.email);
+      await form.getByLabel('Password', { exact: true }).fill(testPassword);
+      await form.getByRole('button', { name: 'Sign In', exact: true }).click();
+    };
+    try {
+      for (const [role, landing] of [['partner', '/partner'], ['admin', '/admin']]) {
+        profileRole = role;
+        await page.evaluate(() => localStorage.clear()).catch(() => {});
+        await signIn('/login');
+        await expect(page).toHaveURL(origin + landing);
+      }
+      profileRole = 'user';
+      await page.evaluate(() => localStorage.clear());
+      await signIn('/login?next=' + encodeURIComponent('//evil.example/x'));
+      await expect(page).toHaveURL(origin + '/profile');
+      await page.evaluate(() => localStorage.clear());
+      await signIn('/login?next=/yachts');
+      await expect(page).toHaveURL(origin + '/yachts');
+    } finally {
+      profileRole = 'user';
+    }
   });
 
   await test('sign-in displays invalid credentials and opens the verified account on retry', async page => {
