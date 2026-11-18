@@ -58,6 +58,17 @@ export function InstallPrompt() {
     return () => window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt);
   }, []);
 
+  // On phones the hint sits at the height of the AI pill and the concierge
+  // sphere. While it is open the floating launchers step aside (CSS keyed on
+  // this attribute) so nothing overlaps; they return as soon as it closes.
+  const visible = !dismissed && Boolean(deferredPrompt || showIosHint);
+  useEffect(() => {
+    const root = document.documentElement;
+    if (visible) root.dataset.installPrompt = 'open';
+    else delete root.dataset.installPrompt;
+    return () => { delete root.dataset.installPrompt; };
+  }, [visible]);
+
   function dismiss() {
     window.localStorage.setItem(DISMISS_KEY, String(Date.now()));
     setDismissed(true);

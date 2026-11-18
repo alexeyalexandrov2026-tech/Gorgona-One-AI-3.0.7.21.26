@@ -56,6 +56,19 @@
   color-scheme: dark;
 }
 
+/* The personal account is drawn on the light villa parchment in every site
+   theme, so the favourites block keeps the light design-system values there.
+   Without this the dark-theme ink (#EDF2F3) sat on parchment and the heading
+   and section chips were nearly invisible. */
+.theme-villa [data-my-miami] {
+  --g1-ink: #0F1D26;
+  --g1-ink-soft: #52626B;
+  --g1-rule: #D8E0E2;
+  --g1-card: #FFFFFF;
+  --g1-accent: #C42F5A;
+  --g1-on-accent: #FFFFFF;
+}
+
 /* A ticket: a card with two notches and a dashed tear line at --x.
    Wrap it in .g1-ticket-wrap so the drop shadow follows the notches. */
 .g1-ticket-wrap {
