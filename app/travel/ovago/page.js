@@ -42,12 +42,6 @@ const OVAGO_DEALS = [
     description: 'Business Class Flight Deals',
     image: '/images/ovago/business-class-flights.jpg',
     href: 'https://www.kqzyfj.com/click-101825540-15832128'
-  },
-  {
-    name: 'Rentcars.com',
-    description: 'Worldwide car rental deals',
-    image: '/images/brands/rentcars-shopping.webp',
-    href: 'https://click.linksynergy.com/fs-bin/click?id=BsBQ7p%2fMcbE&offerid=1791245.3&type=3&subid=0'
   }
 ];
 

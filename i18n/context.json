@@ -2211,10 +2211,6 @@
     "sourceHash": "f981d725a2252c3bc8c23f93d543382a560f970add041b16c744db081240f593",
     "description": "Owned fictional concierge conversation example. Brand and place names retained."
   },
-  "ui.30c483046c04dc81": {
-    "sourceHash": "30c483046c04dc8119b63f62c2551fbdec153323a91ec1aa54cbc90ddde0956a",
-    "description": "app/travel/ovago/page.js: owned editorial card; app/travel/ovago/page.js: owned offer summary. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.ce4b7e898e45ee20": {
     "sourceHash": "ce4b7e898e45ee205437a62e6bd05a2a789f402ab446cffbafd00b05eb23b104",
     "description": "app/travel/ovago/page.js: owned offer summary. Owned display text; retain named slots, brands and URLs. Translate the whole message."

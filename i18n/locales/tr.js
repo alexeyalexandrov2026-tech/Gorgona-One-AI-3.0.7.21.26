@@ -553,7 +553,6 @@ export default {
   "sample.plan.0": "Maybach GLS · MIA",
   "sample.plan.1": "Azimut 68 Fly · Cmt",
   "sample.plan.2": "Masa talebi",
-  "ui.30c483046c04dc81": "Dünya çapında araç kiralama fırsatları",
   "ui.ce4b7e898e45ee20": "Uçuş fırsatları ve indirimleri",
   "ui.7db2ab62a28f08e2": "Lütfen etkinlik filtrelerini ve tarih aralığını kontrol edin.",
   "ui.3d131368b43397ff": "Biletler",

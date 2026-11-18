@@ -553,7 +553,6 @@ export default {
   "sample.plan.0": "Maybach GLS · MIA",
   "sample.plan.1": "Azimut 68 Fly · שבת",
   "sample.plan.2": "בקשת שולחן",
-  "ui.30c483046c04dc81": "הצעות להשכרת רכב ברחבי העולם",
   "ui.ce4b7e898e45ee20": "מבצעים והנחות לטיסות",
   "ui.7db2ab62a28f08e2": "בדקו את מסנני האירועים ואת טווח התאריכים.",
   "ui.3d131368b43397ff": "כרטיסים",
