@@ -1,6 +1,7 @@
 "use client";
 import { useSavedText } from "../components/LocalizedText";
 
+import Link from 'next/link';
 import { useLocale } from '../components/LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
 
@@ -13,6 +14,8 @@ export default function PartnerAgreementPage() {
         <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{msg("Partner Agreement")}</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">{t.legal.agreementTitle}</h1>
         <p className="mt-4 max-w-3xl text-zinc-400">{t.legal.agreementBody}</p>
+        {/* "Become a Partner" in the footer opens this page; it must lead on to the partner sign-up. */}
+        <Link href="/register/partner" className="mt-6 inline-block text-sm text-brand-gold hover:underline">{t.footer.becomePartner}</Link>
       </div>
     </main>
   );

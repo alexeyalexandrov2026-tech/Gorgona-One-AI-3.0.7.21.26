@@ -14,6 +14,7 @@ import DiscoveryDock from './components/ai/DiscoveryDock';
 import { AiDockProvider } from './components/ai/AiDockProvider';
 import { ChatProvider } from './components/ai/ChatProvider';
 import { AiSphere } from './components/ai/AiSphere';         
+import ManagerTelegramButton from './components/ai/ManagerTelegramButton';
 import { AiDock } from './components/ai/AiDock';             
 import { InstallPrompt } from './components/InstallPrompt';   
 import { DEFAULT_IMAGE } from '../lib/seo.mjs';
@@ -82,6 +83,7 @@ export default function RootLayout({ children }) {
                       <Footer />
                       <DiscoveryDock />
                       <AiSphere />
+                      <ManagerTelegramButton />
                       <AiDock />
                       <InstallPrompt />
                     </div>
