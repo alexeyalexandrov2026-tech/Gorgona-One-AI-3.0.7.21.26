@@ -18,6 +18,8 @@
     "NEXT_PUBLIC_SUPABASE_URL": "https://kaxslgjbrarapeyoifdh.supabase.co",
     "GORGONA_AI_ENABLED": "off",
     "CONCIERGE_WORKERS_AI_ENABLED": "true",
+    "MY_MIAMI_ENABLED": "true",
+    "PLAN_REQUESTS_ENABLED": "true",
     "DINING_SCHEMA_ENABLED": "true",
     "DINING_REQUESTS_ENABLED": "true",
     "HEADOUT_SANDBOX_PREVIEW_ENABLED": "true"

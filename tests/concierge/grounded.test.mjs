@@ -29,3 +29,16 @@ test('provider wrappers contain no public prose and unsupported questions retain
  const want=groundedReply(encode(['/yachts'],'handoff'),{messages:[{role:'user',content:'I want a yacht this weekend'}],locale:'en'});assert.doesNotMatch(want.reply,/does not create or confirm/);assert.match(want.reply,/water|charter/i);
  const clarify=groundedReply(encode([],'clarify'),input);assert.ok(clarify.reply);assert.notEqual(clarify.reply,handoff.reply);
 });
+
+test('a yacht consultation cannot drop a second explicitly requested service',()=>{
+ const raw=JSON.stringify({version:2,action:'consult',options:['bay-cruise','longer-charter'],question:null});
+ const result=groundedReply(raw,{messages:[{role:'user',content:'Нужна яхта и машина в Майами.'}],locale:'ru'});
+ assert.deepEqual(result?.navigation.cards.map(card=>card.href),['/yachts','/rentals']);
+});
+
+test('a yacht enquiry keeps the YATR route while the model asks about duration',()=>{
+ const raw=JSON.stringify({version:2,action:'ask',choice:'time-on-water'});
+ const result=groundedReply(raw,{messages:[{role:'user',content:'Help me find a yacht charter for four guests in Miami.'}],locale:'en'});
+ assert.match(result?.reply,/time would you like to spend on the water/i);
+ assert.deepEqual(result?.navigation.cards.map(card=>card.href),['/yachts']);
+});

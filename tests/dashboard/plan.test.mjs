@@ -11,7 +11,7 @@ const {planHandlers}=load('lib/server/planHandlers.mjs');
 const env={...fixtureEnv,PLAN_REQUESTS_ENABLED:'true',DINING_REQUESTS_ENABLED:'true',DINING_SCHEMA_ENABLED:'true'};
 const clock=()=>new Date('2027-01-10T15:00:00Z');
 const plan={name:'Plan test',email:'Plan@Example.com',phone:'+13055550123',start:'2027-02-14',end:'2027-02-16',guests:4,time:'20:00',note:'Birthday weekend',
- items:[{kind:'yacht',slug:'lamborghini-yacht-tecnomar',title:'Forged yacht'},{kind:'car',slug:'lamborghini-urus-se'},{kind:'dining',slug:'komodo-miami'}]};
+ items:[{kind:'car',slug:'mercedes-amg-cle-53-cabriolet',title:'Forged vehicle'},{kind:'car',slug:'lamborghini-urus-se'},{kind:'dining',slug:'komodo-miami'}]};
 const request=(actor,body,key=randomUUID())=>new Request('https://example.com/api/plan',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':key,...(actor?{Authorization:'Bearer '+actor}:{})},body:JSON.stringify(body)});
 const read=(actor,path)=>new Request('https://example.com'+path,{headers:{Authorization:'Bearer '+actor}});
 let db,fetcher,handlers,dashboard,key,receipt;
@@ -28,7 +28,7 @@ test('one request stores every item as a pending booking with catalogue titles a
  const saved=(await db.query('select * from public.booking_plans where id=$1',[receipt.planId])).rows[0];
  assert.equal(saved.customer_user_id,ids.customer);assert.equal(saved.client_email,'plan@example.com');assert.equal(saved.guests,4);assert.equal(saved.item_count,3);assert.equal(saved.note,'Birthday weekend');
  const rows=(await db.query('select * from public.bookings where plan_id=$1 order by plan_position',[receipt.planId])).rows;
- assert.deepEqual(rows.map(r=>[r.plan_position,r.kind,r.item_slug,r.status]),[[1,'yacht','lamborghini-yacht-tecnomar','pending'],[2,'car','lamborghini-urus-se','pending'],[3,'dining','komodo-miami','pending']]);
+ assert.deepEqual(rows.map(r=>[r.plan_position,r.kind,r.item_slug,r.status]),[[1,'car','mercedes-amg-cle-53-cabriolet','pending'],[2,'car','lamborghini-urus-se','pending'],[3,'dining','komodo-miami','pending']]);
  assert.deepEqual(rows.map(r=>r.id),receipt.bookingIds);
  assert.ok(!rows.some(r=>r.item_title.includes('Forged')));assert.equal(rows[2].item_title,'Komodo');
  assert.match(rows[0].dates,/^Plan 2027-02-14 → 2027-02-16 · 4 guests$/);
@@ -48,20 +48,20 @@ test('a lost response is replayed with the same receipt; a changed plan under th
  assert.equal((await db.query('select count(*)::int n from public.bookings where plan_id is not null')).rows[0].n,3);
 });
 test('invented, booked or malformed items and impossible dates cannot create a plan',async()=>{
- const yacht={kind:'yacht',slug:'lamborghini-yacht-tecnomar'},car={kind:'car',slug:'lamborghini-urus-se'};
+ const retiredYacht={kind:'yacht',slug:'lamborghini-yacht-tecnomar'},extraCar={kind:'car',slug:'mercedes-amg-cle-53-cabriolet'},car={kind:'car',slug:'lamborghini-urus-se'};
  const bad=[
-  {items:[{kind:'yacht',slug:'no-such-yacht'},car]},{items:[{kind:'experience',slug:'anything'},car]},{items:[{kind:'stay',slug:'miami-beach-villa'},car]},
-  {items:[{kind:'dining',slug:'story-miami'},car]},{items:[yacht,yacht]},{items:Array.from({length:7},(_,i)=>({kind:'car',slug:'car-'+i}))},{items:[]},
+  {items:[retiredYacht,car]},{items:[{kind:'experience',slug:'anything'},car]},{items:[{kind:'stay',slug:'miami-beach-villa'},car]},
+  {items:[{kind:'dining',slug:'story-miami'},car]},{items:[extraCar,extraCar]},{items:Array.from({length:7},(_,i)=>({kind:'car',slug:'car-'+i}))},{items:[]},
   {items:[{kind:'yacht',slug:'../admin'}]},{end:'2027-02-13'},{end:'2027-03-30'},{start:'2027-01-01',end:'2027-01-02'},{start:'2027-02-30'},
   {guests:0},{guests:'4'},{email:'not-an-email'},{name:''},{time:'25:00'},{time:undefined},{note:'x'.repeat(1001)}];
  for(const change of bad)assert.equal((await handlers.submit(request(null,{...plan,...change}))).status,400,JSON.stringify(change).slice(0,80));
  const noDining=planHandlers({...env,DINING_REQUESTS_ENABLED:undefined},fetcher,undefined,clock);
  assert.equal((await noDining.submit(request(null,plan))).status,400);
- assert.equal((await noDining.submit(request(null,{...plan,items:[yacht,car],time:undefined}))).status,200);
+ assert.equal((await noDining.submit(request(null,{...plan,items:[extraCar,car],time:undefined}))).status,200);
  assert.equal((await handlers.submit(new Request('https://example.com/api/plan',{method:'POST',headers:{'Idempotency-Key':'not-a-key'},body:JSON.stringify(plan)}))).status,400);
 });
 test('guests without an account can send a plan',async()=>{
- const response=await handlers.submit(request(null,{...plan,items:[{kind:'car',slug:'lamborghini-urus-se'},{kind:'yacht',slug:'pershing-8x'}],time:undefined}));
+ const response=await handlers.submit(request(null,{...plan,items:[{kind:'car',slug:'lamborghini-urus-se'},{kind:'car',slug:'mercedes-amg-cle-53-cabriolet'}],time:undefined}));
  assert.equal(response.status,200);const anonymous=await response.json();
  assert.equal((await db.query('select customer_user_id from public.booking_plans where id=$1',[anonymous.planId])).rows[0].customer_user_id,null);
 });
@@ -119,7 +119,7 @@ test('plans without a restaurant work where the dining migration has not been ap
  const previous=await fixture({migrationFiles:files});
  try {
   const offDining={...fixtureEnv,PLAN_REQUESTS_ENABLED:'true'};
-  const response=await planHandlers(offDining,provider(previous),undefined,clock).submit(request(ids.customer,{...plan,items:[{kind:'yacht',slug:'pershing-8x'},{kind:'car',slug:'lamborghini-urus-se'}],time:undefined}));
+  const response=await planHandlers(offDining,provider(previous),undefined,clock).submit(request(ids.customer,{...plan,items:[{kind:'car',slug:'mercedes-amg-cle-53-cabriolet'},{kind:'car',slug:'lamborghini-urus-se'}],time:undefined}));
   assert.equal(response.status,200);
   const list=await dashboardHandlers(offDining,provider(previous)).list(read(ids.customer,'/api/dashboard/requests'));
   assert.equal(list.status,200);assert.equal((await list.json()).requests.length,2);

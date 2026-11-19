@@ -50,7 +50,7 @@ test('listing cards, seat filter, dining plan, and catalogue fallback',()=>{
  const plan=buildPlan([{role:'user',content:'plan a weekend for 6: car, yacht, dinner'}],{catalog:syncPlanCatalog(),locale:'en'});
  assert.ok(plan&&plan.guests===6);
  assert.ok(plan.sections.some(section=>section.href==='/restaurants-nightlife'));
- assert.ok(plan.sections.some(section=>section.href==='/yachts'));
+ assert.ok(!plan.sections.some(section=>section.href==='/yachts'));
  const cars=plan.sections.find(section=>section.href==='/rentals');
  assert.ok(cars?.candidates.length);
  assert.ok(cars.candidates.every(item=>!/911/i.test(item.title)));
