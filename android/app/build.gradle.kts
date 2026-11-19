@@ -21,7 +21,8 @@ val keystore = Properties().apply {
     if (keystoreFile.exists()) keystoreFile.inputStream().use { load(it) }
 }
 fun signing(name: String, env: String): String? =
-    keystore.getProperty(name) ?: System.getenv(env)
+    keystore.getProperty(name)?.takeUnless(String::isBlank)
+        ?: System.getenv(env)?.takeUnless(String::isBlank)
 
 android {
     namespace = "com.miamielio.app"
