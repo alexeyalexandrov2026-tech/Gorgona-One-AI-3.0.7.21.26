@@ -43,6 +43,10 @@
     <string name="home_prompt_3" formatted="false">Квитки на Heat і стіл після гри…</string>
     <string name="home_prompt_4" formatted="false">Вілла з басейном у Маямі-Біч…</string>
     <string name="home_prompt_5" formatted="false">Приватний джет з Маямі на ці вихідні…</string>
+    <string name="menu_close" formatted="false">Закрити меню</string>
+    <string name="menu_open" formatted="false">Відкрити меню</string>
+    <string name="menu_sections" formatted="false">Розділи</string>
+    <string name="menu_title" formatted="false">Меню</string>
     <string name="offline_message" formatted="false">Перевірте підключення та спробуйте ще раз.</string>
     <string name="offline_title" formatted="false">Немає підключення до інтернету</string>
     <string name="plan_add_back" formatted="false">Повернути: {section}</string>
@@ -85,11 +89,24 @@
     <string name="season_reminder_on" formatted="false">Нагадаємо {date}</string>
     <string name="season_title" formatted="false">Сезон у Маямі</string>
     <string name="season_tomorrow" formatted="false">Завтра</string>
+    <string name="section_adventures" formatted="false">Пригоди</string>
+    <string name="section_cars" formatted="false">Авто</string>
+    <string name="section_concierge" formatted="false">ШІ-консьєрж</string>
+    <string name="section_dining" formatted="false">Вечері та нічне життя</string>
+    <string name="section_events" formatted="false">Події</string>
+    <string name="section_exclusive" formatted="false">Ексклюзивні напрямки</string>
+    <string name="section_experiences" formatted="false">Враження</string>
+    <string name="section_private_jets" formatted="false">Приватні джети</string>
+    <string name="section_stays" formatted="false">Житло</string>
+    <string name="section_travel" formatted="false">Подорожі</string>
+    <string name="section_yachts" formatted="false">Яхти</string>
     <string name="state_loading" formatted="false">Завантаження...</string>
     <string name="tab_account" formatted="false">Мій Маямі</string>
+    <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">Каталог</string>
     <string name="tab_concierge" formatted="false">Консьєрж</string>
     <string name="tab_events" formatted="false">Події</string>
+    <string name="tab_exclusive" formatted="false">Ексклюзив</string>
     <string name="tab_home" formatted="false">Головна</string>
     <string name="tab_profile" formatted="false">Профіль</string>
     <string name="tab_search" formatted="false">Пошук</string>

@@ -43,6 +43,10 @@
     <string name="home_prompt_3" formatted="false">Heat biletleri ve maçtan sonra bir masa…</string>
     <string name="home_prompt_4" formatted="false">Miami Beach’te havuzlu bir villa…</string>
     <string name="home_prompt_5" formatted="false">Bu hafta sonu Miami’den özel bir jet…</string>
+    <string name="menu_close" formatted="false">Menüyü kapat</string>
+    <string name="menu_open" formatted="false">Menüyü aç</string>
+    <string name="menu_sections" formatted="false">Bölümler</string>
+    <string name="menu_title" formatted="false">Menü</string>
     <string name="offline_message" formatted="false">Bağlantınızı kontrol edip tekrar deneyin.</string>
     <string name="offline_title" formatted="false">İnternet bağlantısı yok</string>
     <string name="plan_add_back" formatted="false">Geri ekle: {section}</string>
@@ -85,11 +89,24 @@
     <string name="season_reminder_on" formatted="false">{date} tarihinde hatırlatacağız</string>
     <string name="season_title" formatted="false">Miami sezonu</string>
     <string name="season_tomorrow" formatted="false">Yarın</string>
+    <string name="section_adventures" formatted="false">Maceralar</string>
+    <string name="section_cars" formatted="false">Araçlar</string>
+    <string name="section_concierge" formatted="false">YZ konsiyerj</string>
+    <string name="section_dining" formatted="false">Yeme içme ve gece hayatı</string>
+    <string name="section_events" formatted="false">Etkinlikler</string>
+    <string name="section_exclusive" formatted="false">Özel destinasyonlar</string>
+    <string name="section_experiences" formatted="false">Deneyimler</string>
+    <string name="section_private_jets" formatted="false">Özel jetler</string>
+    <string name="section_stays" formatted="false">Konaklama</string>
+    <string name="section_travel" formatted="false">Seyahat</string>
+    <string name="section_yachts" formatted="false">Yatlar</string>
     <string name="state_loading" formatted="false">Yükleniyor...</string>
     <string name="tab_account" formatted="false">Benim Miami’m</string>
+    <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">Katalog</string>
     <string name="tab_concierge" formatted="false">Concierge</string>
     <string name="tab_events" formatted="false">Etkinlikler</string>
+    <string name="tab_exclusive" formatted="false">Özel</string>
     <string name="tab_home" formatted="false">Ana Sayfa</string>
     <string name="tab_profile" formatted="false">Profil</string>
     <string name="tab_search" formatted="false">Ara</string>

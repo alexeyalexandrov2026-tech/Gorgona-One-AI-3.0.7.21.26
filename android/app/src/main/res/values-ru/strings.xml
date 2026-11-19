@@ -43,6 +43,10 @@
     <string name="home_prompt_3" formatted="false">Билеты на Heat и стол после игры…</string>
     <string name="home_prompt_4" formatted="false">Вилла с бассейном в Майами-Бич…</string>
     <string name="home_prompt_5" formatted="false">Частный джет из Майами на эти выходные…</string>
+    <string name="menu_close" formatted="false">Закрыть меню</string>
+    <string name="menu_open" formatted="false">Открыть меню</string>
+    <string name="menu_sections" formatted="false">Разделы</string>
+    <string name="menu_title" formatted="false">Меню</string>
     <string name="offline_message" formatted="false">Проверьте подключение и попробуйте снова.</string>
     <string name="offline_title" formatted="false">Нет подключения к интернету</string>
     <string name="plan_add_back" formatted="false">Вернуть: {section}</string>
@@ -85,11 +89,24 @@
     <string name="season_reminder_on" formatted="false">Напомним {date}</string>
     <string name="season_title" formatted="false">Сезон Майами</string>
     <string name="season_tomorrow" formatted="false">Завтра</string>
+    <string name="section_adventures" formatted="false">Приключения</string>
+    <string name="section_cars" formatted="false">Авто</string>
+    <string name="section_concierge" formatted="false">ИИ-консьерж</string>
+    <string name="section_dining" formatted="false">Ужины и ночная жизнь</string>
+    <string name="section_events" formatted="false">События</string>
+    <string name="section_exclusive" formatted="false">Эксклюзивные направления</string>
+    <string name="section_experiences" formatted="false">Впечатления</string>
+    <string name="section_private_jets" formatted="false">Частные джеты</string>
+    <string name="section_stays" formatted="false">Виллы</string>
+    <string name="section_travel" formatted="false">Путешествия</string>
+    <string name="section_yachts" formatted="false">Яхты</string>
     <string name="state_loading" formatted="false">Загрузка...</string>
     <string name="tab_account" formatted="false">Мой Майами</string>
+    <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">Каталог</string>
     <string name="tab_concierge" formatted="false">Консьерж</string>
     <string name="tab_events" formatted="false">События</string>
+    <string name="tab_exclusive" formatted="false">Эксклюзив</string>
     <string name="tab_home" formatted="false">Главная</string>
     <string name="tab_profile" formatted="false">Профиль</string>
     <string name="tab_search" formatted="false">Поиск</string>

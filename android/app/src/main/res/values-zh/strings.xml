@@ -43,6 +43,10 @@
     <string name="home_prompt_3" formatted="false">Heat 的门票，赛后订一张桌子…</string>
     <string name="home_prompt_4" formatted="false">迈阿密海滩一栋带泳池的别墅…</string>
     <string name="home_prompt_5" formatted="false">这个周末从迈阿密出发的私人飞机…</string>
+    <string name="menu_close" formatted="false">关闭菜单</string>
+    <string name="menu_open" formatted="false">打开菜单</string>
+    <string name="menu_sections" formatted="false">栏目</string>
+    <string name="menu_title" formatted="false">菜单</string>
     <string name="offline_message" formatted="false">请检查网络连接后重试。</string>
     <string name="offline_title" formatted="false">没有网络连接</string>
     <string name="plan_add_back" formatted="false">重新加入：{section}</string>
@@ -85,11 +89,24 @@
     <string name="season_reminder_on" formatted="false">将于{date}提醒您</string>
     <string name="season_title" formatted="false">迈阿密旺季</string>
     <string name="season_tomorrow" formatted="false">明天</string>
+    <string name="section_adventures" formatted="false">冒险</string>
+    <string name="section_cars" formatted="false">汽车</string>
+    <string name="section_concierge" formatted="false">AI 礼宾</string>
+    <string name="section_dining" formatted="false">餐饮与夜生活</string>
+    <string name="section_events" formatted="false">活动</string>
+    <string name="section_exclusive" formatted="false">精选目的地</string>
+    <string name="section_experiences" formatted="false">体验</string>
+    <string name="section_private_jets" formatted="false">私人飞机</string>
+    <string name="section_stays" formatted="false">住宿</string>
+    <string name="section_travel" formatted="false">旅行</string>
+    <string name="section_yachts" formatted="false">游艇</string>
     <string name="state_loading" formatted="false">加载中...</string>
     <string name="tab_account" formatted="false">我的迈阿密</string>
+    <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">目录</string>
     <string name="tab_concierge" formatted="false">礼宾服务</string>
     <string name="tab_events" formatted="false">活动</string>
+    <string name="tab_exclusive" formatted="false">精选</string>
     <string name="tab_home" formatted="false">首页</string>
     <string name="tab_profile" formatted="false">我的</string>
     <string name="tab_search" formatted="false">搜索</string>

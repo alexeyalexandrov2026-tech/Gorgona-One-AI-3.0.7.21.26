@@ -43,6 +43,10 @@
     <string name="home_prompt_3" formatted="false">Heatのチケットと試合後のテーブル…</string>
     <string name="home_prompt_4" formatted="false">プール付きのマイアミビーチのヴィラ…</string>
     <string name="home_prompt_5" formatted="false">今週末、マイアミ発のプライベートジェット…</string>
+    <string name="menu_close" formatted="false">メニューを閉じる</string>
+    <string name="menu_open" formatted="false">メニューを開く</string>
+    <string name="menu_sections" formatted="false">セクション</string>
+    <string name="menu_title" formatted="false">メニュー</string>
     <string name="offline_message" formatted="false">接続を確認して、もう一度お試しください。</string>
     <string name="offline_title" formatted="false">インターネットに接続されていません</string>
     <string name="plan_add_back" formatted="false">戻す：{section}</string>
@@ -85,11 +89,24 @@
     <string name="season_reminder_on" formatted="false">{date}にお知らせします</string>
     <string name="season_title" formatted="false">マイアミのシーズン</string>
     <string name="season_tomorrow" formatted="false">明日</string>
+    <string name="section_adventures" formatted="false">アドベンチャー</string>
+    <string name="section_cars" formatted="false">車</string>
+    <string name="section_concierge" formatted="false">AIコンシェルジュ</string>
+    <string name="section_dining" formatted="false">ダイニングとナイトライフ</string>
+    <string name="section_events" formatted="false">イベント</string>
+    <string name="section_exclusive" formatted="false">特別な旅先</string>
+    <string name="section_experiences" formatted="false">体験</string>
+    <string name="section_private_jets" formatted="false">プライベートジェット</string>
+    <string name="section_stays" formatted="false">宿泊</string>
+    <string name="section_travel" formatted="false">旅行</string>
+    <string name="section_yachts" formatted="false">ヨット</string>
     <string name="state_loading" formatted="false">読み込み中...</string>
     <string name="tab_account" formatted="false">マイ・マイアミ</string>
+    <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">カタログ</string>
     <string name="tab_concierge" formatted="false">コンシェルジュ</string>
     <string name="tab_events" formatted="false">イベント</string>
+    <string name="tab_exclusive" formatted="false">特別な旅先</string>
     <string name="tab_home" formatted="false">ホーム</string>
     <string name="tab_profile" formatted="false">プロフィール</string>
     <string name="tab_search" formatted="false">検索</string>

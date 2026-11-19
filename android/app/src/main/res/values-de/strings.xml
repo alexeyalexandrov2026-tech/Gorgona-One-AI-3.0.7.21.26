@@ -43,6 +43,10 @@
     <string name="home_prompt_3" formatted="false">Heat-Tickets und ein Tisch nach dem Spiel…</string>
     <string name="home_prompt_4" formatted="false">Eine Villa mit Pool in Miami Beach…</string>
     <string name="home_prompt_5" formatted="false">Ein Privatjet ab Miami an diesem Wochenende…</string>
+    <string name="menu_close" formatted="false">Menü schließen</string>
+    <string name="menu_open" formatted="false">Menü öffnen</string>
+    <string name="menu_sections" formatted="false">Bereiche</string>
+    <string name="menu_title" formatted="false">Menü</string>
     <string name="offline_message" formatted="false">Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.</string>
     <string name="offline_title" formatted="false">Keine Internetverbindung</string>
     <string name="plan_add_back" formatted="false">Wieder hinzufügen: {section}</string>
@@ -85,11 +89,24 @@
     <string name="season_reminder_on" formatted="false">Erinnerung am {date}</string>
     <string name="season_title" formatted="false">Saison in Miami</string>
     <string name="season_tomorrow" formatted="false">Morgen</string>
+    <string name="section_adventures" formatted="false">Abenteuer</string>
+    <string name="section_cars" formatted="false">Autos</string>
+    <string name="section_concierge" formatted="false">KI-Concierge</string>
+    <string name="section_dining" formatted="false">Essen und Nachtleben</string>
+    <string name="section_events" formatted="false">Events</string>
+    <string name="section_exclusive" formatted="false">Exklusive Reiseziele</string>
+    <string name="section_experiences" formatted="false">Erlebnisse</string>
+    <string name="section_private_jets" formatted="false">Privatjets</string>
+    <string name="section_stays" formatted="false">Unterkünfte</string>
+    <string name="section_travel" formatted="false">Reisen</string>
+    <string name="section_yachts" formatted="false">Yachten</string>
     <string name="state_loading" formatted="false">Wird geladen...</string>
     <string name="tab_account" formatted="false">Mein Miami</string>
+    <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">Katalog</string>
     <string name="tab_concierge" formatted="false">Concierge</string>
     <string name="tab_events" formatted="false">Events</string>
+    <string name="tab_exclusive" formatted="false">Exklusiv</string>
     <string name="tab_home" formatted="false">Startseite</string>
     <string name="tab_profile" formatted="false">Profil</string>
     <string name="tab_search" formatted="false">Suchen</string>

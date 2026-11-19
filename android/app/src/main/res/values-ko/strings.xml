@@ -43,6 +43,10 @@
     <string name="home_prompt_3" formatted="false">Heat 티켓과 경기 후 테이블…</string>
     <string name="home_prompt_4" formatted="false">수영장이 있는 마이애미 비치 빌라…</string>
     <string name="home_prompt_5" formatted="false">이번 주말 마이애미 출발 프라이빗 제트…</string>
+    <string name="menu_close" formatted="false">메뉴 닫기</string>
+    <string name="menu_open" formatted="false">메뉴 열기</string>
+    <string name="menu_sections" formatted="false">섹션</string>
+    <string name="menu_title" formatted="false">메뉴</string>
     <string name="offline_message" formatted="false">연결 상태를 확인한 후 다시 시도해 주세요.</string>
     <string name="offline_title" formatted="false">인터넷에 연결되어 있지 않습니다</string>
     <string name="plan_add_back" formatted="false">다시 추가: {section}</string>
@@ -85,11 +89,24 @@
     <string name="season_reminder_on" formatted="false">{date}에 알려 드릴게요</string>
     <string name="season_title" formatted="false">마이애미 시즌</string>
     <string name="season_tomorrow" formatted="false">내일</string>
+    <string name="section_adventures" formatted="false">어드벤처</string>
+    <string name="section_cars" formatted="false">차량</string>
+    <string name="section_concierge" formatted="false">AI 컨시어지</string>
+    <string name="section_dining" formatted="false">다이닝과 나이트라이프</string>
+    <string name="section_events" formatted="false">이벤트</string>
+    <string name="section_exclusive" formatted="false">특별한 여행지</string>
+    <string name="section_experiences" formatted="false">체험</string>
+    <string name="section_private_jets" formatted="false">프라이빗 제트</string>
+    <string name="section_stays" formatted="false">숙소</string>
+    <string name="section_travel" formatted="false">여행</string>
+    <string name="section_yachts" formatted="false">요트</string>
     <string name="state_loading" formatted="false">불러오는 중...</string>
     <string name="tab_account" formatted="false">나의 마이애미</string>
+    <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">카탈로그</string>
     <string name="tab_concierge" formatted="false">컨시어지</string>
     <string name="tab_events" formatted="false">이벤트</string>
+    <string name="tab_exclusive" formatted="false">특별 여행지</string>
     <string name="tab_home" formatted="false">홈</string>
     <string name="tab_profile" formatted="false">프로필</string>
     <string name="tab_search" formatted="false">검색</string>

@@ -43,6 +43,10 @@
     <string name="home_prompt_3" formatted="false">بلیت هیت و یک میز بعد از بازی…</string>
     <string name="home_prompt_4" formatted="false">یک ویلا با استخر در میامی بیچ…</string>
     <string name="home_prompt_5" formatted="false">یک جت خصوصی از میامی در این آخر هفته…</string>
+    <string name="menu_close" formatted="false">بستن منو</string>
+    <string name="menu_open" formatted="false">باز کردن منو</string>
+    <string name="menu_sections" formatted="false">بخش‌ها</string>
+    <string name="menu_title" formatted="false">منو</string>
     <string name="offline_message" formatted="false">اتصال خود را بررسی کنید و دوباره تلاش کنید.</string>
     <string name="offline_title" formatted="false">اتصال اینترنت برقرار نیست</string>
     <string name="plan_add_back" formatted="false">افزودن دوباره: {section}</string>
@@ -85,11 +89,24 @@
     <string name="season_reminder_on" formatted="false">در {date} یادآوری می‌کنیم</string>
     <string name="season_title" formatted="false">فصل میامی</string>
     <string name="season_tomorrow" formatted="false">فردا</string>
+    <string name="section_adventures" formatted="false">ماجراجویی‌ها</string>
+    <string name="section_cars" formatted="false">خودرو</string>
+    <string name="section_concierge" formatted="false">کنسیرژ هوش مصنوعی</string>
+    <string name="section_dining" formatted="false">غذا و زندگی شبانه</string>
+    <string name="section_events" formatted="false">رویدادها</string>
+    <string name="section_exclusive" formatted="false">مقصدهای اختصاصی</string>
+    <string name="section_experiences" formatted="false">تجربه‌ها</string>
+    <string name="section_private_jets" formatted="false">جت‌های خصوصی</string>
+    <string name="section_stays" formatted="false">اقامت</string>
+    <string name="section_travel" formatted="false">سفر</string>
+    <string name="section_yachts" formatted="false">قایق‌های تفریحی</string>
     <string name="state_loading" formatted="false">در حال بارگذاری...</string>
     <string name="tab_account" formatted="false">میامی من</string>
+    <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">کاتالوگ</string>
     <string name="tab_concierge" formatted="false">کانسیرج</string>
     <string name="tab_events" formatted="false">رویدادها</string>
+    <string name="tab_exclusive" formatted="false">اختصاصی</string>
     <string name="tab_home" formatted="false">خانه</string>
     <string name="tab_profile" formatted="false">پروفایل</string>
     <string name="tab_search" formatted="false">جستجو</string>

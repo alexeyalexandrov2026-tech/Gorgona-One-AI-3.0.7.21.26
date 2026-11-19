@@ -43,6 +43,10 @@
     <string name="home_prompt_3" formatted="false">تذاكر Heat وطاولة بعد المباراة…</string>
     <string name="home_prompt_4" formatted="false">فيلا مع مسبح في ميامي بيتش…</string>
     <string name="home_prompt_5" formatted="false">طائرة خاصة من ميامي في عطلة نهاية الأسبوع…</string>
+    <string name="menu_close" formatted="false">إغلاق القائمة</string>
+    <string name="menu_open" formatted="false">فتح القائمة</string>
+    <string name="menu_sections" formatted="false">الأقسام</string>
+    <string name="menu_title" formatted="false">القائمة</string>
     <string name="offline_message" formatted="false">تحقق من اتصالك ثم حاول مرة أخرى.</string>
     <string name="offline_title" formatted="false">لا يوجد اتصال بالإنترنت</string>
     <string name="plan_add_back" formatted="false">إعادة إضافة: {section}</string>
@@ -85,11 +89,24 @@
     <string name="season_reminder_on" formatted="false">سنذكّرك في {date}</string>
     <string name="season_title" formatted="false">موسم ميامي</string>
     <string name="season_tomorrow" formatted="false">غدًا</string>
+    <string name="section_adventures" formatted="false">مغامرات</string>
+    <string name="section_cars" formatted="false">سيارات</string>
+    <string name="section_concierge" formatted="false">كونسيرج بالذكاء الاصطناعي</string>
+    <string name="section_dining" formatted="false">المطاعم والحياة الليلية</string>
+    <string name="section_events" formatted="false">فعاليات</string>
+    <string name="section_exclusive" formatted="false">وجهات حصرية</string>
+    <string name="section_experiences" formatted="false">تجارب</string>
+    <string name="section_private_jets" formatted="false">طائرات خاصة</string>
+    <string name="section_stays" formatted="false">إقامة</string>
+    <string name="section_travel" formatted="false">سفر</string>
+    <string name="section_yachts" formatted="false">يخوت</string>
     <string name="state_loading" formatted="false">جارٍ التحميل...</string>
     <string name="tab_account" formatted="false">ميامي الخاصة بي</string>
+    <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">الكتالوج</string>
     <string name="tab_concierge" formatted="false">كونسيرج</string>
     <string name="tab_events" formatted="false">الفعاليات</string>
+    <string name="tab_exclusive" formatted="false">حصرية</string>
     <string name="tab_home" formatted="false">الرئيسية</string>
     <string name="tab_profile" formatted="false">الملف الشخصي</string>
     <string name="tab_search" formatted="false">بحث</string>

@@ -43,6 +43,10 @@
     <string name="home_prompt_3" formatted="false">כרטיסים ל-Heat ושולחן אחרי המשחק…</string>
     <string name="home_prompt_4" formatted="false">וילה עם בריכה במיאמי ביץ׳…</string>
     <string name="home_prompt_5" formatted="false">מטוס פרטי ממיאמי בסוף השבוע…</string>
+    <string name="menu_close" formatted="false">סגור תפריט</string>
+    <string name="menu_open" formatted="false">פתח תפריט</string>
+    <string name="menu_sections" formatted="false">קטגוריות</string>
+    <string name="menu_title" formatted="false">תפריט</string>
     <string name="offline_message" formatted="false">בדקו את החיבור ונסו שוב.</string>
     <string name="offline_title" formatted="false">אין חיבור לאינטרנט</string>
     <string name="plan_add_back" formatted="false">להחזיר: {section}</string>
@@ -85,11 +89,24 @@
     <string name="season_reminder_on" formatted="false">נזכיר לך ב־{date}</string>
     <string name="season_title" formatted="false">העונה במיאמי</string>
     <string name="season_tomorrow" formatted="false">מחר</string>
+    <string name="section_adventures" formatted="false">הרפתקאות</string>
+    <string name="section_cars" formatted="false">רכבים</string>
+    <string name="section_concierge" formatted="false">קונסיירז׳ AI</string>
+    <string name="section_dining" formatted="false">אוכל וחיי לילה</string>
+    <string name="section_events" formatted="false">אירועים</string>
+    <string name="section_exclusive" formatted="false">יעדים בלעדיים</string>
+    <string name="section_experiences" formatted="false">חוויות</string>
+    <string name="section_private_jets" formatted="false">מטוסים פרטיים</string>
+    <string name="section_stays" formatted="false">לינה</string>
+    <string name="section_travel" formatted="false">נסיעות</string>
+    <string name="section_yachts" formatted="false">יאכטות</string>
     <string name="state_loading" formatted="false">טוען...</string>
     <string name="tab_account" formatted="false">המיאמי שלי</string>
+    <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">קטלוג</string>
     <string name="tab_concierge" formatted="false">קונסיירז׳</string>
     <string name="tab_events" formatted="false">אירועים</string>
+    <string name="tab_exclusive" formatted="false">בלעדי</string>
     <string name="tab_home" formatted="false">בית</string>
     <string name="tab_profile" formatted="false">פרופיל</string>
     <string name="tab_search" formatted="false">חיפוש</string>

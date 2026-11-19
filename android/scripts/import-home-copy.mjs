@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Copies the website's home-hero wording into android/strings.json, in every
-// site language, so the app's Today screen says exactly what the site says.
+// Copies the website's home wording into android/strings.json, in every
+// site language, so the app's Today screen, its section menu and the section
+// rail say exactly what the site says.
 // Source: the site's saved translation catalog on origin/main
 // (i18n/locales/<language>.js, flat "home.chips.0" style keys).
 // Run `node android/scripts/build-strings.mjs` afterwards.
@@ -26,6 +27,18 @@ const MAP = [
   ['home.picksAsk.jets', 'home_ask_jets'], ['home.picksAsk.adventures', 'home_ask_adventures'],
   ['ui.0f7664c62a90fb50', 'home_concierge_label'],
   ['home.searchGo', 'home_ask'], ['home.beach', 'home_beach'],
+  // The eleven cards of the site's section rail (HOME_SECTIONS in lib/homeData.js),
+  // named for the app's core/HomeSections.kt. The site labels them with
+  // home.worldItems.<id>.0, except two: the AI card (home.railConcierge) and
+  // "Exclusive Destinations", which is a catalogue sentence of its own.
+  ['home.worldItems.travel.0', 'section_travel'], ['ui.21a2463f1e5b8750', 'section_exclusive'],
+  ['home.worldItems.stays.0', 'section_stays'], ['home.worldItems.yachts.0', 'section_yachts'],
+  ['home.worldItems.cars.0', 'section_cars'], ['home.worldItems.events.0', 'section_events'],
+  ['home.worldItems.privateJets.0', 'section_private_jets'], ['home.worldItems.experiences.0', 'section_experiences'],
+  ['home.worldItems.adventures.0', 'section_adventures'], ['home.worldItems.dining.0', 'section_dining'],
+  ['home.railConcierge', 'section_concierge'],
+  // The site's own word for its menu.
+  ['ui.99af6606ff9d6cd5', 'menu_title'],
 ];
 const AFTER = 'concierge_live_manager';
 
