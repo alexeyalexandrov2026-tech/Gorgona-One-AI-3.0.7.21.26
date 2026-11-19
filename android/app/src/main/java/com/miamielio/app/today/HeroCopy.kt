@@ -37,6 +37,12 @@ internal fun miamiClock(now: Instant, locale: Locale): String =
 
 internal val MIAMI: ZoneId = ZoneId.of("America/New_York")
 
+/**
+ * Milliseconds until the clock's minute turns. Miami's offset is whole hours,
+ * so its minutes turn with UTC's; the pill wakes once a minute, not every frame.
+ */
+internal fun untilNextMinute(now: Instant): Long = 60_000L - Math.floorMod(now.toEpochMilli(), 60_000L)
+
 /** A section button under the hero's field and the question it asks. */
 internal data class Pick(@StringRes val label: Int, @StringRes val ask: Int, @DrawableRes val icon: Int)
 

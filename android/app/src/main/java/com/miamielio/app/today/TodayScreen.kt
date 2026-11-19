@@ -70,6 +70,7 @@ import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.ui.filled
 import com.miamielio.app.ui.pressable
+import kotlinx.coroutines.delay
 import java.time.Instant
 
 /** The dark text the site puts on its pink "Ask" button. */
@@ -374,12 +375,11 @@ private fun Glass(
 private fun ClockPill(now: () -> Instant) {
     val locale = LocalConfiguration.current.locales[0]
     val beach = stringResource(R.string.home_beach)
+    // Wakes when the minute turns, not on every frame: the pill shows no seconds.
     val clock by produceState(initialValue = miamiClock(now(), locale), locale) {
         while (true) {
-            withInfiniteAnimationFrameMillis {
-                val text = miamiClock(now(), locale)
-                if (text != value) value = text
-            }
+            delay(untilNextMinute(now()))
+            value = miamiClock(now(), locale)
         }
     }
     Row(

@@ -43,6 +43,12 @@ requests for yachts, villas, cars, jets and dining. The concierge has a new
 gold look with photos and prices in its answers, and a live manager one tap
 away. New Events tab with the Miami season and reminders.
 
+**Release notes, 1.2.1 (version code 5), English (United States)**
+
+Uses less battery on the home screen. Includes everything from 1.2.0: the
+Miami Elio AI concierge on the home screen, the gold concierge with photos and
+prices, a live manager one tap away, and the Events tab with reminders.
+
 ## Graphics
 
 The local handoff is in `app/build/outputs/play-listing/`. The app icon

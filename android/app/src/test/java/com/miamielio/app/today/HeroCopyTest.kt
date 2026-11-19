@@ -32,6 +32,14 @@ class HeroCopyTest {
     }
 
     @Test
+    fun theClockWaitsForTheNextMinute() {
+        // The pill shows hours and minutes, so it only needs a new value when the minute turns.
+        assertEquals(26_000L, untilNextMinute(Instant.parse("2026-11-19T00:34:34Z")))
+        assertEquals(60_000L, untilNextMinute(Instant.parse("2026-11-19T00:35:00Z")))
+        assertEquals(1L, untilNextMinute(Instant.parse("2026-11-19T00:35:59.999Z")))
+    }
+
+    @Test
     fun picksAskWhatTheSiteAsks() {
         assertEquals(
             listOf(
