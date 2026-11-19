@@ -133,7 +133,7 @@ internal fun PlanBoard(
                     .pressable(onClick = model::clearPlan)
                     .padding(vertical = 4.dp)
                     .testTag("plan.new"),
-                color = Theme.accent,
+                color = Theme.goldButton,
                 style = AppFont.detailMedium,
             )
         } else {
@@ -213,7 +213,7 @@ private fun PlanItemRow(
             .fillMaxWidth()
             .clip(shape)
             .background(Theme.paper)
-            .border(1.dp, Theme.rule, shape)
+            .border(1.dp, Theme.goldLine, shape)
             .padding(12.dp)
             .testTag("plan.item"),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -254,7 +254,7 @@ private fun PlanItemRow(
                             .pressable(onClick = onAnother)
                             .semantics { contentDescription = "$another: ${section.label}" }
                             .testTag("plan.another"),
-                        color = Theme.accent,
+                        color = Theme.goldButton,
                         style = AppFont.detailMedium,
                     )
                 }
@@ -348,7 +348,7 @@ private fun PlanRequestForm(
                     .padding(horizontal = 8.dp, vertical = 4.dp),
             ) {
                 TextButton(onClick = onDismiss, enabled = !isSending, modifier = Modifier.align(Alignment.CenterStart)) {
-                    Text(stringResource(R.string.action_cancel), color = Theme.accent, style = AppFont.detailMedium)
+                    Text(stringResource(R.string.action_cancel), color = Theme.goldButton, style = AppFont.detailMedium)
                 }
                 Text(
                     stringResource(R.string.plan_title),
@@ -406,7 +406,7 @@ private fun PlanRequestForm(
                             },
                         ),
                         Modifier.testTag("plan.problem"),
-                        color = Theme.accent,
+                        color = Theme.goldButton,
                         style = AppFont.detail,
                     )
                 }
@@ -463,7 +463,7 @@ private fun ChoiceRow(label: String, value: String, tag: String, onClick: () -> 
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(label, Modifier.weight(1f), color = Theme.ink, style = AppFont.body)
-        Text(value, color = Theme.accent, style = AppFont.body)
+        Text(value, color = Theme.goldButton, style = AppFont.body)
     }
 }
 

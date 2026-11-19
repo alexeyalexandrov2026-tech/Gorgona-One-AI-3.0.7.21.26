@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -115,6 +116,21 @@ class ConciergeScreenTest {
         assertEquals(listOf("/yachts", "/restaurants-nightlife"), opened)
         // No delivery for reports yet: the action is not offered.
         compose.onNodeWithTag("concierge.report").assertDoesNotExist()
+    }
+
+    @Test
+    fun suggestionsSitAboveTheComposer() {
+        chat.reply(Replies.withCardAndSuggestion)
+        show()
+        compose.onAllNodesWithTag("concierge.starter")[0].performClick()
+        compose.waitForIdle()
+
+        compose.onNode(hasText("Dinner after") and hasAnyAncestor(hasTestTag("concierge.suggestions"))).assertExists()
+        val chip = compose.onNodeWithText("Dinner after").fetchSemanticsNode().boundsInRoot
+        val card = compose.onNodeWithTag("concierge.card").fetchSemanticsNode().boundsInRoot
+        val input = compose.onNodeWithTag("concierge.input").fetchSemanticsNode().boundsInRoot
+        assertTrue(chip.top >= card.bottom)
+        assertTrue(chip.bottom <= input.top)
     }
 
     @Test

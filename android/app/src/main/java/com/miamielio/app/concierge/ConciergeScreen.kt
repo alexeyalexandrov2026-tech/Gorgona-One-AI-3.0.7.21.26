@@ -52,6 +52,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
@@ -80,6 +82,7 @@ import com.miamielio.app.app.LIVE_MANAGER_URL
 import com.miamielio.app.core.AnswerReport
 import com.miamielio.app.core.ConciergeCard
 import com.miamielio.app.core.ConciergeListing
+import com.miamielio.app.core.ConciergeLink
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.ConciergeMark
 import com.miamielio.app.ui.Eyebrow
@@ -92,6 +95,12 @@ import com.miamielio.app.favorites.FavoritesStore
 import com.miamielio.app.ui.arrives
 import com.miamielio.app.ui.pressable
 import com.miamielio.app.ui.rememberKeyboardDismissal
+
+/** The green "online" dot the site shows next to its concierge. */
+private val OnlineGreen = Color(0xFF3CCF8E)
+
+/** Cards: a faint wash of the site's gold over the dark ground. */
+private val GoldWash = Brush.linearGradient(listOf(Color(0x1AD4AF37), Color(0x05FFFFFF)))
 
 /**
  * The AI concierge as a native conversation. It speaks to the same
@@ -190,6 +199,10 @@ internal fun ConciergeScreen(
             }
         }
         Composer(
+            suggestions = state.entries.lastOrNull()
+                ?.takeIf { it.kind == ConciergeEntry.Kind.Concierge }
+                ?.suggestions.orEmpty(),
+            onOpen = { open(it) },
             draft = state.draft,
             canSend = state.canSend,
             onDraft = model::setDraft,
@@ -202,23 +215,37 @@ internal fun ConciergeScreen(
 
 @Composable
 private fun TopBar(canReset: Boolean, onReset: () -> Unit, onManager: () -> Unit) {
+    val managerLabel = stringResource(R.string.concierge_live_manager)
     Row(
         Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .heightIn(min = 56.dp)
-            .padding(start = 20.dp, end = 8.dp),
+            .heightIn(min = 60.dp)
+            .padding(start = 18.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Wordmark(size = 22f)
-        Spacer(Modifier.weight(1f))
-        IconButton(onClick = onManager, modifier = Modifier.testTag("concierge.manager")) {
-            Icon(
-                painter = painterResource(R.drawable.ic_telegram),
-                contentDescription = stringResource(R.string.concierge_live_manager),
-                modifier = Modifier.size(22.dp),
-                tint = Theme.accent,
-            )
+        ConciergeMark(diameter = 30.dp)
+        Spacer(Modifier.width(10.dp))
+        Column(Modifier.weight(1f)) {
+            Text("Miami Elio AI", color = Theme.ink, style = AppFont.bodyMedium, maxLines = 1)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Box(Modifier.size(7.dp).clip(CircleShape).background(OnlineGreen))
+                Text(stringResource(R.string.concierge_online), color = Theme.soft, style = AppFont.detail, maxLines = 1)
+            }
+        }
+        Row(
+            Modifier
+                .clip(CircleShape)
+                .border(1.dp, Theme.goldLine, CircleShape)
+                .pressable(onClick = onManager)
+                .semantics { contentDescription = managerLabel }
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .testTag("concierge.manager"),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Icon(painterResource(R.drawable.ic_telegram), null, Modifier.size(18.dp), tint = Theme.goldText)
+            Text(stringResource(R.string.concierge_manager), color = Theme.goldLight, style = AppFont.detailMedium, maxLines = 1)
         }
         IconButton(onClick = onReset, enabled = canReset, modifier = Modifier.testTag("concierge.new")) {
             Icon(
@@ -252,7 +279,7 @@ private fun Welcome(onAsk: (String) -> Unit) {
             modifier = Modifier
                 .padding(bottom = 12.dp)
                 .arrives(1),
-            color = Theme.accent,
+            color = Theme.goldButton,
         )
         Text(
             text = stringResource(R.string.concierge_title),
@@ -264,30 +291,29 @@ private fun Welcome(onAsk: (String) -> Unit) {
             color = Theme.ink,
             style = AppFont.hero,
         )
-        // Ready-made requests, listed the way the site lists its sections:
-        // one per line between hairlines.
+        // Ready-made requests as gold pills, like the site's concierge.
         starters.forEachIndexed { index, prompt ->
-            Hairline(Modifier.arrives(3 + index))
             Row(
                 Modifier
-                    .fillMaxWidth()
+                    .padding(bottom = 10.dp)
                     .arrives(3 + index)
+                    .clip(CircleShape)
+                    .border(1.dp, Theme.goldLine, CircleShape)
                     .pressable { onAsk(prompt) }
-                    .padding(vertical = 17.dp)
+                    .padding(horizontal = 18.dp, vertical = 13.dp)
                     .testTag("concierge.starter"),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(prompt, Modifier.weight(1f), color = Theme.ink, style = AppFont.rowTitle)
+                Text(prompt, Modifier.weight(1f, fill = false), color = Theme.goldLight, style = AppFont.bodyMedium)
                 Spacer(Modifier.width(8.dp))
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_up_forward),
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
-                    tint = Theme.accent,
+                    tint = Theme.goldButton,
                 )
             }
         }
-        Hairline(Modifier.arrives(3 + starters.size))
     }
 }
 
@@ -314,7 +340,7 @@ private fun EntryRow(
 
 @Composable
 private fun GuestRow(text: String, modifier: Modifier) {
-    val shape = RoundedCornerShape(22.dp)
+    val shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomEnd = 6.dp, bottomStart = 20.dp)
     Box(
         modifier
             .fillMaxWidth()
@@ -326,8 +352,8 @@ private fun GuestRow(text: String, modifier: Modifier) {
                 text = text,
                 modifier = Modifier
                     .clip(shape)
-                    .background(Theme.accentWash)
-                    .border(1.dp, Theme.accent.copy(alpha = 0.4f), shape)
+                    .background(Theme.goldButton.copy(alpha = 0.14f))
+                    .border(1.dp, Theme.goldLine, shape)
                     .padding(horizontal = 17.dp, vertical = 12.dp)
                     .testTag("concierge.guest"),
                 color = Theme.ink,
@@ -354,7 +380,7 @@ private fun ReplyRow(
     val text = remember(entry.text) {
         ReplyText.annotated(
             entry.text,
-            link = SpanStyle(color = Theme.accent, textDecoration = TextDecoration.Underline),
+            link = SpanStyle(color = Theme.goldButton, textDecoration = TextDecoration.Underline),
             onLink = { open(it) },
         )
     }
@@ -367,14 +393,6 @@ private fun ReplyRow(
             // Real catalogue rows first, then the sections they belong to.
             entry.listings.forEach { listing -> ListingRow(listing) { open(listing.href) } }
             entry.cards.forEach { card -> CardView(card) { open(card.href) } }
-            if (entry.suggestions.isNotEmpty()) {
-                Row(
-                    Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    entry.suggestions.forEach { link -> Chip(link.label) { open(link.href) } }
-                }
-            }
             if (canReport) ReportAction(entry.report, onReport)
         }
     }
@@ -388,8 +406,8 @@ private fun CardView(card: ConciergeCard, onClick: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(Theme.card)
-            .border(1.dp, Theme.rule, shape)
+            .background(GoldWash)
+            .border(1.dp, Theme.goldLine, shape)
             .pressable(onClick = onClick)
             .padding(18.dp)
             .testTag("concierge.card"),
@@ -398,13 +416,13 @@ private fun CardView(card: ConciergeCard, onClick: () -> Unit) {
         Text(card.title, color = Theme.ink, style = AppFont.cardTitle)
         card.summary?.let { Text(it, color = Theme.soft, style = AppFont.detail) }
         Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Eyebrow(card.cta ?: stringResource(R.string.concierge_open), color = Theme.accent)
+            Eyebrow(card.cta ?: stringResource(R.string.concierge_open), color = Theme.goldButton)
             Spacer(Modifier.width(8.dp))
             Icon(
                 painter = painterResource(R.drawable.ic_arrow_forward),
                 contentDescription = null,
                 modifier = Modifier.size(14.dp),
-                tint = Theme.accent,
+                tint = Theme.goldButton,
             )
         }
     }
@@ -421,8 +439,8 @@ private fun ListingRow(listing: ConciergeListing, onClick: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(Theme.card)
-            .border(1.dp, Theme.accent.copy(alpha = 0.3f), shape)
+            .background(GoldWash)
+            .border(1.dp, Theme.goldLine, shape)
             .pressable(onClick = onClick)
             .padding(10.dp)
             .testTag("concierge.listing"),
@@ -441,15 +459,15 @@ private fun ListingRow(listing: ConciergeListing, onClick: () -> Unit) {
             )
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            listing.label?.let { Eyebrow(it, color = Theme.accent) }
+            listing.label?.let { Eyebrow(it, color = Theme.goldText) }
             Text(listing.title, color = Theme.ink, style = AppFont.rowTitle)
-            listing.price?.let { Text(it, color = Theme.accent, style = AppFont.detailMedium) }
+            listing.price?.let { Text(it, color = Theme.goldButton, style = AppFont.detailMedium) }
         }
         Icon(
             painter = painterResource(R.drawable.ic_arrow_forward),
             contentDescription = null,
             modifier = Modifier.size(14.dp),
-            tint = Theme.accent,
+            tint = Theme.goldButton,
         )
     }
 }
@@ -495,7 +513,7 @@ private fun FailedRow(onRetry: () -> Unit, modifier: Modifier) {
                 .pressable(onClick = onRetry)
                 .padding(vertical = 4.dp)
                 .testTag("concierge.retry"),
-            color = Theme.accent,
+            color = Theme.goldButton,
             style = AppFont.detailMedium,
         )
     }
@@ -608,7 +626,7 @@ private fun ReportDialog(status: ReportStatus, onSend: (String) -> Unit, onDismi
                     colors = fieldColors(),
                 )
                 if (tried && status == ReportStatus.Failed) {
-                    Text(stringResource(R.string.error_generic), color = Theme.accent, style = AppFont.detail)
+                    Text(stringResource(R.string.error_generic), color = Theme.goldButton, style = AppFont.detail)
                 }
                 Row(Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TextButton(onClick = onDismiss, enabled = !sending) {
@@ -624,7 +642,7 @@ private fun ReportDialog(status: ReportStatus, onSend: (String) -> Unit, onDismi
                     ) {
                         Text(
                             stringResource(if (sending) R.string.state_loading else R.string.report_send),
-                            color = Theme.accent,
+                            color = Theme.goldButton,
                             style = AppFont.detailMedium,
                         )
                     }
@@ -640,6 +658,8 @@ private fun ReportDialog(status: ReportStatus, onSend: (String) -> Unit, onDismi
 
 @Composable
 private fun Composer(
+    suggestions: List<ConciergeLink>,
+    onOpen: (String) -> Unit,
     draft: String,
     canSend: Boolean,
     onDraft: (String) -> Unit,
@@ -657,6 +677,19 @@ private fun Composer(
     ) {
         val voice = rememberDictation(draft, dictationLanguage, onDraft, readingReply)
         Hairline()
+        // Where the conversation can go next, from the latest answer.
+        if (suggestions.isNotEmpty()) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(start = 14.dp, end = 14.dp, top = 10.dp)
+                    .testTag("concierge.suggestions"),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                suggestions.forEach { link -> Chip(link.label) { onOpen(link.href) } }
+            }
+        }
         voice.feedback()
         Row(
             Modifier
@@ -675,7 +708,7 @@ private fun Composer(
                     .semantics { contentDescription = placeholder }
                     .testTag("concierge.input"),
                 textStyle = AppFont.body.copy(color = Theme.ink),
-                cursorBrush = SolidColor(Theme.accent),
+                cursorBrush = SolidColor(Theme.goldButton),
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Send,
@@ -692,7 +725,7 @@ private fun Composer(
                         Modifier
                             .clip(shape)
                             .background(Theme.card)
-                            .border(1.dp, if (focused) Theme.accent.copy(alpha = 0.6f) else Theme.rule, shape)
+                            .border(1.dp, if (focused) Theme.goldButton else Theme.goldLine, shape)
                             .padding(horizontal = 18.dp, vertical = 12.dp),
                         contentAlignment = Alignment.CenterStart,
                     ) {
@@ -715,21 +748,16 @@ private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
     val label = stringResource(R.string.concierge_send)
     Box(
         Modifier
-            .size(46.dp)
+            .heightIn(min = 46.dp)
             .clip(CircleShape)
-            .background(if (enabled) Theme.accent else Theme.card)
-            .border(1.dp, if (enabled) Theme.accent else Theme.rule, CircleShape)
+            .background(if (enabled) Theme.goldButton else Theme.card)
+            .border(1.dp, if (enabled) Theme.goldButton else Theme.goldLine, CircleShape)
             .pressable(enabled = enabled, onClick = onClick)
-            .semantics { contentDescription = label }
+            .padding(horizontal = 18.dp, vertical = 12.dp)
             .testTag("concierge.send"),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_arrow_up),
-            contentDescription = null,
-            modifier = Modifier.size(20.dp),
-            tint = if (enabled) Theme.onAccent else Theme.soft,
-        )
+        Text(label, color = if (enabled) Theme.goldInk else Theme.soft, style = AppFont.bodyMedium, maxLines = 1)
     }
 }
 
@@ -742,11 +770,11 @@ internal fun fieldColors(): TextFieldColors = OutlinedTextFieldDefaults.colors(
     unfocusedTextColor = Theme.ink,
     focusedContainerColor = Theme.card,
     unfocusedContainerColor = Theme.card,
-    focusedBorderColor = Theme.accent,
+    focusedBorderColor = Theme.goldButton,
     unfocusedBorderColor = Theme.rule,
-    focusedLabelColor = Theme.accent,
+    focusedLabelColor = Theme.goldButton,
     unfocusedLabelColor = Theme.soft,
     focusedPlaceholderColor = Theme.soft,
     unfocusedPlaceholderColor = Theme.soft,
-    cursorColor = Theme.accent,
+    cursorColor = Theme.goldButton,
 )
