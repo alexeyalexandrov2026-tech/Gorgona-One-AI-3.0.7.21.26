@@ -36,6 +36,13 @@ photos and prices right in its answers. Tap one to open it. A new Telegram
 button at the top of the concierge reaches a live manager. The Home tab shows
 the redesigned Miami Elio home page with its new AI concierge.
 
+**Release notes, 1.2.0 (version code 4), English (United States)**
+
+A new home screen: the Miami Elio AI concierge from our website, with quick
+requests for yachts, villas, cars, jets and dining. The concierge has a new
+gold look with photos and prices in its answers, and a live manager one tap
+away. New Events tab with the Miami season and reminders.
+
 ## Graphics
 
 The local handoff is in `app/build/outputs/play-listing/`. The app icon
