@@ -34,7 +34,15 @@ test('canonical catalogue is expanded, deduplicated and source-backed without un
  assert.equal(getVenueBySlug('story-miami').status,'unverified');assert.equal(channelsFor(getVenueBySlug('story-miami')).length,0);
 });
 test('dining copy is complete and translated across all sixteen site languages',()=>{
- for(const language of SUPPORTED_LANGUAGES){const copy=DINING_COPY[language.code];assert.deepEqual(Object.keys(copy),Object.keys(DINING_COPY.en));for(const value of Object.values(copy))assert.ok(value.trim());if(language.code!=='en')assert.notEqual(copy.handoff,DINING_COPY.en.handoff);}
+ for(const {code} of SUPPORTED_LANGUAGES){
+  const copy=DINING_COPY[code];
+  assert.deepEqual(Object.keys(copy),Object.keys(DINING_COPY.en));
+  for(const value of Object.values(copy))assert.ok(value.trim());
+  assert.deepEqual(copy.providerWebsite.match(/\{[^}]+\}/g),['{provider}'],code);
+  if(code!=='en'){
+   for(const key of ['handoff','providerWebsite','venueWebsite'])assert.notEqual(copy[key],DINING_COPY.en[key],code);
+  }
+ }
 });
 
 

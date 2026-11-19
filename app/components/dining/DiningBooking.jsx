@@ -4,6 +4,7 @@ import {useAuth} from '../AuthProvider';
 import {useLocale} from '../LocaleProvider';
 import {supabase} from '../../../lib/supabase';
 import {getDiningCopy} from '../../../lib/dining/copy.mjs';
+import {fill} from '../../../lib/homeCopy';
 import {getWorldsCopy} from '../../../lib/worldsCopy';
 import {isReceipt,submissionKey} from '../../../lib/bookingSubmission.mjs';
 import {readJournal,writeJournal,clearJournal} from '../../../lib/bookingJournal.mjs';
@@ -57,7 +58,13 @@ function BookingWorkspace({venue,channels,enabled,owner,loading}) {
  }
  return <section aria-label={copy.channels} className="grid min-w-0 gap-6 rounded-[22px] border border-g1-rule bg-g1-card p-5 sm:p-6">
   <div><h2 className="font-g1display text-2xl">{copy.channels}</h2><p className="mt-3 text-sm leading-relaxed text-g1-soft">{copy.handoff}</p></div>
-  <div className="grid gap-2">{channels.map(channel=><a key={channel.provider+channel.externalId} className={`${btn.base} ${btn.ghost} justify-between flex-wrap text-start`} href={channel.href} target="_blank" rel="noopener noreferrer">{copy.continue}<span>{channel.name}</span></a>)}</div>
+  <div className="grid gap-2">
+   {channels.map(channel=>(
+    <a key={channel.provider+channel.externalId} className={`${btn.base} ${btn.ghost} justify-start text-start`} href={channel.href} target="_blank" rel="noopener noreferrer">
+     {channel.provider==='venue'?copy.venueWebsite:fill(copy.providerWebsite,{provider:channel.name})}
+    </a>
+   ))}
+  </div>
   {enabled&&(state==='sent'?<div role="status" className="grid gap-3 border-t border-g1-rule pt-5"><p>{copy.pending}</p><p className="break-all font-mono text-sm">{receipt}</p></div>:<form onSubmit={submit} className="grid gap-4 border-t border-g1-rule pt-5">
    <h3 className="font-g1display text-xl">{copy.request}</h3>
    <fieldset disabled={locked||state==='sending'||loading} className="grid min-w-0 gap-4">
