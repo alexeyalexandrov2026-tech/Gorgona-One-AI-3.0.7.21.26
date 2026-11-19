@@ -6,6 +6,7 @@
     <string name="action_ok" formatted="false">확인</string>
     <string name="action_retry" formatted="false">다시 시도</string>
     <string name="action_settings" formatted="false">설정</string>
+    <string name="concierge_live_manager" formatted="false">텔레그램으로 담당 매니저에게 문의</string>
     <string name="concierge_new" formatted="false">새 대화</string>
     <string name="concierge_open" formatted="false">열기</string>
     <string name="concierge_placeholder" formatted="false">Miami Elio AI에게 묻기</string>

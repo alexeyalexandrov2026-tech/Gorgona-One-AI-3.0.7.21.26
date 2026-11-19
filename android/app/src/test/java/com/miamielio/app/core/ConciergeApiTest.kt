@@ -199,6 +199,55 @@ class ConciergeApiTest {
     }
 
     @Test
+    fun readsCatalogueListingsTheAppCanOpen() = runTest {
+        val transport = MockTransport(
+            json = """
+            {
+              "reply": "Two yachts fit eight guests.",
+              "listings": [
+                {"href": "/yachts/sample-60", "title": "Sample 60", "label": "Yacht", "image": "/images/yachts/sample-60.jpg", "price": "${'$'}2,400", "summary": "Miami Beach Marina"},
+                {"href": "/yachts/sample-60", "title": "Same yacht again"},
+                {"href": "/sportsbook/offer", "title": "Not carried"},
+                {"href": "/yachts/sample-72", "title": "Sample 72", "image": "http://example.com/clear-text.jpg"},
+                {"href": "/yachts/no-title"},
+                {"href": "/rentals/sample-car", "title": "Sample car"},
+                {"href": "/vacation-rentals/sample-villa", "title": "Sample villa"},
+                {"href": "/restaurants-nightlife/sample-table", "title": "Sample table"}
+              ]
+            }
+            """.trimIndent(),
+        )
+
+        val reply = ConciergeClient(transport = transport).send(hello, sessionId = null, locale = "en")
+
+        // Duplicates and malformed rows go before the cap of four; links the app does not carry go after it.
+        assertEquals(
+            listOf("/yachts/sample-60", "/yachts/sample-72", "/rentals/sample-car"),
+            reply.listings.map { it.href },
+        )
+        assertEquals(
+            ConciergeListing(
+                href = "/yachts/sample-60",
+                title = "Sample 60",
+                label = "Yacht",
+                image = "https://gorgona-one.com/images/yachts/sample-60.jpg",
+                price = "${'$'}2,400",
+                summary = "Miami Beach Marina",
+            ),
+            reply.listings.first(),
+        )
+        // A photo that is not served over https is left out; the row stays.
+        assertNull(reply.listings[1].image)
+    }
+
+    @Test
+    fun aReplyWithoutListingsHasNone() = runTest {
+        val transport = MockTransport(json = """{"reply":"Hello.","listings":"none"}""")
+        val reply = ConciergeClient(transport = transport).send(hello, sessionId = null, locale = "en")
+        assertEquals(emptyList<ConciergeListing>(), reply.listings)
+    }
+
+    @Test
     fun reportsServerAndFormatFailures() = runTest {
         assertEquals(
             ApiError.Status(503),

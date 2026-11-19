@@ -6,6 +6,7 @@
     <string name="action_ok" formatted="false">تأیید</string>
     <string name="action_retry" formatted="false">تلاش دوباره</string>
     <string name="action_settings" formatted="false">تنظیمات</string>
+    <string name="concierge_live_manager" formatted="false">پیام به مدیر در تلگرام</string>
     <string name="concierge_new" formatted="false">گفتگوی جدید</string>
     <string name="concierge_open" formatted="false">باز کردن</string>
     <string name="concierge_placeholder" formatted="false">از Miami Elio AI بپرسید</string>

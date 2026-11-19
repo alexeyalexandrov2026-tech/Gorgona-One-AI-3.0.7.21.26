@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
@@ -73,9 +74,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.miamielio.app.R
 import com.miamielio.app.core.AnswerReport
 import com.miamielio.app.core.ConciergeCard
+import com.miamielio.app.core.ConciergeListing
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.ConciergeMark
 import com.miamielio.app.ui.Eyebrow
@@ -144,6 +147,7 @@ internal fun ConciergeScreen(
                 focus.clearFocus()
                 model.reset()
             },
+            onManager = { open(LIVE_MANAGER_URL) },
         )
         LazyColumn(
             state = list,
@@ -201,8 +205,15 @@ internal fun ConciergeScreen(
     }
 }
 
+/**
+ * A person, not the AI: the manager's Telegram, the same one the site's chip
+ * next to its concierge opens (`lib/managerContact.mjs`). Opens in Telegram,
+ * or in the browser when Telegram is not installed.
+ */
+internal const val LIVE_MANAGER_URL = "https://t.me/alexeyalexand07"
+
 @Composable
-private fun TopBar(canReset: Boolean, onReset: () -> Unit) {
+private fun TopBar(canReset: Boolean, onReset: () -> Unit, onManager: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -213,6 +224,14 @@ private fun TopBar(canReset: Boolean, onReset: () -> Unit) {
     ) {
         Wordmark(size = 22f)
         Spacer(Modifier.weight(1f))
+        IconButton(onClick = onManager, modifier = Modifier.testTag("concierge.manager")) {
+            Icon(
+                painter = painterResource(R.drawable.ic_telegram),
+                contentDescription = stringResource(R.string.concierge_live_manager),
+                modifier = Modifier.size(22.dp),
+                tint = Theme.accent,
+            )
+        }
         IconButton(onClick = onReset, enabled = canReset, modifier = Modifier.testTag("concierge.new")) {
             Icon(
                 painter = painterResource(R.drawable.ic_new_conversation),
@@ -357,6 +376,8 @@ private fun ReplyRow(
             SelectionContainer {
                 Text(text, Modifier.testTag("concierge.reply"), color = Theme.ink, style = AppFont.body)
             }
+            // Real catalogue rows first, then the sections they belong to.
+            entry.listings.forEach { listing -> ListingRow(listing) { open(listing.href) } }
             entry.cards.forEach { card -> CardView(card) { open(card.href) } }
             if (entry.suggestions.isNotEmpty()) {
                 Row(
@@ -398,6 +419,50 @@ private fun CardView(card: ConciergeCard, onClick: () -> Unit) {
                 tint = Theme.accent,
             )
         }
+    }
+}
+
+/**
+ * One yacht, villa, car or table the concierge found: photo, kind, name and
+ * stored price, as the site's concierge shows them (`AiListingCards`).
+ */
+@Composable
+private fun ListingRow(listing: ConciergeListing, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(18.dp)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Theme.card)
+            .border(1.dp, Theme.accent.copy(alpha = 0.3f), shape)
+            .pressable(onClick = onClick)
+            .padding(10.dp)
+            .testTag("concierge.listing"),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (listing.image != null) {
+            AsyncImage(
+                model = listing.image,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(width = 80.dp, height = 64.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Theme.rule.copy(alpha = 0.5f)),
+                contentScale = ContentScale.Crop,
+            )
+        }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            listing.label?.let { Eyebrow(it, color = Theme.accent) }
+            Text(listing.title, color = Theme.ink, style = AppFont.rowTitle)
+            listing.price?.let { Text(it, color = Theme.accent, style = AppFont.detailMedium) }
+        }
+        Icon(
+            painter = painterResource(R.drawable.ic_arrow_forward),
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            tint = Theme.accent,
+        )
     }
 }
 

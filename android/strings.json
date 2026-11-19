@@ -96,6 +96,24 @@
       "fr": "Nouvelle conversation",
       "pl": "Nowa rozmowa"
     },
+    "concierge_live_manager": {
+      "en": "Message a live manager on Telegram",
+      "ru": "Написать живому менеджеру в Telegram",
+      "es": "Escribir a un gestor en Telegram",
+      "he": "כתבו למנהל אישי בטלגרם",
+      "zh": "通过 Telegram 联系真人经理",
+      "pt": "Falar com um gerente no Telegram",
+      "uk": "Написати живому менеджеру в Telegram",
+      "ja": "Telegramで担当マネージャーに連絡",
+      "ko": "텔레그램으로 담당 매니저에게 문의",
+      "de": "Einem Manager auf Telegram schreiben",
+      "ar": "راسل مديرًا مباشرةً عبر تيليجرام",
+      "tr": "Telegram'da canlı yöneticiye yazın",
+      "fa": "پیام به مدیر در تلگرام",
+      "it": "Scrivi a un manager su Telegram",
+      "fr": "Écrire à un conseiller sur Telegram",
+      "pl": "Napisz do menedżera na Telegramie"
+    },
     "concierge_open": {
       "en": "Open",
       "ru": "Открыть",

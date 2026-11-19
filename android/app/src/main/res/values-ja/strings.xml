@@ -6,6 +6,7 @@
     <string name="action_ok" formatted="false">OK</string>
     <string name="action_retry" formatted="false">再試行</string>
     <string name="action_settings" formatted="false">設定</string>
+    <string name="concierge_live_manager" formatted="false">Telegramで担当マネージャーに連絡</string>
     <string name="concierge_new" formatted="false">新しい会話</string>
     <string name="concierge_open" formatted="false">開く</string>
     <string name="concierge_placeholder" formatted="false">Miami Elio AIに尋ねる</string>

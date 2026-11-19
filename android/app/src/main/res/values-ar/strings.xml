@@ -6,6 +6,7 @@
     <string name="action_ok" formatted="false">موافق</string>
     <string name="action_retry" formatted="false">المحاولة مجددًا</string>
     <string name="action_settings" formatted="false">الإعدادات</string>
+    <string name="concierge_live_manager" formatted="false">راسل مديرًا مباشرةً عبر تيليجرام</string>
     <string name="concierge_new" formatted="false">محادثة جديدة</string>
     <string name="concierge_open" formatted="false">افتح</string>
     <string name="concierge_placeholder" formatted="false">اسأل Miami Elio AI</string>

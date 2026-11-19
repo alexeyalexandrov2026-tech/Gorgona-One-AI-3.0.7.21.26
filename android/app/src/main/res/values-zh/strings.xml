@@ -6,6 +6,7 @@
     <string name="action_ok" formatted="false">好</string>
     <string name="action_retry" formatted="false">重试</string>
     <string name="action_settings" formatted="false">设置</string>
+    <string name="concierge_live_manager" formatted="false">通过 Telegram 联系真人经理</string>
     <string name="concierge_new" formatted="false">新对话</string>
     <string name="concierge_open" formatted="false">打开</string>
     <string name="concierge_placeholder" formatted="false">询问 Miami Elio AI</string>

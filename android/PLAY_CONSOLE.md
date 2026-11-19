@@ -29,6 +29,13 @@ draft a question on supported devices, or type it directly.
 Explore Miami with native search and an AI concierge. Save favorites, prepare
 trip requests and set reminders for upcoming events.
 
+**Release notes, 1.1.0 (version code 3), English (United States)**
+
+The AI concierge now shows real yachts, villas, cars and restaurants with
+photos and prices right in its answers. Tap one to open it. A new Telegram
+button at the top of the concierge reaches a live manager. The Home tab shows
+the redesigned Miami Elio home page with its new AI concierge.
+
 ## Graphics
 
 The local handoff is in `app/build/outputs/play-listing/`. The app icon

@@ -58,6 +58,15 @@ object Replies {
          "suggestions":[{"href":"/restaurants-nightlife","label":"Dinner after"}]}
     """.trimIndent()
 
+    /** Two catalogue rows with prices (the site's `listings`) above a section card. */
+    val withListings = """
+        {"reply":"Two crewed yachts fit eight guests.","sessionId":"s-1",
+         "listings":[
+           {"href":"/yachts/sample-60","title":"Sample 60","label":"Yacht","price":"From ${'$'}2,400"},
+           {"href":"/yachts/sample-72","title":"Sample 72","label":"Yacht"}],
+         "cards":[{"href":"/yachts","title":"Yachts","summary":"Private charters","cta":"See yachts"}]}
+    """.trimIndent()
+
     /** Two sections: a yacht with two options and a restaurant with one. */
     fun withPlan(reply: String = "Here is a plan.", requestable: Boolean = true, yacht: String = "Big Yacht") = """
         {"reply":${quote(reply)},"sessionId":"s-1",

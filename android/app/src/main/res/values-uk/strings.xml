@@ -6,6 +6,7 @@
     <string name="action_ok" formatted="false">ОК</string>
     <string name="action_retry" formatted="false">Спробувати знову</string>
     <string name="action_settings" formatted="false">Налаштування</string>
+    <string name="concierge_live_manager" formatted="false">Написати живому менеджеру в Telegram</string>
     <string name="concierge_new" formatted="false">Нова розмова</string>
     <string name="concierge_open" formatted="false">Відкрити</string>
     <string name="concierge_placeholder" formatted="false">Запитати Miami Elio AI</string>

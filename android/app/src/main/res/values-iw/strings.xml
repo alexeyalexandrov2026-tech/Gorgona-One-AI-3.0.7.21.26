@@ -6,6 +6,7 @@
     <string name="action_ok" formatted="false">אישור</string>
     <string name="action_retry" formatted="false">ניסיון נוסף</string>
     <string name="action_settings" formatted="false">הגדרות</string>
+    <string name="concierge_live_manager" formatted="false">כתבו למנהל אישי בטלגרם</string>
     <string name="concierge_new" formatted="false">שיחה חדשה</string>
     <string name="concierge_open" formatted="false">פתח</string>
     <string name="concierge_placeholder" formatted="false">שאל את Miami Elio AI</string>

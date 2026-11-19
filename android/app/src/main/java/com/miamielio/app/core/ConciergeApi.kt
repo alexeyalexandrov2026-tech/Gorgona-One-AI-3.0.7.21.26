@@ -41,10 +41,48 @@ data class ConciergeCard(
     }
 }
 
+/**
+ * A real catalogue row under a reply: a yacht, villa, car or table with its
+ * photo and stored price (`lib/ai/listingCards.mjs`). The title, price and
+ * link come from the site's own index, never from the model.
+ */
+data class ConciergeListing(
+    val href: String,
+    val title: String,
+    /** The kind of thing, as the site labels it ("Yacht", "Villa"). */
+    val label: String? = null,
+    /** Absolute https address once the client has resolved it. */
+    val image: String? = null,
+    val price: String? = null,
+    val summary: String? = null,
+) {
+    val id: String get() = href
+
+    companion object {
+        /** The site sends at most this many; anything more is ignored. */
+        const val maxCount = 4
+
+        internal fun decode(json: JsonObject): ConciergeListing? {
+            val href = json.text("href") ?: return null
+            val title = json.text("title") ?: return null
+            return ConciergeListing(
+                href = href,
+                title = title,
+                label = json.text("label"),
+                image = json.text("image"),
+                price = json.text("price"),
+                summary = json.text("summary"),
+            )
+        }
+    }
+}
+
 data class ConciergeReply(
     val reply: String,
     val suggestions: List<ConciergeLink> = emptyList(),
     val cards: List<ConciergeCard> = emptyList(),
+    /** Catalogue rows with photos and prices, shown above the section cards. */
+    val listings: List<ConciergeListing> = emptyList(),
     /** Handle for the server's conversation memory; echoed back on the next turn. */
     val sessionId: String? = null,
     /** True when no AI engine answered and the server sent its polite fallback. */
@@ -59,6 +97,9 @@ data class ConciergeReply(
                 reply = reply,
                 suggestions = json.lossyArray("suggestions", ConciergeLink::decode),
                 cards = json.lossyArray("cards", ConciergeCard::decode),
+                listings = json.lossyArray("listings", ConciergeListing::decode)
+                    .distinctBy { it.href }
+                    .take(ConciergeListing.maxCount),
                 sessionId = json.text("sessionId"),
                 degraded = json.bool("error") ?: false,
                 // A malformed plan costs the guest the plan, never the reply.
@@ -116,6 +157,11 @@ class ConciergeClient(
         return decoded.copy(
             suggestions = decoded.suggestions.filter { policy.allowsInApp(it.href) },
             cards = decoded.cards.filter { policy.allowsInApp(it.href) },
+            listings = decoded.listings.filter { policy.allowsInApp(it.href) }.map { listing ->
+                // Site photos arrive as "/images/..."; anything that is not https is dropped.
+                val photo = listing.image?.let(config::resolve)?.takeIf { it.startsWith("https://", ignoreCase = true) }
+                listing.copy(image = photo)
+            },
             plan = decoded.plan?.resolved(config, policy),
         )
     }

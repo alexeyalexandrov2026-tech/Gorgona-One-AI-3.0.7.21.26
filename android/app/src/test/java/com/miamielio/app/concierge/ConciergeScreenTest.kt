@@ -3,6 +3,8 @@ package com.miamielio.app.concierge
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
@@ -113,6 +115,28 @@ class ConciergeScreenTest {
         assertEquals(listOf("/yachts", "/restaurants-nightlife"), opened)
         // No delivery for reports yet: the action is not offered.
         compose.onNodeWithTag("concierge.report").assertDoesNotExist()
+    }
+
+    @Test
+    fun catalogueRowsShowTheirPriceAndOpenTheListing() {
+        chat.reply(Replies.withListings)
+        show()
+        compose.onAllNodesWithTag("concierge.starter")[0].performClick()
+        compose.waitForIdle()
+
+        compose.onAllNodesWithTag("concierge.listing").assertCountEquals(2)
+        compose.onNodeWithText("From \$2,400").assertExists()
+        compose.onNodeWithText("Sample 72").performClick()
+        compose.onNodeWithTag("concierge.card").performClick()
+        assertEquals(listOf("/yachts/sample-72", "/yachts"), opened)
+    }
+
+    @Test
+    fun theLiveManagerOpensTelegram() {
+        show()
+        compose.onNodeWithContentDescription("Message a live manager on Telegram").assertExists()
+        compose.onNodeWithTag("concierge.manager").performClick()
+        assertEquals(listOf("https://t.me/alexeyalexand07"), opened)
     }
 
     @Test
@@ -265,6 +289,22 @@ class ConciergeSnapshotTest {
     fun englishConversationWithAPlan() {
         conversation("en", "A yacht and dinner for four on Saturday")
         save("concierge-plan-en.png")
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w360dp-h740dp-xhdpi")
+    fun englishReplyWithCatalogueRows() {
+        val chat = ScriptedTransport().reply(Replies.withListings)
+        val model = ConciergeViewModel(
+            client = ConciergeClient(transport = chat),
+            planClient = PlanClient(transport = ScriptedTransport()),
+            reporter = null,
+            locale = { "en" },
+        )
+        compose.setContent { MiamiElioTheme { ConciergeScreen(model, guestFavorites(), onOpen = {}) } }
+        compose.runOnUiThread { model.send("A yacht for eight guests") }
+        compose.mainClock.advanceTimeBy(2_000)
+        save("concierge-listings-en.png")
     }
 
     @Test

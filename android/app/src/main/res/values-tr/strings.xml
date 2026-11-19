@@ -6,6 +6,7 @@
     <string name="action_ok" formatted="false">Tamam</string>
     <string name="action_retry" formatted="false">Tekrar dene</string>
     <string name="action_settings" formatted="false">Ayarlar</string>
+    <string name="concierge_live_manager" formatted="false">Telegram\'da canlı yöneticiye yazın</string>
     <string name="concierge_new" formatted="false">Yeni sohbet</string>
     <string name="concierge_open" formatted="false">Aç</string>
     <string name="concierge_placeholder" formatted="false">Miami Elio AI\'ya Sor</string>

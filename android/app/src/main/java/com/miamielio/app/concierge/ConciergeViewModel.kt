@@ -9,6 +9,7 @@ import com.miamielio.app.core.ChatMessage
 import com.miamielio.app.core.ConciergeCard
 import com.miamielio.app.core.ConciergeClient
 import com.miamielio.app.core.ConciergeLink
+import com.miamielio.app.core.ConciergeListing
 import com.miamielio.app.core.ConciergePlan
 import com.miamielio.app.core.ConciergeReply
 import com.miamielio.app.core.PlanClient
@@ -35,6 +36,8 @@ data class ConciergeEntry(
     val text: String,
     val suggestions: List<ConciergeLink> = emptyList(),
     val cards: List<ConciergeCard> = emptyList(),
+    /** Catalogue rows (photo, price) the site found for this answer. */
+    val listings: List<ConciergeListing> = emptyList(),
     /** How far a report on this answer got. */
     val report: ReportStatus = ReportStatus.None,
 ) {
@@ -292,6 +295,7 @@ class ConciergeViewModel(
         text = text,
         suggestions = reply?.suggestions.orEmpty(),
         cards = reply?.cards.orEmpty(),
+        listings = reply?.listings.orEmpty(),
     )
 
     private fun request() {
