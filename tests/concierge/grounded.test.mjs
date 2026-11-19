@@ -35,3 +35,10 @@ test('a yacht consultation cannot drop a second explicitly requested service',()
  const result=groundedReply(raw,{messages:[{role:'user',content:'Нужна яхта и машина в Майами.'}],locale:'ru'});
  assert.deepEqual(result?.navigation.cards.map(card=>card.href),['/yachts','/rentals']);
 });
+
+test('a yacht enquiry keeps the YATR route while the model asks about duration',()=>{
+ const raw=JSON.stringify({version:2,action:'ask',choice:'time-on-water'});
+ const result=groundedReply(raw,{messages:[{role:'user',content:'Help me find a yacht charter for four guests in Miami.'}],locale:'en'});
+ assert.match(result?.reply,/time would you like to spend on the water/i);
+ assert.deepEqual(result?.navigation.cards.map(card=>card.href),['/yachts']);
+});
