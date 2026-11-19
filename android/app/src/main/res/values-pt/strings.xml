@@ -7,7 +7,9 @@
     <string name="action_retry" formatted="false">Tentar novamente</string>
     <string name="action_settings" formatted="false">Definições</string>
     <string name="concierge_live_manager" formatted="false">Falar com um gerente no Telegram</string>
+    <string name="concierge_manager" formatted="false">Gerente</string>
     <string name="concierge_new" formatted="false">Nova conversa</string>
+    <string name="concierge_online" formatted="false">concierge online</string>
     <string name="concierge_open" formatted="false">Abrir</string>
     <string name="concierge_placeholder" formatted="false">Pergunte ao Miami Elio AI</string>
     <string name="concierge_report" formatted="false">Denunciar esta resposta</string>
@@ -19,6 +21,29 @@
     <string name="error_generic" formatted="false">Algo deu errado</string>
     <string name="favorite_remove" formatted="false">Remover do Meu Miami</string>
     <string name="favorite_save" formatted="false">Salvar no Meu Miami</string>
+    <string name="home_ask" formatted="false">Perguntar</string>
+    <string name="home_ask_adventures" formatted="false">Encontre uma aventura em Miami</string>
+    <string name="home_ask_jets" formatted="false">Ajude-me a reservar um jato particular saindo de Miami</string>
+    <string name="home_beach" formatted="false">Miami Beach</string>
+    <string name="home_chip_1" formatted="false">Iate no sábado</string>
+    <string name="home_chip_2" formatted="false">Rolls-Royce por 3 dias</string>
+    <string name="home_chip_3" formatted="false">Ingressos do Heat</string>
+    <string name="home_chip_4" formatted="false">Villa em Miami Beach</string>
+    <string name="home_chip_5" formatted="false">Mesa para quatro</string>
+    <string name="home_concierge_label" formatted="false">Concierge de IA Miami Elio</string>
+    <string name="home_next_event" formatted="false">Próximo: {name}</string>
+    <string name="home_pick_adventures" formatted="false">Aventuras</string>
+    <string name="home_pick_cars" formatted="false">Carros</string>
+    <string name="home_pick_dining" formatted="false">Jantar</string>
+    <string name="home_pick_events" formatted="false">Eventos</string>
+    <string name="home_pick_jets" formatted="false">Jatos</string>
+    <string name="home_pick_villas" formatted="false">Vilas</string>
+    <string name="home_pick_yachts" formatted="false">Iates</string>
+    <string name="home_prompt_1" formatted="false">Um iate para oito neste sábado, pôr do sol em Biscayne Bay…</string>
+    <string name="home_prompt_2" formatted="false">Um Rolls-Royce por três dias, entregue em South Beach…</string>
+    <string name="home_prompt_3" formatted="false">Ingressos do Heat e uma mesa depois do jogo…</string>
+    <string name="home_prompt_4" formatted="false">Uma villa com piscina em Miami Beach…</string>
+    <string name="home_prompt_5" formatted="false">Um jato particular saindo de Miami neste fim de semana…</string>
     <string name="offline_message" formatted="false">Verifique a ligação e tente novamente.</string>
     <string name="offline_title" formatted="false">Sem ligação à internet</string>
     <string name="plan_add_back" formatted="false">Adicionar de volta: {section}</string>
@@ -63,15 +88,20 @@
     <string name="season_tomorrow" formatted="false">Amanhã</string>
     <string name="state_loading" formatted="false">Carregando...</string>
     <string name="tab_account" formatted="false">Meu Miami</string>
+    <string name="tab_catalog" formatted="false">Catálogo</string>
     <string name="tab_concierge" formatted="false">Concierge</string>
+    <string name="tab_events" formatted="false">Eventos</string>
     <string name="tab_home" formatted="false">Início</string>
+    <string name="tab_profile" formatted="false">Perfil</string>
     <string name="tab_search" formatted="false">Buscar</string>
+    <string name="tab_today" formatted="false">Hoje</string>
     <string name="voice_denied" formatted="false">Para falar com o concierge, permita o microfone e o reconhecimento de fala nas Definições.</string>
     <string name="voice_listening" formatted="false">Ouvindo</string>
     <string name="voice_permission_explanation" formatted="false">A Miami Elio converte o seu pedido falado em texto para o concierge.</string>
     <string name="voice_speak" formatted="false">Fale o seu pedido</string>
     <string name="voice_stop" formatted="false">Parar de ouvir</string>
     <string name="voice_unavailable" formatted="false">A entrada de voz não está disponível para este idioma neste dispositivo.</string>
+    <string name="web_back" formatted="false">Voltar</string>
     <string name="world_cars" formatted="false">Carros</string>
     <string name="world_dining" formatted="false">Restaurantes e vida noturna</string>
     <string name="world_events" formatted="false">Eventos</string>

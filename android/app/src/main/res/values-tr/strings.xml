@@ -7,7 +7,9 @@
     <string name="action_retry" formatted="false">Tekrar dene</string>
     <string name="action_settings" formatted="false">Ayarlar</string>
     <string name="concierge_live_manager" formatted="false">Telegram\'da canlı yöneticiye yazın</string>
+    <string name="concierge_manager" formatted="false">Yönetici</string>
     <string name="concierge_new" formatted="false">Yeni sohbet</string>
+    <string name="concierge_online" formatted="false">konsiyerj çevrimiçi</string>
     <string name="concierge_open" formatted="false">Aç</string>
     <string name="concierge_placeholder" formatted="false">Miami Elio AI\'ya Sor</string>
     <string name="concierge_report" formatted="false">Bu yanıtı bildir</string>
@@ -19,6 +21,29 @@
     <string name="error_generic" formatted="false">Bir sorun oluştu</string>
     <string name="favorite_remove" formatted="false">Benim Miami’mden kaldır</string>
     <string name="favorite_save" formatted="false">Benim Miami’me kaydet</string>
+    <string name="home_ask" formatted="false">Sor</string>
+    <string name="home_ask_adventures" formatted="false">Miami’de bir macera bul</string>
+    <string name="home_ask_jets" formatted="false">Miami’den özel bir jet ayırtmama yardım et</string>
+    <string name="home_beach" formatted="false">Miami Beach</string>
+    <string name="home_chip_1" formatted="false">Cumartesi için yat</string>
+    <string name="home_chip_2" formatted="false">3 günlüğüne Rolls-Royce</string>
+    <string name="home_chip_3" formatted="false">Heat biletleri</string>
+    <string name="home_chip_4" formatted="false">Miami Beach’te villa</string>
+    <string name="home_chip_5" formatted="false">Dört kişilik masa</string>
+    <string name="home_concierge_label" formatted="false">Miami Elio AI konsiyerji</string>
+    <string name="home_next_event" formatted="false">Sıradaki: {name}</string>
+    <string name="home_pick_adventures" formatted="false">Maceralar</string>
+    <string name="home_pick_cars" formatted="false">Araçlar</string>
+    <string name="home_pick_dining" formatted="false">Yemek</string>
+    <string name="home_pick_events" formatted="false">Etkinlikler</string>
+    <string name="home_pick_jets" formatted="false">Jetler</string>
+    <string name="home_pick_villas" formatted="false">Villalar</string>
+    <string name="home_pick_yachts" formatted="false">Yatlar</string>
+    <string name="home_prompt_1" formatted="false">Bu cumartesi sekiz kişilik yat, Biscayne Bay’de gün batımı…</string>
+    <string name="home_prompt_2" formatted="false">Üç günlüğüne bir Rolls-Royce, South Beach’e teslim…</string>
+    <string name="home_prompt_3" formatted="false">Heat biletleri ve maçtan sonra bir masa…</string>
+    <string name="home_prompt_4" formatted="false">Miami Beach’te havuzlu bir villa…</string>
+    <string name="home_prompt_5" formatted="false">Bu hafta sonu Miami’den özel bir jet…</string>
     <string name="offline_message" formatted="false">Bağlantınızı kontrol edip tekrar deneyin.</string>
     <string name="offline_title" formatted="false">İnternet bağlantısı yok</string>
     <string name="plan_add_back" formatted="false">Geri ekle: {section}</string>
@@ -63,15 +88,20 @@
     <string name="season_tomorrow" formatted="false">Yarın</string>
     <string name="state_loading" formatted="false">Yükleniyor...</string>
     <string name="tab_account" formatted="false">Benim Miami’m</string>
+    <string name="tab_catalog" formatted="false">Katalog</string>
     <string name="tab_concierge" formatted="false">Concierge</string>
+    <string name="tab_events" formatted="false">Etkinlikler</string>
     <string name="tab_home" formatted="false">Ana Sayfa</string>
+    <string name="tab_profile" formatted="false">Profil</string>
     <string name="tab_search" formatted="false">Ara</string>
+    <string name="tab_today" formatted="false">Bugün</string>
     <string name="voice_denied" formatted="false">Konsiyerjle konuşmak için Ayarlar\'da mikrofona ve konuşma tanımaya izin verin.</string>
     <string name="voice_listening" formatted="false">Dinliyor</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio, sesli isteğinizi konsiyerj için metne dönüştürür.</string>
     <string name="voice_speak" formatted="false">İsteğinizi söyleyin</string>
     <string name="voice_stop" formatted="false">Dinlemeyi Durdur</string>
     <string name="voice_unavailable" formatted="false">Bu cihazda bu dil için sesli giriş kullanılamıyor.</string>
+    <string name="web_back" formatted="false">Geri</string>
     <string name="world_cars" formatted="false">Arabalar</string>
     <string name="world_dining" formatted="false">Restoranlar ve gece hayatı</string>
     <string name="world_events" formatted="false">Etkinlikler</string>

@@ -7,7 +7,9 @@
     <string name="action_retry" formatted="false">تلاش دوباره</string>
     <string name="action_settings" formatted="false">تنظیمات</string>
     <string name="concierge_live_manager" formatted="false">پیام به مدیر در تلگرام</string>
+    <string name="concierge_manager" formatted="false">مدیر</string>
     <string name="concierge_new" formatted="false">گفتگوی جدید</string>
+    <string name="concierge_online" formatted="false">کنسیرژ آنلاین</string>
     <string name="concierge_open" formatted="false">باز کردن</string>
     <string name="concierge_placeholder" formatted="false">از Miami Elio AI بپرسید</string>
     <string name="concierge_report" formatted="false">گزارش این پاسخ</string>
@@ -19,6 +21,29 @@
     <string name="error_generic" formatted="false">مشکلی پیش آمد</string>
     <string name="favorite_remove" formatted="false">حذف از میامی من</string>
     <string name="favorite_save" formatted="false">ذخیره در میامی من</string>
+    <string name="home_ask" formatted="false">بپرسید</string>
+    <string name="home_ask_adventures" formatted="false">یک ماجراجویی در میامی پیدا کن</string>
+    <string name="home_ask_jets" formatted="false">برای رزرو جت خصوصی از میامی کمکم کنید</string>
+    <string name="home_beach" formatted="false">میامی بیچ</string>
+    <string name="home_chip_1" formatted="false">قایق تفریحی برای شنبه</string>
+    <string name="home_chip_2" formatted="false">Rolls-Royce برای ۳ روز</string>
+    <string name="home_chip_3" formatted="false">بلیت بازی Heat</string>
+    <string name="home_chip_4" formatted="false">ویلا در Miami Beach</string>
+    <string name="home_chip_5" formatted="false">میز برای چهار نفر</string>
+    <string name="home_concierge_label" formatted="false">کانسیرج هوش مصنوعی Miami Elio</string>
+    <string name="home_next_event" formatted="false">بعدی: {name}</string>
+    <string name="home_pick_adventures" formatted="false">ماجراجویی‌ها</string>
+    <string name="home_pick_cars" formatted="false">خودرو</string>
+    <string name="home_pick_dining" formatted="false">غذا</string>
+    <string name="home_pick_events" formatted="false">رویدادها</string>
+    <string name="home_pick_jets" formatted="false">جت‌ها</string>
+    <string name="home_pick_villas" formatted="false">ویلاها</string>
+    <string name="home_pick_yachts" formatted="false">قایق‌های تفریحی</string>
+    <string name="home_prompt_1" formatted="false">یک قایق برای هشت نفر این شنبه، غروب در Biscayne Bay…</string>
+    <string name="home_prompt_2" formatted="false">یک رولزرویس برای سه روز، تحویل در South Beach…</string>
+    <string name="home_prompt_3" formatted="false">بلیت هیت و یک میز بعد از بازی…</string>
+    <string name="home_prompt_4" formatted="false">یک ویلا با استخر در میامی بیچ…</string>
+    <string name="home_prompt_5" formatted="false">یک جت خصوصی از میامی در این آخر هفته…</string>
     <string name="offline_message" formatted="false">اتصال خود را بررسی کنید و دوباره تلاش کنید.</string>
     <string name="offline_title" formatted="false">اتصال اینترنت برقرار نیست</string>
     <string name="plan_add_back" formatted="false">افزودن دوباره: {section}</string>
@@ -63,15 +88,20 @@
     <string name="season_tomorrow" formatted="false">فردا</string>
     <string name="state_loading" formatted="false">در حال بارگذاری...</string>
     <string name="tab_account" formatted="false">میامی من</string>
+    <string name="tab_catalog" formatted="false">کاتالوگ</string>
     <string name="tab_concierge" formatted="false">کانسیرج</string>
+    <string name="tab_events" formatted="false">رویدادها</string>
     <string name="tab_home" formatted="false">خانه</string>
+    <string name="tab_profile" formatted="false">پروفایل</string>
     <string name="tab_search" formatted="false">جستجو</string>
+    <string name="tab_today" formatted="false">امروز</string>
     <string name="voice_denied" formatted="false">برای صحبت با کانسیرژ، دسترسی به میکروفون و تشخیص گفتار را در تنظیمات مجاز کنید.</string>
     <string name="voice_listening" formatted="false">در حال گوش دادن</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio درخواست گفتاری شما را برای کانسیرژ به متن تبدیل می‌کند.</string>
     <string name="voice_speak" formatted="false">درخواست خود را بگویید</string>
     <string name="voice_stop" formatted="false">توقف گوش دادن</string>
     <string name="voice_unavailable" formatted="false">ورودی صوتی برای این زبان در این دستگاه در دسترس نیست.</string>
+    <string name="web_back" formatted="false">بازگشت</string>
     <string name="world_cars" formatted="false">ماشین‌ها</string>
     <string name="world_dining" formatted="false">رستوران‌ها و زندگی شبانه</string>
     <string name="world_events" formatted="false">رویدادها</string>

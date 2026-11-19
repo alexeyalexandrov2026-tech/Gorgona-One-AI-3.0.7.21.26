@@ -7,7 +7,9 @@
     <string name="action_retry" formatted="false">المحاولة مجددًا</string>
     <string name="action_settings" formatted="false">الإعدادات</string>
     <string name="concierge_live_manager" formatted="false">راسل مديرًا مباشرةً عبر تيليجرام</string>
+    <string name="concierge_manager" formatted="false">المدير</string>
     <string name="concierge_new" formatted="false">محادثة جديدة</string>
+    <string name="concierge_online" formatted="false">الكونسيرج متصل</string>
     <string name="concierge_open" formatted="false">افتح</string>
     <string name="concierge_placeholder" formatted="false">اسأل Miami Elio AI</string>
     <string name="concierge_report" formatted="false">الإبلاغ عن هذه الإجابة</string>
@@ -19,6 +21,29 @@
     <string name="error_generic" formatted="false">حدث خطأ ما</string>
     <string name="favorite_remove" formatted="false">إزالة من ميامي الخاصة بي</string>
     <string name="favorite_save" formatted="false">احفظ في ميامي الخاصة بي</string>
+    <string name="home_ask" formatted="false">اسأل</string>
+    <string name="home_ask_adventures" formatted="false">ابحث عن مغامرة في ميامي</string>
+    <string name="home_ask_jets" formatted="false">ساعدني في حجز طائرة خاصة من ميامي</string>
+    <string name="home_beach" formatted="false">ميامي بيتش</string>
+    <string name="home_chip_1" formatted="false">يخت ليوم السبت</string>
+    <string name="home_chip_2" formatted="false">Rolls-Royce لمدة 3 أيام</string>
+    <string name="home_chip_3" formatted="false">تذاكر فريق Heat</string>
+    <string name="home_chip_4" formatted="false">فيلا في Miami Beach</string>
+    <string name="home_chip_5" formatted="false">طاولة لأربعة أشخاص</string>
+    <string name="home_concierge_label" formatted="false">كونسيرج Miami Elio بالذكاء الاصطناعي</string>
+    <string name="home_next_event" formatted="false">التالي: {name}</string>
+    <string name="home_pick_adventures" formatted="false">مغامرات</string>
+    <string name="home_pick_cars" formatted="false">سيارات</string>
+    <string name="home_pick_dining" formatted="false">عشاء</string>
+    <string name="home_pick_events" formatted="false">فعاليات</string>
+    <string name="home_pick_jets" formatted="false">طائرات</string>
+    <string name="home_pick_villas" formatted="false">فيلات</string>
+    <string name="home_pick_yachts" formatted="false">يخوت</string>
+    <string name="home_prompt_1" formatted="false">يخت لثمانية هذا السبت، وغروب في Biscayne Bay…</string>
+    <string name="home_prompt_2" formatted="false">رولز-رويس لثلاثة أيام، مع التوصيل إلى South Beach…</string>
+    <string name="home_prompt_3" formatted="false">تذاكر Heat وطاولة بعد المباراة…</string>
+    <string name="home_prompt_4" formatted="false">فيلا مع مسبح في ميامي بيتش…</string>
+    <string name="home_prompt_5" formatted="false">طائرة خاصة من ميامي في عطلة نهاية الأسبوع…</string>
     <string name="offline_message" formatted="false">تحقق من اتصالك ثم حاول مرة أخرى.</string>
     <string name="offline_title" formatted="false">لا يوجد اتصال بالإنترنت</string>
     <string name="plan_add_back" formatted="false">إعادة إضافة: {section}</string>
@@ -63,15 +88,20 @@
     <string name="season_tomorrow" formatted="false">غدًا</string>
     <string name="state_loading" formatted="false">جارٍ التحميل...</string>
     <string name="tab_account" formatted="false">ميامي الخاصة بي</string>
+    <string name="tab_catalog" formatted="false">الكتالوج</string>
     <string name="tab_concierge" formatted="false">كونسيرج</string>
+    <string name="tab_events" formatted="false">الفعاليات</string>
     <string name="tab_home" formatted="false">الرئيسية</string>
+    <string name="tab_profile" formatted="false">الملف الشخصي</string>
     <string name="tab_search" formatted="false">بحث</string>
+    <string name="tab_today" formatted="false">اليوم</string>
     <string name="voice_denied" formatted="false">للتحدث إلى الكونسيرج، اسمح باستخدام الميكروفون والتعرّف على الكلام من الإعدادات.</string>
     <string name="voice_listening" formatted="false">جاري الاستماع</string>
     <string name="voice_permission_explanation" formatted="false">يحوّل Miami Elio طلبك المنطوق إلى نص للكونسيرج.</string>
     <string name="voice_speak" formatted="false">تحدث بطلبك</string>
     <string name="voice_stop" formatted="false">إيقاف الاستماع</string>
     <string name="voice_unavailable" formatted="false">الإدخال الصوتي غير متاح لهذه اللغة على هذا الجهاز.</string>
+    <string name="web_back" formatted="false">رجوع</string>
     <string name="world_cars" formatted="false">سيارات</string>
     <string name="world_dining" formatted="false">المطاعم والحياة الليلية</string>
     <string name="world_events" formatted="false">الفعاليات</string>

@@ -7,7 +7,9 @@
     <string name="action_retry" formatted="false">Попробовать снова</string>
     <string name="action_settings" formatted="false">Настройки</string>
     <string name="concierge_live_manager" formatted="false">Написать живому менеджеру в Telegram</string>
+    <string name="concierge_manager" formatted="false">Менеджер</string>
     <string name="concierge_new" formatted="false">Новый диалог</string>
+    <string name="concierge_online" formatted="false">консьерж онлайн</string>
     <string name="concierge_open" formatted="false">Открыть</string>
     <string name="concierge_placeholder" formatted="false">Спросите Miami Elio AI</string>
     <string name="concierge_report" formatted="false">Пожаловаться на ответ</string>
@@ -19,6 +21,29 @@
     <string name="error_generic" formatted="false">Что-то пошло не так</string>
     <string name="favorite_remove" formatted="false">Убрать из «Моего Майами»</string>
     <string name="favorite_save" formatted="false">В «Мой Майами»</string>
+    <string name="home_ask" formatted="false">Спросить</string>
+    <string name="home_ask_adventures" formatted="false">Найдите приключение в Майами</string>
+    <string name="home_ask_jets" formatted="false">Помогите заказать частный джет из Майами</string>
+    <string name="home_beach" formatted="false">Майами-Бич</string>
+    <string name="home_chip_1" formatted="false">Яхта в субботу</string>
+    <string name="home_chip_2" formatted="false">Rolls-Royce на 3 дня</string>
+    <string name="home_chip_3" formatted="false">Билеты на Heat</string>
+    <string name="home_chip_4" formatted="false">Вилла в Майами-Бич</string>
+    <string name="home_chip_5" formatted="false">Стол на четверых</string>
+    <string name="home_concierge_label" formatted="false">ИИ-консьерж Miami Elio</string>
+    <string name="home_next_event" formatted="false">Ближайшее: {name}</string>
+    <string name="home_pick_adventures" formatted="false">Приключения</string>
+    <string name="home_pick_cars" formatted="false">Авто</string>
+    <string name="home_pick_dining" formatted="false">Ужин</string>
+    <string name="home_pick_events" formatted="false">События</string>
+    <string name="home_pick_jets" formatted="false">Джеты</string>
+    <string name="home_pick_villas" formatted="false">Виллы</string>
+    <string name="home_pick_yachts" formatted="false">Яхты</string>
+    <string name="home_prompt_1" formatted="false">Яхта на восьмерых в эту субботу, закат в Biscayne Bay…</string>
+    <string name="home_prompt_2" formatted="false">Rolls-Royce на три дня с доставкой в South Beach…</string>
+    <string name="home_prompt_3" formatted="false">Билеты на Heat и стол после игры…</string>
+    <string name="home_prompt_4" formatted="false">Вилла с бассейном в Майами-Бич…</string>
+    <string name="home_prompt_5" formatted="false">Частный джет из Майами на эти выходные…</string>
     <string name="offline_message" formatted="false">Проверьте подключение и попробуйте снова.</string>
     <string name="offline_title" formatted="false">Нет подключения к интернету</string>
     <string name="plan_add_back" formatted="false">Вернуть: {section}</string>
@@ -63,15 +88,20 @@
     <string name="season_tomorrow" formatted="false">Завтра</string>
     <string name="state_loading" formatted="false">Загрузка...</string>
     <string name="tab_account" formatted="false">Мой Майами</string>
+    <string name="tab_catalog" formatted="false">Каталог</string>
     <string name="tab_concierge" formatted="false">Консьерж</string>
+    <string name="tab_events" formatted="false">События</string>
     <string name="tab_home" formatted="false">Главная</string>
+    <string name="tab_profile" formatted="false">Профиль</string>
     <string name="tab_search" formatted="false">Поиск</string>
+    <string name="tab_today" formatted="false">Сегодня</string>
     <string name="voice_denied" formatted="false">Чтобы говорить с консьержем, разрешите микрофон и распознавание речи в Настройках.</string>
     <string name="voice_listening" formatted="false">Слушаю</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio преобразует ваш голосовой запрос в текст для консьержа.</string>
     <string name="voice_speak" formatted="false">Произнесите ваш запрос</string>
     <string name="voice_stop" formatted="false">Остановить</string>
     <string name="voice_unavailable" formatted="false">На этом устройстве голосовой ввод для этого языка недоступен.</string>
+    <string name="web_back" formatted="false">Назад</string>
     <string name="world_cars" formatted="false">Автомобили</string>
     <string name="world_dining" formatted="false">Рестораны и ночная жизнь</string>
     <string name="world_events" formatted="false">События</string>

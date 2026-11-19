@@ -7,7 +7,9 @@
     <string name="action_retry" formatted="false">Спробувати знову</string>
     <string name="action_settings" formatted="false">Налаштування</string>
     <string name="concierge_live_manager" formatted="false">Написати живому менеджеру в Telegram</string>
+    <string name="concierge_manager" formatted="false">Менеджер</string>
     <string name="concierge_new" formatted="false">Нова розмова</string>
+    <string name="concierge_online" formatted="false">консьєрж онлайн</string>
     <string name="concierge_open" formatted="false">Відкрити</string>
     <string name="concierge_placeholder" formatted="false">Запитати Miami Elio AI</string>
     <string name="concierge_report" formatted="false">Поскаржитися на відповідь</string>
@@ -19,6 +21,29 @@
     <string name="error_generic" formatted="false">Щось пішло не так</string>
     <string name="favorite_remove" formatted="false">Прибрати з «Мого Маямі»</string>
     <string name="favorite_save" formatted="false">До «Мого Маямі»</string>
+    <string name="home_ask" formatted="false">Запитати</string>
+    <string name="home_ask_adventures" formatted="false">Знайдіть пригоду в Маямі</string>
+    <string name="home_ask_jets" formatted="false">Допоможіть замовити приватний джет з Маямі</string>
+    <string name="home_beach" formatted="false">Маямі-Біч</string>
+    <string name="home_chip_1" formatted="false">Яхта на суботу</string>
+    <string name="home_chip_2" formatted="false">Rolls-Royce на 3 дні</string>
+    <string name="home_chip_3" formatted="false">Квитки на Heat</string>
+    <string name="home_chip_4" formatted="false">Вілла в Miami Beach</string>
+    <string name="home_chip_5" formatted="false">Столик на чотирьох</string>
+    <string name="home_concierge_label" formatted="false">ШІ-консьєрж Miami Elio</string>
+    <string name="home_next_event" formatted="false">Найближче: {name}</string>
+    <string name="home_pick_adventures" formatted="false">Пригоди</string>
+    <string name="home_pick_cars" formatted="false">Авто</string>
+    <string name="home_pick_dining" formatted="false">Вечеря</string>
+    <string name="home_pick_events" formatted="false">Події</string>
+    <string name="home_pick_jets" formatted="false">Джети</string>
+    <string name="home_pick_villas" formatted="false">Вілли</string>
+    <string name="home_pick_yachts" formatted="false">Яхти</string>
+    <string name="home_prompt_1" formatted="false">Яхта на вісьмох цієї суботи, захід сонця в Biscayne Bay…</string>
+    <string name="home_prompt_2" formatted="false">Rolls-Royce на три дні з доставкою в South Beach…</string>
+    <string name="home_prompt_3" formatted="false">Квитки на Heat і стіл після гри…</string>
+    <string name="home_prompt_4" formatted="false">Вілла з басейном у Маямі-Біч…</string>
+    <string name="home_prompt_5" formatted="false">Приватний джет з Маямі на ці вихідні…</string>
     <string name="offline_message" formatted="false">Перевірте підключення та спробуйте ще раз.</string>
     <string name="offline_title" formatted="false">Немає підключення до інтернету</string>
     <string name="plan_add_back" formatted="false">Повернути: {section}</string>
@@ -63,15 +88,20 @@
     <string name="season_tomorrow" formatted="false">Завтра</string>
     <string name="state_loading" formatted="false">Завантаження...</string>
     <string name="tab_account" formatted="false">Мій Маямі</string>
+    <string name="tab_catalog" formatted="false">Каталог</string>
     <string name="tab_concierge" formatted="false">Консьєрж</string>
+    <string name="tab_events" formatted="false">Події</string>
     <string name="tab_home" formatted="false">Головна</string>
+    <string name="tab_profile" formatted="false">Профіль</string>
     <string name="tab_search" formatted="false">Пошук</string>
+    <string name="tab_today" formatted="false">Сьогодні</string>
     <string name="voice_denied" formatted="false">Щоб говорити з консьєржем, дозвольте мікрофон і розпізнавання мовлення у Налаштуваннях.</string>
     <string name="voice_listening" formatted="false">Слухаю</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio перетворює ваш голосовий запит на текст для консьєржа.</string>
     <string name="voice_speak" formatted="false">Вимовте ваш запит</string>
     <string name="voice_stop" formatted="false">Зупинити</string>
     <string name="voice_unavailable" formatted="false">На цьому пристрої голосове введення для цієї мови недоступне.</string>
+    <string name="web_back" formatted="false">Назад</string>
     <string name="world_cars" formatted="false">Автомобілі</string>
     <string name="world_dining" formatted="false">Ресторани та нічне життя</string>
     <string name="world_events" formatted="false">Події</string>

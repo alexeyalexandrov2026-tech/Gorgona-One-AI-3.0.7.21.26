@@ -7,7 +7,9 @@
     <string name="action_retry" formatted="false">ניסיון נוסף</string>
     <string name="action_settings" formatted="false">הגדרות</string>
     <string name="concierge_live_manager" formatted="false">כתבו למנהל אישי בטלגרם</string>
+    <string name="concierge_manager" formatted="false">מנהל</string>
     <string name="concierge_new" formatted="false">שיחה חדשה</string>
+    <string name="concierge_online" formatted="false">הקונסיירז׳ מחובר</string>
     <string name="concierge_open" formatted="false">פתח</string>
     <string name="concierge_placeholder" formatted="false">שאל את Miami Elio AI</string>
     <string name="concierge_report" formatted="false">דיווח על התשובה</string>
@@ -19,6 +21,29 @@
     <string name="error_generic" formatted="false">משהו השתבש</string>
     <string name="favorite_remove" formatted="false">הסרה מהמיאמי שלי</string>
     <string name="favorite_save" formatted="false">שמירה במיאמי שלי</string>
+    <string name="home_ask" formatted="false">שאלו</string>
+    <string name="home_ask_adventures" formatted="false">מצאו הרפתקה במיאמי</string>
+    <string name="home_ask_jets" formatted="false">עזרו להזמין מטוס פרטי ממיאמי</string>
+    <string name="home_beach" formatted="false">מיאמי ביץ׳</string>
+    <string name="home_chip_1" formatted="false">יאכטה בשבת</string>
+    <string name="home_chip_2" formatted="false">Rolls-Royce ל־3 ימים</string>
+    <string name="home_chip_3" formatted="false">כרטיסים ל־Heat</string>
+    <string name="home_chip_4" formatted="false">וילה במיאמי ביץ׳</string>
+    <string name="home_chip_5" formatted="false">שולחן לארבעה</string>
+    <string name="home_concierge_label" formatted="false">קונסיירז׳ AI של Miami Elio</string>
+    <string name="home_next_event" formatted="false">הבא: {name}</string>
+    <string name="home_pick_adventures" formatted="false">הרפתקאות</string>
+    <string name="home_pick_cars" formatted="false">רכבים</string>
+    <string name="home_pick_dining" formatted="false">אוכל</string>
+    <string name="home_pick_events" formatted="false">אירועים</string>
+    <string name="home_pick_jets" formatted="false">מטוסים</string>
+    <string name="home_pick_villas" formatted="false">וילות</string>
+    <string name="home_pick_yachts" formatted="false">יאכטות</string>
+    <string name="home_prompt_1" formatted="false">יאכטה לשמונה ביום שבת, שקיעה ב-Biscayne Bay…</string>
+    <string name="home_prompt_2" formatted="false">רולס-רויס לשלושה ימים, משלוח ל-South Beach…</string>
+    <string name="home_prompt_3" formatted="false">כרטיסים ל-Heat ושולחן אחרי המשחק…</string>
+    <string name="home_prompt_4" formatted="false">וילה עם בריכה במיאמי ביץ׳…</string>
+    <string name="home_prompt_5" formatted="false">מטוס פרטי ממיאמי בסוף השבוע…</string>
     <string name="offline_message" formatted="false">בדקו את החיבור ונסו שוב.</string>
     <string name="offline_title" formatted="false">אין חיבור לאינטרנט</string>
     <string name="plan_add_back" formatted="false">להחזיר: {section}</string>
@@ -63,15 +88,20 @@
     <string name="season_tomorrow" formatted="false">מחר</string>
     <string name="state_loading" formatted="false">טוען...</string>
     <string name="tab_account" formatted="false">המיאמי שלי</string>
+    <string name="tab_catalog" formatted="false">קטלוג</string>
     <string name="tab_concierge" formatted="false">קונסיירז׳</string>
+    <string name="tab_events" formatted="false">אירועים</string>
     <string name="tab_home" formatted="false">בית</string>
+    <string name="tab_profile" formatted="false">פרופיל</string>
     <string name="tab_search" formatted="false">חיפוש</string>
+    <string name="tab_today" formatted="false">היום</string>
     <string name="voice_denied" formatted="false">כדי לדבר עם הקונסיירז\', אפשרו גישה למיקרופון ולזיהוי דיבור בהגדרות.</string>
     <string name="voice_listening" formatted="false">מקשיב</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio ממירה את הבקשה הקולית שלכם לטקסט עבור הקונסיירז\'.</string>
     <string name="voice_speak" formatted="false">אמור את הבקשה שלך</string>
     <string name="voice_stop" formatted="false">הפסק להקשיב</string>
     <string name="voice_unavailable" formatted="false">הקלט הקולי אינו זמין לשפה זו במכשיר זה.</string>
+    <string name="web_back" formatted="false">חזרה</string>
     <string name="world_cars" formatted="false">מכוניות</string>
     <string name="world_dining" formatted="false">מסעדות וחיי לילה</string>
     <string name="world_events" formatted="false">אירועים</string>

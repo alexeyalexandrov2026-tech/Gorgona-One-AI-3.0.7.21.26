@@ -7,7 +7,9 @@
     <string name="action_retry" formatted="false">重试</string>
     <string name="action_settings" formatted="false">设置</string>
     <string name="concierge_live_manager" formatted="false">通过 Telegram 联系真人经理</string>
+    <string name="concierge_manager" formatted="false">经理</string>
     <string name="concierge_new" formatted="false">新对话</string>
+    <string name="concierge_online" formatted="false">礼宾在线</string>
     <string name="concierge_open" formatted="false">打开</string>
     <string name="concierge_placeholder" formatted="false">询问 Miami Elio AI</string>
     <string name="concierge_report" formatted="false">举报此回答</string>
@@ -19,6 +21,29 @@
     <string name="error_generic" formatted="false">出错了</string>
     <string name="favorite_remove" formatted="false">从“我的迈阿密”移除</string>
     <string name="favorite_save" formatted="false">收藏到“我的迈阿密”</string>
+    <string name="home_ask" formatted="false">咨询</string>
+    <string name="home_ask_adventures" formatted="false">在迈阿密找一项冒险</string>
+    <string name="home_ask_jets" formatted="false">帮我预订从迈阿密出发的私人飞机</string>
+    <string name="home_beach" formatted="false">迈阿密海滩</string>
+    <string name="home_chip_1" formatted="false">周六租游艇</string>
+    <string name="home_chip_2" formatted="false">租用 Rolls-Royce 3 天</string>
+    <string name="home_chip_3" formatted="false">Heat 球赛门票</string>
+    <string name="home_chip_4" formatted="false">Miami Beach 别墅</string>
+    <string name="home_chip_5" formatted="false">四人餐桌</string>
+    <string name="home_concierge_label" formatted="false">Miami Elio AI 礼宾</string>
+    <string name="home_next_event" formatted="false">即将到来：{name}</string>
+    <string name="home_pick_adventures" formatted="false">冒险</string>
+    <string name="home_pick_cars" formatted="false">汽车</string>
+    <string name="home_pick_dining" formatted="false">餐饮</string>
+    <string name="home_pick_events" formatted="false">活动</string>
+    <string name="home_pick_jets" formatted="false">飞机</string>
+    <string name="home_pick_villas" formatted="false">别墅</string>
+    <string name="home_pick_yachts" formatted="false">游艇</string>
+    <string name="home_prompt_1" formatted="false">本周六一艘八人游艇，在 Biscayne Bay 看日落…</string>
+    <string name="home_prompt_2" formatted="false">一辆劳斯莱斯用三天，送到 South Beach…</string>
+    <string name="home_prompt_3" formatted="false">Heat 的门票，赛后订一张桌子…</string>
+    <string name="home_prompt_4" formatted="false">迈阿密海滩一栋带泳池的别墅…</string>
+    <string name="home_prompt_5" formatted="false">这个周末从迈阿密出发的私人飞机…</string>
     <string name="offline_message" formatted="false">请检查网络连接后重试。</string>
     <string name="offline_title" formatted="false">没有网络连接</string>
     <string name="plan_add_back" formatted="false">重新加入：{section}</string>
@@ -63,15 +88,20 @@
     <string name="season_tomorrow" formatted="false">明天</string>
     <string name="state_loading" formatted="false">加载中...</string>
     <string name="tab_account" formatted="false">我的迈阿密</string>
+    <string name="tab_catalog" formatted="false">目录</string>
     <string name="tab_concierge" formatted="false">礼宾服务</string>
+    <string name="tab_events" formatted="false">活动</string>
     <string name="tab_home" formatted="false">首页</string>
+    <string name="tab_profile" formatted="false">我的</string>
     <string name="tab_search" formatted="false">搜索</string>
+    <string name="tab_today" formatted="false">今天</string>
     <string name="voice_denied" formatted="false">如需与礼宾对话，请在“设置”中允许使用麦克风和语音识别。</string>
     <string name="voice_listening" formatted="false">倾听中</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio 会将您的语音需求转换为文字发送给礼宾。</string>
     <string name="voice_speak" formatted="false">说出您的请求</string>
     <string name="voice_stop" formatted="false">停止倾听</string>
     <string name="voice_unavailable" formatted="false">此设备不支持该语言的语音输入。</string>
+    <string name="web_back" formatted="false">返回</string>
     <string name="world_cars" formatted="false">租车</string>
     <string name="world_dining" formatted="false">餐厅与夜生活</string>
     <string name="world_events" formatted="false">活动</string>
