@@ -283,6 +283,17 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
         }
         MenuSheet(
             visible = menuOpen,
+            current = when {
+                events -> "events"
+                else -> when (tab) {
+                    AppTab.Today -> "today"
+                    AppTab.Catalog -> "catalog"
+                    AppTab.Concierge -> "ai"
+                    AppTab.Exclusive -> "exclusive"
+                    AppTab.Account -> "profile"
+                }
+            },
+            resolve = services.config::resolve,
             onClose = { menuOpen = false },
             onSelect = { entry ->
                 menuOpen = false

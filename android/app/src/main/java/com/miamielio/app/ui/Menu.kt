@@ -13,12 +13,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,6 +32,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,7 +41,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -48,7 +57,11 @@ import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.toUpperCase
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.miamielio.app.R
 import com.miamielio.app.app.AppRouter
 import com.miamielio.app.app.AppTab
@@ -63,6 +76,8 @@ internal class MenuEntry(
     val id: String,
     @param:StringRes val label: Int,
     @param:DrawableRes val icon: Int?,
+    /** A section's picture, site-relative; null for the app's own places and for the AI's orb. */
+    val image: String? = null,
     val open: AppRouter.() -> Unit,
 )
 
@@ -84,7 +99,7 @@ internal val MAIN_MENU: List<MenuEntry> = listOf(
  */
 internal val SECTION_MENU: List<MenuEntry> = HomeSections.all.map { section ->
     val href = section.href
-    MenuEntry("section.${section.id}", section.label, icon = null) {
+    MenuEntry("section.${section.id}", section.label, icon = null, image = section.image) {
         when {
             section.id == "exclusive" -> show(AppTab.Exclusive)
             section.id == "events" -> showEvents()
@@ -118,6 +133,10 @@ internal fun MenuSheet(
     onClose: () -> Unit,
     onSelect: (MenuEntry) -> Unit,
     modifier: Modifier = Modifier,
+    /** The id of the place the guest is on ("today", "events"...), which wears the sunset. */
+    current: String? = null,
+    /** Turns a section's site path into its picture's address (see `AppConfig.resolve`). */
+    resolve: (String) -> String? = { null },
 ) {
     val reduceMotion = LocalReduceMotion.current
     val rightToLeft = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -150,7 +169,11 @@ internal fun MenuSheet(
                         enter = if (reduceMotion) EnterTransition.None else slideInHorizontally(tween(260, easing = EaseOut)) { if (rightToLeft) it else -it },
                         exit = if (reduceMotion) ExitTransition.None else slideOutHorizontally(tween(200)) { if (rightToLeft) it else -it },
                     )
-                    .background(Theme.paper)
+                    // Frosted glass over the sea, edged in pearl, aqua and champagne.
+                    .clip(PanelShape)
+                    .oceanBackground()
+                    .background(PanelGlass)
+                    .border(1.dp, Ocean.glassEdge, PanelShape)
                     // Taps on the panel's own gaps must not fall through to the scrim.
                     .pointerInput(Unit) { detectTapGestures { } }
                     .semantics {
@@ -172,35 +195,34 @@ internal fun MenuSheet(
                         Modifier
                             .weight(1f)
                             .semantics { heading() },
-                        color = Theme.ink,
+                        color = Ocean.pearl,
                         style = AppFont.title,
                         maxLines = 1,
                     )
                     IconButton(onClick = onClose, modifier = Modifier.size(48.dp).testTag("menu.close")) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_close),
-                            contentDescription = stringResource(R.string.menu_close),
-                            tint = Theme.ink,
-                        )
+                        GlassCircle(R.drawable.ic_close, on = false, diameter = 40.dp, contentDescription = stringResource(R.string.menu_close))
                     }
                 }
-                Hairline()
                 Column(
                     Modifier
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
                         .padding(bottom = 16.dp),
                 ) {
-                    MAIN_MENU.forEach { entry -> MenuRow(entry, onClick = { onSelect(entry) }) }
-                    Hairline(Modifier.padding(vertical = 8.dp))
-                    Eyebrow(
-                        stringResource(R.string.menu_sections),
+                    Spacer(Modifier.height(4.dp))
+                    MAIN_MENU.forEach { entry ->
+                        MenuRow(entry, current = entry.id == current, resolve = resolve, onClick = { onSelect(entry) })
+                    }
+                    Text(
+                        stringResource(R.string.menu_sections).toUpperCase(Locale.current),
                         Modifier
-                            .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 6.dp)
+                            .padding(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 6.dp)
                             .semantics { heading() },
-                        color = Theme.goldText,
+                        style = AppFont.eyebrow.copy(brush = Ocean.champagne),
                     )
-                    SECTION_MENU.forEach { entry -> MenuRow(entry, onClick = { onSelect(entry) }) }
+                    SECTION_MENU.forEach { entry ->
+                        MenuRow(entry, current = false, resolve = resolve, onClick = { onSelect(entry) })
+                    }
                 }
             }
         }
@@ -208,25 +230,67 @@ internal fun MenuSheet(
 }
 
 @Composable
-private fun MenuRow(entry: MenuEntry, onClick: () -> Unit) {
+private fun MenuRow(entry: MenuEntry, current: Boolean, resolve: (String) -> String?, onClick: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
             .pressable(onClick = onClick)
             .heightIn(min = 52.dp)
-            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .padding(horizontal = 18.dp, vertical = 5.dp)
             .testTag("menu.item.${entry.id}"),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        entry.icon?.let { Icon(painterResource(it), contentDescription = null, modifier = Modifier.size(22.dp), tint = Theme.goldText) }
+        val icon = entry.icon
+        val image = entry.image
+        when {
+            icon != null -> GlassCircle(icon, on = current, diameter = 38.dp)
+            image != null -> AsyncImage(
+                model = resolve(image),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(42.dp)
+                    .clip(ThumbShape)
+                    .background(Ocean.night)
+                    .border(1.dp, Ocean.glassEdge, ThumbShape),
+                contentScale = ContentScale.Crop,
+            )
+            // The AI concierge has no picture: its orb stands in for one.
+            else -> Box(Modifier.size(42.dp), contentAlignment = Alignment.Center) { ConciergeMark(36.dp) }
+        }
         Text(
             stringResource(entry.label),
             Modifier.weight(1f),
-            color = Theme.ink,
-            style = if (entry.icon != null) AppFont.rowTitle else AppFont.body,
+            color = if (icon != null) Ocean.pearl else Ocean.pearl.copy(alpha = 0.9f),
+            style = if (icon != null) AppFont.rowTitle else AppFont.detailMedium,
         )
         // The drawable mirrors itself for right-to-left languages.
-        Icon(painterResource(R.drawable.ic_arrow_forward), contentDescription = null, modifier = Modifier.size(16.dp), tint = Theme.soft)
+        Icon(
+            painterResource(R.drawable.ic_arrow_forward),
+            contentDescription = null,
+            modifier = Modifier.size(16.dp).painted(Ocean.champagne),
+            tint = Color.White,
+        )
     }
 }
+
+/** A white icon in a circle: the sunset when [on], a little dark glass otherwise. */
+@Composable
+private fun GlassCircle(@DrawableRes icon: Int, on: Boolean, diameter: Dp, contentDescription: String? = null) {
+    Box(
+        Modifier
+            .size(diameter)
+            .clip(CircleShape)
+            .background(if (on) Ocean.sunset else SolidColor(Ocean.glassDark))
+            .then(if (on) Modifier else Modifier.border(1.dp, Ocean.glassEdge, CircleShape)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(painterResource(icon), contentDescription, Modifier.size(diameter * 0.45f), tint = Color.White)
+    }
+}
+
+private val PanelShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp)
+private val ThumbShape = RoundedCornerShape(12.dp)
+
+/** The panel's glass: almost the night itself, so the rows stay legible over the sea. */
+private val PanelGlass = Brush.verticalGradient(listOf(Color(0xD901212C), Color(0xF201161E)))

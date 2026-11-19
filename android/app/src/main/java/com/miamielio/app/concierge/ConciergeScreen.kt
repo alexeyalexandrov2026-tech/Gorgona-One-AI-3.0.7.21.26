@@ -51,16 +51,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -83,28 +83,23 @@ import com.miamielio.app.R
 import com.miamielio.app.app.LIVE_MANAGER_URL
 import com.miamielio.app.core.AnswerReport
 import com.miamielio.app.core.ConciergeCard
-import com.miamielio.app.core.ConciergeListing
 import com.miamielio.app.core.ConciergeLink
-import com.miamielio.app.ui.oceanBackground
-import com.miamielio.app.ui.Ocean
+import com.miamielio.app.core.ConciergeListing
+import com.miamielio.app.favorites.FavoritesStore
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.ConciergeMark
 import com.miamielio.app.ui.Eyebrow
-import com.miamielio.app.ui.Hairline
 import com.miamielio.app.ui.LocalReduceMotion
 import com.miamielio.app.ui.MenuButton
+import com.miamielio.app.ui.Ocean
 import com.miamielio.app.ui.OrbActivity
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
-import com.miamielio.app.favorites.FavoritesStore
 import com.miamielio.app.ui.arrives
+import com.miamielio.app.ui.oceanBackground
+import com.miamielio.app.ui.painted
 import com.miamielio.app.ui.pressable
 import com.miamielio.app.ui.rememberKeyboardDismissal
-
-/** The green "online" dot the site shows next to its concierge. */
-
-/** Cards: a faint wash of the site's gold over the dark ground. */
-private val GoldWash = Brush.linearGradient(listOf(Color(0x1AD4AF37), Color(0x05FFFFFF)))
 
 /**
  * The AI concierge as a native conversation. It speaks to the same
@@ -243,7 +238,7 @@ private fun TopBar(canReset: Boolean, onMenu: () -> Unit, onReset: () -> Unit, o
         Text(
             "Miami Elio AI",
             Modifier.weight(1f),
-            color = Theme.ink,
+            color = Ocean.pearl,
             style = AppFont.bodyMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -251,7 +246,7 @@ private fun TopBar(canReset: Boolean, onMenu: () -> Unit, onReset: () -> Unit, o
         Row(
             Modifier
                 .clip(CircleShape)
-                .border(1.dp, Theme.goldLine, CircleShape)
+                .border(1.dp, Ocean.champagne, CircleShape)
                 .pressable(onClick = onManager)
                 .semantics { contentDescription = managerLabel }
                 .padding(horizontal = 12.dp, vertical = 8.dp)
@@ -259,14 +254,18 @@ private fun TopBar(canReset: Boolean, onMenu: () -> Unit, onReset: () -> Unit, o
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Icon(painterResource(R.drawable.ic_telegram), null, Modifier.size(18.dp), tint = Theme.goldText)
-            Text(stringResource(R.string.concierge_manager), color = Theme.goldLight, style = AppFont.detailMedium, maxLines = 1)
+            Icon(painterResource(R.drawable.ic_telegram), null, Modifier.size(18.dp).painted(Ocean.champagne), tint = Color.White)
+            Text(
+                stringResource(R.string.concierge_manager),
+                style = AppFont.detailMedium.copy(brush = Ocean.champagne),
+                maxLines = 1,
+            )
         }
         IconButton(onClick = onReset, enabled = canReset, modifier = Modifier.testTag("concierge.new")) {
             Icon(
                 painter = painterResource(R.drawable.ic_new_conversation),
                 contentDescription = stringResource(R.string.concierge_new),
-                tint = if (canReset) Theme.ink else Theme.soft.copy(alpha = 0.4f),
+                tint = if (canReset) Ocean.pearl else Ocean.pearl.copy(alpha = 0.35f),
             )
         }
     }
@@ -294,7 +293,7 @@ private fun Welcome(onAsk: (String) -> Unit) {
             modifier = Modifier
                 .padding(bottom = 12.dp)
                 .arrives(1),
-            color = Theme.goldButton,
+            color = Ocean.champagneMid,
         )
         Text(
             text = stringResource(R.string.concierge_title),
@@ -303,7 +302,7 @@ private fun Welcome(onAsk: (String) -> Unit) {
                 .arrives(2)
                 .semantics { heading() }
                 .testTag("concierge.title"),
-            color = Theme.ink,
+            color = Ocean.pearl,
             style = AppFont.hero,
         )
         // Ready-made requests as gold pills, like the site's concierge.
@@ -313,19 +312,20 @@ private fun Welcome(onAsk: (String) -> Unit) {
                     .padding(bottom = 10.dp)
                     .arrives(3 + index)
                     .clip(CircleShape)
-                    .border(1.dp, Theme.goldLine, CircleShape)
+                    .background(Ocean.glassDark)
+                    .border(1.dp, Ocean.champagne, CircleShape)
                     .pressable { onAsk(prompt) }
                     .padding(horizontal = 18.dp, vertical = 13.dp)
                     .testTag("concierge.starter"),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(prompt, Modifier.weight(1f, fill = false), color = Theme.goldLight, style = AppFont.bodyMedium)
+                Text(prompt, Modifier.weight(1f, fill = false), color = Ocean.pearl, style = AppFont.bodyMedium)
                 Spacer(Modifier.width(8.dp))
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_up_forward),
                     contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = Theme.goldButton,
+                    modifier = Modifier.size(18.dp).painted(Ocean.champagne),
+                    tint = Color.White,
                 )
             }
         }
@@ -367,11 +367,10 @@ private fun GuestRow(text: String, modifier: Modifier) {
                 text = text,
                 modifier = Modifier
                     .clip(shape)
-                    .background(Theme.goldButton.copy(alpha = 0.14f))
-                    .border(1.dp, Theme.goldLine, shape)
+                    .background(Ocean.sunset)
                     .padding(horizontal = 17.dp, vertical = 12.dp)
                     .testTag("concierge.guest"),
-                color = Theme.ink,
+                color = Color.White,
                 style = AppFont.body,
             )
         }
@@ -396,15 +395,26 @@ private fun ReplyRow(
     val text = remember(entry.text) {
         ReplyText.annotated(
             entry.text,
-            link = SpanStyle(color = Theme.goldButton, textDecoration = TextDecoration.Underline),
+            link = SpanStyle(color = Ocean.champagneMid, textDecoration = TextDecoration.Underline),
             onLink = { open(it) },
         )
     }
-    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        ConciergeMark(diameter = 22.dp, modifier = Modifier.padding(top = 2.dp), glintsOnArrival = isNewest)
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    val bubble = RoundedCornerShape(topStart = 6.dp, topEnd = 22.dp, bottomEnd = 22.dp, bottomStart = 22.dp)
+    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        ConciergeMark(diameter = 28.dp, modifier = Modifier.padding(top = 2.dp), glintsOnArrival = isNewest)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SelectionContainer {
-                Text(text, Modifier.testTag("concierge.reply"), color = Theme.ink, style = AppFont.body)
+                Text(
+                    text,
+                    Modifier
+                        .clip(bubble)
+                        .background(Ocean.glass)
+                        .border(1.dp, Ocean.glassEdge, bubble)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .testTag("concierge.reply"),
+                    color = Ocean.pearl,
+                    style = AppFont.body,
+                )
             }
             // Real catalogue rows first, then the sections they belong to.
             entry.listings.forEach { listing -> ListingRow(listing) { open(listing.href) } }
@@ -423,23 +433,23 @@ private fun CardView(card: ConciergeCard, onClick: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(GoldWash)
-            .border(1.dp, Theme.goldLine, shape)
+            .background(Ocean.glass)
+            .border(1.dp, Ocean.glassEdge, shape)
             .pressable(onClick = onClick)
             .padding(18.dp)
             .testTag("concierge.card"),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(card.title, color = Theme.ink, style = AppFont.cardTitle)
-        card.summary?.let { Text(it, color = Theme.soft, style = AppFont.detail) }
+        Text(card.title, color = Ocean.pearl, style = AppFont.cardTitle)
+        card.summary?.let { Text(it, color = Ocean.pearl.copy(alpha = 0.72f), style = AppFont.detail) }
         Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Eyebrow(card.cta ?: stringResource(R.string.concierge_open), color = Theme.goldButton)
+            Eyebrow(card.cta ?: stringResource(R.string.concierge_open), color = Ocean.champagneMid)
             Spacer(Modifier.width(8.dp))
             Icon(
                 painter = painterResource(R.drawable.ic_arrow_forward),
                 contentDescription = null,
-                modifier = Modifier.size(14.dp),
-                tint = Theme.goldButton,
+                modifier = Modifier.size(14.dp).painted(Ocean.champagne),
+                tint = Color.White,
             )
         }
     }
@@ -456,8 +466,8 @@ private fun ListingRow(listing: ConciergeListing, onClick: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(GoldWash)
-            .border(1.dp, Theme.goldLine, shape)
+            .background(Ocean.glassDark)
+            .border(1.dp, Ocean.glassEdge, shape)
             .pressable(onClick = onClick)
             .padding(10.dp)
             .testTag("concierge.listing"),
@@ -470,21 +480,21 @@ private fun ListingRow(listing: ConciergeListing, onClick: () -> Unit) {
                 contentDescription = null,
                 modifier = Modifier
                     .size(width = 80.dp, height = 64.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Theme.rule.copy(alpha = 0.5f)),
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Ocean.night),
                 contentScale = ContentScale.Crop,
             )
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            listing.label?.let { Eyebrow(it, color = Theme.goldText) }
-            Text(listing.title, color = Theme.ink, style = AppFont.rowTitle)
-            listing.price?.let { Text(it, color = Theme.goldButton, style = AppFont.detailMedium) }
+            listing.label?.let { Eyebrow(it, color = Ocean.aqua) }
+            Text(listing.title, color = Ocean.pearl, style = AppFont.rowTitle)
+            listing.price?.let { Text(it, style = AppFont.detailMedium.copy(brush = Ocean.champagne)) }
         }
         Icon(
             painter = painterResource(R.drawable.ic_arrow_forward),
             contentDescription = null,
-            modifier = Modifier.size(14.dp),
-            tint = Theme.goldButton,
+            modifier = Modifier.size(14.dp).painted(Ocean.champagne),
+            tint = Color.White,
         )
     }
 }
@@ -496,11 +506,10 @@ internal fun Chip(label: String, onClick: () -> Unit) {
         text = label,
         modifier = Modifier
             .clip(CircleShape)
-            .border(1.dp, Theme.rule, CircleShape)
+            .border(1.dp, Ocean.champagne, CircleShape)
             .pressable(onClick = onClick)
             .padding(horizontal = 15.dp, vertical = 9.dp),
-        color = Theme.ink,
-        style = AppFont.detailMedium,
+        style = AppFont.detailMedium.copy(brush = Ocean.champagne),
     )
 }
 
@@ -511,8 +520,8 @@ private fun FailedRow(onRetry: () -> Unit, modifier: Modifier) {
         modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(Theme.card)
-            .border(1.dp, Theme.rule, shape)
+            .background(Ocean.glass)
+            .border(1.dp, Ocean.glassEdge, shape)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -521,9 +530,9 @@ private fun FailedRow(onRetry: () -> Unit, modifier: Modifier) {
             painter = painterResource(R.drawable.ic_warning),
             contentDescription = null,
             modifier = Modifier.size(20.dp),
-            tint = Theme.soft,
+            tint = Ocean.aqua,
         )
-        Text(stringResource(R.string.error_generic), Modifier.weight(1f), color = Theme.soft, style = AppFont.detail)
+        Text(stringResource(R.string.error_generic), Modifier.weight(1f), color = Ocean.pearl.copy(alpha = 0.8f), style = AppFont.detail)
         RetryAction(onRetry)
     }
 }
@@ -536,7 +545,7 @@ private fun RetryAction(onRetry: () -> Unit) {
             .pressable(onClick = onRetry)
             .padding(vertical = 4.dp)
             .testTag("concierge.retry"),
-        color = Theme.goldButton,
+        color = Ocean.champagneMid,
         style = AppFont.detailMedium,
     )
 }
@@ -570,7 +579,7 @@ private fun ReportAction(status: ReportStatus, onReport: (String) -> Unit) {
         Text(
             stringResource(R.string.report_sent),
             Modifier.testTag("concierge.reported"),
-            color = Theme.soft,
+            color = Ocean.pearl.copy(alpha = 0.6f),
             style = AppFont.detail,
         )
     } else {
@@ -580,7 +589,7 @@ private fun ReportAction(status: ReportStatus, onReport: (String) -> Unit) {
                 .pressable(role = Role.Button) { asking = true }
                 .padding(vertical = 4.dp)
                 .testTag("concierge.report"),
-            color = Theme.soft,
+            color = Ocean.pearl.copy(alpha = 0.6f),
             style = AppFont.detail,
         )
     }
@@ -692,13 +701,8 @@ private fun Composer(
     val placeholder = stringResource(R.string.concierge_placeholder)
     var focused by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(24.dp)
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .background(Ocean.night),
-    ) {
+    Column(Modifier.fillMaxWidth()) {
         val voice = rememberDictation(draft, dictationLanguage, onDraft, readingReply)
-        Hairline()
         // Where the conversation can go next, from the latest answer.
         if (suggestions.isNotEmpty()) {
             Row(
@@ -729,8 +733,8 @@ private fun Composer(
                     .onFocusChanged { focused = it.isFocused }
                     .semantics { contentDescription = placeholder }
                     .testTag("concierge.input"),
-                textStyle = AppFont.body.copy(color = Theme.ink),
-                cursorBrush = SolidColor(Theme.goldButton),
+                textStyle = AppFont.body.copy(color = Ocean.pearl),
+                cursorBrush = SolidColor(Ocean.aqua),
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
                     imeAction = ImeAction.Send,
@@ -746,12 +750,12 @@ private fun Composer(
                     Box(
                         Modifier
                             .clip(shape)
-                            .background(Theme.card)
-                            .border(1.dp, if (focused) Theme.goldButton else Theme.goldLine, shape)
+                            .background(Ocean.glassField)
+                            .border(1.dp, if (focused) Ocean.champagne else Ocean.glassEdge, shape)
                             .padding(horizontal = 18.dp, vertical = 12.dp),
                         contentAlignment = Alignment.CenterStart,
                     ) {
-                        if (draft.isEmpty()) Text(placeholder, color = Theme.soft, style = AppFont.body, maxLines = 1)
+                        if (draft.isEmpty()) Text(placeholder, color = Ocean.pearl.copy(alpha = 0.55f), style = AppFont.body, maxLines = 1)
                         field()
                     }
                 },
@@ -765,21 +769,27 @@ private fun Composer(
     }
 }
 
+/** "Ask": a circle of the sunset with an arrow, a little glass while there is nothing to send. */
 @Composable
 private fun SendButton(enabled: Boolean, onClick: () -> Unit) {
     val label = stringResource(R.string.concierge_send)
     Box(
         Modifier
-            .heightIn(min = 46.dp)
+            .size(46.dp)
             .clip(CircleShape)
-            .background(if (enabled) Theme.goldButton else Theme.card)
-            .border(1.dp, if (enabled) Theme.goldButton else Theme.goldLine, CircleShape)
+            .background(if (enabled) Ocean.sunset else SolidColor(Ocean.glassDark))
+            .then(if (enabled) Modifier else Modifier.border(1.dp, Ocean.glassEdge, CircleShape))
             .pressable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 12.dp)
+            .semantics { contentDescription = label }
             .testTag("concierge.send"),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = if (enabled) Theme.goldInk else Theme.soft, style = AppFont.bodyMedium, maxLines = 1)
+        Icon(
+            painter = painterResource(R.drawable.ic_arrow_up),
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = if (enabled) Color.White else Ocean.pearl.copy(alpha = 0.4f),
+        )
     }
 }
 

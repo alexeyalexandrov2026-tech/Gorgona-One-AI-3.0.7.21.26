@@ -35,6 +35,9 @@ object Ocean {
     val champagneMid = Color(0xFFE6C88E)
     val champagneInk = Color(0xFF1B1404)
 
+    /** Champagne running into aqua: the icon in a field of glass. */
+    val champagneAqua = Brush.linearGradient(listOf(Color(0xFFF6E4B8), Color(0xFFBFE6DC), aqua))
+
     /** The edge of frosted glass: pearl, a breath of aqua, champagne. */
     val glassEdge = Brush.linearGradient(
         listOf(Color.White.copy(alpha = 0.45f), aqua.copy(alpha = 0.12f), champagneMid.copy(alpha = 0.55f)),
@@ -48,6 +51,12 @@ object Ocean {
 
     /** An icon's circle when it is not chosen: a little white glass. */
     val idle = Color.White.copy(alpha = 0.14f)
+
+    /** Dark glass for a small circle or tile laid over a photo or the sea. */
+    val glassDark = Color(0x66011A22)
+
+    /** Dark glass for a field or a bar that text is typed or read on. */
+    val glassField = Color(0xB3011A22)
 
     /** What is laid over the sea so that text stays legible on it. */
     val veil = Brush.verticalGradient(listOf(Color(0xD901212C), Color(0xA601212C), Color(0xE6010F16)))

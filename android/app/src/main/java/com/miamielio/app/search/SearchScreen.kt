@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.miamielio.app.R
@@ -64,14 +66,15 @@ import com.miamielio.app.core.FavoriteRef
 import com.miamielio.app.core.SearchResult
 import com.miamielio.app.favorites.FavoriteHeart
 import com.miamielio.app.favorites.FavoritesStore
-import com.miamielio.app.ui.oceanBackground
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.Eyebrow
-import com.miamielio.app.ui.Hairline
 import com.miamielio.app.ui.MenuButton
+import com.miamielio.app.ui.Ocean
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.ui.arrives
+import com.miamielio.app.ui.oceanBackground
+import com.miamielio.app.ui.painted
 import com.miamielio.app.ui.pressable
 import com.miamielio.app.ui.rememberKeyboardDismissal
 import kotlin.math.min
@@ -184,7 +187,7 @@ internal fun SearchScreen(
 private fun SearchField(query: String, onQuery: (String) -> Unit, onSearch: () -> Unit, onCancel: () -> Unit) {
     val placeholder = stringResource(R.string.tab_search)
     var focused by remember { mutableStateOf(false) }
-    val shape = RoundedCornerShape(14.dp)
+    val shape = RoundedCornerShape(50)
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         BasicTextField(
             value = query,
@@ -194,8 +197,8 @@ private fun SearchField(query: String, onQuery: (String) -> Unit, onSearch: () -
                 .onFocusChanged { focused = it.isFocused }
                 .semantics { contentDescription = placeholder }
                 .testTag("search.input"),
-            textStyle = AppFont.body.copy(color = Theme.ink),
-            cursorBrush = SolidColor(Theme.accent),
+            textStyle = AppFont.body.copy(color = Ocean.pearl),
+            cursorBrush = SolidColor(Ocean.aqua),
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.None,
@@ -207,21 +210,21 @@ private fun SearchField(query: String, onQuery: (String) -> Unit, onSearch: () -
                 Row(
                     Modifier
                         .clip(shape)
-                        .background(Theme.card)
-                        .border(1.dp, if (focused) Theme.accent.copy(alpha = 0.6f) else Theme.rule, shape)
-                        .heightIn(min = 46.dp)
-                        .padding(horizontal = 14.dp),
+                        .background(Ocean.glassDark)
+                        .border(1.dp, if (focused) Ocean.champagne else Ocean.glassEdge, shape)
+                        .heightIn(min = 48.dp)
+                        .padding(horizontal = 18.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_tab_search),
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = Theme.soft,
+                        modifier = Modifier.size(20.dp).painted(Ocean.champagneAqua),
+                        tint = Color.White,
                     )
-                    Spacer(Modifier.width(10.dp))
+                    Spacer(Modifier.width(12.dp))
                     Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-                        if (query.isEmpty()) Text(placeholder, color = Theme.soft, style = AppFont.body, maxLines = 1)
+                        if (query.isEmpty()) Text(placeholder, color = Ocean.pearl.copy(alpha = 0.55f), style = AppFont.body, maxLines = 1)
                         field()
                     }
                 }
@@ -235,7 +238,7 @@ private fun SearchField(query: String, onQuery: (String) -> Unit, onSearch: () -
                     .pressable(onClick = onCancel)
                     .padding(vertical = 8.dp)
                     .testTag("search.cancel"),
-                color = Theme.accent,
+                color = Ocean.champagneMid,
                 style = AppFont.detailMedium,
             )
         }
@@ -332,6 +335,7 @@ private fun WorldTile(world: World, format: TileFormat, open: (String) -> Unit, 
 
 // region Results
 
+/** One result as a card of frosted glass: the photo, the name, where it is, and the price in champagne. */
 @Composable
 private fun ResultRow(
     result: SearchResult,
@@ -342,43 +346,63 @@ private fun ResultRow(
     toggleFavorite: (FavoriteRef) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier.fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .pressable(onClick = onClick)
-                    .padding(top = 14.dp, bottom = 14.dp, end = if (favorite != null) 4.dp else 0.dp)
-                    .testTag("search.result"),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(if (favorite != null) 12.dp else 16.dp),
+    val shape = RoundedCornerShape(24.dp)
+    Box(
+        modifier
+            .padding(bottom = 14.dp)
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Ocean.glass)
+            .border(1.dp, Ocean.glassEdge, shape),
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .pressable(onClick = onClick)
+                .testTag("search.result"),
+        ) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .background(Ocean.night),
             ) {
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(width = 92.dp, height = 76.dp)
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Theme.card),
+                    modifier = Modifier.matchParentSize(),
                     contentScale = ContentScale.Crop,
                 )
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text(result.title, color = Theme.ink, style = AppFont.rowTitle, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    if (result.detailLine.isNotEmpty()) {
-                        Text(result.detailLine, color = Theme.soft, style = AppFont.detail, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    }
-                    result.price?.let { Text(it, color = Theme.accent, style = AppFont.detailMedium) }
-                }
-                Icon(
-                    painter = painterResource(R.drawable.ic_arrow_forward),
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = Theme.soft,
+                // The foot of the photo sinks into the glass below it.
+                Box(
+                    Modifier
+                        .matchParentSize()
+                        .background(Brush.verticalGradient(0.5f to Color.Transparent, 1f to Color(0xCC011A22))),
                 )
             }
-            if (favorite != null) FavoriteHeart(saved = favorite.key in savedKeys, onToggle = { toggleFavorite(favorite) })
+            Column(
+                Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(result.title, color = Ocean.pearl, style = AppFont.cardTitle, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                if (result.detailLine.isNotEmpty()) {
+                    Text(result.detailLine, color = Ocean.aqua, style = AppFont.detail, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                }
+                result.price?.let {
+                    Text(it, Modifier.padding(top = 3.dp), style = AppFont.button.copy(fontSize = 15.sp, brush = Ocean.champagne))
+                }
+            }
         }
-        Hairline()
+        if (favorite != null) {
+            FavoriteHeart(
+                saved = favorite.key in savedKeys,
+                onToggle = { toggleFavorite(favorite) },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(6.dp),
+                glass = true,
+            )
+        }
     }
 }
 
@@ -396,7 +420,7 @@ private fun Loading() {
                 .size(28.dp)
                 .semantics { contentDescription = loading }
                 .testTag("search.loading"),
-            color = Theme.soft,
+            color = Ocean.aqua,
             strokeWidth = 2.dp,
         )
     }
@@ -413,15 +437,15 @@ private fun Message(@DrawableRes icon: Int, text: String, detail: String? = null
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(36.dp), tint = Theme.soft)
+        Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(36.dp), tint = Ocean.aqua)
         Text(
             text,
             Modifier.semantics { heading() },
-            color = if (detail != null) Theme.ink else Theme.soft,
+            color = if (detail != null) Ocean.pearl else Ocean.pearl.copy(alpha = 0.75f),
             style = if (detail != null) AppFont.cardTitle else AppFont.body,
             textAlign = TextAlign.Center,
         )
-        detail?.let { Text(it, color = Theme.soft, style = AppFont.detail, textAlign = TextAlign.Center) }
+        detail?.let { Text(it, color = Ocean.pearl.copy(alpha = 0.75f), style = AppFont.detail, textAlign = TextAlign.Center) }
         onRetry?.let {
             Text(
                 text = stringResource(R.string.action_retry),
@@ -429,7 +453,7 @@ private fun Message(@DrawableRes icon: Int, text: String, detail: String? = null
                     .pressable(onClick = it)
                     .padding(8.dp)
                     .testTag("search.retry"),
-                color = Theme.accent,
+                color = Ocean.champagneMid,
                 style = AppFont.button,
             )
         }
