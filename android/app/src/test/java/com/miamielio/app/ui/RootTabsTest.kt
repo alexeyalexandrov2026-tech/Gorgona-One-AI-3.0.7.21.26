@@ -194,6 +194,14 @@ class TabsSnapshotTest {
     val compose = createAndroidComposeRule<MainActivity>()
 
     @Test
+    fun theTodayTabAndTheBar() {
+        compose.mainClock.advanceTimeBy(4_000)
+        compose.onNodeWithTag("tab.Today").assertIsSelected()
+        compose.mainClock.advanceTimeBy(2_000)
+        save(compose.onRoot().captureToImage().asAndroidBitmap(), "tabs-today.png")
+    }
+
+    @Test
     fun theConciergeTabAndTheBar() {
         compose.mainClock.advanceTimeBy(4_000)
         compose.onNodeWithTag("tab.Concierge").performClick()
