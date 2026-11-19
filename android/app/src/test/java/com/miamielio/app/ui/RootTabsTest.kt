@@ -47,18 +47,48 @@ class RootTabsTest {
     }
 
     @Test
-    fun theSplashGivesWayToTheFourTabs() {
+    fun theSplashNoLongerWaitsForTheSite() {
         compose.onNodeWithTag("splash").assertExists()
+        // The site underneath never finishes loading in this test.
+        compose.mainClock.advanceTimeBy(1_300)
+        compose.onNodeWithTag("splash").assertDoesNotExist()
+    }
+
+    @Test
+    fun theMenuHasFiveSlotsWithTheOrbInTheMiddle() {
         pastTheSplash()
 
-        compose.onNodeWithTag("tab.Explore").assertIsSelected()
-        for (tab in listOf(AppTab.Concierge, AppTab.Search, AppTab.Account)) {
-            compose.onNodeWithTag("tab.${tab.name}").assertIsNotSelected()
-        }
-        // Each tab is read by its name.
-        for (label in listOf("Home", "Concierge", "Search", "My Miami")) {
+        compose.onNodeWithTag("tab.Today").assertIsSelected()
+        val order = listOf(AppTab.Today, AppTab.Catalog, AppTab.Concierge, AppTab.Events, AppTab.Account)
+        val bounds = order.map { compose.onNodeWithTag("tab.${it.name}").fetchSemanticsNode().boundsInRoot }
+        assertEquals(bounds.sortedBy { it.left }, bounds)
+        for (tab in order.drop(1)) compose.onNodeWithTag("tab.${tab.name}").assertIsNotSelected()
+        // The orb is lifted above the bar.
+        val orb = compose.onNodeWithTag("tab.orb", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        assertTrue(orb.top < bounds[0].top)
+        for (label in listOf("Today", "Catalog", "AI", "Events", "Profile")) {
             compose.onNodeWithText(label).assertExists()
         }
+    }
+
+    @Test
+    fun backClosesTheLayerBeforeTheTab() {
+        pastTheSplash()
+
+        compose.onNodeWithTag("tab.Events").performClick()
+        compose.runOnUiThread { services.router.open("/yachts") }
+        compose.mainClock.advanceTimeBy(500)
+        compose.onNodeWithTag("web.layer").assertExists()
+        compose.onNodeWithTag("tab.Events").assertIsSelected()
+
+        compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
+        compose.mainClock.advanceTimeBy(500)
+        compose.onNodeWithTag("web.layer").assertDoesNotExist()
+        compose.onNodeWithTag("tab.Events").assertIsSelected()
+
+        compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
+        compose.mainClock.advanceTimeBy(500)
+        compose.onNodeWithTag("tab.Today").assertIsSelected()
     }
 
     @Test
@@ -91,7 +121,7 @@ class RootTabsTest {
 
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
         compose.mainClock.advanceTimeBy(500)
-        compose.onNodeWithTag("tab.Explore").assertIsSelected()
+        compose.onNodeWithTag("tab.Today").assertIsSelected()
     }
 
     @Test
@@ -100,11 +130,12 @@ class RootTabsTest {
 
         compose.runOnUiThread { services.router.handle("miamielio://search") }
         compose.mainClock.advanceTimeBy(500)
-        compose.onNodeWithTag("tab.Search").assertIsSelected()
+        compose.onNodeWithTag("tab.Catalog").assertIsSelected()
 
         compose.runOnUiThread { services.router.handle("miamielio://open?path=/yachts") }
         compose.mainClock.advanceTimeBy(500)
-        compose.onNodeWithTag("tab.Explore").assertIsSelected()
+        compose.onNodeWithTag("tab.Catalog").assertIsSelected()
+        compose.onNodeWithTag("web.layer").assertExists()
         assertEquals(BuildConfig.BASE_URL + "/yachts", shadowOf(services.explore.webView).lastLoadedUrl)
     }
 }

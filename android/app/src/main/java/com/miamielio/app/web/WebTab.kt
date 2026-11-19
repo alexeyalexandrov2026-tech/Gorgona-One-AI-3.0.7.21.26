@@ -43,7 +43,7 @@ import com.miamielio.app.ui.Theme
 
 /** A tab that shows part of the Miami Elio site. */
 @Composable
-fun WebTab(controller: WebTabController, modifier: Modifier = Modifier) {
+fun WebTab(controller: WebTabController, modifier: Modifier = Modifier, padStatusBar: Boolean = true) {
     val state by controller.state.collectAsStateWithLifecycle()
     val failure = state.failure
 
@@ -57,7 +57,7 @@ fun WebTab(controller: WebTabController, modifier: Modifier = Modifier) {
         modifier
             .fillMaxSize()
             .background(Theme.paper)
-            .statusBarsPadding(),
+            .then(if (padStatusBar) Modifier.statusBarsPadding() else Modifier),
     ) {
         AndroidView(
             factory = {

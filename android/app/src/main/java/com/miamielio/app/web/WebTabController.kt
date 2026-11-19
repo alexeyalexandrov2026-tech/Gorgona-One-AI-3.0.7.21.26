@@ -132,8 +132,14 @@ class WebTabController(
     override fun load(url: String) {
         if (destroyed) return
         mutableState.update { it.copy(failure = null) }
+        // A page asked for by the app starts its own history: "back" from it
+        // closes the layer it is shown in rather than returning to whatever
+        // this view had loaded before.
+        forgetHistory = true
         if (started) webView.loadUrl(url) else begin(url)
     }
+
+    private var forgetHistory = false
 
     override fun returnToStart() = load(startUrl)
 
@@ -407,6 +413,10 @@ class WebTabController(
             if (destroyed || view !== webView) return
             settle()
             container.isRefreshing = false
+            if (forgetHistory) {
+                forgetHistory = false
+                view.clearHistory()
+            }
             mutableState.update { it.copy(isLoading = false, canGoBack = view.canGoBack()) }
             readSession { signedIn -> signedInAtLoad = signedIn }
             if (state.value.failure == null && url == view.url && siteOrigin(url) != null) {

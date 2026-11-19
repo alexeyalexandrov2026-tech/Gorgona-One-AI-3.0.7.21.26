@@ -39,6 +39,16 @@ object Theme {
 
     /** The gold of the app icon, for the concierge orb. */
     val gold = Color(0xFFC9A45C)
+
+    // The website's concierge gold (app/design-system.css, AI dock).
+    /** Card and field outlines: rgba(212,175,55,.38). */
+    val goldLine = Color(0x61D4AF37)
+    /** Filled buttons and the selected tab. */
+    val goldButton = Color(0xFFE8C440)
+    /** Text on a gold button. */
+    val goldInk = Color(0xFF1B1404)
+    /** Gold labels and prices. */
+    val goldText = Color(0xFFD4AF37)
     val goldLight = Color(0xFFF3E2B8)
     val goldDeep = Color(0xFF7A5C24)
 }

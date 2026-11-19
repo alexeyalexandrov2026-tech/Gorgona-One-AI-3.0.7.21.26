@@ -57,23 +57,26 @@ import com.miamielio.app.app.AppServices
 import com.miamielio.app.app.AppTab
 import com.miamielio.app.concierge.ConciergeScreen
 import com.miamielio.app.search.SearchScreen
+import com.miamielio.app.web.WebLayer
 import com.miamielio.app.web.WebTab
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.shape.CircleShape
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeoutOrNull
 
 /** The tabs, kept under the splash until the first page has something to show. */
 @Composable
 fun AppRoot(services: AppServices, modifier: Modifier = Modifier) {
     var showsSplash by rememberSaveable { mutableStateOf(true) }
 
+    // The site loads from the start, out of sight: favourites sync through it
+    // and the concierge answers in its language. Nothing on screen waits for it.
+    LaunchedEffect(Unit) { services.explore.activate() }
+
     LaunchedEffect(Unit) {
         if (!showsSplash) return@LaunchedEffect
-        // Long enough to be seen, and then only as long as the first page
-        // needs - with a limit, so a slow connection is never held behind
-        // it. The page goes on loading underneath either way.
+        // Long enough to be seen; Today is drawn from the app itself.
         delay(1_200)
-        withTimeoutOrNull(1_600) { services.explore.state.first { it.hasSettled } }
         showsSplash = false
     }
 
@@ -153,16 +156,17 @@ fun SplashView(modifier: Modifier = Modifier) {
     }
 }
 
-/** The four tabs and the bar that switches between them. */
+/** The five tabs, the site pages shown over them, and the bar that switches between them. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
     val router = services.router
     val tab by router.selectedTab.collectAsStateWithLifecycle()
+    val layer by router.webLayer.collectAsStateWithLifecycle()
 
-    // "Back" on any other tab returns to the first one; there it leaves the
-    // app. A web tab with pages behind it answers first (see WebTab).
-    BackHandler(enabled = tab != AppTab.Explore) { router.show(AppTab.Explore) }
+    // "Back" on any other tab returns to Today; there it leaves the app. A
+    // site page over the tab answers first (see WebLayer).
+    BackHandler(enabled = tab != AppTab.Today && !layer) { router.show(AppTab.Today) }
 
     // The bar makes way for the keyboard, so a page's own field stays in view.
     val typing = WindowInsets.isImeVisible
@@ -179,7 +183,8 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
                 .fillMaxWidth(),
         ) {
             when (tab) {
-                AppTab.Explore -> WebTab(services.explore, Modifier.testTag("content.Explore"))
+                AppTab.Today -> Box(Modifier.fillMaxSize().testTag("content.Today"))
+                AppTab.Events -> Box(Modifier.fillMaxSize().testTag("content.Events"))
                 AppTab.Concierge -> ConciergeScreen(
                     model = services.concierge,
                     favorites = services.favorites,
@@ -187,14 +192,15 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
                     onOpen = router::open,
                     modifier = Modifier.testTag("content.Concierge"),
                 )
-                AppTab.Search -> SearchScreen(
+                AppTab.Catalog -> SearchScreen(
                     model = services.search,
                     favorites = services.favorites,
                     onOpen = router::open,
-                    modifier = Modifier.testTag("content.Search"),
+                    modifier = Modifier.testTag("content.Catalog"),
                 )
                 AppTab.Account -> WebTab(services.account, Modifier.testTag("content.Account"))
             }
+            if (layer) WebLayer(services.explore, onClose = router::closeLayer)
         }
         if (!typing) {
             TabBar(selected = tab, onSelect = router::select)
@@ -225,16 +231,19 @@ fun TabBar(selected: AppTab, onSelect: (AppTab) -> Unit, modifier: Modifier = Mo
 
 @Composable
 private fun TabItem(tab: AppTab, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val colour = if (selected) Theme.accent else Theme.soft
+    val colour = when {
+        tab == AppTab.Concierge -> Theme.goldButton
+        selected -> Theme.goldButton
+        else -> Theme.soft
+    }
     val interactions = remember { MutableInteractionSource() }
-    val label = stringResource(
-        when (tab) {
-            AppTab.Explore -> R.string.tab_home
-            AppTab.Concierge -> R.string.tab_concierge
-            AppTab.Search -> R.string.tab_search
-            AppTab.Account -> R.string.tab_account
-        },
-    )
+    val label = when (tab) {
+        AppTab.Today -> stringResource(R.string.tab_today)
+        AppTab.Catalog -> stringResource(R.string.tab_catalog)
+        AppTab.Concierge -> "AI"
+        AppTab.Events -> stringResource(R.string.tab_events)
+        AppTab.Account -> stringResource(R.string.tab_profile)
+    }
     Column(
         modifier = modifier
             .testTag("tab.${tab.name}")
@@ -252,16 +261,23 @@ private fun TabItem(tab: AppTab, selected: Boolean, onClick: () -> Unit, modifie
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         when (tab) {
-            // The concierge's own orb rather than a symbol: lit on its tab,
-            // muted while another one is showing.
-            AppTab.Concierge -> ConciergeMark(
-                diameter = 22.dp,
-                modifier = Modifier
-                    .padding(1.dp)
-                    .alpha(if (selected) 1f else 0.5f),
-            )
-            AppTab.Explore -> TabIcon(R.drawable.ic_tab_home, colour)
-            AppTab.Search -> TabIcon(R.drawable.ic_tab_search, colour)
+            // The concierge's own orb, larger than the icons and lifted above
+            // the bar, as on the website's AI launcher. It takes an icon's
+            // place in the row; the rest of it overhangs the bar.
+            AppTab.Concierge -> Box(Modifier.size(24.dp), contentAlignment = Alignment.Center) {
+                ConciergeMark(
+                    diameter = 52.dp,
+                    modifier = Modifier
+                        .requiredSize(58.dp)
+                        .offset(y = (-16).dp)
+                        .background(Theme.paper, CircleShape)
+                        .padding(3.dp)
+                        .testTag("tab.orb"),
+                )
+            }
+            AppTab.Today -> TabIcon(R.drawable.ic_tab_home, colour)
+            AppTab.Catalog -> TabIcon(R.drawable.ic_tab_search, colour)
+            AppTab.Events -> TabIcon(R.drawable.ic_tab_events, colour)
             AppTab.Account -> TabIcon(R.drawable.ic_tab_account, colour)
         }
         Text(

@@ -4,11 +4,13 @@ import com.miamielio.app.core.AppConfig
 import com.miamielio.app.core.DeepLink
 import com.miamielio.app.core.RouteDecision
 import com.miamielio.app.core.RoutePolicy
+import com.miamielio.app.core.WebAddress
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-enum class AppTab { Explore, Concierge, Search, Account }
+/** The menu, left to right; the concierge's orb sits in the middle. */
+enum class AppTab { Today, Catalog, Concierge, Events, Account }
 
 /** A tab that shows part of the site, as the router sees it. */
 interface WebPage {
@@ -38,8 +40,18 @@ class AppRouter(
     private val external: ExternalOpener,
     private val onSeason: (String) -> Unit = {},
 ) {
-    private val selected = MutableStateFlow(AppTab.Explore)
+    private val selected = MutableStateFlow(AppTab.Today)
     val selectedTab: StateFlow<AppTab> = selected.asStateFlow()
+
+    private val layer = MutableStateFlow(false)
+
+    /** True while a page of the site is shown over the current tab. */
+    val webLayer: StateFlow<Boolean> = layer.asStateFlow()
+
+    /** Puts the site page away; the tab underneath is where the guest left it. */
+    fun closeLayer() {
+        layer.value = false
+    }
 
     init {
         val route: (String, RouteDecision) -> Unit = { url, decision -> follow(url, decision) }
@@ -49,18 +61,14 @@ class AppRouter(
 
     /** Tab bar taps. Tapping the tab you are already on takes it back to its start. */
     fun select(tab: AppTab) {
-        if (tab == selected.value) {
-            when (tab) {
-                AppTab.Explore -> explore.returnToStart()
-                AppTab.Account -> account.returnToStart()
-                AppTab.Concierge, AppTab.Search -> Unit
-            }
-        }
+        if (tab == selected.value && !layer.value && tab == AppTab.Account) account.returnToStart()
+        layer.value = false
         selected.value = tab
     }
 
     /** Brings a tab forward without the "tap again to go home" meaning of [select]. */
     fun show(tab: AppTab) {
+        layer.value = false
         selected.value = tab
     }
 
@@ -78,7 +86,7 @@ class AppRouter(
                 show(AppTab.Concierge)
                 onSeason(link.eventId)
             }
-            DeepLink.Search -> show(AppTab.Search)
+            DeepLink.Search -> show(AppTab.Catalog)
             DeepLink.Account -> show(AppTab.Account)
             is DeepLink.Open -> open(link.path)
             null -> Unit
@@ -88,12 +96,27 @@ class AppRouter(
     private fun follow(url: String, decision: RouteDecision) {
         when (decision) {
             RouteDecision.Web -> {
-                explore.load(url)
-                show(AppTab.Explore)
+                val tab = ownTab(url)
+                if (tab != null) {
+                    show(tab)
+                } else {
+                    explore.load(url)
+                    layer.value = true
+                }
             }
             RouteDecision.Browser -> external.openBrowser(url)
             RouteDecision.System, RouteDecision.Restricted -> external.openSystem(url)
             RouteDecision.Ignored -> Unit
+        }
+    }
+
+    /** Site pages the app shows in a tab of its own rather than over one. */
+    private fun ownTab(url: String): AppTab? {
+        val path = WebAddress.parse(url)?.path?.lowercase()?.trimEnd('/') ?: return null
+        return when (path) {
+            "/profile" -> AppTab.Account
+            "/search" -> AppTab.Catalog
+            else -> null
         }
     }
 }

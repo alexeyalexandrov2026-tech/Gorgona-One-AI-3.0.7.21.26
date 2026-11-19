@@ -114,19 +114,20 @@ class JourneysTest {
     }
 
     @Test
-    fun aSearchResultOpensItsPageInTheHomeTab() {
+    fun aSearchResultOpensItsPageOverTheCatalog() {
         val config = AppConfig.production
         val explore = Page()
         val outside = Outside()
         val router = AppRouter(config, RoutePolicy(config), explore, Page(), outside)
-        router.select(AppTab.Search)
+        router.select(AppTab.Catalog)
         search.reply(YACHTS)
         searchScreen(onOpen = router::open)
 
         find("yacht")
         compose.onNodeWithText("Sunseeker 76").performClick()
 
-        assertEquals(AppTab.Explore, router.selectedTab.value)
+        assertEquals(AppTab.Catalog, router.selectedTab.value)
+        assertTrue(router.webLayer.value)
         assertEquals(listOf("https://gorgona-one.com/yachts/sunseeker-76"), explore.loaded)
         assertTrue(outside.opened.isEmpty())
     }
