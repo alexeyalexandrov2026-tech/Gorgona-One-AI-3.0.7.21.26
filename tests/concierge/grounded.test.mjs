@@ -29,3 +29,9 @@ test('provider wrappers contain no public prose and unsupported questions retain
  const want=groundedReply(encode(['/yachts'],'handoff'),{messages:[{role:'user',content:'I want a yacht this weekend'}],locale:'en'});assert.doesNotMatch(want.reply,/does not create or confirm/);assert.match(want.reply,/water|charter/i);
  const clarify=groundedReply(encode([],'clarify'),input);assert.ok(clarify.reply);assert.notEqual(clarify.reply,handoff.reply);
 });
+
+test('a yacht consultation cannot drop a second explicitly requested service',()=>{
+ const raw=JSON.stringify({version:2,action:'consult',options:['bay-cruise','longer-charter'],question:null});
+ const result=groundedReply(raw,{messages:[{role:'user',content:'Нужна яхта и машина в Майами.'}],locale:'ru'});
+ assert.deepEqual(result?.navigation.cards.map(card=>card.href),['/yachts','/rentals']);
+});
