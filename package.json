@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "postinstall": "node scripts/build/patch-next-font.mjs",
     "prebuild": "npm run i18n:check",
     "dev": "concurrently \"next dev\" \"cd ai-router && npm install && set PORT=20128&& npm run dev\"",
     "build": "NEXT_PRIVATE_STANDALONE=true next build && node scripts/i18n/build-worker.mjs && cd ai-router && npm install && npm run build",
