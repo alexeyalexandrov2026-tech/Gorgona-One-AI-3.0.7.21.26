@@ -10,5 +10,13 @@ for(const c of cases)test('Discovery primary '+c.locale+' '+c.query,()=>{const f
 test('retired brand destinations are absent from Discovery',()=>{assert.ok(getEcosystemIndex().every(e=>!e.href.startsWith('/brands/')&&!e.href.startsWith('/stores')));});
 for(const [query,root] of [['private jet charter','/private-jets'],['частный самолёт','/private-jets'],['nightclub bottle service','/restaurants-nightlife'],['游艇','/yachts'],['хочу яхту','/yachts'],['waterfront restaurant','/restaurants-nightlife']])test('Discovery intent '+query,()=>{const results=searchEcosystem(query).results;assert.ok(results.length);assert.ok(results[0].href.startsWith(root),results[0].href);});
 test('a named venue links directly to its canonical detail',()=>{assert.equal(searchEcosystem('Komodo').results[0]?.href,'/restaurants-nightlife/komodo-miami');});
-test('named venues and yacht models are not excluded by a generic city match',()=>{for(const [query,root] of [['Komodo Miami','/restaurants-nightlife/komodo-miami'],['LIV Miami','/restaurants-nightlife/'],['E11EVEN Miami','/restaurants-nightlife/']])assert.ok(searchEcosystem(query).results[0]?.href.startsWith(root),query);for(const venue of getEcosystemIndex().filter(item=>['Restaurant','Nightlife'].includes(item.type)))assert.equal(searchEcosystem(venue.title+' Miami').results[0]?.href,venue.href,venue.title);const yacht=getEcosystemIndex().find(item=>item.type==='Yacht');assert.equal(searchEcosystem(yacht.title+' Miami').results[0]?.href,yacht.href);});
+test('named venues are not excluded by a generic city match',()=>{for(const [query,root] of [['Komodo Miami','/restaurants-nightlife/komodo-miami'],['LIV Miami','/restaurants-nightlife/'],['E11EVEN Miami','/restaurants-nightlife/']])assert.ok(searchEcosystem(query).results[0]?.href.startsWith(root),query);for(const venue of getEcosystemIndex().filter(item=>['Restaurant','Nightlife'].includes(item.type)))assert.equal(searchEcosystem(venue.title+' Miami').results[0]?.href,venue.href,venue.title);});
 test('mixed requests retain a destination for each requested product',()=>{for(const [query,roots] of [['I need a yacht and a car',['/yachts','/rentals']],['A restaurant and a private jet',['/restaurants-nightlife','/private-jets']]]){const results=searchEcosystem(query).results;for(const root of roots)assert.ok(results.some(item=>item.href===root||item.href.startsWith(root+'/')),query+' missing '+root);assert.equal(new Set(results.map(item=>item.href)).size,results.length);}});
+
+test('yacht advice and discovery point only to YATR through the yachts section',()=>{
+ const {catalogueAnswer}=load('lib/ai/catalogueAnswer.mjs');
+ assert.ok(getEcosystemIndex().every(item=>!item.href.startsWith('/yachts/')));
+ const y=catalogueAnswer([{role:'user',content:'A crewed yacht for four guests in Miami'}],'en');
+ assert.equal(y.navigation.cards[0]?.href,'/yachts');
+ assert.ok(y.listings.every(item=>!item.href.startsWith('/yachts/')));
+});

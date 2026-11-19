@@ -9,7 +9,6 @@ import { SAVED_MESSAGES, savedMessage, savedSource } from '../../lib/savedCopy.j
 import { getTranslation } from '../../lib/i18n.js';
 import { appFiles, messageId } from '../../scripts/i18n/catalogue.mjs';
 import { getRentals } from '../../lib/rentalsData.js';
-import { getYachts } from '../../lib/yachtsData.js';
 import { getVacationRentals } from '../../lib/vacationRentalsData.js';
 import { getExperiences } from '../../lib/experiencesData.js';
 import { getVenues } from '../../lib/restaurantsNightlifeData.js';
@@ -278,7 +277,7 @@ for (const [name, viewport] of [
     const selected=document.cookie.match(/(?:^|; )gorgona-locale=([^;]*)/)?.[1]||'en';
     localStorage.setItem('gorgona-locale',decodeURIComponent(selected));
   });
-  const samples={'/rentals/[slug]':'/rentals/'+getRentals()[0].slug,'/yachts/[slug]':'/yachts/'+getYachts()[0].slug,'/vacation-rentals/[slug]':'/vacation-rentals/'+getVacationRentals()[0].slug,'/experiences/[slug]':'/experiences/'+getExperiences()[0].slug,'/restaurants-nightlife/[slug]':'/restaurants-nightlife/'+getVenues()[0].slug,'/sportsbook/[slug]':'/sportsbook/hard-rock-bet','/events/category/[category]':'/events/category/nba','/events/league/[league]':'/events/league/nba','/events/[slug]':'/events/i18n-no-published-event'};
+  const samples={'/rentals/[slug]':'/rentals/'+getRentals()[0].slug,'/yachts/[slug]':'/yachts/retired-listing','/vacation-rentals/[slug]':'/vacation-rentals/'+getVacationRentals()[0].slug,'/experiences/[slug]':'/experiences/'+getExperiences()[0].slug,'/restaurants-nightlife/[slug]':'/restaurants-nightlife/'+getVenues()[0].slug,'/sportsbook/[slug]':'/sportsbook/hard-rock-bet','/events/category/[category]':'/events/category/nba','/events/league/[league]':'/events/league/nba','/events/[slug]':'/events/i18n-no-published-event'};
   const matrix=[], failures=[];
   const normalize=text=>text.replace(/\s+/g,' ').trim();
   const prose=Object.values(SAVED_MESSAGES.en).filter(text=>
