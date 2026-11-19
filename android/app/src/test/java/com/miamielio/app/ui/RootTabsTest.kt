@@ -75,6 +75,19 @@ class RootTabsTest {
     }
 
     @Test
+    fun theOrbLeavesTheTabContentUncovered() {
+        pastTheSplash()
+
+        // The concierge's field sits at the bottom of its tab, right above the
+        // orb; the orb must not hide any of it.
+        compose.onNodeWithTag("tab.Concierge").performClick()
+        compose.mainClock.advanceTimeBy(500)
+        val content = compose.onNodeWithTag("content.Concierge").fetchSemanticsNode().boundsInRoot
+        val orb = compose.onNodeWithTag("tab.orb", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        assertTrue("orb top ${orb.top} above content bottom ${content.bottom}", orb.top >= content.bottom)
+    }
+
+    @Test
     fun backClosesTheLayerBeforeTheTab() {
         pastTheSplash()
 

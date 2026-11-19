@@ -182,7 +182,10 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
         Box(
             Modifier
                 .weight(1f)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                // Room for the orb that rises out of the bar, so it never sits
+                // on a tab's own field or button.
+                .padding(bottom = if (typing) 0.dp else OrbOverhang),
         ) {
             when (tab) {
                 AppTab.Today -> TodayScreen(
@@ -220,6 +223,9 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
         }
     }
 }
+
+/** How far the orb rises above the bar's top edge (see [TabItem]). */
+private val OrbOverhang = 24.dp
 
 @Composable
 fun TabBar(selected: AppTab, onSelect: (AppTab) -> Unit, modifier: Modifier = Modifier) {
