@@ -49,6 +49,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -285,6 +286,7 @@ private fun Glass(
             ConciergeMark(diameter = 24.dp)
             Text(
                 label.uppercase(),
+                modifier = Modifier.semantics { heading() },
                 color = Theme.goldText,
                 style = AppFont.eyebrow.copy(fontSize = 13.sp, letterSpacing = 2.6.sp, fontWeight = FontWeight.Medium),
                 maxLines = 2,

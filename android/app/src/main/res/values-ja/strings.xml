@@ -9,7 +9,6 @@
     <string name="concierge_live_manager" formatted="false">Telegramで担当マネージャーに連絡</string>
     <string name="concierge_manager" formatted="false">マネージャー</string>
     <string name="concierge_new" formatted="false">新しい会話</string>
-    <string name="concierge_online" formatted="false">コンシェルジュ オンライン</string>
     <string name="concierge_open" formatted="false">開く</string>
     <string name="concierge_placeholder" formatted="false">Miami Elio AIに尋ねる</string>
     <string name="concierge_report" formatted="false">この回答を報告</string>

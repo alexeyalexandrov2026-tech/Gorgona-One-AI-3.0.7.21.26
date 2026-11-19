@@ -9,7 +9,6 @@
     <string name="concierge_live_manager" formatted="false">Message a live manager on Telegram</string>
     <string name="concierge_manager" formatted="false">Manager</string>
     <string name="concierge_new" formatted="false">New conversation</string>
-    <string name="concierge_online" formatted="false">concierge online</string>
     <string name="concierge_open" formatted="false">Open</string>
     <string name="concierge_placeholder" formatted="false">Ask Miami Elio AI</string>
     <string name="concierge_report" formatted="false">Report this answer</string>

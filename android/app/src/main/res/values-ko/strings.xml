@@ -9,7 +9,6 @@
     <string name="concierge_live_manager" formatted="false">텔레그램으로 담당 매니저에게 문의</string>
     <string name="concierge_manager" formatted="false">매니저</string>
     <string name="concierge_new" formatted="false">새 대화</string>
-    <string name="concierge_online" formatted="false">컨시어지 온라인</string>
     <string name="concierge_open" formatted="false">열기</string>
     <string name="concierge_placeholder" formatted="false">Miami Elio AI에게 묻기</string>
     <string name="concierge_report" formatted="false">이 답변 신고</string>

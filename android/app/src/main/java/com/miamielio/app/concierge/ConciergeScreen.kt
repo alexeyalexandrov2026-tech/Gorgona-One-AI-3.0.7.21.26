@@ -59,6 +59,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -97,7 +98,6 @@ import com.miamielio.app.ui.pressable
 import com.miamielio.app.ui.rememberKeyboardDismissal
 
 /** The green "online" dot the site shows next to its concierge. */
-private val OnlineGreen = Color(0xFF3CCF8E)
 
 /** Cards: a faint wash of the site's gold over the dark ground. */
 private val GoldWash = Brush.linearGradient(listOf(Color(0x1AD4AF37), Color(0x05FFFFFF)))
@@ -115,9 +115,15 @@ internal fun ConciergeScreen(
     modifier: Modifier = Modifier,
 ) {
     val state by model.state.collectAsStateWithLifecycle()
-    val open by rememberUpdatedState(onOpen)
+    val openPage by rememberUpdatedState(onOpen)
     val list = rememberLazyListState()
     val focus = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
+    val open: (String) -> Unit = { path ->
+        focus.clearFocus()
+        keyboard?.hide()
+        openPage(path)
+    }
     val haptics = LocalHapticFeedback.current
     val reduceMotion = LocalReduceMotion.current
 
@@ -226,13 +232,7 @@ private fun TopBar(canReset: Boolean, onReset: () -> Unit, onManager: () -> Unit
     ) {
         ConciergeMark(diameter = 30.dp)
         Spacer(Modifier.width(10.dp))
-        Column(Modifier.weight(1f)) {
-            Text("Miami Elio AI", color = Theme.ink, style = AppFont.bodyMedium, maxLines = 1)
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Box(Modifier.size(7.dp).clip(CircleShape).background(OnlineGreen))
-                Text(stringResource(R.string.concierge_online), color = Theme.soft, style = AppFont.detail, maxLines = 1)
-            }
-        }
+        Text("Miami Elio AI", Modifier.weight(1f), color = Theme.ink, style = AppFont.bodyMedium, maxLines = 1)
         Row(
             Modifier
                 .clip(CircleShape)
@@ -333,7 +333,7 @@ private fun EntryRow(
 ) {
     when (entry.kind) {
         ConciergeEntry.Kind.Guest -> GuestRow(entry.text, modifier)
-        ConciergeEntry.Kind.Concierge -> ReplyRow(entry, isNewest, canReport, onOpen, onReport, modifier)
+        ConciergeEntry.Kind.Concierge -> ReplyRow(entry, isNewest, canReport, onOpen, onRetry, onReport, modifier)
         ConciergeEntry.Kind.Failed -> FailedRow(onRetry, modifier)
     }
 }
@@ -373,6 +373,7 @@ private fun ReplyRow(
     isNewest: Boolean,
     canReport: Boolean,
     onOpen: (String) -> Unit,
+    onRetry: () -> Unit,
     onReport: (String) -> Unit,
     modifier: Modifier,
 ) {
@@ -393,6 +394,7 @@ private fun ReplyRow(
             // Real catalogue rows first, then the sections they belong to.
             entry.listings.forEach { listing -> ListingRow(listing) { open(listing.href) } }
             entry.cards.forEach { card -> CardView(card) { open(card.href) } }
+            if (isNewest && entry.degraded) RetryAction(onRetry)
             if (canReport) ReportAction(entry.report, onReport)
         }
     }
@@ -507,16 +509,21 @@ private fun FailedRow(onRetry: () -> Unit, modifier: Modifier) {
             tint = Theme.soft,
         )
         Text(stringResource(R.string.error_generic), Modifier.weight(1f), color = Theme.soft, style = AppFont.detail)
-        Text(
-            text = stringResource(R.string.action_retry),
-            modifier = Modifier
-                .pressable(onClick = onRetry)
-                .padding(vertical = 4.dp)
-                .testTag("concierge.retry"),
-            color = Theme.goldButton,
-            style = AppFont.detailMedium,
-        )
+        RetryAction(onRetry)
     }
+}
+
+@Composable
+private fun RetryAction(onRetry: () -> Unit) {
+    Text(
+        text = stringResource(R.string.action_retry),
+        modifier = Modifier
+            .pressable(onClick = onRetry)
+            .padding(vertical = 4.dp)
+            .testTag("concierge.retry"),
+        color = Theme.goldButton,
+        style = AppFont.detailMedium,
+    )
 }
 
 /** A reply on its way: the orb turns a light across itself. */

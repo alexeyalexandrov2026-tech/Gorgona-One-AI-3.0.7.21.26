@@ -9,7 +9,6 @@
     <string name="concierge_live_manager" formatted="false">Написать живому менеджеру в Telegram</string>
     <string name="concierge_manager" formatted="false">Менеджер</string>
     <string name="concierge_new" formatted="false">Новый диалог</string>
-    <string name="concierge_online" formatted="false">консьерж онлайн</string>
     <string name="concierge_open" formatted="false">Открыть</string>
     <string name="concierge_placeholder" formatted="false">Спросите Miami Elio AI</string>
     <string name="concierge_report" formatted="false">Пожаловаться на ответ</string>

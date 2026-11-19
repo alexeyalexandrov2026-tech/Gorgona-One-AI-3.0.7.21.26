@@ -40,7 +40,10 @@ data class ConciergeEntry(
     val listings: List<ConciergeListing> = emptyList(),
     /** How far a report on this answer got. */
     val report: ReportStatus = ReportStatus.None,
+    val degraded: Boolean = false,
 ) {
+    val canRetry: Boolean get() = kind == Kind.Failed || degraded
+
     enum class Kind {
         Guest,
         Concierge,
@@ -158,7 +161,7 @@ class ConciergeViewModel(
     /** Asks again after a failure; the guest's message is still in the thread. */
     fun retry() {
         val current = mutableState.value
-        if (current.isSending || current.entries.lastOrNull()?.kind != ConciergeEntry.Kind.Failed) return
+        if (current.isSending || current.entries.lastOrNull()?.canRetry != true) return
         mutableState.update { it.copy(entries = it.entries.dropLast(1)) }
         request()
     }
@@ -296,13 +299,14 @@ class ConciergeViewModel(
         suggestions = reply?.suggestions.orEmpty(),
         cards = reply?.cards.orEmpty(),
         listings = reply?.listings.orEmpty(),
+        degraded = reply?.degraded == true,
     )
 
     private fun request() {
         val history = mutableState.value.entries.mapNotNull { entry ->
             when (entry.kind) {
                 ConciergeEntry.Kind.Guest -> ChatMessage(ChatMessage.Role.User, entry.text)
-                ConciergeEntry.Kind.Concierge -> ChatMessage(ChatMessage.Role.Assistant, entry.text)
+                ConciergeEntry.Kind.Concierge -> if (entry.degraded) null else ChatMessage(ChatMessage.Role.Assistant, entry.text)
                 ConciergeEntry.Kind.Failed -> null
             }
         }
@@ -333,7 +337,7 @@ class ConciergeViewModel(
             mutableState.update { it.copy(isSending = false, entries = it.entries + entry(ConciergeEntry.Kind.Failed, "")) }
             return
         }
-        reply.sessionId?.let { sessionId = it }
+        if (!reply.degraded) reply.sessionId?.let { sessionId = it }
         // A reply without a plan keeps the current one and the guest's edits.
         if (reply.plan != null) planAttempt = null
         mutableState.update { state ->

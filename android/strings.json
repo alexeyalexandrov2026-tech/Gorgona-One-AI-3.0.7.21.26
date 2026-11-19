@@ -582,24 +582,6 @@
       "fr": "Profil",
       "pl": "Profil"
     },
-    "concierge_online": {
-      "en": "concierge online",
-      "ru": "консьерж онлайн",
-      "es": "conserje en línea",
-      "he": "הקונסיירז׳ מחובר",
-      "zh": "礼宾在线",
-      "pt": "concierge online",
-      "uk": "консьєрж онлайн",
-      "ja": "コンシェルジュ オンライン",
-      "ko": "컨시어지 온라인",
-      "de": "Concierge online",
-      "ar": "الكونسيرج متصل",
-      "tr": "konsiyerj çevrimiçi",
-      "fa": "کنسیرژ آنلاین",
-      "it": "concierge online",
-      "fr": "concierge en ligne",
-      "pl": "konsjerż online"
-    },
     "concierge_manager": {
       "en": "Manager",
       "ru": "Менеджер",

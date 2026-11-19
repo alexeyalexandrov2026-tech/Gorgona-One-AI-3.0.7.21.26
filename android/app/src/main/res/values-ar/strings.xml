@@ -9,7 +9,6 @@
     <string name="concierge_live_manager" formatted="false">راسل مديرًا مباشرةً عبر تيليجرام</string>
     <string name="concierge_manager" formatted="false">المدير</string>
     <string name="concierge_new" formatted="false">محادثة جديدة</string>
-    <string name="concierge_online" formatted="false">الكونسيرج متصل</string>
     <string name="concierge_open" formatted="false">افتح</string>
     <string name="concierge_placeholder" formatted="false">اسأل Miami Elio AI</string>
     <string name="concierge_report" formatted="false">الإبلاغ عن هذه الإجابة</string>

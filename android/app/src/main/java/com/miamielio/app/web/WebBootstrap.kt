@@ -100,6 +100,14 @@ object WebBootstrap {
 
           whenRoot(function (root) {
             root.setAttribute('data-app', 'android');
+            // The native tab and manager entry points already cover these actions.
+            function hideWebLaunchers() {
+              var style = document.createElement('style');
+              style.textContent = 'html[data-app="android"] [data-floating-launcher], html[data-app="android"] .aidock { display: none !important; }';
+              document.head.appendChild(style);
+            }
+            if (document.head) { hideWebLaunchers(); }
+            else { document.addEventListener('DOMContentLoaded', hideWebLaunchers, { once: true }); }
             function report() { post({ locale: root.lang || '' }); }
             try {
               new MutationObserver(report).observe(root, { attributes: true, attributeFilter: ['lang'] });

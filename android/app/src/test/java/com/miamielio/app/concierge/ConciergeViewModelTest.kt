@@ -140,6 +140,25 @@ class ConciergeViewModelTest {
     }
 
     @Test
+    fun aDegradedReplyKeepsItsCardsAndCanBeRetried() = test {
+        val model = model()
+        chat.reply("""{"reply":"Temporarily unavailable","error":true,"cards":[{"href":"/yachts","title":"Yachts"}]}""")
+            .reply(Replies.text("Back again"))
+        model.send("Yachts")
+        advanceUntilIdle()
+        val fallback = model.state.value.entries.last()
+        assertTrue(fallback.canRetry)
+        assertEquals("/yachts", fallback.cards.single().href)
+
+        model.retry()
+        advanceUntilIdle()
+        assertEquals(2, chat.requests.size)
+        assertEquals(1, chat.requests.last().jsonBody()["messages"]!!.jsonArray.size)
+        assertEquals(listOf("Yachts", "Back again"), model.state.value.entries.map { it.text })
+        assertFalse(model.state.value.entries.last().canRetry)
+    }
+
+    @Test
     fun aNewMessageAfterAFailureReplacesTheRetry() = test {
         val model = model()
         chat.offline().reply(Replies.text("Got both"))

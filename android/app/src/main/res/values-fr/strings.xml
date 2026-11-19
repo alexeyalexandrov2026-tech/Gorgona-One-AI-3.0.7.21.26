@@ -9,7 +9,6 @@
     <string name="concierge_live_manager" formatted="false">Écrire à un conseiller sur Telegram</string>
     <string name="concierge_manager" formatted="false">Conseiller</string>
     <string name="concierge_new" formatted="false">Nouvelle conversation</string>
-    <string name="concierge_online" formatted="false">concierge en ligne</string>
     <string name="concierge_open" formatted="false">Ouvrir</string>
     <string name="concierge_placeholder" formatted="false">Demandez à Miami Elio AI</string>
     <string name="concierge_report" formatted="false">Signaler cette réponse</string>

@@ -9,7 +9,6 @@
     <string name="concierge_live_manager" formatted="false">通过 Telegram 联系真人经理</string>
     <string name="concierge_manager" formatted="false">经理</string>
     <string name="concierge_new" formatted="false">新对话</string>
-    <string name="concierge_online" formatted="false">礼宾在线</string>
     <string name="concierge_open" formatted="false">打开</string>
     <string name="concierge_placeholder" formatted="false">询问 Miami Elio AI</string>
     <string name="concierge_report" formatted="false">举报此回答</string>

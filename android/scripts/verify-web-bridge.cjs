@@ -29,9 +29,12 @@ function page(hostname, options = {}) {
   const posted = [];
   const listeners = {};
   const attributes = {};
+  const injectedStyles = [];
   const root = { lang: 'ru', setAttribute: (name, value) => { attributes[name] = value; } };
   const document = {
     documentElement: root,
+    head: { appendChild: node => injectedStyles.push(node.textContent) },
+    createElement: tag => { if (tag !== 'style') throw Error('Unexpected test element'); return {}; },
     cookie: options.cookie || '',
     addEventListener: (type, run, capture) => { (listeners[type] = listeners[type] || []).push({ run, capture }); },
   };
@@ -47,7 +50,7 @@ function page(hostname, options = {}) {
   sandbox.miamiElioNative = { postMessage: (text) => posted.push(JSON.parse(text)) };
   vm.createContext(sandbox);
   vm.runInContext(source, sandbox);
-  return { posted, listeners, attributes, document, sandbox };
+  return { posted, listeners, attributes, document, sandbox, injectedStyles };
 }
 
 function click(target, href) {
@@ -71,6 +74,7 @@ function check(name, ok) {
 
 const own = page('gorgona-one.com');
 check('marks the document for the app', own.attributes['data-app'] === 'android');
+check('hides duplicate web launchers only on app pages', own.injectedStyles.length === 1 && own.injectedStyles[0].includes('[data-floating-launcher]') && own.injectedStyles[0].includes('.aidock'));
 check('sets the language cookie when none is stored', /gorgona-locale=ru; path=\//.test(own.document.cookie));
 check('offers the door the iPhone app has', typeof own.sandbox.webkit.messageHandlers.miamiElio.postMessage === 'function');
 own.sandbox.webkit.messageHandlers.miamiElio.postMessage({ favorites: ['yacht:a'] });
@@ -101,7 +105,7 @@ check(
   Object.keys(foreign.attributes).length === 0 &&
     !foreign.listeners.click &&
     foreign.sandbox.webkit === undefined &&
-    foreign.document.cookie === ''
+    foreign.document.cookie === '' && foreign.injectedStyles.length === 0
 );
 
 function runFavorite(origin, ready = false) {

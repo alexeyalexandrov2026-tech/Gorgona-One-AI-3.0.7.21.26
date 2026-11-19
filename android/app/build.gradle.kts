@@ -9,7 +9,7 @@ plugins {
 // HTTPS, release to the production site. Either can be pointed elsewhere:
 //   ./gradlew assembleDebug -Pmiamielio.debugBaseUrl=https://example.test
 val debugBaseUrl = providers.gradleProperty("miamielio.debugBaseUrl")
-    .getOrElse("https://claude-miami-elio-app-home-twt06c-gorgonaoneai3072126.alexey-alexandrov2026.workers.dev")
+    .getOrElse("https://miami-elio-dashboard-staging.alexey-alexandrov2026.workers.dev")
 val releaseBaseUrl = providers.gradleProperty("miamielio.releaseBaseUrl")
     .getOrElse("https://gorgona-one.com")
 

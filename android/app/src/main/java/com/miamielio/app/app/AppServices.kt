@@ -20,6 +20,7 @@ import com.miamielio.app.favorites.FavoritesPage
 import com.miamielio.app.favorites.FavoritesPreferences
 import com.miamielio.app.favorites.FavoritesStore
 import com.miamielio.app.net.OkHttpTransport
+import com.miamielio.app.net.siteHttpClient
 import com.miamielio.app.search.SearchViewModel
 import com.miamielio.app.season.SeasonReminders
 import com.miamielio.app.season.prompt
@@ -43,6 +44,7 @@ class AppServices(
     external: ExternalOpener = ExternalLinks(activity),
 ) {
     val policy = RoutePolicy(config)
+    private val siteClient = siteHttpClient(activity.applicationContext, config)
 
     /** The language the app's own strings are showing in, as a site code. */
     val deviceLocale: String =
@@ -83,9 +85,9 @@ class AppServices(
         viewModelFactory {
             initializer {
                 ConciergeViewModel(
-                    client = ConciergeClient(config, policy, OkHttpTransport.chat()),
-                    planClient = PlanClient(config, OkHttpTransport.plan()),
-                    reporter = AnswerReportClient(config, OkHttpTransport(15_000)),
+                    client = ConciergeClient(config, policy, OkHttpTransport.chat(siteClient)),
+                    planClient = PlanClient(config, OkHttpTransport.plan(siteClient)),
+                    reporter = AnswerReportClient(config, OkHttpTransport(15_000, siteClient)),
                     locale = { explore.currentSiteLocale() },
                 )
             }
@@ -104,7 +106,7 @@ class AppServices(
     val search: SearchViewModel = ViewModelProvider.create(
         viewModels,
         viewModelFactory {
-            initializer { SearchViewModel(SearchClient(config, policy, OkHttpTransport.search()), connectivity.online) }
+            initializer { SearchViewModel(SearchClient(config, policy, OkHttpTransport.search(siteClient)), connectivity.online) }
         },
     )[SearchViewModel::class]
 

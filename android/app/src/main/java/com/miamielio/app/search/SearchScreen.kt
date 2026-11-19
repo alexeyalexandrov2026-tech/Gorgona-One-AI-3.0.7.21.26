@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -89,8 +90,10 @@ internal fun SearchScreen(
     val savedKeys by favorites.keys.collectAsStateWithLifecycle()
     val open by rememberUpdatedState(onOpen)
     val focus = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
     val openPage: (String) -> Unit = { path ->
         focus.clearFocus()
+        keyboard?.hide()
         open(path)
     }
 
