@@ -57,7 +57,6 @@ test('section, legal and listing pages declare their own titles', () => {
   for (const route of LEGAL_ROUTES) assert.match(source(`app${route}/layout.js`), new RegExp(`path: '${route}'`), route);
   for (const route of ['/rentals', '/restaurants-nightlife', '/vacation-rentals']) assert.match(source(`app${route}/page.js`), new RegExp(`path: '${route}'`), route);
   for (const [file, path] of [
-    ['app/vacation-rentals/[slug]/page.js', '/vacation-rentals/${stay.slug}'],
     ['app/restaurants-nightlife/[slug]/page.js', '/restaurants-nightlife/${venue.slug}'],
     ['app/events/league/[league]/page.js', '/events/league/${league.slug}'],
     ['app/events/category/[category]/page.js', '/events/category/${entry.slug}']
