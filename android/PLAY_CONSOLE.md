@@ -55,6 +55,14 @@ Yacht searches open the YATR catalogue. The concierge lets you retry a
 request after a temporary outage. Opening a catalogue result closes the
 keyboard, and going back keeps your search.
 
+**Release notes, 1.3.0 (version code 7), English (United States)**
+
+A new home screen: every Miami Elio section at the top, and cars, yachts,
+villas, jets and event tickets that change right over the photo. Tap any
+card to open it. Exclusive Destinations now has its own tab, and a menu at
+the top takes you anywhere in the app, Events included. The keyboard stays
+down until you tap a field.
+
 ## Graphics
 
 The local handoff is in `app/build/outputs/play-listing/`. The app icon

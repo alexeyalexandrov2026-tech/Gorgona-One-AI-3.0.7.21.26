@@ -73,6 +73,8 @@
     <string name="plan_sent_text" formatted="false">Elementi nella richiesta: {count}. Il nostro team ti contatterà a breve.</string>
     <string name="plan_submit" formatted="false">Invia richiesta</string>
     <string name="plan_title" formatted="false">Il tuo piano</string>
+    <string name="rail_pause" formatted="false">Pausa</string>
+    <string name="rail_play" formatted="false">Riprendi</string>
     <string name="report_prompt" formatted="false">Cosa non va in questa risposta? (facoltativo)</string>
     <string name="report_send" formatted="false">Invia segnalazione</string>
     <string name="report_sent" formatted="false">Grazie. La segnalazione è stata inviata al nostro team.</string>
@@ -100,6 +102,20 @@
     <string name="section_stays" formatted="false">Soggiorni</string>
     <string name="section_travel" formatted="false">Viaggi</string>
     <string name="section_yachts" formatted="false">Yacht</string>
+    <string name="showcase_any_route" formatted="false">Qualsiasi rotta</string>
+    <string name="showcase_bedrooms" formatted="false">{n} camere</string>
+    <string name="showcase_car" formatted="false">Auto</string>
+    <string name="showcase_charter" formatted="false">Charter su richiesta</string>
+    <string name="showcase_fleet" formatted="false">La nostra flotta</string>
+    <string name="showcase_flights" formatted="false">Cerca voli</string>
+    <string name="showcase_jet" formatted="false">Imbarco</string>
+    <string name="showcase_nightly" formatted="false">Tariffa su richiesta</string>
+    <string name="showcase_per_day" formatted="false">{price} / giorno</string>
+    <string name="showcase_rates" formatted="false">Tariffe su richiesta</string>
+    <string name="showcase_stay" formatted="false">Soggiorno</string>
+    <string name="showcase_tickets" formatted="false">Biglietti</string>
+    <string name="showcase_tickets_cta" formatted="false">Prendi i biglietti</string>
+    <string name="showcase_yacht" formatted="false">Yacht</string>
     <string name="state_loading" formatted="false">Caricamento...</string>
     <string name="tab_account" formatted="false">La mia Miami</string>
     <string name="tab_ai" formatted="false">AI</string>

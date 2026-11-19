@@ -73,6 +73,8 @@
     <string name="plan_sent_text" formatted="false">请求中的项目数：{count}。我们的团队将尽快联系您。</string>
     <string name="plan_submit" formatted="false">发送需求</string>
     <string name="plan_title" formatted="false">您的行程计划</string>
+    <string name="rail_pause" formatted="false">暂停</string>
+    <string name="rail_play" formatted="false">继续</string>
     <string name="report_prompt" formatted="false">这个回答有什么问题？（选填）</string>
     <string name="report_send" formatted="false">发送举报</string>
     <string name="report_sent" formatted="false">谢谢。举报已发送给我们的团队。</string>
@@ -100,6 +102,20 @@
     <string name="section_stays" formatted="false">住宿</string>
     <string name="section_travel" formatted="false">旅行</string>
     <string name="section_yachts" formatted="false">游艇</string>
+    <string name="showcase_any_route" formatted="false">任意航线</string>
+    <string name="showcase_bedrooms" formatted="false">{n} 间卧室</string>
+    <string name="showcase_car" formatted="false">汽车</string>
+    <string name="showcase_charter" formatted="false">包船价格面议</string>
+    <string name="showcase_fleet" formatted="false">我们的车队</string>
+    <string name="showcase_flights" formatted="false">搜索航班</string>
+    <string name="showcase_jet" formatted="false">登机</string>
+    <string name="showcase_nightly" formatted="false">价格面议</string>
+    <string name="showcase_per_day" formatted="false">{price} / 天</string>
+    <string name="showcase_rates" formatted="false">价格请咨询</string>
+    <string name="showcase_stay" formatted="false">住宿</string>
+    <string name="showcase_tickets" formatted="false">门票</string>
+    <string name="showcase_tickets_cta" formatted="false">获取门票</string>
+    <string name="showcase_yacht" formatted="false">游艇</string>
     <string name="state_loading" formatted="false">加载中...</string>
     <string name="tab_account" formatted="false">我的迈阿密</string>
     <string name="tab_ai" formatted="false">AI</string>

@@ -73,6 +73,8 @@
     <string name="plan_sent_text" formatted="false">تعداد موارد در درخواست: {count}. تیم ما به‌زودی با شما تماس می‌گیرد.</string>
     <string name="plan_submit" formatted="false">ارسال درخواست</string>
     <string name="plan_title" formatted="false">برنامه شما</string>
+    <string name="rail_pause" formatted="false">توقف</string>
+    <string name="rail_play" formatted="false">ادامه</string>
     <string name="report_prompt" formatted="false">مشکل این پاسخ چیست؟ (اختیاری)</string>
     <string name="report_send" formatted="false">ارسال گزارش</string>
     <string name="report_sent" formatted="false">سپاسگزاریم. گزارش برای تیم ما ارسال شد.</string>
@@ -100,6 +102,20 @@
     <string name="section_stays" formatted="false">اقامت</string>
     <string name="section_travel" formatted="false">سفر</string>
     <string name="section_yachts" formatted="false">قایق‌های تفریحی</string>
+    <string name="showcase_any_route" formatted="false">هر مسیر</string>
+    <string name="showcase_bedrooms" formatted="false">{n} اتاق‌خواب</string>
+    <string name="showcase_car" formatted="false">خودرو</string>
+    <string name="showcase_charter" formatted="false">چارتر با درخواست</string>
+    <string name="showcase_fleet" formatted="false">ناوگان ما</string>
+    <string name="showcase_flights" formatted="false">جستجوی پرواز</string>
+    <string name="showcase_jet" formatted="false">سوار شدن</string>
+    <string name="showcase_nightly" formatted="false">نرخ با درخواست</string>
+    <string name="showcase_per_day" formatted="false">{price} / روز</string>
+    <string name="showcase_rates" formatted="false">قیمت با درخواست</string>
+    <string name="showcase_stay" formatted="false">اقامت</string>
+    <string name="showcase_tickets" formatted="false">بلیت‌ها</string>
+    <string name="showcase_tickets_cta" formatted="false">تهیه بلیت</string>
+    <string name="showcase_yacht" formatted="false">قایق</string>
     <string name="state_loading" formatted="false">در حال بارگذاری...</string>
     <string name="tab_account" formatted="false">میامی من</string>
     <string name="tab_ai" formatted="false">AI</string>

@@ -15,6 +15,9 @@ import com.miamielio.app.core.ConciergeClient
 import com.miamielio.app.core.PlanClient
 import com.miamielio.app.core.RoutePolicy
 import com.miamielio.app.core.SearchClient
+import com.miamielio.app.core.ShowcaseClient
+import com.miamielio.app.today.ShowcaseModel
+import com.miamielio.app.today.ShowcasePreferences
 import com.miamielio.app.core.SiteLocale
 import com.miamielio.app.favorites.FavoritesPage
 import com.miamielio.app.favorites.FavoritesPreferences
@@ -74,6 +77,17 @@ class AppServices(
         exclusive.connectFavorites(exclusiveFavorites)
     }
 
+    /** The cards that float over Today's hero, kept on the device for the next start. */
+    val showcase = ShowcaseModel(
+        ShowcaseClient(
+            config,
+            policy,
+            OkHttpTransport.search(siteClient),
+            ShowcasePreferences(activity.getSharedPreferences("miami-elio-showcase", Context.MODE_PRIVATE)),
+        ),
+        favoritesScope,
+    )
+
     /**
      * The native screens' state. It lives in a store of its own, cleared in
      * [destroy], rather than in the Activity's: it reads the site's
@@ -118,6 +132,7 @@ class AppServices(
         account.onResume()
         exclusive.onResume()
         favorites.retry()
+        showcase.refresh()
     }
 
     fun onPause() {

@@ -39,6 +39,17 @@ const MAP = [
   ['home.railConcierge', 'section_concierge'],
   // The site's own word for its menu.
   ['ui.99af6606ff9d6cd5', 'menu_title'],
+  // The floating showcase cards over the hero (app/components/home/HeroShowcase.jsx):
+  // the eyebrow of each kind, its aside and its call to action.
+  ['home.showcase.car', 'showcase_car'], ['home.showcase.yacht', 'showcase_yacht'],
+  ['home.showcase.stay', 'showcase_stay'], ['home.showcase.jet', 'showcase_jet'],
+  ['home.showcase.tickets', 'showcase_tickets'], ['home.showcase.fleet', 'showcase_fleet'],
+  ['home.showcase.bedrooms', 'showcase_bedrooms'], ['home.showcase.anyRoute', 'showcase_any_route'],
+  ['home.showcase.perDay', 'showcase_per_day'], ['home.ratesOnRequest', 'showcase_rates'],
+  ['home.showcase.charter', 'showcase_charter'], ['home.showcase.nightly', 'showcase_nightly'],
+  ['home.showcase.flights', 'showcase_flights'], ['home.tickets.get', 'showcase_tickets_cta'],
+  // The section rail's pause button (app/components/home/HomeSectionRail.jsx).
+  ['home.tickets.pause', 'rail_pause'], ['home.tickets.play', 'rail_play'],
 ];
 const AFTER = 'concierge_live_manager';
 

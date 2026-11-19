@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!--
       What the window looks like before Compose draws its first frame: the
       site's dark paper, so the app never flashes white. The app has one
       appearance, dark, whatever the phone is set to.
     -->
     <style name="Theme.MiamiElio" parent="android:Theme.Material.NoActionBar">
+        <!-- Android 12+ opens the app on its icon over this: the deep sea of the brand art. -->
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">@color/launcher_background</item>
         <item name="android:windowBackground">@color/paper</item>
         <item name="android:colorBackground">@color/paper</item>
         <item name="android:colorAccent">@color/accent</item>

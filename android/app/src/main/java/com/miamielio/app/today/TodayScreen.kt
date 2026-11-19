@@ -67,6 +67,8 @@ import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.ConciergeMark
 import com.miamielio.app.ui.Hairline
 import com.miamielio.app.ui.LocalReduceMotion
+import com.miamielio.app.core.HomeSection
+import com.miamielio.app.core.ShowcaseFeed
 import com.miamielio.app.ui.MenuButton
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
@@ -96,6 +98,9 @@ internal fun TodayScreen(
     onMenu: () -> Unit,
     modifier: Modifier = Modifier,
     now: () -> Instant = Instant::now,
+    showcase: ShowcaseFeed = ShowcaseFeed(),
+    onSection: (HomeSection) -> Unit = {},
+    resolve: (String) -> String? = { null },
 ) {
     val state by model.state.collectAsStateWithLifecycle()
     val busy = state.isSending
@@ -120,6 +125,7 @@ internal fun TodayScreen(
             .testTag("content.Today"),
     ) {
         Header(onMenu = onMenu, onManager = { onOpen(LIVE_MANAGER_URL) })
+        SectionRail(onSection = onSection, resolve = resolve, modifier = Modifier.padding(bottom = 12.dp))
         Hero(
             query = query,
             onQuery = { query = it },
@@ -127,6 +133,8 @@ internal fun TodayScreen(
             onAsk = ::ask,
             speechLanguage = model::speechLanguage,
             now = now,
+            showcase = showcase,
+            onOpen = onOpen,
         )
         if (next != null) {
             Row(
@@ -192,6 +200,8 @@ private fun Hero(
     onAsk: (String) -> Unit,
     speechLanguage: () -> String,
     now: () -> Instant,
+    showcase: ShowcaseFeed,
+    onOpen: (String) -> Unit,
 ) {
     val shape = RoundedCornerShape(28.dp)
     Box(
@@ -224,6 +234,8 @@ private fun Hero(
             Glass(query, onQuery, busy, onAsk, speechLanguage)
             ClockPill(now)
         }
+        // Over the sky of the photograph, above the concierge: the site's floating cards.
+        HeroShowcase(feed = showcase, onOpen = onOpen)
     }
 }
 

@@ -24,6 +24,9 @@ import com.miamielio.app.concierge.Replies
 import com.miamielio.app.concierge.ScriptedTransport
 import com.miamielio.app.core.ConciergeClient
 import com.miamielio.app.core.PlanClient
+import com.miamielio.app.core.ShowcaseCategory
+import com.miamielio.app.core.ShowcaseFeed
+import com.miamielio.app.core.ShowcaseItem
 import com.miamielio.app.core.jsonBody
 import com.miamielio.app.season.SeasonReminders
 import com.miamielio.app.ui.MiamiElioTheme
@@ -205,7 +208,21 @@ class TodaySnapshotTest {
         val season = SeasonReminders(ApplicationProvider.getApplicationContext(), clock)
         compose.setContent {
             MiamiElioTheme {
-                TodayScreen(model, season, onAsked = {}, onOpen = {}, onEvents = {}, onMenu = {}, now = { clock.instant() })
+                TodayScreen(
+                    model, season, onAsked = {}, onOpen = {}, onEvents = {}, onMenu = {}, now = { clock.instant() },
+                    // One card of the site's showcase, as /api/showcase sends it (the photo does not load offline).
+                    showcase = ShowcaseFeed(
+                        listOf(
+                            ShowcaseItem(
+                                ShowcaseCategory.Car, "/rentals/lamborghini-urus-se", "Lamborghini Urus SE",
+                                "https://gorgona-one.com/images/rentals/lamborghini-urus-se/cover.jpg",
+                                price = "$1,800", company = "MIAMI ELIO Fleet",
+                            ),
+                        ),
+                    ),
+                    // The rail's pictures from the production site, as the release build resolves them.
+                    resolve = { "https://gorgona-one.com$it" },
+                )
             }
         }
         compose.mainClock.advanceTimeBy(1_500)

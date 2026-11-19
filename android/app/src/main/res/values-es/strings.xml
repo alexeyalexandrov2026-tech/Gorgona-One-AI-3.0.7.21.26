@@ -73,6 +73,8 @@
     <string name="plan_sent_text" formatted="false">Elementos en la solicitud: {count}. Nuestro equipo te contactará pronto.</string>
     <string name="plan_submit" formatted="false">Enviar solicitud</string>
     <string name="plan_title" formatted="false">Tu plan</string>
+    <string name="rail_pause" formatted="false">Pausar</string>
+    <string name="rail_play" formatted="false">Reanudar</string>
     <string name="report_prompt" formatted="false">¿Qué falla en esta respuesta? (opcional)</string>
     <string name="report_send" formatted="false">Enviar aviso</string>
     <string name="report_sent" formatted="false">Gracias. El aviso se ha enviado a nuestro equipo.</string>
@@ -100,6 +102,20 @@
     <string name="section_stays" formatted="false">Estancias</string>
     <string name="section_travel" formatted="false">Viajes</string>
     <string name="section_yachts" formatted="false">Yates</string>
+    <string name="showcase_any_route" formatted="false">Cualquier ruta</string>
+    <string name="showcase_bedrooms" formatted="false">{n} habitaciones</string>
+    <string name="showcase_car" formatted="false">Coche</string>
+    <string name="showcase_charter" formatted="false">Chárter a consultar</string>
+    <string name="showcase_fleet" formatted="false">Nuestra flota</string>
+    <string name="showcase_flights" formatted="false">Buscar vuelos</string>
+    <string name="showcase_jet" formatted="false">Embarque</string>
+    <string name="showcase_nightly" formatted="false">Tarifa a consultar</string>
+    <string name="showcase_per_day" formatted="false">{price} / día</string>
+    <string name="showcase_rates" formatted="false">Tarifa a consultar</string>
+    <string name="showcase_stay" formatted="false">Estancia</string>
+    <string name="showcase_tickets" formatted="false">Entradas</string>
+    <string name="showcase_tickets_cta" formatted="false">Conseguir entradas</string>
+    <string name="showcase_yacht" formatted="false">Yate</string>
     <string name="state_loading" formatted="false">Cargando...</string>
     <string name="tab_account" formatted="false">Mi Miami</string>
     <string name="tab_ai" formatted="false">AI</string>

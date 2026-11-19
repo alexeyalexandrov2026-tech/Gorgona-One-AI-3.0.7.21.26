@@ -42,7 +42,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
@@ -122,43 +127,55 @@ fun SplashView(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Theme.paper)
-            // A faint warmth on the wall behind the orb.
-            .drawBehind {
-                drawRect(
-                    Brush.radialGradient(
-                        listOf(Theme.gold.copy(alpha = 0.18f * orb), Theme.gold.copy(alpha = 0f)),
-                        center = center,
-                        radius = 300.dp.toPx(),
-                    ),
-                )
-            }
+            .background(Color(0xFF01212C))
             .testTag("splash")
             .clearAndSetSemantics { contentDescription = "Miami Elio" }
             // Nothing underneath is reachable while the splash is up.
             .clickable(interactionSource = null, indication = null, onClick = {}),
         contentAlignment = Alignment.Center,
     ) {
+        // The sea of the brand art, with its breaking wave, under a veil that keeps the gold legible.
+        Image(
+            painter = painterResource(R.drawable.splash_ocean),
+            contentDescription = null,
+            modifier = Modifier.matchParentSize(),
+            contentScale = ContentScale.Crop,
+        )
+        Box(
+            Modifier
+                .matchParentSize()
+                .background(
+                    Brush.radialGradient(
+                        listOf(Color(0xCC01212C), Color(0x6601212C), Color(0x0001212C)),
+                        radius = 900f,
+                    ),
+                ),
+        )
         Column(
-            verticalArrangement = Arrangement.spacedBy(36.dp),
+            verticalArrangement = Arrangement.spacedBy(28.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            ConciergeMark(
-                diameter = 96.dp,
-                modifier = Modifier.graphicsLayer {
-                    alpha = orb
-                    val scale = if (reduceMotion) 1f else 0.8f + 0.2f * orb
-                    scaleX = scale
-                    scaleY = scale
-                },
-                breathes = true,
+            // The monogram, as on the icon the phone has just shown.
+            Image(
+                painter = painterResource(R.drawable.brand_monogram),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(168.dp)
+                    .graphicsLayer {
+                        alpha = orb
+                        val scale = if (reduceMotion) 1f else 0.92f + 0.08f * orb
+                        scaleX = scale
+                        scaleY = scale
+                    },
             )
-            Wordmark(
+            Text(
+                text = "MIAMI ELIO",
                 modifier = Modifier.graphicsLayer {
                     alpha = name
                     translationY = if (reduceMotion) 0f else (1f - name) * 12.dp.toPx()
                 },
-                size = 44f,
+                color = Color(0xFFF6F0E2),
+                style = AppFont.eyebrow.copy(fontSize = 30.sp, letterSpacing = 7.sp, fontWeight = FontWeight.Medium),
             )
         }
     }
@@ -176,6 +193,7 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
     val tab by router.selectedTab.collectAsStateWithLifecycle()
     val layer by router.webLayer.collectAsStateWithLifecycle()
     val events by router.eventsOpen.collectAsStateWithLifecycle()
+    val showcase by services.showcase.feed.collectAsStateWithLifecycle()
     var menuOpen by rememberSaveable { mutableStateOf(false) }
 
     // "Back" on any other tab, or on Events, returns to Today; there it leaves
@@ -227,6 +245,12 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
                             onOpen = router::open,
                             onEvents = router::showEvents,
                             onMenu = openMenu,
+                            showcase = showcase,
+                            // A tile goes where the menu's row of the same section goes.
+                            onSection = { section ->
+                                SECTION_MENU.firstOrNull { it.id == "section.${section.id}" }?.open?.invoke(router)
+                            },
+                            resolve = services.config::resolve,
                         )
                     }
                     AppTab.Concierge -> ConciergeScreen(

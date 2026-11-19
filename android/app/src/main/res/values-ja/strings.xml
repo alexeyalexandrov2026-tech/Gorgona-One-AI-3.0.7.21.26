@@ -73,6 +73,8 @@
     <string name="plan_sent_text" formatted="false">リクエストの項目数：{count}。スタッフより近日中にご連絡します。</string>
     <string name="plan_submit" formatted="false">問い合わせを送信</string>
     <string name="plan_title" formatted="false">あなたのプラン</string>
+    <string name="rail_pause" formatted="false">一時停止</string>
+    <string name="rail_play" formatted="false">再開</string>
     <string name="report_prompt" formatted="false">この回答の問題点を教えてください（任意）</string>
     <string name="report_send" formatted="false">報告を送信</string>
     <string name="report_sent" formatted="false">ありがとうございます。報告をチームに送信しました。</string>
@@ -100,6 +102,20 @@
     <string name="section_stays" formatted="false">宿泊</string>
     <string name="section_travel" formatted="false">旅行</string>
     <string name="section_yachts" formatted="false">ヨット</string>
+    <string name="showcase_any_route" formatted="false">どの路線でも</string>
+    <string name="showcase_bedrooms" formatted="false">寝室 {n}</string>
+    <string name="showcase_car" formatted="false">車</string>
+    <string name="showcase_charter" formatted="false">チャーターは要問い合わせ</string>
+    <string name="showcase_fleet" formatted="false">自社フリート</string>
+    <string name="showcase_flights" formatted="false">フライトを検索</string>
+    <string name="showcase_jet" formatted="false">搭乗</string>
+    <string name="showcase_nightly" formatted="false">料金は要問い合わせ</string>
+    <string name="showcase_per_day" formatted="false">{price} / 日</string>
+    <string name="showcase_rates" formatted="false">料金はお問い合わせください</string>
+    <string name="showcase_stay" formatted="false">滞在</string>
+    <string name="showcase_tickets" formatted="false">チケット</string>
+    <string name="showcase_tickets_cta" formatted="false">チケットを入手</string>
+    <string name="showcase_yacht" formatted="false">ヨット</string>
     <string name="state_loading" formatted="false">読み込み中...</string>
     <string name="tab_account" formatted="false">マイ・マイアミ</string>
     <string name="tab_ai" formatted="false">AI</string>
