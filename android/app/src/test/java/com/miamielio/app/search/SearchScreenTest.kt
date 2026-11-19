@@ -1,10 +1,16 @@
 package com.miamielio.app.search
 
 import android.graphics.Bitmap
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -43,12 +49,32 @@ class SearchScreenTest {
     private val server = ScriptedTransport()
     private val online = MutableStateFlow(true)
     private val opened = mutableListOf<String>()
+    private var focusClears = 0
+    private var focusClearsAtOpen = 0
 
     private fun show() {
         // No typing pause here: the test clock does not run by itself.
         val model = SearchViewModel(SearchClient(transport = server), online, pauseMillis = 0)
         val favorites = guestFavorites()
-        compose.setContent { MiamiElioTheme { SearchScreen(model, favorites, onOpen = { opened += it }) } }
+        compose.setContent {
+            val focus = LocalFocusManager.current
+            val recordingFocus = remember(focus) {
+                object : FocusManager by focus {
+                    override fun clearFocus(force: Boolean) {
+                        focus.clearFocus(force)
+                        focusClears++
+                    }
+                }
+            }
+            CompositionLocalProvider(LocalFocusManager provides recordingFocus) {
+                MiamiElioTheme {
+                    SearchScreen(model, favorites, onOpen = {
+                        focusClearsAtOpen = focusClears
+                        opened += it
+                    })
+                }
+            }
+        }
     }
 
     @Test
@@ -76,8 +102,15 @@ class SearchScreenTest {
         compose.onNodeWithText("POPULAR SEARCHES").assertDoesNotExist()
         assertEquals("yacht", server.requests.single().url.substringAfter("q=").substringBefore("&"))
 
+        val input = compose.onNodeWithTag("search.input")
+        input.assertIsFocused()
+        val focusClearsBeforeOpen = compose.runOnIdle { focusClears }
         compose.onNodeWithText("Sunseeker 76").performClick()
-        assertEquals(listOf("/yachts/sunseeker-76"), opened)
+        compose.runOnIdle {
+            assertEquals(listOf("/yachts/sunseeker-76"), opened)
+            assertEquals(focusClearsBeforeOpen + 1, focusClearsAtOpen)
+        }
+        input.assertTextContains("yacht")
 
         // "Cancel" clears the query and brings the sections back.
         compose.onNodeWithTag("search.cancel").performClick()

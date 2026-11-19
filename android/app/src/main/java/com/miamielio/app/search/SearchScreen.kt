@@ -76,7 +76,7 @@ import kotlin.math.min
 /**
  * Native search over the Miami Elio inventory. Until something is typed it
  * is a front door to the main sections, in photographs; anything chosen
- * opens in Home through [onOpen]. Mirrors the iPhone app's `SearchView`.
+ * opens through [onOpen]. Mirrors the iPhone app's `SearchView`.
  */
 @Composable
 internal fun SearchScreen(
@@ -89,6 +89,10 @@ internal fun SearchScreen(
     val savedKeys by favorites.keys.collectAsStateWithLifecycle()
     val open by rememberUpdatedState(onOpen)
     val focus = LocalFocusManager.current
+    val openPage: (String) -> Unit = { path ->
+        focus.clearFocus()
+        open(path)
+    }
 
     Column(
         modifier
@@ -129,13 +133,13 @@ internal fun SearchScreen(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp),
         ) {
             when (val phase = state.phase) {
-                SearchPhase.Idle -> item(key = "worlds") { WorldGrid(open = { open(it) }) }
+                SearchPhase.Idle -> item(key = "worlds") { WorldGrid(open = openPage) }
                 SearchPhase.Searching -> item(key = "searching") { Loading() }
                 is SearchPhase.Results -> itemsIndexed(phase.results, key = { index, result -> "$index ${result.href}" }) { index, result ->
                     ResultRow(
                         result = result,
                         imageUrl = model.imageUrl(result),
-                        onClick = { open(result.href) },
+                        onClick = { openPage(result.href) },
                         favorite = remember(result) { FavoriteRef.of(result) },
                         savedKeys = savedKeys,
                         toggleFavorite = favorites::toggle,
