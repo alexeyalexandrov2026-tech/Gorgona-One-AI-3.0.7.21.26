@@ -67,6 +67,7 @@ import com.miamielio.app.favorites.FavoritesStore
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.Eyebrow
 import com.miamielio.app.ui.Hairline
+import com.miamielio.app.ui.MenuButton
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.ui.arrives
@@ -84,6 +85,7 @@ internal fun SearchScreen(
     model: SearchViewModel,
     favorites: FavoritesStore,
     onOpen: (String) -> Unit,
+    onMenu: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val state by model.state.collectAsStateWithLifecycle()
@@ -105,27 +107,34 @@ internal fun SearchScreen(
         Column(
             Modifier
                 .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(horizontal = 16.dp),
+                .statusBarsPadding(),
         ) {
-            Box(
+            Row(
                 Modifier
+                    .fillMaxWidth()
                     .heightIn(min = 56.dp)
-                    .padding(start = 4.dp),
-                contentAlignment = Alignment.CenterStart,
-            ) { Wordmark(size = 22f) }
-            SearchField(
-                query = state.query,
-                onQuery = model::setQuery,
-                onSearch = {
-                    focus.clearFocus()
-                    model.retry()
-                },
-                onCancel = {
-                    model.setQuery("")
-                    focus.clearFocus()
-                },
-            )
+                    // 4 dp in puts the menu icon (24 dp in a 48 dp button) on the field's 16 dp edge.
+                    .padding(start = 4.dp, end = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                MenuButton(onMenu)
+                Spacer(Modifier.width(4.dp))
+                Wordmark(size = 22f)
+            }
+            Box(Modifier.padding(horizontal = 16.dp)) {
+                SearchField(
+                    query = state.query,
+                    onQuery = model::setQuery,
+                    onSearch = {
+                        focus.clearFocus()
+                        model.retry()
+                    },
+                    onCancel = {
+                        model.setQuery("")
+                        focus.clearFocus()
+                    },
+                )
+            }
         }
         LazyColumn(
             modifier = Modifier

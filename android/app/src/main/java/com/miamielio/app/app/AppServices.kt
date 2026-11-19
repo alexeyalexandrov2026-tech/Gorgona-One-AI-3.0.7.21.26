@@ -52,23 +52,26 @@ class AppServices(
 
     val explore = WebTabController(activity, config, policy, startPath = "/", deviceLocale = deviceLocale, host = host)
     val account = WebTabController(activity, config, policy, startPath = "/profile", deviceLocale = deviceLocale, host = host)
+    val exclusive = WebTabController(activity, config, policy, startPath = "/exclusive-destinations", deviceLocale = deviceLocale, host = host)
     internal val season = SeasonReminders(activity)
-    val router = AppRouter(config, policy, explore, account, external, onSeason = { id ->
+    val router = AppRouter(config, policy, explore, account, exclusive, external, onSeason = { id ->
         season.events.find { it.id == id }?.let { concierge.prepare(it.prompt(activity)) }
     })
 
     private val favoritesScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val exploreFavorites = explore.favoritesPage()
     private val accountFavorites = account.favoritesPage()
+    private val exclusiveFavorites = exclusive.favoritesPage()
     internal val favorites = FavoritesStore(
         FavoritesPreferences(activity.getSharedPreferences("miami-elio-favorites", Context.MODE_PRIVATE)),
         favoritesScope,
-        listOf(exploreFavorites, accountFavorites),
+        listOf(exploreFavorites, accountFavorites, exclusiveFavorites),
     )
 
     init {
         explore.connectFavorites(exploreFavorites)
         account.connectFavorites(accountFavorites)
+        exclusive.connectFavorites(exclusiveFavorites)
     }
 
     /**
@@ -113,12 +116,14 @@ class AppServices(
     fun onResume() {
         explore.onResume()
         account.onResume()
+        exclusive.onResume()
         favorites.retry()
     }
 
     fun onPause() {
         explore.onPause()
         account.onPause()
+        exclusive.onPause()
     }
 
     fun destroy() {
@@ -127,6 +132,7 @@ class AppServices(
         favoritesScope.cancel()
         explore.destroy()
         account.destroy()
+        exclusive.destroy()
     }
 
     private fun WebTabController.favoritesPage(): FavoritesPage = FavoritesPage(::deliverFavorite)

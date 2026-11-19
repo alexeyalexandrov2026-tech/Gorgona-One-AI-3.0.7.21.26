@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextContains
@@ -51,6 +52,7 @@ class SearchScreenTest {
     private val opened = mutableListOf<String>()
     private var focusClears = 0
     private var focusClearsAtOpen = 0
+    private var menus = 0
 
     private fun show() {
         // No typing pause here: the test clock does not run by itself.
@@ -71,10 +73,19 @@ class SearchScreenTest {
                     SearchScreen(model, favorites, onOpen = {
                         focusClearsAtOpen = focusClears
                         opened += it
-                    })
+                    }, onMenu = { menus++ })
                 }
             }
         }
+    }
+
+    @Test
+    fun theMenuButtonOpensTheMenuAndLeavesTheFieldAlone() {
+        show()
+        compose.onNodeWithTag("menu.open").assertContentDescriptionEquals("Open menu").performClick()
+        assertEquals(1, menus)
+        assertEquals(emptyList<String>(), opened)
+        compose.onNodeWithTag("search.input").assertIsNotFocused()
     }
 
     @Test
@@ -182,7 +193,7 @@ class SearchSnapshotTest {
     private fun show(server: ScriptedTransport = ScriptedTransport()): SearchViewModel {
         val model = SearchViewModel(SearchClient(transport = server), pauseMillis = 0)
         val favorites = guestFavorites()
-        compose.setContent { MiamiElioTheme { SearchScreen(model, favorites, onOpen = {}) } }
+        compose.setContent { MiamiElioTheme { SearchScreen(model, favorites, onOpen = {}, onMenu = {}) } }
         return model
     }
 

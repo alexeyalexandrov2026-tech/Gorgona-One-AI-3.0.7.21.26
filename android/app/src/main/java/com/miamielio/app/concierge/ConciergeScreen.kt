@@ -73,6 +73,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -89,6 +90,7 @@ import com.miamielio.app.ui.ConciergeMark
 import com.miamielio.app.ui.Eyebrow
 import com.miamielio.app.ui.Hairline
 import com.miamielio.app.ui.LocalReduceMotion
+import com.miamielio.app.ui.MenuButton
 import com.miamielio.app.ui.OrbActivity
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
@@ -112,6 +114,7 @@ internal fun ConciergeScreen(
     model: ConciergeViewModel,
     favorites: FavoritesStore,
     onOpen: (String) -> Unit,
+    onMenu: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val state by model.state.collectAsStateWithLifecycle()
@@ -156,6 +159,7 @@ internal fun ConciergeScreen(
     ) {
         TopBar(
             canReset = state.entries.isNotEmpty(),
+            onMenu = onMenu,
             onReset = {
                 focus.clearFocus()
                 model.reset()
@@ -220,19 +224,28 @@ internal fun ConciergeScreen(
 }
 
 @Composable
-private fun TopBar(canReset: Boolean, onReset: () -> Unit, onManager: () -> Unit) {
+private fun TopBar(canReset: Boolean, onMenu: () -> Unit, onReset: () -> Unit, onManager: () -> Unit) {
     val managerLabel = stringResource(R.string.concierge_live_manager)
     Row(
         Modifier
             .fillMaxWidth()
             .statusBarsPadding()
             .heightIn(min = 60.dp)
-            .padding(start = 18.dp, end = 4.dp),
+            .padding(start = 4.dp, end = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ConciergeMark(diameter = 30.dp)
-        Spacer(Modifier.width(10.dp))
-        Text("Miami Elio AI", Modifier.weight(1f), color = Theme.ink, style = AppFont.bodyMedium, maxLines = 1)
+        // The menu takes the orb's place here: the orb is already on the welcome
+        // screen, beside every reply and in the bar, and the row has no room for both.
+        MenuButton(onMenu)
+        Spacer(Modifier.width(6.dp))
+        Text(
+            "Miami Elio AI",
+            Modifier.weight(1f),
+            color = Theme.ink,
+            style = AppFont.bodyMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
         Row(
             Modifier
                 .clip(CircleShape)

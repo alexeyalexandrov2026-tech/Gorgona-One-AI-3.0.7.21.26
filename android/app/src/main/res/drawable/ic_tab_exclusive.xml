@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A cut stone: the exclusive destinations. The thin gap is the girdle. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7.2,3.5 H16.8 L21.4,8.9 H2.6 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M2.9,10.4 H21.1 L12,21.2 Z" />
+</vector>

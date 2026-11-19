@@ -35,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,6 +44,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,6 +55,8 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miamielio.app.R
 import com.miamielio.app.app.AppServices
@@ -158,70 +164,123 @@ fun SplashView(modifier: Modifier = Modifier) {
     }
 }
 
-/** The five tabs, the site pages shown over them, and the bar that switches between them. */
+/**
+ * The five tabs, the Events screen that hangs off Today, the site pages shown
+ * over them, the bar that switches between them, and the menu that opens from
+ * the top of the screens.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
     val router = services.router
     val tab by router.selectedTab.collectAsStateWithLifecycle()
     val layer by router.webLayer.collectAsStateWithLifecycle()
+    val events by router.eventsOpen.collectAsStateWithLifecycle()
+    var menuOpen by rememberSaveable { mutableStateOf(false) }
 
-    // "Back" on any other tab returns to Today; there it leaves the app. A
-    // site page over the tab answers first (see WebLayer).
-    BackHandler(enabled = tab != AppTab.Today && !layer) { router.show(AppTab.Today) }
+    // "Back" on any other tab, or on Events, returns to Today; there it leaves
+    // the app. A site page over the tab answers first (see WebLayer), and the
+    // menu before either (see MenuSheet).
+    BackHandler(enabled = (tab != AppTab.Today || events) && !layer) { router.show(AppTab.Today) }
+
+    // Anything else that takes the screen (a link, a notification) puts the menu away.
+    LaunchedEffect(tab, events, layer) { menuOpen = false }
+
+    // The keyboard never follows the guest to another screen.
+    KeyboardAway(tab, events, menuOpen)
 
     // The bar makes way for the keyboard, so a page's own field stays in view.
     val typing = WindowInsets.isImeVisible
+    val openMenu = { menuOpen = true }
 
-    Column(
-        modifier
-            .fillMaxSize()
-            .background(Theme.paper)
-            .imePadding(),
-    ) {
-        Box(
+    Box(modifier.fillMaxSize().background(Theme.paper)) {
+        // First, so that it is where Compose puts the focus when nobody has asked for it.
+        FocusRest(LocalInputModeManager.current)
+        Column(
             Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                // Room for the orb that rises out of the bar, so it never sits
-                // on a tab's own field or button.
-                .padding(bottom = if (typing) 0.dp else OrbOverhang),
+                .fillMaxSize()
+                .imePadding(),
         ) {
-            when (tab) {
-                AppTab.Today -> TodayScreen(
-                    model = services.concierge,
-                    season = services.season,
-                    onAsked = { router.show(AppTab.Concierge) },
-                    onOpen = router::open,
-                    onEvents = { router.show(AppTab.Events) },
-                )
-                AppTab.Events -> EventsScreen(
-                    reminders = services.season,
-                    onPlan = { request ->
-                        services.concierge.prepare(request)
-                        router.show(AppTab.Concierge)
-                    },
-                )
-                AppTab.Concierge -> ConciergeScreen(
-                    model = services.concierge,
-                    favorites = services.favorites,
-                    onOpen = router::open,
-                    modifier = Modifier.testTag("content.Concierge"),
-                )
-                AppTab.Catalog -> SearchScreen(
-                    model = services.search,
-                    favorites = services.favorites,
-                    onOpen = router::open,
-                    modifier = Modifier.testTag("content.Catalog"),
-                )
-                AppTab.Account -> WebTab(services.account, Modifier.testTag("content.Account"))
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    // Room for the orb that rises out of the bar, so it never sits
+                    // on a tab's own field or button.
+                    .padding(bottom = if (typing) 0.dp else OrbOverhang),
+            ) {
+                when (tab) {
+                    AppTab.Today -> if (events) {
+                        EventsScreen(
+                            reminders = services.season,
+                            onPlan = { request ->
+                                services.concierge.prepare(request)
+                                router.show(AppTab.Concierge)
+                            },
+                            onMenu = openMenu,
+                        )
+                    } else {
+                        TodayScreen(
+                            model = services.concierge,
+                            season = services.season,
+                            onAsked = { router.show(AppTab.Concierge) },
+                            onOpen = router::open,
+                            onEvents = router::showEvents,
+                            onMenu = openMenu,
+                        )
+                    }
+                    AppTab.Concierge -> ConciergeScreen(
+                        model = services.concierge,
+                        favorites = services.favorites,
+                        onOpen = router::open,
+                        onMenu = openMenu,
+                        modifier = Modifier.testTag("content.Concierge"),
+                    )
+                    AppTab.Catalog -> SearchScreen(
+                        model = services.search,
+                        favorites = services.favorites,
+                        onOpen = router::open,
+                        onMenu = openMenu,
+                        modifier = Modifier.testTag("content.Catalog"),
+                    )
+                    AppTab.Exclusive -> WebTab(services.exclusive, Modifier.testTag("content.Exclusive"))
+                    AppTab.Account -> WebTab(services.account, Modifier.testTag("content.Account"))
+                }
+                if (layer) WebLayer(services.explore, onClose = router::closeLayer)
             }
-            if (layer) WebLayer(services.explore, onClose = router::closeLayer)
+            if (!typing) {
+                TabBar(selected = tab, onSelect = router::select)
+            }
         }
-        if (!typing) {
-            TabBar(selected = tab, onSelect = router::select)
-        }
+        MenuSheet(
+            visible = menuOpen,
+            onClose = { menuOpen = false },
+            onSelect = { entry ->
+                menuOpen = false
+                entry.open(router)
+            },
+        )
     }
+}
+
+/**
+ * Puts the keyboard away: no field keeps the focus, and the keyboard goes
+ * down. It happens whenever one of [triggers] changes (another tab, Events
+ * opening or closing, the menu opening) and each time the app comes to the
+ * front, the first time included. No code of the app asks for focus, and
+ * [FocusRest] keeps the focus Compose hands out by itself off the fields; this
+ * is what ends a focus the guest gave a field themselves.
+ */
+@Composable
+private fun KeyboardAway(vararg triggers: Any?) {
+    val focus = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
+    val putAway by rememberUpdatedState {
+        focus.clearFocus(force = true)
+        keyboard?.hide()
+    }
+    LaunchedEffect(*triggers) { putAway() }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { putAway() }
 }
 
 /** How far the orb rises above the bar's top edge (see [TabItem]). */
@@ -259,8 +318,8 @@ private fun TabItem(tab: AppTab, selected: Boolean, onClick: () -> Unit, modifie
     val label = when (tab) {
         AppTab.Today -> stringResource(R.string.tab_today)
         AppTab.Catalog -> stringResource(R.string.tab_catalog)
-        AppTab.Concierge -> "AI"
-        AppTab.Events -> stringResource(R.string.tab_events)
+        AppTab.Concierge -> stringResource(R.string.tab_ai)
+        AppTab.Exclusive -> stringResource(R.string.tab_exclusive)
         AppTab.Account -> stringResource(R.string.tab_profile)
     }
     Column(
@@ -296,7 +355,7 @@ private fun TabItem(tab: AppTab, selected: Boolean, onClick: () -> Unit, modifie
             }
             AppTab.Today -> TabIcon(R.drawable.ic_tab_home, colour)
             AppTab.Catalog -> TabIcon(R.drawable.ic_tab_search, colour)
-            AppTab.Events -> TabIcon(R.drawable.ic_tab_events, colour)
+            AppTab.Exclusive -> TabIcon(R.drawable.ic_tab_exclusive, colour)
             AppTab.Account -> TabIcon(R.drawable.ic_tab_account, colour)
         }
         Text(

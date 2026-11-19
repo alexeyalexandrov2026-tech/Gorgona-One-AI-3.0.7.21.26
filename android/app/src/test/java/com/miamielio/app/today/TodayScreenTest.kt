@@ -32,6 +32,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,6 +55,7 @@ class TodayScreenTest {
     private val opened = mutableListOf<String>()
     private var asked = 0
     private var events = 0
+    private var menus = 0
 
     private val beforeArtBasel = Clock.fixed(Instant.parse("2026-11-20T15:00:00Z"), ZoneOffset.UTC)
 
@@ -72,6 +74,7 @@ class TodayScreenTest {
                 onAsked = { asked++ },
                 onOpen = { opened += it },
                 onEvents = { events++ },
+                onMenu = { menus++ },
                 now = { beforeArtBasel.instant() },
             )
         }
@@ -139,6 +142,25 @@ class TodayScreenTest {
     }
 
     @Test
+    fun theMenuButtonOpensTheMenu() {
+        show()
+        compose.onNodeWithTag("menu.open").performClick()
+        assertEquals(1, menus)
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w320dp-h640dp")
+    fun theHeaderHasRoomForTheMenuTheNameAndTheManagerOnTheNarrowestPhone() {
+        show(fontScale = 1.3f)
+        val width = compose.onRoot().fetchSemanticsNode().boundsInRoot.width
+        val menu = compose.onNodeWithTag("menu.open").fetchSemanticsNode().boundsInRoot
+        val manager = compose.onNodeWithTag("today.manager").fetchSemanticsNode().boundsInRoot
+        assertTrue("menu $menu", menu.left >= 0f && menu.width >= 48f)
+        assertTrue("manager $manager in $width", manager.right <= width + 0.5f)
+        assertFalse("$menu overlaps $manager", menu.overlaps(manager))
+    }
+
+    @Test
     fun theManagerOpensTelegram() {
         show()
         compose.onNodeWithTag("today.manager").performClick()
@@ -183,7 +205,7 @@ class TodaySnapshotTest {
         val season = SeasonReminders(ApplicationProvider.getApplicationContext(), clock)
         compose.setContent {
             MiamiElioTheme {
-                TodayScreen(model, season, onAsked = {}, onOpen = {}, onEvents = {}, now = { clock.instant() })
+                TodayScreen(model, season, onAsked = {}, onOpen = {}, onEvents = {}, onMenu = {}, now = { clock.instant() })
             }
         }
         compose.mainClock.advanceTimeBy(1_500)

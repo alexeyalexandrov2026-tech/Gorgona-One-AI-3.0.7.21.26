@@ -55,6 +55,7 @@ class ConciergeScreenTest {
     private val chat = ScriptedTransport()
     private val plans = ScriptedTransport()
     private val opened = mutableListOf<String>()
+    private var menus = 0
 
     private fun show(reporter: AnswerReporter? = null): ConciergeViewModel {
         val model = ConciergeViewModel(
@@ -64,12 +65,20 @@ class ConciergeScreenTest {
             locale = { "en" },
         )
         val favorites = guestFavorites()
-        compose.setContent { MiamiElioTheme { ConciergeScreen(model, favorites, onOpen = { opened += it }) } }
+        compose.setContent { MiamiElioTheme { ConciergeScreen(model, favorites, onOpen = { opened += it }, onMenu = { menus++ }) } }
         return model
     }
 
     private fun scrollTo(tag: String) {
         compose.onNodeWithTag("concierge.conversation").performScrollToNode(hasTestTag(tag))
+    }
+
+    @Test
+    fun theMenuButtonOpensTheMenu() {
+        show()
+        compose.onNodeWithTag("menu.open").performClick()
+        assertEquals(1, menus)
+        assertTrue(opened.isEmpty())
     }
 
     @Test
@@ -290,7 +299,7 @@ class ConciergeSnapshotTest {
             locale = { locale },
         )
         val favorites = guestFavorites()
-        compose.setContent { MiamiElioTheme { ConciergeScreen(model, favorites, onOpen = {}) } }
+        compose.setContent { MiamiElioTheme { ConciergeScreen(model, favorites, onOpen = {}, onMenu = {}) } }
         compose.mainClock.advanceTimeBy(2_000)
         save("concierge-welcome-$locale.png")
         chat.reply(Replies.withPlan(reply = "A **sunset cruise**, then dinner at [Komodo](/restaurants-nightlife/komodo-miami)."))
@@ -317,7 +326,7 @@ class ConciergeSnapshotTest {
             reporter = null,
             locale = { "en" },
         )
-        compose.setContent { MiamiElioTheme { ConciergeScreen(model, guestFavorites(), onOpen = {}) } }
+        compose.setContent { MiamiElioTheme { ConciergeScreen(model, guestFavorites(), onOpen = {}, onMenu = {}) } }
         compose.runOnUiThread { model.send("A yacht for eight guests") }
         compose.mainClock.advanceTimeBy(2_000)
         save("concierge-listings-en.png")

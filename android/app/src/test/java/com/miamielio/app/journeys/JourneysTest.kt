@@ -105,7 +105,7 @@ class JourneysTest {
 
     private fun searchScreen(favorites: FavoritesStore = guestFavorites(), onOpen: (String) -> Unit = {}) {
         val model = SearchViewModel(SearchClient(transport = search), online, pauseMillis = 0)
-        compose.setContent { MiamiElioTheme { SearchScreen(model, favorites, onOpen = onOpen) } }
+        compose.setContent { MiamiElioTheme { SearchScreen(model, favorites, onOpen = onOpen, onMenu = {}) } }
     }
 
     private fun find(query: String) {
@@ -118,7 +118,7 @@ class JourneysTest {
         val config = AppConfig.production
         val explore = Page()
         val outside = Outside()
-        val router = AppRouter(config, RoutePolicy(config), explore, Page(), outside)
+        val router = AppRouter(config, RoutePolicy(config), explore, Page(), Page(), outside)
         router.select(AppTab.Catalog)
         search.reply(YACHTS)
         searchScreen(onOpen = router::open)
@@ -195,7 +195,7 @@ class JourneysTest {
             reporter = null,
             locale = { "en" },
         )
-        compose.setContent { MiamiElioTheme { ConciergeScreen(model, guestFavorites(), onOpen = {}) } }
+        compose.setContent { MiamiElioTheme { ConciergeScreen(model, guestFavorites(), onOpen = {}, onMenu = {}) } }
         compose.onAllNodesWithTag("concierge.starter")[0].performClick()
         compose.waitForIdle()
         compose.onNodeWithTag("concierge.conversation").performScrollToNode(hasTestTag("plan.send"))
@@ -243,7 +243,7 @@ class JourneysTest {
             reporter = { },
             locale = { "en" },
         )
-        compose.setContent { MiamiElioTheme { ConciergeScreen(model, guestFavorites(), onOpen = {}) } }
+        compose.setContent { MiamiElioTheme { ConciergeScreen(model, guestFavorites(), onOpen = {}, onMenu = {}) } }
         compose.assertEveryControlIsNamed()
 
         compose.onAllNodesWithTag("concierge.starter")[0].performClick()
@@ -279,7 +279,8 @@ class NarrowLargeTextTest {
 
     private fun search(name: String) {
         val model = SearchViewModel(SearchClient(transport = ScriptedTransport().reply(YACHTS)), pauseMillis = 0)
-        large { SearchScreen(model, guestFavorites(), onOpen = {}) }
+        large { SearchScreen(model, guestFavorites(), onOpen = {}, onMenu = {}) }
+        assertInsideTheScreen("menu.open")
         compose.runOnUiThread { model.setQuery("yacht") }
         compose.mainClock.advanceTimeBy(2_000)
         compose.waitForIdle()
@@ -297,9 +298,10 @@ class NarrowLargeTextTest {
             reporter = null,
             locale = { locale },
         )
-        large { ConciergeScreen(model, guestFavorites(), onOpen = {}) }
+        large { ConciergeScreen(model, guestFavorites(), onOpen = {}, onMenu = {}) }
         compose.mainClock.advanceTimeBy(2_000)
         compose.onNodeWithTag("concierge.send").assertIsDisplayed()
+        assertTopBarFits()
         compose.onAllNodesWithTag("concierge.starter")[0].performClick()
         compose.mainClock.advanceTimeBy(2_000)
         compose.onNodeWithTag("concierge.conversation").performScrollToNode(hasTestTag("plan.item"))
@@ -341,6 +343,24 @@ class NarrowLargeTextTest {
     @Test
     @Config(sdk = [34], qualifiers = "ar-w320dp-h640dp-xhdpi")
     fun conciergeInArabic() = concierge("ar", "narrow-concierge-ar.png")
+
+    private fun assertInsideTheScreen(tag: String) {
+        val width = compose.onRoot().fetchSemanticsNode().boundsInRoot.width
+        val box = compose.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot
+        assertTrue("$tag $box in $width", box.left >= -0.5f && box.right <= width + 0.5f)
+    }
+
+    /** The concierge's top bar: the menu, the manager and "new conversation" side by side, none off the edge or on another. */
+    private fun assertTopBarFits() {
+        val tags = listOf("menu.open", "concierge.manager", "concierge.new")
+        tags.forEach(::assertInsideTheScreen)
+        val boxes = tags.map { compose.onNodeWithTag(it).fetchSemanticsNode().boundsInRoot }
+        for (i in boxes.indices) {
+            for (j in i + 1 until boxes.size) {
+                assertTrue("${tags[i]} ${boxes[i]} overlaps ${tags[j]} ${boxes[j]}", !boxes[i].overlaps(boxes[j]))
+            }
+        }
+    }
 
     /** Every piece of text stays inside the screen's width (search has no sideways scrolling). */
     private fun assertNothingRunsOffTheSide() {

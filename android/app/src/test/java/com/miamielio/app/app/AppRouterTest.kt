@@ -39,8 +39,9 @@ class AppRouterTest {
     private val config = AppConfig.production
     private val explore = FakePage()
     private val account = FakePage()
+    private val exclusive = FakePage()
     private val outside = FakeOpener()
-    private val router = AppRouter(config, RoutePolicy(config), explore, account, outside)
+    private val router = AppRouter(config, RoutePolicy(config), explore, account, exclusive, outside)
 
     private val tab get() = router.selectedTab.value
 
@@ -77,12 +78,12 @@ class AppRouterTest {
 
     @Test
     fun closingTheLayerKeepsTheTab() {
-        router.select(AppTab.Events)
+        router.select(AppTab.Exclusive)
         router.open("/yachts")
         assertTrue(router.webLayer.value)
         router.closeLayer()
         assertFalse(router.webLayer.value)
-        assertEquals(AppTab.Events, tab)
+        assertEquals(AppTab.Exclusive, tab)
     }
 
     @Test
@@ -174,5 +175,116 @@ class AppRouterTest {
         router.handle("miamielio://open?path=/sportsbook")
         assertEquals(1, explore.loaded.size)
         assertEquals(listOf("https://gorgona-one.com/sportsbook"), outside.system)
+    }
+
+    @Test
+    fun theBarHasFiveTabsAndEventsIsNotOneOfThem() {
+        assertEquals(
+            listOf(AppTab.Today, AppTab.Catalog, AppTab.Concierge, AppTab.Exclusive, AppTab.Account),
+            AppTab.entries,
+        )
+    }
+
+    @Test
+    fun exclusiveDestinationsHaveATabOfTheirOwn() {
+        router.open("/exclusive-destinations")
+        assertEquals(AppTab.Exclusive, tab)
+        assertFalse(router.webLayer.value)
+
+        // However the link is written, and wherever it comes from.
+        router.select(AppTab.Today)
+        router.open("https://gorgona-one.com/Exclusive-Destinations/?utm_source=app")
+        assertEquals(AppTab.Exclusive, tab)
+        router.select(AppTab.Catalog)
+        router.handle("miamielio://open?path=/exclusive-destinations")
+        assertEquals(AppTab.Exclusive, tab)
+        account.onRoute?.invoke("https://gorgona-one.com/exclusive-destinations", RouteDecision.Web)
+        assertEquals(AppTab.Exclusive, tab)
+
+        // A page inside it still opens over the tab.
+        router.open("/exclusive-destinations/blue-lagoon")
+        assertEquals(listOf("https://gorgona-one.com/exclusive-destinations/blue-lagoon"), explore.loaded)
+        assertTrue(router.webLayer.value)
+        assertEquals(AppTab.Exclusive, tab)
+        assertEquals(emptyList<String>(), exclusive.loaded)
+    }
+
+    @Test
+    fun linksTheExclusivePageHandsOverGoTheSameWay() {
+        router.select(AppTab.Exclusive)
+
+        exclusive.onRoute?.invoke("https://partner.example.com/cruise", RouteDecision.Browser)
+        exclusive.onRoute?.invoke("tel:+13055550123", RouteDecision.System)
+        exclusive.onRoute?.invoke("https://gorgona-one.com/yachts", RouteDecision.Web)
+        assertEquals(listOf("https://partner.example.com/cruise"), outside.browser)
+        assertEquals(listOf("tel:+13055550123"), outside.system)
+        assertEquals(listOf("https://gorgona-one.com/yachts"), explore.loaded)
+        assertTrue(router.webLayer.value)
+        assertEquals(AppTab.Exclusive, tab)
+    }
+
+    @Test
+    fun tappingTheExclusiveTabAgainTakesItBackToItsStart() {
+        router.select(AppTab.Exclusive)
+        assertEquals(0, exclusive.returnsToStart)
+        router.select(AppTab.Exclusive)
+        assertEquals(1, exclusive.returnsToStart)
+        assertEquals(0, account.returnsToStart)
+
+        // With a page over it the tap only puts that page away.
+        router.open("/yachts")
+        router.select(AppTab.Exclusive)
+        assertFalse(router.webLayer.value)
+        assertEquals(1, exclusive.returnsToStart)
+
+        // Arriving by link is not "tap again to go home" either.
+        router.open("/exclusive-destinations")
+        assertEquals(1, exclusive.returnsToStart)
+    }
+
+    @Test
+    fun eventsIsAScreenOffTodayAndAnyTabLeavesIt() {
+        router.select(AppTab.Catalog)
+        router.showEvents()
+        assertTrue(router.eventsOpen.value)
+        // Today stays the selected tab: Events is where Today leads.
+        assertEquals(AppTab.Today, tab)
+        assertFalse(router.webLayer.value)
+
+        // Today's own tab is the way home.
+        router.select(AppTab.Today)
+        assertFalse(router.eventsOpen.value)
+        assertEquals(AppTab.Today, tab)
+        assertEquals(0, account.returnsToStart + exclusive.returnsToStart + explore.returnsToStart)
+
+        for (other in listOf(AppTab.Catalog, AppTab.Concierge, AppTab.Exclusive, AppTab.Account)) {
+            router.showEvents()
+            router.select(other)
+            assertFalse("$other", router.eventsOpen.value)
+            assertEquals(other, tab)
+        }
+
+        router.showEvents()
+        router.show(AppTab.Today)
+        assertFalse(router.eventsOpen.value)
+
+        // A link or a notification that arrives meanwhile.
+        router.showEvents()
+        router.handle("miamielio://concierge")
+        assertFalse(router.eventsOpen.value)
+        assertEquals(AppTab.Concierge, tab)
+    }
+
+    @Test
+    fun aSitePageOverEventsLeavesEventsWhereItWas() {
+        router.showEvents()
+        router.open("/yachts")
+        assertTrue(router.webLayer.value)
+        assertTrue(router.eventsOpen.value)
+        assertEquals(AppTab.Today, tab)
+
+        router.closeLayer()
+        assertFalse(router.webLayer.value)
+        assertTrue(router.eventsOpen.value)
     }
 }

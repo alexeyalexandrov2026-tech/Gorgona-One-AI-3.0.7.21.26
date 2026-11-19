@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -37,10 +38,11 @@ class EventsScreenTest {
     private val app = ApplicationProvider.getApplicationContext<Application>()
     private val beforeArtBasel = Clock.fixed(Instant.parse("2026-11-20T15:00:00Z"), ZoneOffset.UTC)
     private val planned = mutableListOf<String>()
+    private var menus = 0
 
     private fun show() {
         val reminders = SeasonReminders(app, beforeArtBasel)
-        compose.setContent { MiamiElioTheme { EventsScreen(reminders, onPlan = { planned += it }) } }
+        compose.setContent { MiamiElioTheme { EventsScreen(reminders, onPlan = { planned += it }, onMenu = { menus++ }) } }
     }
 
     @Test
@@ -50,6 +52,13 @@ class EventsScreenTest {
         compose.onAllNodesWithTag("season.plan")[0].performClick()
         assertEquals(1, planned.size)
         assertTrue(planned.single().contains("Art Basel Miami Beach"))
+    }
+
+    @Test
+    fun theMenuButtonOpensTheMenu() {
+        show()
+        compose.onNodeWithTag("menu.open").performClick()
+        assertEquals(1, menus)
     }
 
     @Test
@@ -75,7 +84,7 @@ class EventsSnapshotTest {
     fun english() {
         val clock = Clock.fixed(Instant.parse("2026-11-20T15:00:00Z"), ZoneOffset.UTC)
         val reminders = SeasonReminders(ApplicationProvider.getApplicationContext(), clock)
-        compose.setContent { MiamiElioTheme { EventsScreen(reminders, onPlan = {}) } }
+        compose.setContent { MiamiElioTheme { EventsScreen(reminders, onPlan = {}, onMenu = {}) } }
         compose.mainClock.advanceTimeBy(1_000)
         val picture = compose.onRoot().captureToImage().asAndroidBitmap()
         val folder = File("build/outputs/snapshots").apply { mkdirs() }

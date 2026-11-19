@@ -67,6 +67,7 @@ import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.ConciergeMark
 import com.miamielio.app.ui.Hairline
 import com.miamielio.app.ui.LocalReduceMotion
+import com.miamielio.app.ui.MenuButton
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.ui.filled
@@ -92,6 +93,7 @@ internal fun TodayScreen(
     onAsked: () -> Unit,
     onOpen: (String) -> Unit,
     onEvents: () -> Unit,
+    onMenu: () -> Unit,
     modifier: Modifier = Modifier,
     now: () -> Instant = Instant::now,
 ) {
@@ -117,7 +119,7 @@ internal fun TodayScreen(
             .verticalScroll(rememberScrollState())
             .testTag("content.Today"),
     ) {
-        Header(onManager = { onOpen(LIVE_MANAGER_URL) })
+        Header(onMenu = onMenu, onManager = { onOpen(LIVE_MANAGER_URL) })
         Hero(
             query = query,
             onQuery = { query = it },
@@ -151,15 +153,19 @@ internal fun TodayScreen(
 }
 
 @Composable
-private fun Header(onManager: () -> Unit) {
+private fun Header(onMenu: () -> Unit, onManager: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
             .statusBarsPadding()
             .heightIn(min = 64.dp)
-            .padding(horizontal = 20.dp),
+            // The menu's button is 48 dp wide around a 24 dp icon, so 8 dp in
+            // puts the icon on the 20 dp edge the wordmark stood on.
+            .padding(start = 8.dp, end = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        MenuButton(onMenu)
+        Spacer(Modifier.width(4.dp))
         Wordmark(size = 26f)
         Spacer(Modifier.weight(1f))
         Row(
