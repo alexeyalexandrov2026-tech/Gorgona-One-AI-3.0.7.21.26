@@ -9,7 +9,6 @@ import { useLocale } from './LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
 import { favouriteKind, planRequest } from '../../lib/myMiami.mjs';
 import { btn } from './g1/ui';
-import Icon from './g1/icons';
 import SaveButton from './SaveButton';
 
 // The favourites part of "My Miami" (the profile page): everything the guest
@@ -24,10 +23,10 @@ export default function MyMiami() {
   const auth = useAuth();
   const { items, ready, mode } = useFavorites();
   const favourites = items.filter((item) => favouriteKind(item.href));
-  const sections = { yacht: t.nav.yachts, stay: t.nav.villas, car: t.nav.cars, dining: t.restaurantsNightlife.pill };
+  const sections = { stay: t.nav.villas, car: t.nav.cars, dining: t.restaurantsNightlife.pill };
   const kinds = new Set(favourites.map((item) => favouriteKind(item.href)));
   const request = planRequest(favourites, { template: msg('Build a plan from my favourites: {items}'), sections });
-  const browse = [['/yachts', t.nav.yachts], ['/vacation-rentals', t.nav.villas], ['/rentals', t.nav.cars], ['/restaurants-nightlife', t.restaurantsNightlife.pill]];
+  const browse = [['/vacation-rentals', t.nav.villas], ['/rentals', t.nav.cars], ['/restaurants-nightlife', t.restaurantsNightlife.pill]];
   // Where the list lives, said only when it is not yet in the account.
   const where = !ready || !favourites.length || mode === 'account' ? ''
     : auth?.session ? msg('Favourites are kept on this device.')
@@ -49,7 +48,6 @@ export default function MyMiami() {
         <p role="status" className="text-g1-soft">{msg('Loading...')}</p>
       ) : !favourites.length ? (
         <div className="grid max-w-[60ch] gap-4">
-          <p className="flex items-start gap-2 text-g1-soft"><Icon name="heart" className="mt-0.5 h-5 w-5" />{msg('Tap the heart on a yacht, villa, car or restaurant and it will wait for you here.')}</p>
           <nav className="flex flex-wrap gap-2" aria-label={msg('Favourites')}>
             {browse.map(([href, label]) => <Link key={href} href={href} className="inline-flex min-h-[40px] items-center rounded-full border border-g1-rule px-4 text-sm text-g1-ink hover:border-g1-ink">{label}</Link>)}
           </nav>

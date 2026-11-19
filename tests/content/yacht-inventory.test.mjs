@@ -23,3 +23,12 @@ test('legacy yacht rows cannot reappear through the catalogue repository or sear
     if (previousKey === undefined) delete process.env.SUPABASE_ANON_KEY; else process.env.SUPABASE_ANON_KEY = previousKey;
   }
 });
+
+test('My Miami filters legacy yacht favourites and keeps supported inventory', () => {
+  const { favouriteKind, favouriteRef, planRequest } = load('lib/myMiami.mjs');
+  const legacy = { href: '/yachts/retired-yacht', title: 'Retired Yacht' };
+  const car = { href: '/rentals/current-car', title: 'Current Car' };
+  assert.equal(favouriteKind(legacy.href), null);
+  assert.equal(favouriteRef(legacy.href), null);
+  assert.equal(planRequest([legacy, car], { template: '{items}', sections: { car: 'Cars' } }), 'Cars: Current Car');
+});
