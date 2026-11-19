@@ -84,11 +84,12 @@ class FavoriteRef private constructor(
             "dining-nightlife" to "dining",
         )
 
-        /** A search hit, when it is something that can be kept: a yacht, villa, car or restaurant. */
+        /** Search hits can be kept when they open an individual catalogue item. */
         fun of(result: SearchResult): FavoriteRef? {
             val mapped = worlds[result.world ?: return null] ?: return null
             val kind = if (mapped == "dining" && result.category?.lowercase() == "nightlife") "nightlife" else mapped
-            val slug = result.href.split('/').lastOrNull { it.isNotEmpty() }.orEmpty()
+            val path = WebAddress.parse(result.href)?.path ?: result.href.substringBefore('?').substringBefore('#')
+            val slug = path.trim('/').substringAfterLast('/', missingDelimiterValue = "")
             return of(kind, slug, result.title, result.location, result.image)
         }
 

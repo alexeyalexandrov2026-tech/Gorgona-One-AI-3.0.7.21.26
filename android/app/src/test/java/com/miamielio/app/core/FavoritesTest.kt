@@ -27,6 +27,13 @@ class FavoritesTest {
     }
 
     @Test
+    fun catalogueSectionsAreNotFavorites() {
+        assertNull(FavoriteRef.of(SearchResult(href = "/yachts", title = "YATR", world = "yachts")))
+        assertNull(FavoriteRef.of(SearchResult(href = "https://gorgona-one.com/yachts/?ref=app", title = "YATR", world = "yachts")))
+        assertNull(FavoriteRef.of(SearchResult(href = "/rentals/", title = "Cars", world = "car-rentals")))
+    }
+
+    @Test
     fun theScriptCarriesTheChangeAsData() {
         val favorite = FavoriteRef.of("car", "white-suv", "White \"SUV\" </script> ")!!
         val script = favorite.script(on = true, receipt = "one", owner = null)
