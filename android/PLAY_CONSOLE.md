@@ -49,6 +49,12 @@ Uses less battery on the home screen. Includes everything from 1.2.0: the
 Miami Elio AI concierge on the home screen, the gold concierge with photos and
 prices, a live manager one tap away, and the Events tab with reminders.
 
+**Release notes, 1.2.2 (version code 6), English (United States)**
+
+Yacht searches open the YATR catalogue. The concierge lets you retry a
+request after a temporary outage. Opening a catalogue result closes the
+keyboard, and going back keeps your search.
+
 ## Graphics
 
 The local handoff is in `app/build/outputs/play-listing/`. The app icon
