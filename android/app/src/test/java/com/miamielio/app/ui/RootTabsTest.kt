@@ -7,6 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.captureToImage
@@ -66,8 +68,9 @@ class RootTabsTest {
         // The orb is lifted above the bar.
         val orb = compose.onNodeWithTag("tab.orb", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         assertTrue(orb.top < bounds[0].top)
-        for (label in listOf("Today", "Catalog", "AI", "Events", "Profile")) {
-            compose.onNodeWithText(label).assertExists()
+        // Each tab is read by its name.
+        for ((tab, label) in order.zip(listOf("Today", "Catalog", "AI", "Events", "Profile"))) {
+            compose.onNodeWithTag("tab.${tab.name}").assert(hasText(label))
         }
     }
 

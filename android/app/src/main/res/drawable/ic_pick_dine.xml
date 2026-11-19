@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same line drawing as the website's home hero (app/components/home/HomeHero.jsx). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M7,3v18M4.5,3v5a2.5,2.5 0,0 0,5 0V3M17,21V3c-2.2,1.6 -3,4.5 -3,7.5 0,1.4 0.9,2.5 3,2.5"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

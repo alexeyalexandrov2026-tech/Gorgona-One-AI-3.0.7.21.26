@@ -76,6 +76,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.miamielio.app.R
+import com.miamielio.app.app.LIVE_MANAGER_URL
 import com.miamielio.app.core.AnswerReport
 import com.miamielio.app.core.ConciergeCard
 import com.miamielio.app.core.ConciergeListing
@@ -204,13 +205,6 @@ internal fun ConciergeScreen(
         )
     }
 }
-
-/**
- * A person, not the AI: the manager's Telegram, the same one the site's chip
- * next to its concierge opens (`lib/managerContact.mjs`). Opens in Telegram,
- * or in the browser when Telegram is not installed.
- */
-internal const val LIVE_MANAGER_URL = "https://t.me/alexeyalexand07"
 
 @Composable
 private fun TopBar(canReset: Boolean, onReset: () -> Unit, onManager: () -> Unit) {

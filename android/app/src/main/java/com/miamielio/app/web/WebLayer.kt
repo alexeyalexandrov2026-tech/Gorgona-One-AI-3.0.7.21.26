@@ -19,11 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miamielio.app.R
@@ -39,7 +37,6 @@ import com.miamielio.app.ui.Wordmark
 @Composable
 fun WebLayer(controller: WebTabController, onClose: () -> Unit, modifier: Modifier = Modifier) {
     val state by controller.state.collectAsStateWithLifecycle()
-    val leftToRight = LocalLayoutDirection.current == LayoutDirection.Ltr
 
     // Declared before WebTab's own handler, so WebTab's (history) answers first.
     BackHandler(onBack = onClose)
@@ -65,10 +62,11 @@ fun WebLayer(controller: WebTabController, onClose: () -> Unit, modifier: Modifi
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_forward),
                     contentDescription = stringResource(R.string.web_back),
-                    // The forward arrow, turned to point back in either reading direction.
+                    // The forward arrow turned round. The drawable already
+                    // mirrors itself for right-to-left, so it always flips.
                     modifier = Modifier
                         .size(20.dp)
-                        .graphicsLayer { scaleX = if (leftToRight) -1f else 1f },
+                        .graphicsLayer { scaleX = -1f },
                     tint = Theme.ink,
                 )
             }

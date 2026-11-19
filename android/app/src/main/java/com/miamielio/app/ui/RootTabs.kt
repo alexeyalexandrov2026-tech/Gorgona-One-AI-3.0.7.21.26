@@ -57,6 +57,7 @@ import com.miamielio.app.app.AppServices
 import com.miamielio.app.app.AppTab
 import com.miamielio.app.concierge.ConciergeScreen
 import com.miamielio.app.search.SearchScreen
+import com.miamielio.app.today.TodayScreen
 import com.miamielio.app.web.WebLayer
 import com.miamielio.app.web.WebTab
 import androidx.compose.foundation.layout.offset
@@ -183,7 +184,13 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
                 .fillMaxWidth(),
         ) {
             when (tab) {
-                AppTab.Today -> Box(Modifier.fillMaxSize().testTag("content.Today"))
+                AppTab.Today -> TodayScreen(
+                    model = services.concierge,
+                    season = services.season,
+                    onAsked = { router.show(AppTab.Concierge) },
+                    onOpen = router::open,
+                    onEvents = { router.show(AppTab.Events) },
+                )
                 AppTab.Events -> Box(Modifier.fillMaxSize().testTag("content.Events"))
                 AppTab.Concierge -> ConciergeScreen(
                     model = services.concierge,
