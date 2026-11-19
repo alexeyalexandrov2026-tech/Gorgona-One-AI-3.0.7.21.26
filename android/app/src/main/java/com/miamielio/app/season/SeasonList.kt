@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,16 +44,28 @@ import com.miamielio.app.core.Season
 import com.miamielio.app.core.SeasonEvent
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.Eyebrow
-import com.miamielio.app.ui.Hairline
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.filled
+import com.miamielio.app.ui.pressable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import java.time.LocalDate
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun SeasonList(reminders: SeasonReminders, onPrepare: (String) -> Unit) {
     val context = LocalContext.current
-    var now by remember { mutableStateOf(Instant.now()) }
+    var now by remember { mutableStateOf(reminders.now()) }
     val events = remember(reminders, now) { Season.upcoming(reminders.events, now) }
     var requestedId by rememberSaveable { mutableStateOf<String?>(null) }
     var blocked by rememberSaveable { mutableStateOf(false) }
@@ -64,19 +75,25 @@ internal fun SeasonList(reminders: SeasonReminders, onPrepare: (String) -> Unit)
         requestedId = null
         blocked = !granted || !reminders.notificationsAllowed()
         scheduleFailed = !blocked && event != null && reminders.schedule(event) == null
-        now = Instant.now()
+        now = reminders.now()
     }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        now = Instant.now()
+        now = reminders.now()
         if (reminders.notificationsAllowed()) blocked = false
     }
 
     Column(
         Modifier.fillMaxWidth().testTag("season.list"),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Eyebrow(stringResource(R.string.season_title), Modifier.semantics { heading() }, color = Theme.gold)
-        Text(stringResource(R.string.season_lede), color = Theme.soft, style = AppFont.detail)
+        Eyebrow(stringResource(R.string.season_title), color = Theme.goldText)
+        Text(
+            stringResource(R.string.tab_events),
+            Modifier.semantics { heading() },
+            color = Theme.ink,
+            style = AppFont.hero,
+        )
+        Text(stringResource(R.string.season_lede), Modifier.padding(bottom = 6.dp), color = Theme.soft, style = AppFont.detail)
         if (blocked) {
             Text(stringResource(R.string.season_blocked), color = Theme.soft, style = AppFont.detail)
             TextButton(onClick = { openNotificationSettings(context) }) {
@@ -93,10 +110,10 @@ internal fun SeasonList(reminders: SeasonReminders, onPrepare: (String) -> Unit)
                 scheduleFailed = false
                 if (scheduled != null) {
                     reminders.cancel(event)
-                    now = Instant.now()
+                    now = reminders.now()
                 } else if (reminders.notificationsAllowed()) {
                     scheduleFailed = reminders.schedule(event) == null
-                    now = Instant.now()
+                    now = reminders.now()
                 } else if (Build.VERSION.SDK_INT >= 33 &&
                     ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
                     !blocked
@@ -107,7 +124,6 @@ internal fun SeasonList(reminders: SeasonReminders, onPrepare: (String) -> Unit)
                     blocked = true
                 }
             }
-            Hairline()
         }
     }
 }
@@ -121,34 +137,77 @@ private fun SeasonRow(
     onToggle: () -> Unit,
 ) {
     val locale = LocalLocale.current.platformLocale
-    Column(Modifier.fillMaxWidth().padding(top = 6.dp)) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(event.name, color = Theme.ink, style = AppFont.rowTitle)
-                Text(Season.range(event) + " · " + event.place, color = Theme.soft, style = AppFont.detail)
-                Text(event.tip, color = Theme.soft, style = AppFont.detail)
-                if (scheduled != null) {
-                    val pattern = DateFormat.getBestDateTimePattern(locale, "MMMd")
-                    val day = DateTimeFormatter.ofPattern(pattern, locale).withZone(Season.zone).format(scheduled)
-                    Text(stringResource(R.string.season_reminder_on).filled("date" to day), color = Theme.accent, style = AppFont.detail)
-                }
+    val shape = RoundedCornerShape(18.dp)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Brush.linearGradient(listOf(Theme.goldText.copy(alpha = 0.09f), Color.White.copy(alpha = 0.02f))))
+            .border(1.dp, Theme.goldLine, shape)
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        DateBlock(event, locale)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(event.name, color = Theme.ink, style = AppFont.rowTitle)
+            Text(event.place, color = Theme.soft, style = AppFont.detail)
+            if (scheduled != null) {
+                val pattern = DateFormat.getBestDateTimePattern(locale, "MMMd")
+                val day = DateTimeFormatter.ofPattern(pattern, locale).withZone(Season.zone).format(scheduled)
+                Text(stringResource(R.string.season_reminder_on).filled("date" to day), color = Theme.goldText, style = AppFont.detail)
             }
-            if (scheduled != null || canRemind) {
-                IconButton(
-                    onClick = onToggle,
-                    modifier = Modifier.size(48.dp).testTag("season.remind").semantics { selected = scheduled != null },
-                ) {
-                    Icon(
-                        painterResource(R.drawable.ic_bell),
-                        contentDescription = stringResource(if (scheduled == null) R.string.season_remind else R.string.season_reminder_off),
-                        tint = if (scheduled == null) Theme.soft else Theme.accent,
-                    )
-                }
+            Text(
+                stringResource(R.string.season_plan) + if (LocalLayoutDirection.current == LayoutDirection.Rtl) " ←" else " →",
+                Modifier
+                    .padding(top = 4.dp)
+                    .pressable(onClick = onPrepare)
+                    .testTag("season.plan"),
+                color = Theme.goldButton,
+                style = AppFont.detailMedium,
+            )
+        }
+        if (scheduled != null || canRemind) {
+            val on = scheduled != null
+            Box(
+                Modifier
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .background(if (on) Theme.goldButton else Color.Transparent)
+                    .border(1.dp, if (on) Theme.goldButton else Theme.goldLine, CircleShape)
+                    .pressable(onClick = onToggle)
+                    .testTag("season.remind")
+                    .semantics { selected = on },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painterResource(R.drawable.ic_bell),
+                    contentDescription = stringResource(if (on) R.string.season_reminder_off else R.string.season_remind),
+                    modifier = Modifier.size(20.dp),
+                    tint = if (on) Theme.goldInk else Theme.goldLight,
+                )
             }
         }
-        TextButton(onClick = onPrepare, modifier = Modifier.testTag("season.plan")) {
-            Text(stringResource(R.string.season_plan), color = Theme.accent)
-        }
+    }
+}
+
+/** The days of the week, large, over the month: "4–6 / DEC". */
+@Composable
+private fun DateBlock(event: SeasonEvent, locale: java.util.Locale) {
+    val start = runCatching { LocalDate.parse(event.start) }.getOrNull()
+    val end = runCatching { LocalDate.parse(event.end) }.getOrNull()
+    Column(
+        Modifier.width(62.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (start == null) return@Column
+        val days = if (end == null || end == start) "${start.dayOfMonth}" else "${start.dayOfMonth}–${end.dayOfMonth}"
+        Text(days, color = Theme.ink, style = if (days.length > 3) AppFont.cardTitle else AppFont.title, maxLines = 2)
+        Text(
+            DateTimeFormatter.ofPattern("LLL", locale).format(start).uppercase(locale).trimEnd('.'),
+            color = Theme.goldText,
+            style = AppFont.eyebrow,
+        )
     }
 }
 

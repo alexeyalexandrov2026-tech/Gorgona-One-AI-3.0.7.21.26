@@ -58,6 +58,7 @@ import com.miamielio.app.app.AppTab
 import com.miamielio.app.concierge.ConciergeScreen
 import com.miamielio.app.search.SearchScreen
 import com.miamielio.app.today.TodayScreen
+import com.miamielio.app.season.EventsScreen
 import com.miamielio.app.web.WebLayer
 import com.miamielio.app.web.WebTab
 import androidx.compose.foundation.layout.offset
@@ -191,11 +192,16 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
                     onOpen = router::open,
                     onEvents = { router.show(AppTab.Events) },
                 )
-                AppTab.Events -> Box(Modifier.fillMaxSize().testTag("content.Events"))
+                AppTab.Events -> EventsScreen(
+                    reminders = services.season,
+                    onPlan = { request ->
+                        services.concierge.prepare(request)
+                        router.show(AppTab.Concierge)
+                    },
+                )
                 AppTab.Concierge -> ConciergeScreen(
                     model = services.concierge,
                     favorites = services.favorites,
-                    season = services.season,
                     onOpen = router::open,
                     modifier = Modifier.testTag("content.Concierge"),
                 )

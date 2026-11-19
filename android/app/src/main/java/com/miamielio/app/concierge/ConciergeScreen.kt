@@ -89,8 +89,6 @@ import com.miamielio.app.ui.OrbActivity
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.favorites.FavoritesStore
-import com.miamielio.app.season.SeasonList
-import com.miamielio.app.season.SeasonReminders
 import com.miamielio.app.ui.arrives
 import com.miamielio.app.ui.pressable
 import com.miamielio.app.ui.rememberKeyboardDismissal
@@ -106,7 +104,6 @@ internal fun ConciergeScreen(
     favorites: FavoritesStore,
     onOpen: (String) -> Unit,
     modifier: Modifier = Modifier,
-    season: SeasonReminders? = null,
 ) {
     val state by model.state.collectAsStateWithLifecycle()
     val open by rememberUpdatedState(onOpen)
@@ -162,9 +159,6 @@ internal fun ConciergeScreen(
         ) {
             if (state.entries.isEmpty()) {
                 item(key = "welcome") { Welcome(onAsk = { model.send(it) }) }
-                if (season != null) {
-                    item(key = "season") { SeasonList(season, onPrepare = model::prepare) }
-                }
             }
             items(state.entries, key = { it.id }) { entry ->
                 EntryRow(

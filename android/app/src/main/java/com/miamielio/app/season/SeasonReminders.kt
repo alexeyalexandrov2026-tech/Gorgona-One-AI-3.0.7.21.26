@@ -34,6 +34,9 @@ internal class SeasonReminders(
     private val alarms = app.getSystemService(AlarmManager::class.java)
     private val notifications = app.getSystemService(NotificationManager::class.java)
 
+    /** The moment the season is judged from; a fixed clock in tests. */
+    fun now(): Instant = clock.instant()
+
     val events: List<SeasonEvent> by lazy {
         app.assets.open("season.json").bufferedReader().use { Season.decode(it.readText()) }
     }
