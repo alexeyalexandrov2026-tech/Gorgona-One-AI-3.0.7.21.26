@@ -85,6 +85,8 @@ import com.miamielio.app.core.AnswerReport
 import com.miamielio.app.core.ConciergeCard
 import com.miamielio.app.core.ConciergeListing
 import com.miamielio.app.core.ConciergeLink
+import com.miamielio.app.ui.oceanBackground
+import com.miamielio.app.ui.Ocean
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.ConciergeMark
 import com.miamielio.app.ui.Eyebrow
@@ -155,7 +157,7 @@ internal fun ConciergeScreen(
     Column(
         modifier
             .fillMaxSize()
-            .background(Theme.paper),
+            .oceanBackground(),
     ) {
         TopBar(
             canReset = state.entries.isNotEmpty(),
@@ -693,7 +695,7 @@ private fun Composer(
     Column(
         Modifier
             .fillMaxWidth()
-            .background(Theme.paper),
+            .background(Ocean.night),
     ) {
         val voice = rememberDictation(draft, dictationLanguage, onDraft, readingReply)
         Hairline()

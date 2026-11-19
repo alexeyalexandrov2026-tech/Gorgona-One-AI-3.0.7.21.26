@@ -34,7 +34,9 @@ data class ShowcaseItem(
         /** An item the card can show, or null: the same rules the site applies before it sends one. */
         internal fun decode(json: JsonObject): ShowcaseItem? {
             val category = ShowcaseCategory.of(json.text("cat")) ?: return null
-            val href = json.text("href") ?: return null
+            // Yachts and stays are only booked through partners: no card of ours for them.
+            if (category == ShowcaseCategory.Yacht || category == ShowcaseCategory.Stay) return null
+            val href = json.text("href")?.takeUnless(PartnerOnly::isRetiredListing) ?: return null
             val title = json.text("title") ?: return null
             val image = json.text("image")?.takeIf { it.startsWith("https://") } ?: return null
             return ShowcaseItem(

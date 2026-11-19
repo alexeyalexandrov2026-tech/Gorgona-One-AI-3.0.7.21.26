@@ -65,7 +65,8 @@ class SearchClient(
         if (response.status != 200) throw ApiError.Status(response.status)
         val body = Decode.obj(response.body) ?: throw ApiError.Decoding
         if (!body.containsKey("results")) throw ApiError.Decoding
-        return body.lossyArray("results", SearchResult::decode).filter { policy.allowsInApp(it.href) }
+        return body.lossyArray("results", SearchResult::decode)
+            .filter { policy.allowsInApp(it.href) && !PartnerOnly.isRetiredListing(it.href) }
     }
 
     /** Full URL of a result's picture, or null when it has none. */

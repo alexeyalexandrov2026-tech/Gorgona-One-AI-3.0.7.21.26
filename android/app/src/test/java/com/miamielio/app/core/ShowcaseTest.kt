@@ -2,6 +2,7 @@ package com.miamielio.app.core
 
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -195,7 +196,8 @@ class ShowcaseTest {
     fun keepsOnlyTheCardsItCanShow() = runTest {
         val feed = ShowcaseClient(transport = MockTransport(json = sample)).load()
         assertEquals(
-            listOf("/rentals/lamborghini-urus-se", "/vacation-rentals/villa", "/events/category/nba"),
+            // The villa goes: stays are only booked through the partner.
+            listOf("/rentals/lamborghini-urus-se", "/events/category/nba"),
             feed.items.map { it.href },
         )
         val car = feed.items[0]
@@ -204,9 +206,19 @@ class ShowcaseTest {
         assertEquals("MIAMI ELIO Fleet", car.company)
         assertEquals("SUVs", car.kind)
         assertEquals("$1,800", car.price)
-        assertEquals(4, feed.items[1].bedrooms)
-        assertEquals("NBA", feed.items[2].kicker)
+        assertEquals("NBA", feed.items[1].kicker)
         assertEquals(6_500L, feed.intervalMillis)
+    }
+
+    @Test
+    fun yachtsAndVillasAreOnlyThePartnersPages() {
+        assertTrue(PartnerOnly.isRetiredListing("/yachts/azure-72"))
+        assertTrue(PartnerOnly.isRetiredListing("https://gorgona-one.com/vacation-rentals/star-island-estate?x=1"))
+        assertFalse(PartnerOnly.isRetiredListing("/yachts"))
+        assertFalse(PartnerOnly.isRetiredListing("/vacation-rentals"))
+        assertFalse(PartnerOnly.isRetiredListing("/rentals/lamborghini-urus-se"))
+        val yacht = """{"items":[{"cat":"yacht","href":"/yachts/a","title":"A","image":"https://x/a.jpg"}]}"""
+        assertTrue(ShowcaseFeed.decode(yacht.toByteArray())!!.items.isEmpty())
     }
 
     @Test
@@ -232,12 +244,12 @@ class ShowcaseTest {
 
         // The app starts again, offline.
         val offline = ShowcaseClient(transport = MockTransport(failure = IOException("offline")), cache = cache)
-        assertEquals(3, offline.cached()!!.items.size)
-        assertEquals(3, offline.load().items.size)
+        assertEquals(2, offline.cached()!!.items.size)
+        assertEquals(2, offline.load().items.size)
         // A server error falls back on it too, and an empty answer does not replace it.
-        assertEquals(3, ShowcaseClient(transport = MockTransport(status = 500), cache = cache).load().items.size)
-        assertEquals(3, ShowcaseClient(transport = MockTransport(json = """{"items":[]}"""), cache = cache).load().items.size)
-        assertEquals(3, ShowcaseClient(transport = MockTransport(), cache = cache).cached()!!.items.size)
+        assertEquals(2, ShowcaseClient(transport = MockTransport(status = 500), cache = cache).load().items.size)
+        assertEquals(2, ShowcaseClient(transport = MockTransport(json = """{"items":[]}"""), cache = cache).load().items.size)
+        assertEquals(2, ShowcaseClient(transport = MockTransport(), cache = cache).cached()!!.items.size)
     }
 
     @Test

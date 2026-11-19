@@ -64,6 +64,7 @@ import com.miamielio.app.core.FavoriteRef
 import com.miamielio.app.core.SearchResult
 import com.miamielio.app.favorites.FavoriteHeart
 import com.miamielio.app.favorites.FavoritesStore
+import com.miamielio.app.ui.oceanBackground
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.Eyebrow
 import com.miamielio.app.ui.Hairline
@@ -102,7 +103,7 @@ internal fun SearchScreen(
     Column(
         modifier
             .fillMaxSize()
-            .background(Theme.paper),
+            .oceanBackground(),
     ) {
         Column(
             Modifier

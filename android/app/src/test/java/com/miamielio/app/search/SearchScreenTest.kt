@@ -37,8 +37,8 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.File
 
 private val AZIMUT = """{"results":[
-  {"href":"/yachts/azimut-55","title":"Azimut 55","world":"yachts","subtitle":"MIAMI ELIO Fleet","location":"Sunny Isles Beach","price":"from ${'$'}2,400"},
-  {"href":"/yachts/sunseeker-76","title":"Sunseeker 76","world":"yachts","category":"Yacht","location":"Miami Beach"}]}"""
+  {"href":"/rentals/lamborghini-urus-se","title":"Lamborghini Urus SE","world":"car-rentals","subtitle":"MIAMI ELIO Fleet","location":"Sunny Isles Beach","price":"from ${'$'}2,400"},
+  {"href":"/rentals/ferrari-roma","title":"Ferrari Roma","world":"car-rentals","category":"Sports cars","location":"Miami Beach"}]}"""
 
 /** The search screen against a scripted server. Results carry no photos, so nothing goes to the real site. */
 @RunWith(RobolectricTestRunner::class)
@@ -107,7 +107,7 @@ class SearchScreenTest {
         compose.onNodeWithTag("search.input").performTextInput("yacht")
         compose.waitForIdle()
 
-        compose.onNodeWithText("Azimut 55").assertExists()
+        compose.onNodeWithText("Lamborghini Urus SE").assertExists()
         compose.onNodeWithText("MIAMI ELIO Fleet · Sunny Isles Beach").assertExists()
         compose.onNodeWithText("from \$2,400").assertExists()
         compose.onNodeWithText("POPULAR SEARCHES").assertDoesNotExist()
@@ -116,9 +116,9 @@ class SearchScreenTest {
         val input = compose.onNodeWithTag("search.input")
         input.assertIsFocused()
         val focusClearsBeforeOpen = compose.runOnIdle { focusClears }
-        compose.onNodeWithText("Sunseeker 76").performClick()
+        compose.onNodeWithText("Ferrari Roma").performClick()
         compose.runOnIdle {
-            assertEquals(listOf("/yachts/sunseeker-76"), opened)
+            assertEquals(listOf("/rentals/ferrari-roma"), opened)
             assertEquals(focusClearsBeforeOpen + 1, focusClearsAtOpen)
         }
         input.assertTextContains("yacht")
@@ -141,8 +141,8 @@ class SearchScreenTest {
         assertEquals(emptyList<String>(), opened)
         heart.performClick()
         heart.assertIsNotSelected().assertContentDescriptionEquals("Save to My Miami")
-        compose.onNodeWithText("Azimut 55").performClick()
-        assertEquals(listOf("/yachts/azimut-55"), opened)
+        compose.onNodeWithText("Lamborghini Urus SE").performClick()
+        assertEquals(listOf("/rentals/lamborghini-urus-se"), opened)
     }
 
     @Test
@@ -178,7 +178,7 @@ class SearchScreenTest {
         // ...but the button still asks again.
         compose.onNodeWithTag("search.retry").performClick()
         compose.waitForIdle()
-        compose.onNodeWithText("Azimut 55").assertExists()
+        compose.onNodeWithText("Lamborghini Urus SE").assertExists()
         assertEquals(3, server.requests.size)
     }
 }

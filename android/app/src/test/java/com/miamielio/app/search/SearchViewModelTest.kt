@@ -42,7 +42,7 @@ class SearchViewModelTest {
     companion object {
         val yachts = """
             {"results":[
-              {"href":"/yachts/azimut-55","title":"Azimut 55","subtitle":"MIAMI ELIO Fleet","location":"Sunny Isles Beach","price":"from ${'$'}2,400","image":"/images/yachts/azimut.jpg"},
+              {"href":"/rentals/lamborghini-urus-se","title":"Lamborghini Urus SE","subtitle":"MIAMI ELIO Fleet","location":"Sunny Isles Beach","price":"from ${'$'}2,400","image":"/images/yachts/azimut.jpg"},
               {"href":"https://elsewhere.example.com/x","title":"Not ours"}]}
         """.trimIndent()
     }
@@ -74,7 +74,7 @@ class SearchViewModelTest {
 
         val results = (model.phase as SearchPhase.Results).results
         // Only results the app can open are kept.
-        assertEquals(listOf("Azimut 55"), results.map { it.title })
+        assertEquals(listOf("Lamborghini Urus SE"), results.map { it.title })
         assertEquals("MIAMI ELIO Fleet · Sunny Isles Beach", results.single().detailLine)
         assertEquals("https://gorgona-one.com/images/yachts/azimut.jpg", model.imageUrl(results.single()))
     }
@@ -83,7 +83,7 @@ class SearchViewModelTest {
     fun aNewQueryCancelsTheOneOnItsWay() = test {
         val model = model()
         val slow = server.hold()
-        server.reply("""{"results":[{"href":"/yachts/sunseeker","title":"Sunseeker"}]}""")
+        server.reply("""{"results":[{"href":"/rentals/sunseeker","title":"Sunseeker"}]}""")
         model.setQuery("yac")
         advanceUntilIdle()
         assertEquals(1, server.requests.size)

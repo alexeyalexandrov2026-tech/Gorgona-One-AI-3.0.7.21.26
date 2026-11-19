@@ -64,8 +64,8 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.File
 
 internal const val YACHTS = """{"results":[
-  {"href":"/yachts/azimut-55","title":"Azimut 55","world":"yachts","subtitle":"MIAMI ELIO Fleet","location":"Sunny Isles Beach","price":"from ${'$'}2,400"},
-  {"href":"/yachts/sunseeker-76","title":"Sunseeker 76","world":"yachts","category":"Yacht","location":"Miami Beach"}]}"""
+  {"href":"/rentals/lamborghini-urus-se","title":"Lamborghini Urus SE","world":"car-rentals","subtitle":"MIAMI ELIO Fleet","location":"Sunny Isles Beach","price":"from ${'$'}2,400"},
+  {"href":"/rentals/ferrari-roma","title":"Ferrari Roma","world":"car-rentals","category":"Sports cars","location":"Miami Beach"}]}"""
 
 /**
  * Whole journeys across screens, the router and the favorites store, against
@@ -124,11 +124,11 @@ class JourneysTest {
         searchScreen(onOpen = router::open)
 
         find("yacht")
-        compose.onNodeWithText("Sunseeker 76").performClick()
+        compose.onNodeWithText("Ferrari Roma").performClick()
 
         assertEquals(AppTab.Catalog, router.selectedTab.value)
         assertTrue(router.webLayer.value)
-        assertEquals(listOf("https://gorgona-one.com/yachts/sunseeker-76"), explore.loaded)
+        assertEquals(listOf("https://gorgona-one.com/rentals/ferrari-roma"), explore.loaded)
         assertTrue(outside.opened.isEmpty())
     }
 
@@ -145,7 +145,7 @@ class JourneysTest {
         compose.waitForIdle()
 
         compose.onNodeWithText("No internet connection").assertDoesNotExist()
-        compose.onNodeWithText("Azimut 55").assertExists()
+        compose.onNodeWithText("Lamborghini Urus SE").assertExists()
         assertEquals(2, search.requests.size)
     }
 
@@ -164,16 +164,16 @@ class JourneysTest {
 
         // A guest: the site has sent no list and has not taken the change yet.
         azimut.performClick().assertIsSelected()
-        assertEquals(setOf("yacht:azimut-55"), disk.snapshot.keys)
+        assertEquals(setOf("car:lamborghini-urus-se"), disk.snapshot.keys)
         assertEquals(1, disk.snapshot.pending.size)
 
         // The guest signs in on the site; the account already keeps Sunseeker.
         accepting = true
-        compose.runOnUiThread { favorites.received(setOf("yacht:sunseeker-76"), page, "acct-1") }
+        compose.runOnUiThread { favorites.received(setOf("car:ferrari-roma"), page, "acct-1") }
         compose.waitForIdle()
         azimut.assertIsSelected()
         sunseeker.assertIsSelected()
-        assertEquals("yacht:azimut-55", delivered.single().favorite.key)
+        assertEquals("car:lamborghini-urus-se", delivered.single().favorite.key)
         assertEquals("acct-1", delivered.single().owner)
         assertTrue(disk.snapshot.pending.isEmpty())
 

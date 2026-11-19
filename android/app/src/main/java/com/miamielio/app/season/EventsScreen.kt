@@ -1,6 +1,7 @@
 package com.miamielio.app.season
 
-import androidx.compose.foundation.background
+import com.miamielio.app.core.SeasonEvent
+import com.miamielio.app.ui.oceanBackground
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.miamielio.app.ui.MenuButton
-import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 
 /**
@@ -33,11 +33,12 @@ internal fun EventsScreen(
     onPlan: (String) -> Unit,
     onMenu: () -> Unit,
     modifier: Modifier = Modifier,
+    photo: (SeasonEvent) -> String? = { null },
 ) {
     Column(
         modifier
             .fillMaxSize()
-            .background(Theme.paper)
+            .oceanBackground()
             .testTag("content.Events"),
     ) {
         Row(
@@ -60,7 +61,7 @@ internal fun EventsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
         ) {
-            SeasonList(reminders, onPrepare = onPlan)
+            SeasonList(reminders, onPrepare = onPlan, photo = photo)
         }
     }
 }

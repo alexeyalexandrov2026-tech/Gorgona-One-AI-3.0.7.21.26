@@ -45,6 +45,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import com.miamielio.app.season.SeasonPhotos
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -211,7 +213,9 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
     val typing = WindowInsets.isImeVisible
     val openMenu = { menuOpen = true }
 
-    Box(modifier.fillMaxSize().background(Theme.paper)) {
+    // Under the orb: Today's paper on Today, the night sea on the screens over the ocean.
+    val ground = if (tab == AppTab.Today && !events) Theme.paper else Ocean.night
+    Box(modifier.fillMaxSize().background(ground)) {
         // First, so that it is where Compose puts the focus when nobody has asked for it.
         FocusRest(LocalInputModeManager.current)
         Column(
@@ -236,6 +240,7 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
                                 router.show(AppTab.Concierge)
                             },
                             onMenu = openMenu,
+                            photo = { services.config.resolve(SeasonPhotos.pathOf(it)) },
                         )
                     } else {
                         TodayScreen(
@@ -315,7 +320,7 @@ fun TabBar(selected: AppTab, onSelect: (AppTab) -> Unit, modifier: Modifier = Mo
     Column(
         modifier
             .fillMaxWidth()
-            .background(Theme.paper),
+            .background(Ocean.night),
     ) {
         Hairline()
         Row(
@@ -334,9 +339,9 @@ fun TabBar(selected: AppTab, onSelect: (AppTab) -> Unit, modifier: Modifier = Mo
 @Composable
 private fun TabItem(tab: AppTab, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colour = when {
-        tab == AppTab.Concierge -> Theme.goldButton
-        selected -> Theme.goldButton
-        else -> Theme.soft
+        tab == AppTab.Concierge -> Ocean.champagneMid
+        selected -> Color.White
+        else -> Ocean.pearl.copy(alpha = 0.6f)
     }
     val interactions = remember { MutableInteractionSource() }
     val label = when (tab) {
@@ -372,15 +377,15 @@ private fun TabItem(tab: AppTab, selected: Boolean, onClick: () -> Unit, modifie
                     modifier = Modifier
                         .requiredSize(58.dp)
                         .offset(y = (-16).dp)
-                        .background(Theme.paper, CircleShape)
+                        .background(Ocean.night, CircleShape)
                         .padding(3.dp)
                         .testTag("tab.orb"),
                 )
             }
-            AppTab.Today -> TabIcon(R.drawable.ic_tab_home, colour)
-            AppTab.Catalog -> TabIcon(R.drawable.ic_tab_search, colour)
-            AppTab.Exclusive -> TabIcon(R.drawable.ic_tab_exclusive, colour)
-            AppTab.Account -> TabIcon(R.drawable.ic_tab_account, colour)
+            AppTab.Today -> TabIcon(R.drawable.ic_tab_home, selected)
+            AppTab.Catalog -> TabIcon(R.drawable.ic_tab_search, selected)
+            AppTab.Exclusive -> TabIcon(R.drawable.ic_tab_exclusive, selected)
+            AppTab.Account -> TabIcon(R.drawable.ic_tab_account, selected)
         }
         Text(
             text = label,
@@ -393,6 +398,19 @@ private fun TabItem(tab: AppTab, selected: Boolean, onClick: () -> Unit, modifie
 }
 
 @Composable
-private fun TabIcon(drawable: Int, colour: androidx.compose.ui.graphics.Color) {
-    Icon(painter = painterResource(drawable), contentDescription = null, modifier = Modifier.size(24.dp), tint = colour)
+private fun TabIcon(drawable: Int, selected: Boolean) {
+    // A white icon in a circle: a sunset for the tab you are on, a little glass for the others.
+    Box(
+        Modifier
+            .size(34.dp)
+            .background(if (selected) Ocean.sunset else SolidColor(Ocean.idle), CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = painterResource(drawable),
+            contentDescription = null,
+            modifier = Modifier.size(19.dp),
+            tint = if (selected) Color.White else Ocean.pearl.copy(alpha = 0.75f),
+        )
+    }
 }

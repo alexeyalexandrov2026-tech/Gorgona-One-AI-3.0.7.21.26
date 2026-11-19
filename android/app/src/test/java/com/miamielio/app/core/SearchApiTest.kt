@@ -110,7 +110,7 @@ class SearchApiTest {
 
     @Test
     fun acceptsNumericPrices() = runTest {
-        val transport = MockTransport(json = """{"query":"x","results":[{"title":"Day charter","href":"/yachts/day","price":4500}]}""")
+        val transport = MockTransport(json = """{"query":"x","results":[{"title":"Day charter","href":"/rentals/day","price":4500}]}""")
         val client = SearchClient(transport = transport)
         val results = client.search("day charter")
         assertEquals("4500", results.first().price)
