@@ -7,8 +7,8 @@ import { chromium, expect } from '@playwright/test';
 const port = 3073;
 const origin = `http://127.0.0.1:${port}`;
 const expectedMetadata = {
-  title: ['Miami Elio | Official Website — Yachts, Villas, Cars & Events'],
-  description: ['Official Miami Elio website. Explore partner yacht charters, villas, car rentals, event tickets, experiences and AI concierge services in Miami.'],
+  title: ['Miami Yachts, Villas, Car Rentals & Events | Miami Elio'],
+  description: ['Arrange luxury yacht charters, exotic cars, private villas, VIP event tickets and dining in Miami with our 16-language AI concierge on Miami Elio.'],
   canonical: ['https://gorgona-one.com']
 };
 

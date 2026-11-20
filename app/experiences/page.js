@@ -1,3 +1,3 @@
 import ExperiencesContent from './ExperiencesContent';
-export const metadata={title:'Experiences | MIAMI ELIO',description:'Explore parks, attractions, cruises and scenic flights with Headout and Viator through Miami Elio.'};
+export const metadata={title:'Things to Do in Miami: Tours & Experiences | Miami Elio',description:'Discover top Miami experiences, Everglades airboat tours, sightseeing cruises, and attractions. Book verified tickets instantly with Miami Elio.'};
 export default function ExperiencesPage(){return <ExperiencesContent/>;}

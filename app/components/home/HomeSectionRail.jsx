@@ -27,7 +27,7 @@ function Tile({ section, copy, exclusive, hidden = false }) {
       className={`g1-home-section${section.image ? '' : ' g1-home-section--ai'}`}
     >
       {section.image
-        ? <img src={section.image} alt="" decoding="async" />
+        ? <img src={section.image} alt="" aria-hidden="true" decoding="async" />
         : <span className="g1-home-section-orb" aria-hidden="true"><AiSphereArtwork /></span>}
       <span className="g1-home-section__label">{label} <Icon name="arrow" className="g1-flip h-4 w-4" /></span>
     </Link>

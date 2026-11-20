@@ -1,6 +1,7 @@
 import {notFound} from 'next/navigation';
 import {getHeadoutCollection} from '../../../lib/headoutCatalog.mjs';
-import {clip} from '../../../lib/seo.mjs';
+import {clip,experienceSearchText,breadcrumbJsonLd,attractionJsonLd} from '../../../lib/seo.mjs';
+import JsonLd from '../../components/JsonLd';
 import HeadoutCollection from '../HeadoutCollection';
 
 // Two partner collections share the Grand Canyon supplier title.
@@ -13,11 +14,11 @@ export async function generateMetadata({params}) {
   const item = getHeadoutCollection(slug);
   if (!item) return {title: 'Experiences | MIAMI ELIO'};
 
+  const search = experienceSearchText(item);
   return {
-    title: item.title + ' | MIAMI ELIO',
-    description: clip(DESCRIPTION_OVERRIDES[item.slug]
-      ?? `Explore ${item.title} with Miami Elio. Check dates and availability on Headout, where bookings and payments are handled.`)
+    title: search.title,
+    description: DESCRIPTION_OVERRIDES[item.slug] ? clip(DESCRIPTION_OVERRIDES[item.slug]) : search.description
   };
 }
 
-export default async function ExperiencePage({params}){const {slug}=await params;const item=getHeadoutCollection(slug);if(!item)notFound();return <HeadoutCollection item={item}/>;}
+export default async function ExperiencePage({params}){const {slug}=await params;const item=getHeadoutCollection(slug);if(!item)notFound();return <><JsonLd data={[breadcrumbJsonLd([{name:'Experiences',path:'/experiences'},{name:item.title,path:`/experiences/${item.slug}`}]),attractionJsonLd(item)]}/><HeadoutCollection item={item}/></>;}

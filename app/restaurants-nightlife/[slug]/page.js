@@ -10,7 +10,8 @@ import {Crumbs,Specs,eyebrowClass} from '../../components/g1/ui';
 import DiningBooking from '../../components/dining/DiningBooking';
 import {channelsFor,PROVIDERS} from '../../../lib/dining/gateway.mjs';
 import {getDiningCopy,getDiningStyles} from '../../../lib/dining/copy.mjs';
-import {pageMetadata} from '../../../lib/seo.mjs';
+import {pageMetadata,breadcrumbJsonLd,venueJsonLd} from '../../../lib/seo.mjs';
+import JsonLd from '../../components/JsonLd';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +30,7 @@ export default async function VenueDetailPage({params}) {
  const copy=getDealsCopy(locale),dining=getDiningCopy(locale),styles=getDiningStyles(locale);
  const kind=venue.category==='restaurant'?t.restaurantsNightlife.restaurants:t.restaurantsNightlife.nightlife;
  return <main className="flex-1 font-g1sans text-g1-ink">
+  <JsonLd data={[breadcrumbJsonLd([{name:t.restaurantsNightlife.pill,path:'/restaurants-nightlife'},{name:venue.name,path:`/restaurants-nightlife/${venue.slug}`}]),venueJsonLd(venue)]}/>
   <Crumbs items={[[t.restaurantsNightlife.pill,'/restaurants-nightlife'],[venue.name]]}/>
   <DiningPhoto venue={venue} locale={locale} hero priority wide/>
   <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">

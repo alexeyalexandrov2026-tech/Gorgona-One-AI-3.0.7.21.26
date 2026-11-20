@@ -5,6 +5,8 @@ import { Logo } from '../../components/Logo';
 import { BuyTicketsButton } from '../BuyTicketsButton';
 import { EventViewTracker } from '../EventViewTracker';
 import { getServerTranslations } from '../../../lib/serverLocale';
+import { breadcrumbJsonLd, eventJsonLd } from '../../../lib/seo.mjs';
+import JsonLd from '../../components/JsonLd';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +37,7 @@ export default async function EventDetailPage({ params }) {
 
   return (
     <main className="flex-1 py-10">
+      <JsonLd data={[breadcrumbJsonLd([{ name: 'Events', path: '/events' }, { name: event.name, path: `/events/${event.slug}` }]), eventJsonLd(event)]} />
       <EventViewTracker eventSlug={event.slug} />
       <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium">
         <div className="flex flex-wrap items-center justify-between gap-4">
