@@ -52,7 +52,7 @@ class ConciergeViewModelTest {
     private fun request(note: String = "", end: String = "2027-02-16", name: String = "Demo Guest") = PlanRequest(
         name = name, email = "guest@example.com", phone = "+13055550123",
         start = "2027-02-14", end = end, guests = 4, time = "20:00", note = note,
-        items = listOf(PlanRequest.Item("yacht", "big-yacht"), PlanRequest.Item("dining", "komodo-miami")),
+        items = listOf(PlanRequest.Item("car", "white-suv"), PlanRequest.Item("dining", "komodo-miami")),
     )
 
     private val ConciergeViewModel.kinds get() = state.value.entries.map { it.kind }
@@ -207,27 +207,27 @@ class ConciergeViewModelTest {
         val plan = model.state.value.plan
         assertNotNull(plan)
         val (yachts, dining) = plan!!.plan.sections
-        assertEquals(listOf("Big Yacht", "Komodo"), plan.items.map { it.title })
+        assertEquals(listOf("White SUV", "Komodo"), plan.items.map { it.title })
         assertTrue(plan.hasRestaurant)
 
         model.showAnotherOption(yachts)
-        assertEquals("Small Yacht", model.state.value.plan!!.item(yachts).title)
+        assertEquals("Black Coupe", model.state.value.plan!!.item(yachts).title)
         model.showAnotherOption(yachts)
-        assertEquals("Big Yacht", model.state.value.plan!!.item(yachts).title)
+        assertEquals("White SUV", model.state.value.plan!!.item(yachts).title)
         model.showAnotherOption(dining)
         assertEquals("Komodo", model.state.value.plan!!.item(dining).title)
 
         model.removeFromPlan(dining)
-        assertEquals(listOf("Big Yacht"), model.state.value.plan!!.items.map { it.title })
+        assertEquals(listOf("White SUV"), model.state.value.plan!!.items.map { it.title })
         assertFalse(model.state.value.plan!!.hasRestaurant)
 
         // A reply without a plan keeps the plan and the guest's changes.
         model.send("Thanks")
         advanceUntilIdle()
-        assertEquals(listOf("Big Yacht"), model.state.value.plan!!.items.map { it.title })
+        assertEquals(listOf("White SUV"), model.state.value.plan!!.items.map { it.title })
 
         model.restoreToPlan(dining)
-        assertEquals(listOf("Big Yacht", "Komodo"), model.state.value.plan!!.items.map { it.title })
+        assertEquals(listOf("White SUV", "Komodo"), model.state.value.plan!!.items.map { it.title })
     }
 
     @Test
@@ -278,7 +278,7 @@ class ConciergeViewModelTest {
         val yachts = model.state.value.plan!!.plan.sections.first()
         model.removeFromPlan(yachts)
         model.showAnotherOption(yachts)
-        assertEquals(listOf("Big Yacht", "Komodo"), model.state.value.plan!!.items.map { it.title })
+        assertEquals(listOf("White SUV", "Komodo"), model.state.value.plan!!.items.map { it.title })
         model.sendPlan(request())
         advanceUntilIdle()
         assertEquals(2, plans.requests.size)
@@ -312,7 +312,7 @@ class ConciergeViewModelTest {
     @Test
     fun aNewPlanThatArrivesDuringASendIsLeftAlone() = test {
         val model = model()
-        chat.reply(Replies.withPlan()).reply(Replies.withPlan(reply = "Or this", yacht = "Other Yacht"))
+        chat.reply(Replies.withPlan()).reply(Replies.withPlan(reply = "Or this", car = "Other Car"))
         val held = plans.hold()
         model.send("Plan")
         advanceUntilIdle()
@@ -325,7 +325,7 @@ class ConciergeViewModelTest {
         advanceUntilIdle()
 
         val plan = model.state.value.plan!!
-        assertEquals("Other Yacht", plan.items.first().title)
+        assertEquals("Other Car", plan.items.first().title)
         assertNull(plan.receipt)
         assertFalse(model.state.value.isSendingPlan)
     }

@@ -331,6 +331,26 @@ private fun WorldTile(world: World, format: TileFormat, open: (String) -> Unit, 
     }
 }
 
+/** The app's own photo of the section a result belongs to, by the start of its path; null when none fits. */
+@DrawableRes
+internal fun sectionPhoto(href: String): Int? {
+    val trimmed = href.trim()
+    // "https://gorgona-one.com/yachts?x" -> "/yachts?x"; a site path stays as it is.
+    val path = if ("://" in trimmed) "/" + trimmed.substringAfter("://").substringAfter('/', "") else trimmed
+    return SECTION_PHOTOS.entries.firstOrNull { (section, _) -> path == section || path.startsWith("$section/") || path.startsWith("$section?") }?.value
+}
+
+private val SECTION_PHOTOS = linkedMapOf(
+    "/vacation-rentals" to R.drawable.world_villas,
+    "/rentals" to R.drawable.world_cars,
+    "/yachts" to R.drawable.world_yachts,
+    "/events" to R.drawable.world_events,
+    "/restaurants-nightlife" to R.drawable.world_dining,
+    "/experiences" to R.drawable.world_experiences,
+    "/travel" to R.drawable.world_travel,
+    "/private-jets" to R.drawable.world_jets,
+)
+
 // endregion
 
 // region Results
@@ -361,27 +381,37 @@ private fun ResultRow(
                 .pressable(onClick = onClick)
                 .testTag("search.result"),
         ) {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .background(Ocean.night),
-            ) {
-                AsyncImage(
-                    model = imageUrl,
-                    contentDescription = null,
-                    modifier = Modifier.matchParentSize(),
-                    contentScale = ContentScale.Crop,
-                )
-                // The foot of the photo sinks into the glass below it.
+            // A result without its own photo (YATR's catalogue, say) shows its section's.
+            val photo: Any? = imageUrl ?: sectionPhoto(result.href)
+            if (photo != null) {
                 Box(
                     Modifier
-                        .matchParentSize()
-                        .background(Brush.verticalGradient(0.5f to Color.Transparent, 1f to Color(0xCC011A22))),
-                )
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .background(Ocean.night),
+                ) {
+                    AsyncImage(
+                        model = photo,
+                        contentDescription = null,
+                        modifier = Modifier.matchParentSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                    // The foot of the photo sinks into the glass below it.
+                    Box(
+                        Modifier
+                            .matchParentSize()
+                            .background(Brush.verticalGradient(0.5f to Color.Transparent, 1f to Color(0xCC011A22))),
+                    )
+                }
             }
             Column(
-                Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 14.dp),
+                Modifier.padding(
+                    start = 16.dp,
+                    // With no photo the heart sits beside the name, not over it.
+                    end = if (photo == null && favorite != null) 60.dp else 16.dp,
+                    top = 12.dp,
+                    bottom = 14.dp,
+                ),
                 verticalArrangement = Arrangement.spacedBy(3.dp),
             ) {
                 Text(result.title, color = Ocean.pearl, style = AppFont.cardTitle, maxLines = 2, overflow = TextOverflow.Ellipsis)

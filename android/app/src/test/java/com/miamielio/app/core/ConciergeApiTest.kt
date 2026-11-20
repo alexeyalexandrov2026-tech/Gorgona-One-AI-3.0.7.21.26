@@ -205,11 +205,11 @@ class ConciergeApiTest {
             {
               "reply": "Two yachts fit eight guests.",
               "listings": [
-                {"href": "/yachts/sample-60", "title": "Sample 60", "label": "Yacht", "image": "/images/yachts/sample-60.jpg", "price": "${'$'}2,400", "summary": "Miami Beach Marina"},
-                {"href": "/yachts/sample-60", "title": "Same yacht again"},
+                {"href": "/rentals/sample-60", "title": "Sample 60", "label": "Car", "image": "/images/rentals/sample-60.jpg", "price": "${'$'}2,400", "summary": "Miami Beach"},
+                {"href": "/rentals/sample-60", "title": "Same car again"},
                 {"href": "/sportsbook/offer", "title": "Not carried"},
-                {"href": "/yachts/sample-72", "title": "Sample 72", "image": "http://example.com/clear-text.jpg"},
-                {"href": "/yachts/no-title"},
+                {"href": "/rentals/sample-72", "title": "Sample 72", "image": "http://example.com/clear-text.jpg"},
+                {"href": "/rentals/no-title"},
                 {"href": "/rentals/sample-car", "title": "Sample car"},
                 {"href": "/vacation-rentals/sample-villa", "title": "Sample villa"},
                 {"href": "/restaurants-nightlife/sample-table", "title": "Sample table"}
@@ -222,22 +222,52 @@ class ConciergeApiTest {
 
         // Duplicates and malformed rows go before the cap of four; links the app does not carry go after it.
         assertEquals(
-            listOf("/yachts/sample-60", "/yachts/sample-72", "/rentals/sample-car"),
+            listOf("/rentals/sample-60", "/rentals/sample-72", "/rentals/sample-car"),
             reply.listings.map { it.href },
         )
         assertEquals(
             ConciergeListing(
-                href = "/yachts/sample-60",
+                href = "/rentals/sample-60",
                 title = "Sample 60",
-                label = "Yacht",
-                image = "https://gorgona-one.com/images/yachts/sample-60.jpg",
+                label = "Car",
+                image = "https://gorgona-one.com/images/rentals/sample-60.jpg",
                 price = "${'$'}2,400",
-                summary = "Miami Beach Marina",
+                summary = "Miami Beach",
             ),
             reply.listings.first(),
         )
         // A photo that is not served over https is left out; the row stays.
         assertNull(reply.listings[1].image)
+    }
+
+    @Test
+    fun neverOffersASingleYachtOrVillaButKeepsTheirSections() = runTest {
+        val transport = MockTransport(
+            json = """
+            {
+              "reply": "Here is a weekend.",
+              "suggestions": [
+                {"href": "/vacation-rentals", "label": "Villas & Stays"},
+                {"href": "/yachts/azure-72", "label": "Azure 72"}
+              ],
+              "cards": [
+                {"href": "/vacation-rentals/miami-beach-villa", "title": "Miami Beach Villa"},
+                {"href": "/yachts", "title": "Yacht Charters"}
+              ],
+              "listings": [
+                {"href": "/vacation-rentals/miami-beach-villa", "title": "Miami Beach Villa", "label": "Stay"},
+                {"href": "https://gorgona-one.com/yachts/azure-72?ref=chat", "title": "Azure 72", "label": "Yacht"},
+                {"href": "/rentals/lamborghini-urus-se", "title": "Lamborghini Urus SE", "label": "Car"}
+              ]
+            }
+            """.trimIndent(),
+        )
+
+        val reply = ConciergeClient(transport = transport).send(hello, sessionId = null, locale = "en")
+
+        assertEquals(listOf("/vacation-rentals"), reply.suggestions.map { it.href })
+        assertEquals(listOf("/yachts"), reply.cards.map { it.href })
+        assertEquals(listOf("/rentals/lamborghini-urus-se"), reply.listings.map { it.href })
     }
 
     @Test

@@ -96,11 +96,11 @@ class ConciergeScreenTest {
 
         val next = compose.onNodeWithTag("plan.another")
         next.performClick()
-        compose.onNodeWithText("Small Yacht").assertExists()
+        compose.onNodeWithText("Black Coupe").assertExists()
         yacht.assertIsNotSelected()
 
         next.performClick()
-        compose.onNodeWithText("Big Yacht").assertExists()
+        compose.onNodeWithText("White SUV").assertExists()
         yacht.assertIsSelected()
     }
 
@@ -153,7 +153,7 @@ class ConciergeScreenTest {
         compose.onNodeWithText("From \$2,400").assertExists()
         compose.onNodeWithText("Sample 72").performClick()
         compose.onNodeWithTag("concierge.card").performClick()
-        assertEquals(listOf("/yachts/sample-72", "/yachts"), opened)
+        assertEquals(listOf("/rentals/sample-72", "/yachts"), opened)
     }
 
     @Test
@@ -210,9 +210,9 @@ class ConciergeScreenTest {
         compose.waitForIdle()
         scrollTo("plan.board")
 
-        compose.onNodeWithText("Big Yacht").assertExists()
+        compose.onNodeWithText("White SUV").assertExists()
         compose.onNodeWithTag("plan.another").performClick()
-        compose.onNodeWithText("Small Yacht").assertExists()
+        compose.onNodeWithText("Black Coupe").assertExists()
 
         compose.onAllNodesWithTag("plan.remove")[1].performClick()
         compose.onNodeWithText("Komodo").assertDoesNotExist()
@@ -254,7 +254,7 @@ class ConciergeScreenTest {
         assertEquals(5, body["guests"]!!.jsonPrimitive.int)
         assertEquals("20:00", body["time"]!!.jsonPrimitive.content)
         assertEquals(
-            listOf("yacht" to "small-yacht", "dining" to "komodo-miami"),
+            listOf("car" to "black-coupe", "dining" to "komodo-miami"),
             body["items"]!!.jsonArray.map { it.jsonObject["kind"]!!.jsonPrimitive.content to it.jsonObject["slug"]!!.jsonPrimitive.content },
         )
         assertTrue(sent.headers["Idempotency-Key"].orEmpty().isNotEmpty())

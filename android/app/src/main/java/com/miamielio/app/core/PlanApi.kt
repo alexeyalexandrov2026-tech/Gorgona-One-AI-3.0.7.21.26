@@ -88,7 +88,8 @@ data class ConciergePlan(
      */
     fun resolved(config: AppConfig, policy: RoutePolicy): ConciergePlan? {
         val kept = sections.mapNotNull { section ->
-            val items = section.candidates.filter { policy.allowsInApp(it.href) }.map { item ->
+            // A single yacht or villa is no real listing (see PartnerOnly): it is left out.
+            val items = section.candidates.filter { policy.allowsInApp(it.href) && !PartnerOnly.isRetiredListing(it.href) }.map { item ->
                 val photo = item.image?.let(config::resolve)?.takeIf { it.startsWith("https://", ignoreCase = true) }
                 item.copy(image = photo)
             }

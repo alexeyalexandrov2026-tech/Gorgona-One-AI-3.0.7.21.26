@@ -31,6 +31,10 @@ class PlanApiTest {
            {"href":"/rentals","label":"Cars","candidates":[
              {"kind":"car","slug":"white-suv","title":"White SUV","image":"/images/rentals/white-suv/cover.jpg","href":"/rentals/white-suv"},
              {"kind":"car","slug":"plain","title":"Plain photo","image":"http://insecure.example.com/a.jpg","href":"/rentals/plain"}]},
+           {"href":"/vacation-rentals","label":"Villas","candidates":[
+             {"kind":"stay","slug":"miami-beach-villa","title":"Miami Beach Villa","href":"/vacation-rentals/miami-beach-villa"}]},
+           {"href":"/restaurants-nightlife","label":"Dining","candidates":[
+             {"kind":"dining","slug":"komodo-miami","title":"Komodo","href":"/restaurants-nightlife/komodo-miami"}]},
            {"href":"/events","label":"Events","candidates":[{"kind":"car","slug":"x","title":"X","href":"/events/x"}]}]}}
     """.trimIndent()
 
@@ -62,12 +66,13 @@ class PlanApiTest {
         assertNotNull(plan)
         assertEquals(4, plan!!.guests)
         assertTrue(plan.requestable)
-        assertEquals(listOf("/yachts", "/rentals"), plan.sections.map { it.href })
-        assertEquals(listOf("big-yacht"), plan.sections[0].candidates.map { it.slug })
+        // A single yacht or villa is no real listing: their sections go with them.
+        assertEquals(listOf("/rentals", "/restaurants-nightlife"), plan.sections.map { it.href })
         assertEquals(
             listOf("https://gorgona-one.com/images/rentals/white-suv/cover.jpg", null),
-            plan.sections[1].candidates.map { it.image },
+            plan.sections[0].candidates.map { it.image },
         )
+        assertEquals(listOf("komodo-miami"), plan.sections[1].candidates.map { it.slug })
         assertEquals("Here is a plan.", answer.reply)
     }
 

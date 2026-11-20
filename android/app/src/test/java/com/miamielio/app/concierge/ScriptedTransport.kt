@@ -62,18 +62,18 @@ object Replies {
     val withListings = """
         {"reply":"Two crewed yachts fit eight guests.","sessionId":"s-1",
          "listings":[
-           {"href":"/yachts/sample-60","title":"Sample 60","label":"Yacht","price":"From ${'$'}2,400"},
-           {"href":"/yachts/sample-72","title":"Sample 72","label":"Yacht"}],
+           {"href":"/rentals/sample-60","title":"Sample 60","label":"Car","price":"From ${'$'}2,400"},
+           {"href":"/rentals/sample-72","title":"Sample 72","label":"Car"}],
          "cards":[{"href":"/yachts","title":"Yachts","summary":"Private charters","cta":"See yachts"}]}
     """.trimIndent()
 
-    /** Two sections: a yacht with two options and a restaurant with one. */
-    fun withPlan(reply: String = "Here is a plan.", requestable: Boolean = true, yacht: String = "Big Yacht") = """
+    /** Two sections: a car with two options and a restaurant with one. */
+    fun withPlan(reply: String = "Here is a plan.", requestable: Boolean = true, car: String = "White SUV") = """
         {"reply":${quote(reply)},"sessionId":"s-1",
          "plan":{"version":1,"guests":4,"requestable":$requestable,"sections":[
-           {"href":"/yachts","label":"Yachts","candidates":[
-             {"kind":"yacht","slug":"big-yacht","title":${quote(yacht)},"subtitle":"80 ft","href":"/yachts/big-yacht"},
-             {"kind":"yacht","slug":"small-yacht","title":"Small Yacht","href":"/yachts/small-yacht"}]},
+           {"href":"/rentals","label":"Cars","candidates":[
+             {"kind":"car","slug":"white-suv","title":${quote(car)},"subtitle":"Sunny Isles Beach","href":"/rentals/white-suv"},
+             {"kind":"car","slug":"black-coupe","title":"Black Coupe","href":"/rentals/black-coupe"}]},
            {"href":"/restaurants-nightlife","label":"Dining","candidates":[
              {"kind":"dining","slug":"komodo-miami","title":"Komodo","href":"/restaurants-nightlife/komodo-miami"}]}]}}
     """.trimIndent()

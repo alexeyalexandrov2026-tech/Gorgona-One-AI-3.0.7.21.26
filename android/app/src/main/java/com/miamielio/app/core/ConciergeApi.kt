@@ -153,11 +153,13 @@ class ConciergeClient(
         val response = transport.send(makeRequest(messages, sessionId, locale))
         if (response.status != 200) throw ApiError.Status(response.status)
         val decoded = Decode.obj(response.body)?.let(ConciergeReply::decode) ?: throw ApiError.Decoding
-        // Only offer destinations the app can actually show.
+        // Only offer destinations the app can actually show, and never a
+        // single yacht or villa: those are booked through YATR and Stay22 only.
+        val offered = { href: String -> policy.allowsInApp(href) && !PartnerOnly.isRetiredListing(href) }
         return decoded.copy(
-            suggestions = decoded.suggestions.filter { policy.allowsInApp(it.href) },
-            cards = decoded.cards.filter { policy.allowsInApp(it.href) },
-            listings = decoded.listings.filter { policy.allowsInApp(it.href) }.map { listing ->
+            suggestions = decoded.suggestions.filter { offered(it.href) },
+            cards = decoded.cards.filter { offered(it.href) },
+            listings = decoded.listings.filter { offered(it.href) }.map { listing ->
                 // Site photos arrive as "/images/..."; anything that is not https is dropped.
                 val photo = listing.image?.let(config::resolve)?.takeIf { it.startsWith("https://", ignoreCase = true) }
                 listing.copy(image = photo)
