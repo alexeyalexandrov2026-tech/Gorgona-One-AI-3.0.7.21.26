@@ -57,11 +57,12 @@ keyboard, and going back keeps your search.
 
 **Release notes, 1.3.0 (version code 7), English (United States)**
 
-A new home screen: every Miami Elio section at the top, and cars, yachts,
-villas, jets and event tickets that change right over the photo. Tap any
-card to open it. Exclusive Destinations now has its own tab, and a menu at
-the top takes you anywhere in the app, Events included. The keyboard stays
-down until you tap a field.
+A new look: the deep sea behind Events, Catalog and the AI concierge, with
+frosted-glass cards and a new menu. The home screen shows every Miami Elio
+section at the top, with cars, jets and event tickets that change right over
+the photo. Exclusive Destinations has its own tab, and the menu takes you
+anywhere in the app, Events included. Stays are booked through Stay22 and
+yachts through YATR. The keyboard stays down until you tap a field.
 
 ## Graphics
 
