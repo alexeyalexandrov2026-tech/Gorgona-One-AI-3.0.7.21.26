@@ -9,8 +9,8 @@ import { getEventCategoriesByGroup } from '../../lib/mockEventsData';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Tickets & Events | MIAMI ELIO',
-  description: 'Sports tickets and concert tickets from trusted providers, all in one place.'
+  title: 'Miami Concerts, Sports & VIP Event Tickets | Miami Elio',
+  description: 'Get tickets to Miami concerts, NBA, NHL, F1, Art Basel, and nightlife events. Secure seats and VIP access through Miami Elio.'
 };
 
 export default async function EventsMarketplacePage() {
@@ -64,7 +64,7 @@ export default async function EventsMarketplacePage() {
             <p className="lux-eyebrow">{t.events.marketplaceTitle}</p>
           </Reveal>
           <Reveal delay={0.08}>
-            <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Experience the{break}{highlight}" values={{ break: <br />, highlight: <span className="text-brand-gold"><LocalizedText source="extraordinary." /></span> }} />
+            <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Experience the{break}{highlight}" values={{ break: <>{' '}<br /></>, highlight: <span className="text-brand-gold"><LocalizedText source="extraordinary." /></span> }} />
             </h1>
           </Reveal>
           <Reveal delay={0.16}>

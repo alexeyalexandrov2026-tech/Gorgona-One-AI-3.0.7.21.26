@@ -65,7 +65,7 @@ export default function HomePage({ showcase = [] }) {
             return (
               <li key={world.id} className="border-t border-g1-rule">
                 <Link href={world.href} className="g1-dir-row">
-                  <img className="g1-dir-thumb" src={worldImage(world)} alt="" loading="lazy" />
+                  <img className="g1-dir-thumb" src={worldImage(world)} alt="" aria-hidden="true" loading="lazy" />
                   <span className="g1-dir-name">{name}</span>
                   <span className="g1-dir-desc text-[0.98rem] text-g1-soft">{description}</span>
                   <span className="g1-dir-arrow"><Icon name="arrow" className="g1-flip h-5 w-5" /></span>

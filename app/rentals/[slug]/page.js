@@ -10,6 +10,8 @@ import Gallery from '../../components/g1/Gallery';
 import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import SupplierVehicleDetails from '../../components/g1/SupplierVehicleDetails';
 import { getSunsetCopy } from '../../../lib/sunsetCopy.mjs';
+import { rentalSearchText, breadcrumbJsonLd, carJsonLd } from '../../../lib/seo.mjs';
+import JsonLd from '../../components/JsonLd';
 import { Crumbs, ListingCard, SectionHead, Specs, eyebrowClass, sectionY } from '../../components/g1/ui';
 
 export const dynamic = 'force-dynamic';
@@ -19,7 +21,8 @@ export async function generateMetadata({params}) {
   const rental=await getRentalBySlug(slug,{editorial:true});
   if(!rental)return {};
   const url=`https://gorgona-one.com/rentals/${rental.slug}`;
-  return {title:`${rental.title} | MIAMI ELIO`,description:rental.description.slice(0,160),
+  const search=rentalSearchText(rental);
+  return {title:search.title,description:search.description,
     alternates:{canonical:url},openGraph:{title:rental.title,description:rental.description.slice(0,160),url,images:[rental.image]}};
 }
 
@@ -38,6 +41,7 @@ export default async function RentalDetailPage({ params }) {
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
+      <JsonLd data={[breadcrumbJsonLd([{ name: t.nav.cars, path: '/rentals' }, { name: rental.title, path: `/rentals/${rental.slug}` }]), carJsonLd(rental)]} />
       <Crumbs items={[[t.nav.cars, '/rentals'], [rental.title]]} />
 
       <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">

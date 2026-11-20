@@ -164,6 +164,7 @@ export default function HomeHero({ copy, showcase = [] }) {
           className="g1-stage__bg"
           src="/images/home/hero-tower.jpg"
           alt=""
+          aria-hidden="true"
           width="1600"
           height="2400"
           fetchPriority="high"

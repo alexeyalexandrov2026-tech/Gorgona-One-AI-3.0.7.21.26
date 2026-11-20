@@ -7,6 +7,7 @@ import {getExperienceCopy} from '../../lib/experienceCopy.mjs';
 import {getViatorCopy,VIATOR_MIAMI} from '../../lib/viatorCatalogue.mjs';
 import ExperienceCard from './ExperienceCard';
 import ExperienceShowcase from './ExperienceShowcase';
+import {seoHeading} from '../../lib/seo.mjs';
 
 // One listing for two pages: /experiences (family order) and
 // /exclusive-destinations (luxury first) share the same aggregator catalogue.
@@ -15,7 +16,7 @@ export default function ExperiencesContent({exclusive=false}){
  const locale=useLocale(),copy=getHeadoutCopy(locale),labels=getExperienceCopy(locale),viatorCopy=getViatorCopy(locale);
  const titles={parks:labels.parks,water:labels.water,family:labels.family,nature:labels.nature,boats:labels.boats,'florida-flights':labels.floridaFlights,helicopters:copy.flights};
  const ids=exclusive?EXCLUSIVE_SECTION_IDS:EXPERIENCE_SECTION_IDS;
- const pageTitle=exclusive?labels.exclusiveTitle:copy.title,pageSubtitle=exclusive?labels.exclusiveSubtitle:copy.subtitle;
+ const pageTitle=exclusive?seoHeading(locale,'exclusive',labels.exclusiveTitle):seoHeading(locale,'experiences',copy.title),pageSubtitle=exclusive?labels.exclusiveSubtitle:copy.subtitle;
  const sections=ids.map(id=>({id,title:titles[id],items:getExperienceSection(id)})).filter(section=>section.items.length);
  const slides=experienceShowcase(ids,{prefer:exclusive?LUXURY:null});
  const firstRegion=new Map();

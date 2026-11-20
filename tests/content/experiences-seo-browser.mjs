@@ -4,6 +4,7 @@ import { once } from 'node:events';
 import { setTimeout } from 'node:timers/promises';
 import { chromium, expect } from '@playwright/test';
 import { HEADOUT_COLLECTIONS, headoutGalleryUrl } from '../../lib/headoutCatalog.mjs';
+import { experienceSearchText } from '../../lib/seo.mjs';
 
 const origin = 'http://127.0.0.1:3074';
 const server = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'start', '--hostname', '127.0.0.1', '--port', '3074'], {
@@ -49,7 +50,7 @@ try {
           robots: [...source.querySelectorAll('meta[name="robots" i]')].map(tag => tag.getAttribute('content'))
         };
       }, { html: await response.text(), headOnly });
-      assert.deepEqual(metadata.titles, [item.title + ' | MIAMI ELIO'], path);
+      assert.deepEqual(metadata.titles, [experienceSearchText(item).title], path);
       assert.deepEqual(metadata.canonicals, ['https://gorgona-one.com' + path], path);
       assert.deepEqual(metadata.h1, [item.title], path);
       assert.equal(metadata.descriptions.length, 1, path);

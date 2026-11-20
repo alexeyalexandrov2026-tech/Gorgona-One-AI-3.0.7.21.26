@@ -141,6 +141,7 @@ export default function TicketCarousel({ copy, locale }) {
                   // The photo fills the ticket on a phone and 58% of it from 760px.
                   sizes="(min-width: 760px) 58vw, 92vw"
                   alt=""
+                  aria-hidden="true"
                   width={ticket.size[0]}
                   height={ticket.size[1]}
                   loading="lazy"

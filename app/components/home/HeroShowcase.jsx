@@ -130,7 +130,7 @@ export default function HeroShowcase({ items = [], copy, hold = false }) {
       onBlur={() => setPaused(false)}
       onAnimationEnd={onAnimationEnd}
     >
-      <img src={step.item.image} alt="" width="720" height="480" />
+      <img src={step.item.image} alt="" aria-hidden="true" width="720" height="480" />
       <span className="g1-sc__eb">{view.eyebrow} {view.aside ? <b>{view.aside}</b> : null}</span>
       <span className="g1-sc__title">{view.title}</span>
       {view.details.length > 0 && (
