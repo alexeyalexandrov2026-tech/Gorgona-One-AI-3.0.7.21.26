@@ -8,6 +8,7 @@ import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 import { catalogueAnswer, explicitBooking, bookingDisclaimer } from '../../../lib/ai/catalogueAnswer.mjs';
 import { gatedListings } from '../../../lib/ai/listingCards.mjs';
+import { SERVER_BUDGET_MS } from '../../../lib/ai/chatDeadline.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
@@ -66,6 +67,7 @@ function reply(text, { messages = [], latestUserMessage = '', source = null, loc
 // --- Route handlers --------------------------------------------------------
 
 export async function POST(request) {
+  const started = Date.now();
   let body;
   try {
     validateChatTransport(request);
