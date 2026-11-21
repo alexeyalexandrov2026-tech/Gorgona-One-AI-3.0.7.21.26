@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">{date} tarihinde hatırlatacağız</string>
     <string name="season_title" formatted="false">Miami sezonu</string>
     <string name="season_tomorrow" formatted="false">Yarın</string>
-    <string name="section_adventures" formatted="false">Maceralar</string>
     <string name="section_cars" formatted="false">Araçlar</string>
     <string name="section_concierge" formatted="false">YZ konsiyerj</string>
     <string name="section_dining" formatted="false">Yeme içme ve gece hayatı</string>

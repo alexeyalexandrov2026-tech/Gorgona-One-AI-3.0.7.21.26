@@ -9,15 +9,15 @@ import org.junit.Test
 /** The list the menu and the section rail share: the site's own, in the site's order. */
 class HomeSectionsTest {
     @Test
-    fun theElevenSectionsAreTheSitesInTheSitesOrder() {
+    fun theTenSectionsAreTheSitesInTheSitesOrder() {
         assertEquals(
-            listOf("travel", "exclusive", "stays", "yachts", "cars", "events", "privateJets", "experiences", "adventures", "dining", "concierge"),
+            listOf("travel", "exclusive", "stays", "yachts", "cars", "events", "privateJets", "experiences", "dining", "concierge"),
             HomeSections.all.map { it.id },
         )
         assertEquals(
             listOf(
                 "/travel", "/exclusive-destinations", "/vacation-rentals", "/yachts", "/rentals", "/events",
-                "/private-jets", "/experiences", "/entertainment/adrenaline-365", "/restaurants-nightlife", null,
+                "/private-jets", "/experiences", "/restaurants-nightlife", null,
             ),
             HomeSections.all.map { it.href },
         )
@@ -35,7 +35,6 @@ class HomeSectionsTest {
                 "/images/home/worlds/events-stage.jpg",
                 "/images/home/worlds/travel-wing.jpg",
                 "/images/home/experiences-coaster.webp",
-                "/images/adrenaline365/helicopter-tour.png",
                 "/images/dining/komodo.jpg",
             ),
             HomeSections.all.mapNotNull { it.image },

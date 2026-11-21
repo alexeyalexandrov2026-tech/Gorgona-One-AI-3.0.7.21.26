@@ -46,7 +46,7 @@ class ShowcaseAndRailTest {
     }
 
     @Test
-    fun theRailHasTheElevenSectionsAndTheirTapsGoToThem() {
+    fun theRailHasTheTenSectionsAndTheirTapsGoToThem() {
         rail()
         HomeSections.all.forEach { section -> compose.onNodeWithTag("rail.tile.${section.id}").assertExists() }
         compose.onNodeWithTag("rail.tile.travel").performClick()

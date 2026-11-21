@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">Erinnerung am {date}</string>
     <string name="season_title" formatted="false">Saison in Miami</string>
     <string name="season_tomorrow" formatted="false">Morgen</string>
-    <string name="section_adventures" formatted="false">Abenteuer</string>
     <string name="section_cars" formatted="false">Autos</string>
     <string name="section_concierge" formatted="false">KI-Concierge</string>
     <string name="section_dining" formatted="false">Essen und Nachtleben</string>

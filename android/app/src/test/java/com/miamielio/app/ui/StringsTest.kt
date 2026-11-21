@@ -68,7 +68,7 @@ class StringsTest {
         assertEquals(
             listOf(
                 "Travel", "Exclusive Destinations", "Stays", "Yachts", "Cars", "Events",
-                "Private Jets", "Experiences", "Adventures", "Dining & Nightlife", "AI Concierge",
+                "Private Jets", "Experiences", "Dining & Nightlife", "AI Concierge",
             ),
             HomeSections.all.map { appIn("en-US").getString(it.label) },
         )

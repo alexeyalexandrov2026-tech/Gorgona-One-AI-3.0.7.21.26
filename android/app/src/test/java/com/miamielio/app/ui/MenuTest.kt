@@ -103,7 +103,7 @@ class MenuTest {
 
     private val mainIds = listOf("today", "catalog", "ai", "exclusive", "events", "profile")
     private val sectionIds = listOf(
-        "travel", "exclusive", "stays", "yachts", "cars", "events", "privateJets", "experiences", "adventures", "dining", "concierge",
+        "travel", "exclusive", "stays", "yachts", "cars", "events", "privateJets", "experiences", "dining", "concierge",
     )
 
     @Test
@@ -117,7 +117,7 @@ class MenuTest {
         val names = listOf("Today", "Catalog", "AI Concierge", "Exclusive Destinations", "Events", "Profile") +
             listOf(
                 "Travel", "Exclusive Destinations", "Stays", "Yachts", "Cars", "Events", "Private Jets",
-                "Experiences", "Adventures", "Dining & Nightlife", "AI Concierge",
+                "Experiences", "Dining & Nightlife", "AI Concierge",
             )
         // Where each one is laid out, on screen or below it in the scroll. The
         // sections stand two to a row, so the order is the reading order: row
@@ -172,7 +172,6 @@ class MenuTest {
             "cars" to "/rentals",
             "privateJets" to "/private-jets",
             "experiences" to "/experiences",
-            "adventures" to "/entertainment/adrenaline-365",
             "dining" to "/restaurants-nightlife",
         )
         for ((id, path) in pages) {

@@ -37,7 +37,6 @@ object HomeSections {
         HomeSection("events", "/events", R.string.section_events, "/images/home/worlds/events-stage.jpg"),
         HomeSection("privateJets", "/private-jets", R.string.section_private_jets, "/images/home/worlds/travel-wing.jpg"),
         HomeSection("experiences", "/experiences", R.string.section_experiences, "/images/home/experiences-coaster.webp"),
-        HomeSection("adventures", "/entertainment/adrenaline-365", R.string.section_adventures, "/images/adrenaline365/helicopter-tour.png"),
         HomeSection("dining", "/restaurants-nightlife", R.string.section_dining, "/images/dining/komodo.jpg"),
         HomeSection("concierge", null, R.string.section_concierge, null),
     )

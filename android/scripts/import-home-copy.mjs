@@ -35,7 +35,7 @@ const MAP = [
   ['home.worldItems.stays.0', 'section_stays'], ['home.worldItems.yachts.0', 'section_yachts'],
   ['home.worldItems.cars.0', 'section_cars'], ['home.worldItems.events.0', 'section_events'],
   ['home.worldItems.privateJets.0', 'section_private_jets'], ['home.worldItems.experiences.0', 'section_experiences'],
-  ['home.worldItems.adventures.0', 'section_adventures'], ['home.worldItems.dining.0', 'section_dining'],
+  ['home.worldItems.dining.0', 'section_dining'],
   ['home.railConcierge', 'section_concierge'],
   // The site's own word for its menu.
   ['ui.99af6606ff9d6cd5', 'menu_title'],

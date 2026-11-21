@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">将于{date}提醒您</string>
     <string name="season_title" formatted="false">迈阿密旺季</string>
     <string name="season_tomorrow" formatted="false">明天</string>
-    <string name="section_adventures" formatted="false">冒险</string>
     <string name="section_cars" formatted="false">汽车</string>
     <string name="section_concierge" formatted="false">AI 礼宾</string>
     <string name="section_dining" formatted="false">餐饮与夜生活</string>

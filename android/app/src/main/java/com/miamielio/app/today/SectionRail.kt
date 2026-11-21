@@ -84,7 +84,7 @@ private val TILE_GAP = 10.dp
 private const val ARROW = "arrow"
 
 /**
- * The site's section rail (`HomeSectionRail.jsx`): the eleven sections of
+ * The site's section rail (`HomeSectionRail.jsx`): the ten sections of
  * [HomeSections] as photo tiles drifting slowly sideways without end, the
  * way they do under the home page's header. It stops while paused, while
  * the app is not in front, while the guest drags it and for six seconds after

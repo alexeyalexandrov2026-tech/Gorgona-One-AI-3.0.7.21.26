@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">Te lo ricorderemo il {date}</string>
     <string name="season_title" formatted="false">La stagione di Miami</string>
     <string name="season_tomorrow" formatted="false">Domani</string>
-    <string name="section_adventures" formatted="false">Avventure</string>
     <string name="section_cars" formatted="false">Auto</string>
     <string name="section_concierge" formatted="false">Concierge IA</string>
     <string name="section_dining" formatted="false">Ristoranti e vita notturna</string>

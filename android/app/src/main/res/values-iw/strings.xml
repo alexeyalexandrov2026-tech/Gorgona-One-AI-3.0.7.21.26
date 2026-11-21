@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">נזכיר לך ב־{date}</string>
     <string name="season_title" formatted="false">העונה במיאמי</string>
     <string name="season_tomorrow" formatted="false">מחר</string>
-    <string name="section_adventures" formatted="false">הרפתקאות</string>
     <string name="section_cars" formatted="false">רכבים</string>
     <string name="section_concierge" formatted="false">קונסיירז׳ AI</string>
     <string name="section_dining" formatted="false">אוכל וחיי לילה</string>

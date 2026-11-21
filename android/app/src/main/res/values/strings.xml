@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">Reminder on {date}</string>
     <string name="season_title" formatted="false">Miami season</string>
     <string name="season_tomorrow" formatted="false">Tomorrow</string>
-    <string name="section_adventures" formatted="false">Adventures</string>
     <string name="section_cars" formatted="false">Cars</string>
     <string name="section_concierge" formatted="false">AI Concierge</string>
     <string name="section_dining" formatted="false">Dining &amp; Nightlife</string>

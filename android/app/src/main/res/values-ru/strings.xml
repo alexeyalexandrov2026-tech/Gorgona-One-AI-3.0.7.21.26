@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">Напомним {date}</string>
     <string name="season_title" formatted="false">Сезон Майами</string>
     <string name="season_tomorrow" formatted="false">Завтра</string>
-    <string name="section_adventures" formatted="false">Приключения</string>
     <string name="section_cars" formatted="false">Авто</string>
     <string name="section_concierge" formatted="false">ИИ-консьерж</string>
     <string name="section_dining" formatted="false">Ужины и ночная жизнь</string>

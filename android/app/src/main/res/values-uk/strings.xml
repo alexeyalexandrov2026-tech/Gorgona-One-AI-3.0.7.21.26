@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">Нагадаємо {date}</string>
     <string name="season_title" formatted="false">Сезон у Маямі</string>
     <string name="season_tomorrow" formatted="false">Завтра</string>
-    <string name="section_adventures" formatted="false">Пригоди</string>
     <string name="section_cars" formatted="false">Авто</string>
     <string name="section_concierge" formatted="false">ШІ-консьєрж</string>
     <string name="section_dining" formatted="false">Вечері та нічне життя</string>

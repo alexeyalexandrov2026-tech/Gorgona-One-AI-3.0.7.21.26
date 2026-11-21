@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">{date}에 알려 드릴게요</string>
     <string name="season_title" formatted="false">마이애미 시즌</string>
     <string name="season_tomorrow" formatted="false">내일</string>
-    <string name="section_adventures" formatted="false">어드벤처</string>
     <string name="section_cars" formatted="false">차량</string>
     <string name="section_concierge" formatted="false">AI 컨시어지</string>
     <string name="section_dining" formatted="false">다이닝과 나이트라이프</string>

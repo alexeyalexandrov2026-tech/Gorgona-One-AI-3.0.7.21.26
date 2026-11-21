@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">{date}にお知らせします</string>
     <string name="season_title" formatted="false">マイアミのシーズン</string>
     <string name="season_tomorrow" formatted="false">明日</string>
-    <string name="section_adventures" formatted="false">アドベンチャー</string>
     <string name="section_cars" formatted="false">車</string>
     <string name="section_concierge" formatted="false">AIコンシェルジュ</string>
     <string name="section_dining" formatted="false">ダイニングとナイトライフ</string>

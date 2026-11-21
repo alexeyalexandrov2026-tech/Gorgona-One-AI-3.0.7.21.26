@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">در {date} یادآوری می‌کنیم</string>
     <string name="season_title" formatted="false">فصل میامی</string>
     <string name="season_tomorrow" formatted="false">فردا</string>
-    <string name="section_adventures" formatted="false">ماجراجویی‌ها</string>
     <string name="section_cars" formatted="false">خودرو</string>
     <string name="section_concierge" formatted="false">کنسیرژ هوش مصنوعی</string>
     <string name="section_dining" formatted="false">غذا و زندگی شبانه</string>

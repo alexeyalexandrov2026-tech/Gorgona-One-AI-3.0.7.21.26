@@ -91,7 +91,6 @@
     <string name="season_reminder_on" formatted="false">سنذكّرك في {date}</string>
     <string name="season_title" formatted="false">موسم ميامي</string>
     <string name="season_tomorrow" formatted="false">غدًا</string>
-    <string name="section_adventures" formatted="false">مغامرات</string>
     <string name="section_cars" formatted="false">سيارات</string>
     <string name="section_concierge" formatted="false">كونسيرج بالذكاء الاصطناعي</string>
     <string name="section_dining" formatted="false">المطاعم والحياة الليلية</string>
