@@ -3330,5 +3330,197 @@
   "ui.0a61addc18446dc9": {
     "sourceHash": "0a61addc18446dc9c45fd29b6a36bffbdf001d7521bfc8a8a49afd4d016ed5a3",
     "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "listing.latelier-de-joel-robuchon.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / latelier-de-joel-robuchon-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.le-jardinier.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / le-jardinier-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.elcielo.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / elcielo-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.hiden.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / hiden-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.boia-de.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / boia-de-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.stubborn-seed.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / stubborn-seed-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.shingo.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / shingo-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.los-felix.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / los-felix-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.ogawa.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / ogawa-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.ariete.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / ariete-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.mutra.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / mutra-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.palma.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / palma-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.recoveco.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / recoveco-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.sunnys.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / sunnys-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.klaw.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / klaw-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.osaka.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / osaka-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.nuna.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / nuna-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.mottai.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / mottai-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.tokyo-tuna.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / tokyo-tuna-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.zitz-sum.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / zitz-sum-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.barra-callao.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / barra-callao-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.naoe.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / naoe-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.mother-wolf.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / mother-wolf-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.macchialina.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / macchialina-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.viceversa.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / viceversa-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.torno-subito.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / torno-subito-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.luca-osteria.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / luca-osteria-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.amara-at-paraiso.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / amara-at-paraiso-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.cafe-la-trova.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / cafe-la-trova-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.fooqs.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / fooqs-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.niu-kitchen.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / niu-kitchen-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.rice-mediterranean-kitchen.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / rice-mediterranean-kitchen-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.bouchon-bistro.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / bouchon-bistro-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.la-natural.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / la-natural-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.watr-at-the-1.description": {
+    "sourceHash": "959c601e91a8751dcd15b417ff753d47045b5a36ab4be085736aa6da2cc613db",
+    "description": "Owned listing: venues / watr-at-the-1-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.catch-miami-beach.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / catch-miami-beach-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.serena-rooftop.description": {
+    "sourceHash": "959c601e91a8751dcd15b417ff753d47045b5a36ab4be085736aa6da2cc613db",
+    "description": "Owned listing: venues / serena-rooftop-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.roof-at-esme.description": {
+    "sourceHash": "959c601e91a8751dcd15b417ff753d47045b5a36ab4be085736aa6da2cc613db",
+    "description": "Owned listing: venues / roof-at-esme-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.level-6.description": {
+    "sourceHash": "959c601e91a8751dcd15b417ff753d47045b5a36ab4be085736aa6da2cc613db",
+    "description": "Owned listing: venues / level-6-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.strawberry-moon.description": {
+    "sourceHash": "959c601e91a8751dcd15b417ff753d47045b5a36ab4be085736aa6da2cc613db",
+    "description": "Owned listing: venues / strawberry-moon-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.floyd.description": {
+    "sourceHash": "959c601e91a8751dcd15b417ff753d47045b5a36ab4be085736aa6da2cc613db",
+    "description": "Owned listing: venues / floyd-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.twist.description": {
+    "sourceHash": "959c601e91a8751dcd15b417ff753d47045b5a36ab4be085736aa6da2cc613db",
+    "description": "Owned listing: venues / twist-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.el-rey-de-las-fritas.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / el-rey-de-las-fritas-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.clives-cafe.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / clives-cafe-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.frankie-and-wallys.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / frankie-and-wallys-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.el-bagel.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / el-bagel-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.apocalypse-bbq.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / apocalypse-bbq-miami / description. Product/brand/place names remain intact."
+  },
+  "listing.bombay-darbar.description": {
+    "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
+    "description": "Owned listing: venues / bombay-darbar-miami / description. Product/brand/place names remain intact."
   }
 }

@@ -26,7 +26,7 @@ test('provider and catalogue diagnostics are administrator-only and reveal no cr
  for(const [actor,status] of [[null,401],[ids.customer,403],[ids.partner,403],[ids.admin,200]]){
   const response=await handlers.diningOverview(new Request('https://example.com/api/dashboard/dining',{headers:actor?{Authorization:'Bearer '+actor}:{}}));
   assert.equal(response.status,status);
-  if(status===200){const body=await response.json();assert.equal(body.providers.length,6);assert.ok(body.catalogue.some(v=>v.status==='unverified'));assert.ok(!JSON.stringify(body).includes(fixtureEnv.SUPABASE_SERVICE_ROLE_KEY));}
+  if(status===200){const body=await response.json();assert.equal(body.providers.length,9);assert.ok(body.catalogue.some(v=>v.status==='unverified'));assert.ok(!JSON.stringify(body).includes(fixtureEnv.SUPABASE_SERVICE_ROLE_KEY));}
  }
 });
 test('dining requests persist structured preferences, canonical identity and a pending inquiry only',async()=>{

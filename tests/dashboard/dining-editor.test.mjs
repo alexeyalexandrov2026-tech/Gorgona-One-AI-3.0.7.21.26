@@ -84,7 +84,7 @@ test('withdrawal is a publication and blocks new inquiries while preserving the 
 test('catalogue failure cannot resurrect a withdrawn venue from static fallback',async()=>{
  const fail=async()=>Response.json({error:'offline'},{status:503});
  assert.deepEqual(await diningCatalogue(env,fail),[]);await assert.rejects(diningCatalogue(env,fail,{strict:true}),/unavailable/);
- assert.equal((await diningCatalogue(fixtureEnv,fail)).length,28);
+ assert.equal((await diningCatalogue(fixtureEnv,fail)).length,76); // 75 sheet venues + the held Story record
 });
 test('invalid or mismatched public snapshots fail closed',async()=>{
  for(const row of [{id:'komodo',slug:'other-miami',published_version:1,content:initial},{id:'komodo',slug:'komodo-miami',published_version:1,content:{...initial,serviceKey:'secret'}}])
