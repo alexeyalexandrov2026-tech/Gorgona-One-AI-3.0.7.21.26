@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { conversationNavigation } from '../../../lib/ai/conversation.mjs';
-import { chatSnapshot } from '../../../lib/ai/session.mjs';
+import { chatSnapshot, isDegradedResponse } from '../../../lib/ai/session.mjs';
 import {chatPayload} from '../../../lib/ai/chatRequest.mjs';
 import { useLocale, useLocaleReady } from '../LocaleProvider';
 import { unavailableReply } from '../../../lib/ai/locale';
@@ -129,6 +129,10 @@ export function ChatProvider({ children }) {
     const timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
 
     let answer = '';
+    let handoff = false;
+    // Offline unless the server says a real engine answered: like the Android
+    // app, a degraded turn is shown but never sent back as history.
+    let degraded = true;
     let nextCards=navigation.cards,nextSuggestions=navigation.suggestions,nextListings=[],nextPlan=null;
     let prepared=null;
 
@@ -158,6 +162,8 @@ export function ChatProvider({ children }) {
 
       if (response.ok && typeof data?.reply === 'string' && data.reply.trim()) {
         answer = data.reply.trim();
+        handoff = data.handoff === true;
+        degraded = isDegradedResponse(response.ok, data);
       }
       // Conversation replies can explicitly omit navigation, even when the
       // offline matcher recognized a place or section name in the question.
@@ -176,9 +182,13 @@ export function ChatProvider({ children }) {
         inFlightRef.current=false;
         return;
       }
-      if(!answer) answer = prepared?.matched ? prepared.reply : unavailableReply(locale);
+      if(!answer){
+        answer = prepared?.matched ? prepared.reply : unavailableReply(locale);
+        handoff = prepared?.handoff === true;
+        degraded = true;
+      }
       operationRef.current=null;
-      setMessages(prev=>[...prev,{role:'assistant',content:answer}].slice(-MAX_MESSAGES));
+      setMessages(prev=>[...prev,{role:'assistant',content:answer,...(handoff?{handoff:true}:{}),...(degraded?{degraded:true}:{})}].slice(-MAX_MESSAGES));
       setCards(nextCards);
       setSuggestions(nextSuggestions);
       setListings(nextListings);
