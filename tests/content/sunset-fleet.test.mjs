@@ -84,6 +84,16 @@ test('listing cards show a sharp 3:2 card photo cut from the same supplier cover
   assert.ok(showcase.some(card=>card.image===car.card),'the home showcase uses the card photo');
 });
 
+test('hand-set crop positions point at known cars and stay inside the photo', () => {
+  const {cropPosition}=read('docs/sunset-import/cover-overrides.json');
+  const slugs=new Set(read('lib/sunsetFleetSummary.json').map(car=>car.slug));
+  assert.ok(Object.keys(cropPosition).length>0);
+  for(const [slug,position] of Object.entries(cropPosition)){
+    assert.ok(slugs.has(slug),slug);
+    assert.ok(typeof position==='number' && position>=0 && position<=1,`${slug}: ${position}`);
+  }
+});
+
 test('hand-picked covers are real photos from the same car gallery', () => {
   const {covers}=read('docs/sunset-import/cover-overrides.json');
   const summaries=read('lib/sunsetFleetSummary.json'),details=read('lib/server/sunsetFleetDetails.json');

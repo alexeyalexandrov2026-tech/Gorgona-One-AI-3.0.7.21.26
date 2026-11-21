@@ -58,8 +58,21 @@ def card_path(preview: str) -> str:
     return preview.replace('/rentals/sunset/previews/', '/rentals/sunset/cards/')
 
 
-def make_card(preview: Path, destination: Path) -> tuple[int, int]:
-    """Centred 3:2 crop of the preview, downscaled (never enlarged) to the card size."""
+def crop_positions() -> dict[str, float]:
+    """slug -> where the 3:2 window sits in a tall photo: 0 top, 0.5 centre, 1 bottom.
+
+    Chosen by eye so the whole car stays in the card; Sunset shoots most covers
+    upright with the car in the lower half, where a centred crop cut the wheels.
+    """
+    if not OVERRIDES.exists():
+        return {}
+    return json.loads(OVERRIDES.read_text(encoding='utf-8')).get('cropPosition', {})
+
+
+def make_card(preview: Path, destination: Path, position: float = 0.5) -> tuple[int, int]:
+    """3:2 crop of the preview (centred unless a position is given), downscaled (never enlarged) to the card size."""
+    if not 0 <= position <= 1:
+        raise ValueError(f'Crop position must be between 0 and 1: {position}')
     with Image.open(preview) as image:
         image.load()
         width, height = image.size
@@ -67,7 +80,7 @@ def make_card(preview: Path, destination: Path) -> tuple[int, int]:
             crop_w, crop_h = round(height * 3 / 2), height
         else:  # taller than 3:2: trim top and bottom
             crop_w, crop_h = width, round(width * 2 / 3)
-        left, top = (width - crop_w) // 2, (height - crop_h) // 2
+        left, top = (width - crop_w) // 2, round((height - crop_h) * position)
         card = image.crop((left, top, left + crop_w, top + crop_h))
         if crop_w > CARD_WIDTH:
             card = card.resize((CARD_WIDTH, round(crop_h * CARD_WIDTH / crop_w)), Image.Resampling.LANCZOS)
@@ -92,11 +105,14 @@ def with_card(summary: dict[str, Any]) -> dict[str, Any]:
 
 def ensure_cards(summaries: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Adds "card" to every row and writes the card file when its preview is on disk."""
-    rows = [with_card(summary) for summary in summaries]
+    rows, positions = [with_card(summary) for summary in summaries], crop_positions()
+    unknown = set(positions) - {row['slug'] for row in rows}
+    if unknown:
+        raise ValueError(f'Crop positions for unknown cars: {sorted(unknown)}')
     for row in rows:
         preview = PUBLIC / row['image'].lstrip('/')
         if preview.exists():
-            make_card(preview, PUBLIC / row['card'].lstrip('/'))
+            make_card(preview, PUBLIC / row['card'].lstrip('/'), positions.get(row['slug'], 0.5))
     return rows
 
 
