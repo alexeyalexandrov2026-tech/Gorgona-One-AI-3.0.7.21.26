@@ -64,6 +64,13 @@ the photo. Exclusive Destinations has its own tab, and the menu takes you
 anywhere in the app, Events included. Stays are booked through Stay22 and
 yachts through YATR. The keyboard stays down until you tap a field.
 
+**Release notes, 1.3.1 (version code 8), English (United States)**
+
+A new menu over the same sea as the Catalog: your places on cards of frosted
+glass and every Miami Elio section as a photograph. New photographs for Travel
+and Experiences. In Exclusive Destinations, each experience opens on its own
+page with a list of offers to choose from.
+
 ## Graphics
 
 The local handoff is in `app/build/outputs/play-listing/`. The app icon

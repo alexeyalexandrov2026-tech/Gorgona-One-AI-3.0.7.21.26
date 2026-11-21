@@ -119,15 +119,19 @@ class MenuTest {
                 "Travel", "Exclusive Destinations", "Stays", "Yachts", "Cars", "Events", "Private Jets",
                 "Experiences", "Adventures", "Dining & Nightlife", "AI Concierge",
             )
-        // Where each row is laid out, on screen or below it in the scroll.
-        val tops = tags.zip(names).map { (tag, name) ->
-            compose.onNodeWithTag(tag).assert(hasText(name)).fetchSemanticsNode().positionInRoot.y
+        // Where each one is laid out, on screen or below it in the scroll. The
+        // sections stand two to a row, so the order is the reading order: row
+        // by row, and from the start of a row.
+        val places = tags.zip(names).map { (tag, name) ->
+            // The position, not the bounds: those are clipped to nothing below the fold.
+            val place = compose.onNodeWithTag(tag).assert(hasText(name)).fetchSemanticsNode().positionInRoot
+            place.y to place.x
         }
-        assertEquals(tops.sorted(), tops)
-        assertEquals(tops.size, tops.toSet().size)
+        assertEquals(places.sortedWith(compareBy({ it.first }, { it.second })), places)
+        assertEquals(places.size, places.toSet().size)
         // The sections come under their own heading.
         val heading = compose.onNodeWithText("SECTIONS").fetchSemanticsNode().positionInRoot.y
-        assertTrue(tops[mainIds.size - 1] < heading && heading < tops[mainIds.size])
+        assertTrue(places[mainIds.size - 1].first < heading && heading < places[mainIds.size].first)
     }
 
     @Test
@@ -267,7 +271,9 @@ class MenuTest {
         compose.onNodeWithTag("menu.item.today").assert(hasText("היום"))
         val root = compose.onRoot().fetchSemanticsNode().boundsInRoot
         val panel = compose.onNodeWithTag("menu.item.today").fetchSemanticsNode().boundsInRoot
-        assertTrue("panel $panel in root $root", panel.right > root.right - 1f && panel.left > root.width * 0.1f)
+        // The cards stand 16 dp in from the panel's edge, which is the screen's.
+        val margin = with(compose.density) { 24.dp.toPx() }
+        assertTrue("panel $panel in root $root", panel.right > root.right - margin && panel.left > root.width * 0.1f)
         compose.onNodeWithTag("menu.close").assertContentDescriptionEquals("סגור תפריט")
         // The scrim is the part that is left, on the left: a tap there closes it.
         compose.onNodeWithTag("menu.sheet").performTouchInput { click(Offset(8f, centerY)) }

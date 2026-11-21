@@ -66,6 +66,7 @@ import com.miamielio.app.R
 import com.miamielio.app.app.AppRouter
 import com.miamielio.app.app.AppTab
 import com.miamielio.app.core.HomeSections
+import com.miamielio.app.search.sectionPhoto
 
 /**
  * One row of the menu. [open] takes the guest there, through the router, so
@@ -78,6 +79,8 @@ internal class MenuEntry(
     @param:DrawableRes val icon: Int?,
     /** A section's picture, site-relative; null for the app's own places and for the AI's orb. */
     val image: String? = null,
+    /** A section's page on the site, site-relative; null for the app's own places. */
+    val href: String? = null,
     val open: AppRouter.() -> Unit,
 )
 
@@ -99,7 +102,7 @@ internal val MAIN_MENU: List<MenuEntry> = listOf(
  */
 internal val SECTION_MENU: List<MenuEntry> = HomeSections.all.map { section ->
     val href = section.href
-    MenuEntry("section.${section.id}", section.label, icon = null, image = section.image) {
+    MenuEntry("section.${section.id}", section.label, icon = null, image = section.image, href = href) {
         when {
             section.id == "exclusive" -> show(AppTab.Exclusive)
             section.id == "events" -> showEvents()
@@ -169,10 +172,9 @@ internal fun MenuSheet(
                         enter = if (reduceMotion) EnterTransition.None else slideInHorizontally(tween(260, easing = EaseOut)) { if (rightToLeft) it else -it },
                         exit = if (reduceMotion) ExitTransition.None else slideOutHorizontally(tween(200)) { if (rightToLeft) it else -it },
                     )
-                    // Frosted glass over the sea, edged in pearl, aqua and champagne.
+                    // The sea of the Catalog, edged in pearl, aqua and champagne.
                     .clip(PanelShape)
                     .oceanBackground()
-                    .background(PanelGlass)
                     .border(1.dp, Ocean.glassEdge, PanelShape)
                     // Taps on the panel's own gaps must not fall through to the scrim.
                     .pointerInput(Unit) { detectTapGestures { } }
@@ -207,62 +209,58 @@ internal fun MenuSheet(
                     Modifier
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
-                        .padding(bottom = 16.dp),
+                        .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(TileGap),
                 ) {
-                    Spacer(Modifier.height(4.dp))
                     MAIN_MENU.forEach { entry ->
-                        MenuRow(entry, current = entry.id == current, resolve = resolve, onClick = { onSelect(entry) })
+                        MenuCard(entry, current = entry.id == current, onClick = { onSelect(entry) })
                     }
                     Text(
                         stringResource(R.string.menu_sections).toUpperCase(Locale.current),
                         Modifier
-                            .padding(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 6.dp)
+                            .padding(start = 4.dp, end = 4.dp, top = 14.dp, bottom = 2.dp)
                             .semantics { heading() },
                         style = AppFont.eyebrow.copy(brush = Ocean.champagne),
                     )
-                    SECTION_MENU.forEach { entry ->
-                        MenuRow(entry, current = false, resolve = resolve, onClick = { onSelect(entry) })
-                    }
+                    SectionTiles(resolve = resolve, onSelect = onSelect)
                 }
             }
         }
     }
 }
 
+/**
+ * One of the app's own places as a card of frosted glass, like a Catalog
+ * result: its icon in a circle (the sunset for the place the guest is on), its
+ * name and an arrow.
+ */
 @Composable
-private fun MenuRow(entry: MenuEntry, current: Boolean, resolve: (String) -> String?, onClick: () -> Unit) {
+private fun MenuCard(entry: MenuEntry, current: Boolean, onClick: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
+            .testTag("menu.item.${entry.id}")
+            .clip(CardShape)
+            .background(Ocean.glass)
+            .border(1.dp, if (current) Ocean.champagne else Ocean.glassEdge, CardShape)
             .pressable(onClick = onClick)
-            .heightIn(min = 52.dp)
-            .padding(horizontal = 18.dp, vertical = 5.dp)
-            .testTag("menu.item.${entry.id}"),
+            .heightIn(min = 56.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         val icon = entry.icon
-        val image = entry.image
-        when {
-            icon != null -> GlassCircle(icon, on = current, diameter = 38.dp)
-            image != null -> AsyncImage(
-                model = resolve(image),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(42.dp)
-                    .clip(ThumbShape)
-                    .background(Ocean.night)
-                    .border(1.dp, Ocean.glassEdge, ThumbShape),
-                contentScale = ContentScale.Crop,
-            )
-            // The AI concierge has no picture: its orb stands in for one.
-            else -> Box(Modifier.size(42.dp), contentAlignment = Alignment.Center) { ConciergeMark(36.dp) }
+        if (icon != null) {
+            GlassCircle(icon, on = current, diameter = 40.dp)
+        } else {
+            // The AI concierge has no icon or picture: its orb stands in for one.
+            Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) { ConciergeMark(36.dp) }
         }
         Text(
             stringResource(entry.label),
             Modifier.weight(1f),
-            color = if (icon != null) Ocean.pearl else Ocean.pearl.copy(alpha = 0.9f),
-            style = if (icon != null) AppFont.rowTitle else AppFont.detailMedium,
+            color = Ocean.pearl,
+            style = AppFont.rowTitle,
         )
         // The drawable mirrors itself for right-to-left languages.
         Icon(
@@ -271,6 +269,46 @@ private fun MenuRow(entry: MenuEntry, current: Boolean, resolve: (String) -> Str
             modifier = Modifier.size(16.dp).painted(Ocean.champagne),
             tint = Color.White,
         )
+    }
+}
+
+/**
+ * The site's sections as the Catalog shows its own: photographs in frames,
+ * two to a row, in the site's order. A section without a picture (the AI
+ * concierge) is a card of glass across the row.
+ */
+@Composable
+private fun SectionTiles(resolve: (String) -> String?, onSelect: (MenuEntry) -> Unit) {
+    // Runs of pictured sections, kept in order, broken by those without one.
+    val runs = mutableListOf<MutableList<MenuEntry>>()
+    SECTION_MENU.forEach { entry ->
+        val last = runs.lastOrNull()
+        if (entry.image != null && last != null && last.first().image != null) last += entry else runs += mutableListOf(entry)
+    }
+    runs.forEach { run ->
+        if (run.first().image == null) {
+            run.forEach { entry -> MenuCard(entry, current = false, onClick = { onSelect(entry) }) }
+            return@forEach
+        }
+        run.chunked(2).forEach { pair ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(TileGap)) {
+                pair.forEach { entry ->
+                    val image = entry.image
+                    PhotoTile(
+                        title = stringResource(entry.label),
+                        photo = image?.let(resolve),
+                        proportion = 1.05f,
+                        onClick = { onSelect(entry) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("menu.item.${entry.id}"),
+                        titleStyle = AppFont.rowTitle,
+                        fallback = entry.href?.let(::sectionPhoto),
+                    )
+                }
+                if (pair.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
     }
 }
 
@@ -290,7 +328,7 @@ private fun GlassCircle(@DrawableRes icon: Int, on: Boolean, diameter: Dp, conte
 }
 
 private val PanelShape = RoundedCornerShape(topEnd = 28.dp, bottomEnd = 28.dp)
-private val ThumbShape = RoundedCornerShape(12.dp)
 
-/** The panel's glass: almost the night itself, so the rows stay legible over the sea. */
-private val PanelGlass = Brush.verticalGradient(listOf(Color(0xD901212C), Color(0xF201161E)))
+/** The Catalog's corners, for the cards and the photographs alike. */
+private val CardShape = RoundedCornerShape(20.dp)
+private val TileGap = 10.dp

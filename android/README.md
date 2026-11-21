@@ -6,7 +6,7 @@ WebView tabs for the Miami Elio catalogue and My Miami profile.
 | Setting | Value |
 | --- | --- |
 | Application ID | `com.miamielio.app` |
-| Version | `1.3.0` / `7` |
+| Version | `1.3.1` / `8` |
 | Android | Minimum API 26, target API 36, compile API 37 |
 | Toolchain | JDK 17, Android SDK Platform 37, Node.js 22, Gradle wrapper 9.9.1 |
 | Debug | `com.miamielio.app.debug`, with protected dashboard staging by default |

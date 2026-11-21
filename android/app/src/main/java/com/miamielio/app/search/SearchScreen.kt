@@ -70,6 +70,7 @@ import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.Eyebrow
 import com.miamielio.app.ui.MenuButton
 import com.miamielio.app.ui.Ocean
+import com.miamielio.app.ui.PhotoTile
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.ui.arrives
@@ -292,43 +293,14 @@ private fun WorldGrid(open: (String) -> Unit) {
 
 @Composable
 private fun WorldTile(world: World, format: TileFormat, open: (String) -> Unit, modifier: Modifier = Modifier) {
-    val shape = RoundedCornerShape(20.dp)
-    Box(
-        modifier
-            .fillMaxWidth()
-            .aspectRatio(format.proportion)
-            .clip(shape)
-            .background(Theme.card)
-            .border(1.dp, Color.White.copy(alpha = 0.08f), shape)
-            .pressable { open(world.path) }
-            .testTag("world.${world.path}"),
-    ) {
-        // Loaded at the tile's size, off the main thread: eight photographs
-        // decoded whole would cost the first frame and a good deal of memory.
-        AsyncImage(
-            model = world.photo,
-            contentDescription = null,
-            modifier = Modifier.matchParentSize(),
-            contentScale = ContentScale.Crop,
-        )
-        // The foot of the picture darkens so the name stays legible.
-        Box(
-            Modifier
-                .matchParentSize()
-                .background(Brush.verticalGradient(0.3f to Color.Transparent, 1f to Color.Black.copy(alpha = 0.78f))),
-        )
-        Text(
-            text = stringResource(world.title),
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            color = Color.White,
-            style = (if (format == TileFormat.Tall) AppFont.cardTitle else AppFont.title)
-                .copy(shadow = Shadow(Color.Black.copy(alpha = 0.45f), Offset(0f, 2f), blurRadius = 16f)),
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
+    PhotoTile(
+        title = stringResource(world.title),
+        photo = world.photo,
+        proportion = format.proportion,
+        onClick = { open(world.path) },
+        modifier = modifier.testTag("world.${world.path}"),
+        titleStyle = if (format == TileFormat.Tall) AppFont.cardTitle else AppFont.title,
+    )
 }
 
 /** The app's own photo of the section a result belongs to, by the start of its path; null when none fits. */
