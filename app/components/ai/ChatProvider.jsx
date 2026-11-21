@@ -20,9 +20,8 @@ import {useHydratedValue} from '../useHydratedValue';
 //
 // State that must stay consistent across the surfaces:
 //   messages    the transcript
-//   sessionId   the local brain's server-side memory handle (see
-//               lib/ai/localBrain.js - the service rebuilds context from it,
-//               so losing it would silently restart the conversation)
+//   sessionId   an opaque handle echoed back to /api/chat when the server
+//               supplies one (the current Workers AI chain does not)
 //   cards       navigation frames for the newest reply
 //   isLoading   so every surface shows the same typing state
 //
