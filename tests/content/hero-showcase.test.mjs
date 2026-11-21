@@ -9,7 +9,7 @@ const pageFor = (href) => new URL(`../../app${href}/page.js`, import.meta.url);
 test('the section rail links to pages that exist, including the five that were missing', () => {
   assert.deepEqual(HOME_SECTIONS.map((section) => section.href), [
     '/travel', '/exclusive-destinations', '/vacation-rentals', '/yachts', '/rentals', '/events',
-    '/private-jets', '/experiences', '/entertainment/adrenaline-365', '/restaurants-nightlife', '/discovery'
+    '/private-jets', '/experiences', '/restaurants-nightlife', '/discovery'
   ]);
   for (const section of HOME_SECTIONS) {
     assert.equal(existsSync(pageFor(section.href)), true, section.href);

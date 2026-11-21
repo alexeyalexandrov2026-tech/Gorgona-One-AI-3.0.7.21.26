@@ -1369,7 +1369,7 @@
   },
   "ui.a2595eb51357c95e": {
     "sourceHash": "a2595eb51357c95ed12203109088d86fa15263ebc0c6ba5df8be9ede4fee4b06",
-    "description": "app/components/ai/AiDock.jsx; app/components/ai/ConciergeRoom.jsx; app/components/ai/DiscoveryRoom.jsx; owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/ai/AiDock.jsx; app/components/ai/ConciergeRoom.jsx; app/components/ai/DiscoveryRoom.jsx; lib/aiSuggestions.js: owned section navigation label; owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.9ca1550b66974cc3": {
     "sourceHash": "9ca1550b66974cc3c7a523f0cb98f724447510c4beb329ef6154e85a7c432564",
@@ -1379,25 +1379,13 @@
     "sourceHash": "310fa2965b0d521c67066787aeae3faf974e3aba3f927e73532c461ac87554f7",
     "description": "app/components/ai/GorgonaOneAI.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.e9dab81df9c773f3": {
-    "sourceHash": "e9dab81df9c773f34947853a63fb5ee792c17ea1275856158936926f3b47da56",
-    "description": "app/components/home/HomeHero.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.ee290b3ddbc8e7e9": {
     "sourceHash": "ee290b3ddbc8e7e90bd0028e8315a02570ee24d83cc8b0c14f860146bb24fd80",
     "description": "app/cookie-policy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.d696a35bdd1883da": {
     "sourceHash": "d696a35bdd1883da07a8d6c41bb7a3153381b23aa197629ee273479a6eaa5a9c",
-    "description": "app/entertainment/adrenaline-365/page.js; app/travel/ovago/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.d12b02f95b9989fe": {
-    "sourceHash": "d12b02f95b9989fef22ba6fa9b3b3e3d310a07b70110f759b0e6bc4b64e6bfe4",
-    "description": "app/entertainment/adrenaline-365/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.b89b53f4ca0d60b1": {
-    "sourceHash": "b89b53f4ca0d60b1bb8497132a722c25484476063341b0f9cef4c34b554261b3",
-    "description": "app/entertainment/adrenaline-365/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/ovago/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.ab827e3fe17da220": {
     "sourceHash": "ab827e3fe17da220a9a652087a35d20adda002aa4df887c5d813b2b1e95228f9",
@@ -1597,7 +1585,7 @@
   },
   "ui.123c8d6b00223641": {
     "sourceHash": "123c8d6b00223641a461aca97985c16e89a0ea4691c289162132fcd868ddfcfb",
-    "description": "app/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/HomePage.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.66b0855543b0212f": {
     "sourceHash": "66b0855543b0212fb30a89a5a53a4ee07072098414f4859ffa5f4556850a5b29",
@@ -1802,10 +1790,6 @@
   "ui.2bd873d6c734e63e": {
     "sourceHash": "2bd873d6c734e63ea80e163a6a643f75bf87a3d24e3164987d176a2e3e5c567e",
     "description": "app/components/g1/ui.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e50dfd503195d9af": {
-    "sourceHash": "e50dfd503195d9afac0b7c6050a63e7cb411c888910d4a34c0abe55bda2bdf97",
-    "description": "app/components/home/HomeHero.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.b8b0877620aaa5bb": {
     "sourceHash": "b8b0877620aaa5bb35f0aeecfd03ff255a9ac450395fd062cc204c021903789f",
@@ -2537,15 +2521,15 @@
   },
   "ui.209579ef933fc733": {
     "sourceHash": "209579ef933fc7330c3c17ccbe3bbf523df48cf46d093505761203bf04d00e20",
-    "description": "app/travel/ovago/page.js: owned editorial card; app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/ovago/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.f994fcecfb3a67e1": {
     "sourceHash": "f994fcecfb3a67e1978abe63d05c4077a9ebedaa632cc2f667ad4092a9477e29",
-    "description": "app/travel/ovago/page.js: owned editorial card; app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/ovago/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.3a21d95073a46589": {
     "sourceHash": "3a21d95073a46589ba5160ea2cf1818314de559a056fe6903bdc883ae5061ae2",
-    "description": "app/travel/ovago/page.js: owned editorial card; app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/ovago/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.6e8a809e9655b33c": {
     "sourceHash": "6e8a809e9655b33cee6fb5a2c2532bea41d6f981d21fbe34cd72d164d0f1e6d4",
@@ -2561,11 +2545,11 @@
   },
   "ui.69a47f794946a3e4": {
     "sourceHash": "69a47f794946a3e4e7bfe6fb4f4286e7336e7ce9e0bdf5abcbb3bcd725bd82e1",
-    "description": "app/travel/ovago/page.js: owned editorial card; app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/ovago/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.10add8cb2a401310": {
     "sourceHash": "10add8cb2a401310a230f6509884753159cf2af703837db458354e7c90ac051b",
-    "description": "app/travel/ovago/page.js: owned editorial card; app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/ovago/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.10d4c57a7ef09409": {
     "sourceHash": "10d4c57a7ef094099c6fd894d66d38a17af6aecad0272e18dc23b67dbd6f4f43",
@@ -2590,34 +2574,6 @@
   "ui.e25d7ee3abf3e839": {
     "sourceHash": "e25d7ee3abf3e8392f29fa4b6f833978c2dba14d3356d0949dd07918efddf858",
     "description": "app/travel/ovago/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.2ff6e91c905d9386": {
-    "sourceHash": "2ff6e91c905d9386a564479e47dfc9c67f6eec30d63bb0af1cd5405bf603fffe",
-    "description": "app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.90a1c292deae2aaf": {
-    "sourceHash": "90a1c292deae2aaf4ced5335f139d87f2e88f7dcae9a4cf5aa837dbf30e2ad9c",
-    "description": "app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.efa69dc8242e1d55": {
-    "sourceHash": "efa69dc8242e1d55dda1d988aa0a60c01036b7457043aa7e03ffbff0d27a7972",
-    "description": "app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.fa45f90ccd08b295": {
-    "sourceHash": "fa45f90ccd08b295e7cd3c0952460b1db2a99d1192fbd259004e23cb5c9c68dd",
-    "description": "app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.1b8e3588690f3741": {
-    "sourceHash": "1b8e3588690f37419b32d4f43da5a56868d5f3674f982bf3716433978d8561bf",
-    "description": "app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.11b2ba5b6c02f0dd": {
-    "sourceHash": "11b2ba5b6c02f0ddb2cc5e9876110b14499b5e50f6057dd4f9f9a6162f62189f",
-    "description": "app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.5047cac03700a453": {
-    "sourceHash": "5047cac03700a453b4cf95498a4b8c0a5ba9983c5522b66d156bc600c53b4386",
-    "description": "app/entertainment/adrenaline-365/page.js: owned editorial card. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.b23e302253a54c36": {
     "sourceHash": "b23e302253a54c366dc63e10e758d5639cebd640d68b62fcd4b3af89b5920756",
@@ -2721,7 +2677,7 @@
   },
   "ui.47d2a515ef2f05b8": {
     "sourceHash": "47d2a515ef2f05b87d688656286a61e4f743da4b878684c7654969db17711c40",
-    "description": "app/account/delete/page.js; app/account/setup/page.js; app/admin/page.js; app/components/BookingForm.jsx; app/components/MyMiami.jsx; app/components/ai/AiConversation.jsx; app/components/dashboard/AppSupport.jsx; app/components/dashboard/ListingWorkspace.jsx; app/components/dashboard/RequestBoard.jsx; app/components/dining/VenueEditor.jsx; app/forgot-password/page.js; app/partner/page.js; app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/account/delete/page.js; app/account/setup/page.js; app/admin/page.js; app/components/ai/AiConversation.jsx; app/components/BookingForm.jsx; app/components/dashboard/AppSupport.jsx; app/components/dashboard/ListingWorkspace.jsx; app/components/dashboard/RequestBoard.jsx; app/components/dining/VenueEditor.jsx; app/components/MyMiami.jsx; app/forgot-password/page.js; app/partner/page.js; app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.ea923f45a415c408": {
     "sourceHash": "ea923f45a415c408812651a3b319fc3fbe19d63fe4261add03667a95d2c7292e",
@@ -2953,10 +2909,6 @@
   },
   "ui.e212f22f07582bb4": {
     "sourceHash": "e212f22f07582bb4573a62d7b7633525f1e66a025478294fcafed0b2da4616d9",
-    "description": "app/components/MyMiami.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.3089bd4c1e169f98": {
-    "sourceHash": "3089bd4c1e169f9804835768382e5479dd697c1dca20e8fa4fe3252d6f3276ec",
     "description": "app/components/MyMiami.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.43c5a322e4b76af6": {
