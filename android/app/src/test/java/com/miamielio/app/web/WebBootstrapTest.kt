@@ -53,6 +53,26 @@ class WebBootstrapTest {
     }
 
     @Test
+    fun theAppsSeaShowsUnderTheSitesPagesInTheAppOnly() {
+        val style = WebBootstrap.APP_STYLE
+        val app = "html[data-app=\"android\"]"
+        // Every rule is the app's: the site in a browser keeps its own look.
+        assertTrue(style.lines().all { it.startsWith(app) })
+        assertTrue(style.contains("$app body { background: transparent !important; }"))
+        // Cards turn to glass; body carries bg-g1-paper itself and must stay clear.
+        assertTrue(style.contains("$app body .bg-g1-paper"))
+        assertFalse(style.contains("$app .bg-g1-paper"))
+        assertTrue(style.contains("$app header.sticky { background-color:"))
+        assertTrue(style.contains("$app .text-villa-obsidian"))
+        assertTrue(style.contains("$app .theme-villa [data-my-miami] { --g1-ink: #f4f1ea;"))
+        // Still the launchers rule, and the one style goes into the script.
+        assertTrue(style.contains("$app [data-floating-launcher]"))
+        val script = WebBootstrap.script(config.internalHosts, policy.restrictedPaths, "en")
+        assertEquals(1, Regex("createElement\\('style'\\)").findAll(script).count())
+        assertTrue(script.contains("body { background: transparent !important; }"))
+    }
+
+    @Test
     fun onlyTheSitesOwnHttpsPagesGetTheScriptAndTheBridge() {
         assertEquals(setOf("https://gorgona-one.com", "https://www.gorgona-one.com"), WebBootstrap.originRules(config))
     }

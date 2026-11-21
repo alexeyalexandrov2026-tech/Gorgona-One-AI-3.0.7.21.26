@@ -50,12 +50,42 @@ object WebBootstrap {
     private fun jsList(values: Iterable<String>): String = values.joinToString(",", "[", "]") { js(it) }
 
     /**
+     * The one stylesheet the app adds to the site's pages. Every rule sits
+     * under `html[data-app="android"]`, so the site in a browser is untouched.
+     * - Hides the site's own launchers; the native tab and manager cover them.
+     * - Lets the app's sea (drawn behind a transparent web view) show through:
+     *   the page itself is transparent, cards become the app's dark glass and
+     *   the sticky header a night bar. `body` carries `bg-g1-paper` itself, so
+     *   the glass rule only reaches what is inside it.
+     * - Turns the light profile (the villa palette) to light text on the sea.
+     * `--g1-paper` is left alone: it is also the text colour on accent buttons.
+     */
+    internal val APP_STYLE: String = listOf(
+        " [data-floating-launcher], html[data-app=\"android\"] .aidock { display: none !important; }",
+        ", html[data-app=\"android\"] body { background: transparent !important; }",
+        " body .bg-g1-paper, html[data-app=\"android\"] body .bg-g1-card" +
+            " { background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(1,26,34,0.55)); }",
+        " header.sticky { background-color: rgba(1,22,30,0.95) !important; }",
+        " .bg-villa-parchment { background: transparent; }",
+        " .text-villa-obsidian, html[data-app=\"android\"] .text-villa-charcoal { color: #f4f1ea; }",
+        " .text-villa-graphite { color: rgba(244,241,234,0.78); }",
+        " .text-villa-ash { color: #e6c88e; }",
+        // The site gives the profile's favourites dark ink for the parchment.
+        " .theme-villa [data-my-miami] { --g1-ink: #f4f1ea; --g1-ink-soft: rgba(244,241,234,0.72);" +
+            " --g1-rule: rgba(244,241,234,0.2); --g1-card: rgba(255,255,255,0.08); }",
+        " .border-villa-obsidian { border-color: rgba(244,241,234,0.55); }",
+        " [class~=\"border-villa-obsidian/20\"], html[data-app=\"android\"] [class~=\"border-villa-obsidian/25\"]" +
+            " { border-color: rgba(244,241,234,0.2); }",
+    ).joinToString("\n") { "html[data-app=\"android\"]$it" }
+
+    /**
      * Runs before any of the page's own code, on Miami Elio pages only.
      * - Gives the page the door the iPhone app has
      *   (`window.webkit.messageHandlers.miamiElio`), so the site talks to
      *   both apps the same way.
      * - Marks the document so the site hides web-only chrome
-     *   (`html[data-app] [data-app-hidden]` in `app/globals.css`).
+     *   (`html[data-app] [data-app-hidden]` in `app/globals.css`), and adds
+     *   [APP_STYLE] for the app's own look.
      * - Falls back to setting the language cookie from the page if the
      *   native cookie write did not happen.
      * - Reports the language the site settles on.
@@ -100,14 +130,14 @@ object WebBootstrap {
 
           whenRoot(function (root) {
             root.setAttribute('data-app', 'android');
-            // The native tab and manager entry points already cover these actions.
-            function hideWebLaunchers() {
+            // The app's look: no duplicate launchers, the app's sea under the page.
+            function addAppStyle() {
               var style = document.createElement('style');
-              style.textContent = 'html[data-app="android"] [data-floating-launcher], html[data-app="android"] .aidock { display: none !important; }';
+              style.textContent = ${js(APP_STYLE)};
               document.head.appendChild(style);
             }
-            if (document.head) { hideWebLaunchers(); }
-            else { document.addEventListener('DOMContentLoaded', hideWebLaunchers, { once: true }); }
+            if (document.head) { addAppStyle(); }
+            else { document.addEventListener('DOMContentLoaded', addAppStyle, { once: true }); }
             function report() { post({ locale: root.lang || '' }); }
             try {
               new MutationObserver(report).observe(root, { attributes: true, attributeFilter: ['lang'] });

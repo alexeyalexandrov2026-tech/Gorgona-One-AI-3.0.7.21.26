@@ -1,7 +1,6 @@
 package com.miamielio.app.web
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +27,7 @@ import com.miamielio.app.R
 import com.miamielio.app.ui.Hairline
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
+import com.miamielio.app.ui.oceanBackground
 
 /**
  * A page of the site shown over the current tab: a listing, a section, a
@@ -44,7 +44,8 @@ fun WebLayer(controller: WebTabController, onClose: () -> Unit, modifier: Modifi
     Column(
         modifier
             .fillMaxSize()
-            .background(Theme.paper)
+            // One sea under the header and the page alike.
+            .oceanBackground()
             .testTag("web.layer"),
     ) {
         Row(
@@ -75,6 +76,6 @@ fun WebLayer(controller: WebTabController, onClose: () -> Unit, modifier: Modifi
         }
         Hairline()
         // WebTab pads for the status bar itself; the header above already did.
-        WebTab(controller, Modifier.fillMaxSize(), padStatusBar = false)
+        WebTab(controller, Modifier.fillMaxSize(), padStatusBar = false, ocean = false)
     }
 }

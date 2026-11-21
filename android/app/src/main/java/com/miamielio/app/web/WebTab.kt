@@ -3,7 +3,6 @@ package com.miamielio.app.web
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,10 +39,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miamielio.app.R
 import com.miamielio.app.ui.AppFont
 import com.miamielio.app.ui.Theme
+import com.miamielio.app.ui.oceanBackground
 
-/** A tab that shows part of the Miami Elio site. */
+/**
+ * A tab that shows part of the Miami Elio site, over the app's sea. Pass
+ * [ocean] false when the screen around it already draws the sea (WebLayer).
+ */
 @Composable
-fun WebTab(controller: WebTabController, modifier: Modifier = Modifier, padStatusBar: Boolean = true) {
+fun WebTab(
+    controller: WebTabController,
+    modifier: Modifier = Modifier,
+    padStatusBar: Boolean = true,
+    ocean: Boolean = true,
+) {
     val state by controller.state.collectAsStateWithLifecycle()
     val failure = state.failure
 
@@ -56,7 +64,7 @@ fun WebTab(controller: WebTabController, modifier: Modifier = Modifier, padStatu
     Box(
         modifier
             .fillMaxSize()
-            .background(Theme.paper)
+            .then(if (ocean) Modifier.oceanBackground() else Modifier)
             .then(if (padStatusBar) Modifier.statusBarsPadding() else Modifier),
     ) {
         AndroidView(
@@ -99,10 +107,10 @@ fun WebTab(controller: WebTabController, modifier: Modifier = Modifier, padStatu
 
 @Composable
 internal fun LoadFailureView(failure: LoadFailure, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    // Laid over the tab's sea; the page under it is hidden.
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Theme.paper)
             .padding(32.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,

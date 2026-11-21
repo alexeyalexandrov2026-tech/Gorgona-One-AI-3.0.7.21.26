@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.net.http.SslError
 import android.os.Message
@@ -100,7 +101,8 @@ class WebTabController(
     val container: SwipeRefreshLayout = SwipeRefreshLayout(activity).apply {
         setColorSchemeColors(ACCENT)
         setProgressBackgroundColorSchemeColor(CARD)
-        setBackgroundColor(PAPER)
+        // The app's sea is drawn behind the tab (WebTab, WebLayer).
+        setBackgroundColor(Color.TRANSPARENT)
         setOnRefreshListener { pulledToRefresh() }
     }
 
@@ -314,7 +316,9 @@ class WebTabController(
     @SuppressLint("SetJavaScriptEnabled")
     private fun build(): WebView {
         val view = WebView(activity)
-        view.setBackgroundColor(PAPER)
+        // Transparent until the page paints, and after it on the site's own
+        // pages, whose background the bootstrap style clears (WebBootstrap.APP_STYLE).
+        view.setBackgroundColor(Color.TRANSPARENT)
         view.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         with(view.settings) {
             javaScriptEnabled = true
@@ -528,7 +532,6 @@ class WebTabController(
 
     private companion object {
         // The site's dark palette, as in ui/Theme.kt.
-        val PAPER = "#0A1218".toColorInt()
         val CARD = "#111D25".toColorInt()
         val ACCENT = "#FF6E93".toColorInt()
     }

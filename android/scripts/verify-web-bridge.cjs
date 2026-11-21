@@ -75,6 +75,11 @@ function check(name, ok) {
 const own = page('gorgona-one.com');
 check('marks the document for the app', own.attributes['data-app'] === 'android');
 check('hides duplicate web launchers only on app pages', own.injectedStyles.length === 1 && own.injectedStyles[0].includes('[data-floating-launcher]') && own.injectedStyles[0].includes('.aidock'));
+const appStyle = own.injectedStyles[0] || '';
+check('lets the app\'s sea show under the page', appStyle.includes('html[data-app="android"] body { background: transparent !important; }'));
+check('turns the site\'s cards into glass, not the body itself', appStyle.includes('html[data-app="android"] body .bg-g1-paper') && !appStyle.includes('html[data-app="android"] .bg-g1-paper'));
+check('gives the sticky header a night bar', appStyle.includes('html[data-app="android"] header.sticky {'));
+check('every app rule is scoped to the app', appStyle.split('\n').every((line) => line.startsWith('html[data-app="android"]')));
 check('sets the language cookie when none is stored', /gorgona-locale=ru; path=\//.test(own.document.cookie));
 check('offers the door the iPhone app has', typeof own.sandbox.webkit.messageHandlers.miamiElio.postMessage === 'function');
 own.sandbox.webkit.messageHandlers.miamiElio.postMessage({ favorites: ['yacht:a'] });
