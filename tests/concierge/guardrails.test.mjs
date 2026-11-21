@@ -155,3 +155,42 @@ test('the request contract still rejects roles, oversized turns and too many tur
  const many=await send(Array.from({length:30},(_,i)=>({role:i%2?'assistant':'user',content:'turn '+i})).concat([{role:'user',content:'last'}]));
  assert.ok(many.messages.length<=12);assert.equal(many.messages.at(-1).content,'last');
 });
+
+// Audit fix 2: a booking request that names a venue goes straight to the venue.
+test('a booking request naming a restaurant keeps the disclaimer and adds only that venue, with its own booking page',async()=>{
+ for(const [locale,content] of [['en','Book a table at Komodo for 4 on Friday'],['ru','Забронируй столик в Komodo на пятницу'],['es','Reserva una mesa en Komodo']]){
+  const {data}=await chat({locale,messages:[{role:'user',content}]},()=>json(consult));
+  assert.equal(data.handoff,true,content);
+  assert.match(data.reply,/does not create or confirm reservations|не создаёт и не подтверждает|no crea ni confirma/,content);
+  assert.equal(data.listings.length,1,content);
+  assert.equal(data.listings[0].title,'Komodo');
+  assert.equal(data.listings[0].booking.platform,'sevenrooms');
+  assert.equal(new URL(data.listings[0].booking.href).hostname,'www.sevenrooms.com');
+ }
+ const degraded=await chat({locale:'en',messages:[{role:'user',content:'Book a table at Komodo for 4 on Friday'}]},()=>({response:'not json'}));
+ assert.equal(degraded.data.error,true);assert.equal(degraded.data.listings[0]?.title,'Komodo','the fallback answer offers the venue too');
+ for(const content of ['Reserve a table for 4','Book a flight to Osaka'])assert.deepEqual((await chat({locale:'en',messages:[{role:'user',content}]},()=>json(consult))).data.listings,[],content);
+ const {catalogueAnswer}=load('lib/ai/catalogueAnswer.mjs');
+ assert.equal(catalogueAnswer([{role:'user',content:'Book a table at Komodo for 4 on Friday'}],'en').listings[0]?.title,'Komodo','the browser fallback matches the server');
+});
+
+// Audit fix 1: one server clock, shorter than the browser's.
+test('the server turn budget ends before the browser stops waiting, and a spent budget skips the model',async()=>{
+ const {CLIENT_TIMEOUT_MS,SERVER_BUDGET_MS}=await import('../../lib/ai/chatDeadline.mjs');
+ assert.ok(SERVER_BUDGET_MS<=CLIENT_TIMEOUT_MS-2000,'room for the response to travel back');
+ const {askWorkersBrain}=load('lib/ai/workersBrain.mjs');
+ const saved=process.env.CONCIERGE_WORKERS_AI_ENABLED;process.env.CONCIERGE_WORKERS_AI_ENABLED='true';
+ try{
+  for(const timeoutMs of [0,-500,500])assert.deepEqual(await askWorkersBrain({messages:[{role:'user',content:'Rent a yacht'}],locale:'en'},{timeoutMs}),{ok:false,kind:'timeout'},String(timeoutMs));
+ }finally{if(saved===undefined)delete process.env.CONCIERGE_WORKERS_AI_ENABLED;else process.env.CONCIERGE_WORKERS_AI_ENABLED=saved;}
+});
+
+// Audit fix 3: the log says why the model gave no answer and how long the turn took.
+test('the turn log records the engine outcome and duration, still without guest text',async()=>{
+ const logOf=result=>result.calls.logs.map(line=>JSON.parse(line)).find(entry=>entry.event==='concierge.chat');
+ const answered=logOf(await chat({locale:'en',messages:[{role:'user',content:'Rent a yacht'}]},()=>json({version:1,action:'recommend',sections:['/yachts']})));
+ assert.equal(answered.engine,'ok');assert.ok(Number.isFinite(answered.ms)&&answered.ms>=0);
+ const broken=await chat({locale:'en',messages:[{role:'user',content:'Rent a yacht'}]},()=>({response:'not json'}));
+ assert.equal(logOf(broken).engine,'invalid_reply');assert.equal(logOf(broken).error,true);
+ assert.ok(broken.calls.logs.every(line=>!line.includes('Rent a yacht')),'logs carry metadata only');
+});
