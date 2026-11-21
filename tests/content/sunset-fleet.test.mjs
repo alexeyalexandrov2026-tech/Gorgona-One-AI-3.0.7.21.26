@@ -56,6 +56,34 @@ test('import integrity covers local image bytes without supplier runtime hotlink
   assert.ok(summaries.every(car=>!('richContent' in car)&&!('gallery' in car)), 'long descriptions and complete galleries stay out of client inventory');
 });
 
+// Reads width and height from a lossy, lossless or extended WebP header.
+const webpSize=bytes=>{
+  const kind=bytes.toString('ascii',12,16);
+  if(kind==='VP8X')return [1+bytes.readUIntLE(24,3),1+bytes.readUIntLE(27,3)];
+  if(kind==='VP8 ')return [bytes.readUInt16LE(26)&0x3fff,bytes.readUInt16LE(28)&0x3fff];
+  if(kind==='VP8L'){const v=bytes.readUInt32LE(21);return [(v&0x3fff)+1,((v>>14)&0x3fff)+1];}
+  throw new Error('Not a WebP file');
+};
+
+test('listing cards show a sharp 3:2 card photo cut from the same supplier cover', async () => {
+  const summaries=read('lib/sunsetFleetSummary.json');
+  assert.equal(summaries.length,260);
+  for(const car of summaries){
+    assert.equal(car.card,car.image.replace('/rentals/sunset/previews/','/rentals/sunset/cards/'),car.slug);
+    const [width,height]=webpSize(fs.readFileSync(new URL('../../public'+car.card,import.meta.url)));
+    assert.ok(Math.abs(width/height-1.5)<0.01,`${car.slug}: ${width}x${height} is not 3:2`);
+    assert.ok(width<=1200 && height<=800,`${car.slug}: ${width}x${height} exceeds the card size`);
+    assert.ok(width>=360,`${car.slug}: card photo is smaller than the old thumbnail`);
+  }
+  const { carThumb }=await import('../../lib/homeData.js');
+  const { assembleShowcase }=await import('../../lib/heroShowcase.js');
+  const car=summaries[0];
+  assert.equal(carThumb(car),car.card,'listing and related-car cards use the card photo');
+  assert.equal(carThumb({image:'/images/rentals/own/cover.jpg'}),'/images/rentals/own/cover-s.jpg','own cars keep their 720px cover');
+  const showcase=assembleShowcase({rentals:[{...car,dailyPrice:'$900'}]});
+  assert.ok(showcase.some(card=>card.image===car.card),'the home showcase uses the card photo');
+});
+
 test('source cards use our existing booking route with manual confirmation and payment', () => {
   const detail=fs.readFileSync(new URL('../../app/rentals/[slug]/page.js',import.meta.url),'utf8');
   const form=fs.readFileSync(new URL('../../app/components/BookingForm.jsx',import.meta.url),'utf8');
