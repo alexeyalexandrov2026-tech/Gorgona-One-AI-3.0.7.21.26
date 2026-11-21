@@ -38,6 +38,21 @@ venue's own booking page; Miami Elio never confirms a table.
 - "Popular this week" is not shown: there is no popularity data. Only the editorial
   "Concierge picks" strip, labelled as an editorial choice.
 
+## Link check (2026-11-21)
+
+All 127 sheet links (58 booking links and 69 official websites) were opened.
+
+- **Every booking link works.** 41 answered a plain request. OpenTable answers scripts with 403, so
+  its 17 links were opened in a real browser, and each one reached the venue's OpenTable page or
+  time picker. LIV (Discotech) and Sugar (SevenRooms) were also checked in the browser: one lists
+  the guest-list dates, the other shows the booking form.
+- **Official websites that did not answer** (not used for any button on the site; for the owner
+  to look at): Rusty Pelican (403), Michael's Genuine (connection closed), Glass & Vine (403),
+  Elcielo (502), Stubborn Seed (403), Osaka (502), Amara at Paraiso (connection closed),
+  Niu Kitchen (connection closed), La Natural (certificate does not match www.lanaturalmiami.com).
+  Some of these may be bot protection rather than a broken site.
+- The links were not changed: the catalogue keeps the sheet's values as given.
+
 ## Every venue
 
 | Venue | Sheet | Main action | Price | MICHELIN | Vibe | Collections | Pick |
