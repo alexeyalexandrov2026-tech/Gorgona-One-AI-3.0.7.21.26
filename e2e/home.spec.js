@@ -13,7 +13,6 @@ const sections = [
   ['Events', '/events'],
   ['Private Jets', '/private-jets'],
   ['Experiences', '/experiences'],
-  ['Adventures', '/entertainment/adrenaline-365'],
   ['Dining & Nightlife', '/restaurants-nightlife'],
   ['AI Concierge', '/discovery'],
 ];
