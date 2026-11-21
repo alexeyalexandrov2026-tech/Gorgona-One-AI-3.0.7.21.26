@@ -65,7 +65,7 @@ export default function RootLayout({ children }) {
   return (
     // Dark palette until every page is on the new design system.
     <html lang="en" data-theme="dark" className="scroll-smooth">
-      <body className="min-h-screen bg-g1-paper font-sans text-zinc-100 antialiased">
+      <body className="min-h-screen font-sans text-zinc-100 antialiased">
         <LocaleProvider>
           <AuthProvider>
             <FavoritesProvider>
