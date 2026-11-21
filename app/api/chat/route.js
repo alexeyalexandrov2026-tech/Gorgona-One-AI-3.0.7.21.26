@@ -7,7 +7,8 @@ import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
 import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 import { catalogueAnswer, explicitBooking, bookingDisclaimer } from '../../../lib/ai/catalogueAnswer.mjs';
-import { gatedListings } from '../../../lib/ai/listingCards.mjs';
+import { gatedListings, namedVenueCards } from '../../../lib/ai/listingCards.mjs';
+import { SERVER_BUDGET_MS } from '../../../lib/ai/chatDeadline.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
@@ -38,11 +39,17 @@ export const dynamic = 'force-dynamic';
 // matcher that replaced it, or a deterministic fact (greeting, time, weather).
 const DECIDERS = new Set(['model', 'lexicon', 'fact']);
 
-function reply(text, { messages = [], latestUserMessage = '', source = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null, listings = [], handoff = false, action = null, decidedBy = 'lexicon' } = {}) {
+// What happened to the model call: 'ok', or why it gave no answer
+// (disabled, unavailable, usage_denied, timeout, cancelled, invalid_input, invalid_reply).
+const ENGINE_STATES = new Set(['ok', 'disabled', 'unavailable', 'usage_denied', 'timeout', 'cancelled', 'invalid_input', 'invalid_reply']);
+
+function reply(text, { messages = [], latestUserMessage = '', source = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null, listings = [], handoff = false, action = null, decidedBy = 'lexicon', engine = null, started = null } = {}) {
   const decider = DECIDERS.has(decidedBy) ? decidedBy : 'lexicon';
   const rows = Array.isArray(listings) ? listings.slice(0, 4) : [];
   // One structured line per turn, metadata only: never the guest's words or the reply.
-  console.info(JSON.stringify({ event: 'concierge.chat', decidedBy: decider, source, action, listings: rows.length, handoff: Boolean(handoff), error: Boolean(error), locale }));
+  // engine says why a model did not answer; ms is the whole server turn.
+  console.info(JSON.stringify({ event: 'concierge.chat', decidedBy: decider, source, action, listings: rows.length, handoff: Boolean(handoff), error: Boolean(error), locale,
+    ...(ENGINE_STATES.has(engine) ? { engine } : {}), ...(Number.isFinite(started) ? { ms: Date.now() - started } : {}) }));
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
@@ -66,6 +73,7 @@ function reply(text, { messages = [], latestUserMessage = '', source = null, loc
 // --- Route handlers --------------------------------------------------------
 
 export async function POST(request) {
+  const started = Date.now();
   let body;
   try {
     validateChatTransport(request);
@@ -86,15 +94,17 @@ export async function POST(request) {
 
   const fact=await answerConciergeFact(latestUserMessage,locale,request.signal);
   if(fact&&!fact.remainingMessage)return reply(fact.reply,{source:fact.source,error:fact.error,locale,
-    navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY,action:'fact',decidedBy:'fact'});
+    navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY,action:'fact',decidedBy:'fact',started});
 
   const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
   const plan = conversationPlan(modelMessages, { locale });
   const localAnswer = catalogueAnswer(modelMessages, locale);
   const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(locale);
   // Booking and payment requests are a handoff whichever engine answers: the
-  // disclaimer is guaranteed here, in code, and no catalogue rows are attached.
-  const bookingTurn=explicitBooking([...modelMessages].reverse().find(m=>m.role==='user')?.content||'');
+  // disclaimer is guaranteed here, in code. The only rows attached are the
+  // restaurants or clubs the guest named, each with its own booking page.
+  const bookingText=[...modelMessages].reverse().find(m=>m.role==='user')?.content||'';
+  const bookingTurn=explicitBooking(bookingText);
   const respond=async(text,options={})=>{
     const handoff=bookingTurn||options.handoff===true;
     let answer=fact?fact.reply+'\n\n'+text:text;
@@ -106,20 +116,22 @@ export async function POST(request) {
     const sections=(options.navigation?.cards||[]).map(card=>card.href);
     const query=options.navigation?.query||localAnswer.navigation.query||latestUserMessage;
     const decidedBy=handoff&&!options.handoff?'lexicon':options.decidedBy;
-    return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,
-      listings:gatedListings(query,{locale,action,sections}),...(handoff?{handoff:true}:{}),plan:await plan});
+    return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,started,
+      listings:handoff?namedVenueCards(bookingText,{locale}):gatedListings(query,{locale,action,sections}),...(handoff?{handoff:true}:{}),plan:await plan});
   };
   // Degraded turns: the keyword matcher decides.
   const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon'};
-  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages});
-  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy});
+  // One clock for the whole turn: facts and the usage reservation come out of
+  // the model's share, so the answer lands before the browser gives up.
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started)});
+  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,engine:'ok'});
 
   // Disabled, denied or failed: graceful degradation, never a second engine.
   // Still a 200 with a well-formed body: the widget renders this like any
   // other answer instead of hitting an error path. A recognised request gets
   // the catalogue sentence and listing links, not the "temporarily
   // unavailable" line.
-  return respond(degraded,fallback);
+  return respond(degraded,{...fallback,engine:cloud.kind});
 }
 
 // Public health check only: engine configuration is an internal detail and
