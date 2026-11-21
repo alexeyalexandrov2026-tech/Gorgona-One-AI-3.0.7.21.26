@@ -66,12 +66,16 @@ export function Header() {
     <header
       dir="ltr"
       // Dashboard pages have a light surface; keep their sticky navigation readable.
+      // The yacht catalogue scrolls white supplier content under the bar, so
+      // once scrolled it stays opaque there.
       style={['/partner','/admin'].includes(pathname)
         ? { backgroundColor:'#0b1419', '--g1-paper':'#0b1419', '--g1-ink':'#f3f6f7', '--g1-soft':'#b9c2c8', '--g1-rule':'#35454f' }
-        : pathname === '/yachts' ? { backgroundColor: 'rgba(1, 22, 30, 0.95)' } : undefined}
-      // Everywhere else the bar is the deep water of the sea under the page.
-      className={`sticky top-0 z-40 border-b font-g1sans backdrop-blur-xl transition-colors duration-300 ${
-        scrolled ? "border-g1-rule bg-[rgba(1,22,30,0.95)]" : "border-transparent bg-[rgba(1,22,30,0.6)]"
+        : pathname === '/yachts' && (scrolled || mobileNavOpen) ? { backgroundColor: 'rgba(1, 33, 44, 0.95)' } : undefined}
+      // Everywhere else the bar is transparent over the sea at the top of the
+      // page, and frosted glass in the sea's own colour once content scrolls
+      // under it or the mobile menu is open.
+      className={`sticky top-0 z-40 border-b font-g1sans transition-colors duration-300 ${
+        scrolled || mobileNavOpen ? "border-g1-rule bg-[rgba(1,33,44,0.55)] backdrop-blur-xl" : "border-transparent bg-transparent"
       }`}
     >
       <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4 lg:flex-wrap">
