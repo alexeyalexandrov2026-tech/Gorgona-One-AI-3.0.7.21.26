@@ -826,5 +826,11 @@ export default {
   "ui.485aefb8f7c19c8c": "재설정 링크 요청",
   "ui.afd25fdf17c7f534": "비밀번호를 잊으셨나요?",
   "ui.50ce2ade7c2e4c8b": "이 이메일 주소로 등록된 계정이 있으면 비밀번호 재설정 링크를 보내 드립니다.",
-  "ui.091f0d0bc02c7d7b": "이메일에서 확인 링크를 찾아보세요."
+  "ui.091f0d0bc02c7d7b": "이메일에서 확인 링크를 찾아보세요.",
+  "ui.66b47af4363b47e3": "Google Play에서 Miami Elio 앱 받기",
+  "ui.341b3d56fe9cbc4d": "다운로드:",
+  "ui.0d04bfeb7d64b71c": "앱",
+  "ui.ec54f5e123930357": "Android용 Miami Elio",
+  "ui.358a99cb750c1980": "요트, 빌라, 자동차, 이벤트와 AI 컨시어지를 하나의 앱에서.",
+  "ui.0a61addc18446dc9": "Google Play에서 열기"
 };

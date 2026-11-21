@@ -5,6 +5,7 @@ import { LocalizedText } from "./LocalizedText";
 import Link from 'next/link';
 import { useLocale } from './LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
+import { GetTheApp } from './GetTheApp';
 const sections = [
   { key: 'travel', href: '/travel', fallback: 'Travel' },
   { key: 'experiences', href: '/experiences', fallback: 'Experiences' },
@@ -43,6 +44,7 @@ export function Footer() {
           <p className="mt-4 max-w-sm leading-relaxed">
             {t.footer.desc}
           </p>
+          <GetTheApp variant="footer" />
         </div>
 
         <div>

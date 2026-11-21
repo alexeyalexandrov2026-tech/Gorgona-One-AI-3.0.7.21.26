@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { GetTheApp } from './GetTheApp';
 import { getTranslation } from '../../lib/i18n';
 import { useLocale } from './LocaleProvider';
 import { useAuth } from './AuthProvider';
@@ -115,6 +116,7 @@ export function Header() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <GetTheApp />
           <LanguageSwitcher />
           {auth?.session && (
             <Link

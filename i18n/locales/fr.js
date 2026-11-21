@@ -826,5 +826,11 @@ export default {
   "ui.485aefb8f7c19c8c": "Demander un lien de réinitialisation",
   "ui.afd25fdf17c7f534": "Mot de passe oublié ?",
   "ui.50ce2ade7c2e4c8b": "Si un compte est associé à cette adresse, nous vous enverrons un lien pour réinitialiser votre mot de passe.",
-  "ui.091f0d0bc02c7d7b": "Consultez votre boîte de réception pour trouver le lien de confirmation."
+  "ui.091f0d0bc02c7d7b": "Consultez votre boîte de réception pour trouver le lien de confirmation.",
+  "ui.66b47af4363b47e3": "Téléchargez l’app Miami Elio sur Google Play",
+  "ui.341b3d56fe9cbc4d": "Disponible sur",
+  "ui.0d04bfeb7d64b71c": "App",
+  "ui.ec54f5e123930357": "Miami Elio pour Android",
+  "ui.358a99cb750c1980": "Yachts, villas, voitures, événements et le concierge IA dans une seule app.",
+  "ui.0a61addc18446dc9": "Ouvrir dans Google Play"
 };

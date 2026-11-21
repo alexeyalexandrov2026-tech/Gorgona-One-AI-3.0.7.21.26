@@ -3306,5 +3306,29 @@
   "ui.091f0d0bc02c7d7b": {
     "sourceHash": "091f0d0bc02c7d7b5e0f73ef926b35741e630f7c9b9cc095fe37fd39bb6c407b",
     "description": "app/register/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.66b47af4363b47e3": {
+    "sourceHash": "66b47af4363b47e3bef3ffe94907c680616e191db4eaa4b19213919e2fda6c01",
+    "description": "app/components/GetTheApp.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.341b3d56fe9cbc4d": {
+    "sourceHash": "341b3d56fe9cbc4dc6fab1177baad67714b9431920f1d18e87c9d53f8661ceb1",
+    "description": "app/components/GetTheApp.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.0d04bfeb7d64b71c": {
+    "sourceHash": "0d04bfeb7d64b71c74fc925cca93d683154e8cc7e6e5838faced498e34c9984d",
+    "description": "app/components/GetTheApp.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.ec54f5e123930357": {
+    "sourceHash": "ec54f5e123930357d54436ab0224526365ed975f5beafce681dcb0ddf7aacd75",
+    "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.358a99cb750c1980": {
+    "sourceHash": "358a99cb750c198092804d976234b2592b7208b4c52a5b32dca453f2813f0e66",
+    "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.0a61addc18446dc9": {
+    "sourceHash": "0a61addc18446dc9c45fd29b6a36bffbdf001d7521bfc8a8a49afd4d016ed5a3",
+    "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   }
 }

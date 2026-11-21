@@ -55,6 +55,11 @@ html[data-app="android"] body::before {
   display: none;
 }
 
+/* Links to the app on Google Play mean nothing inside the app itself. */
+html[data-app="android"] [data-app-link] {
+  display: none !important;
+}
+
 /* Over the sea: cards turn to frosted glass and the light "parchment" pages
    take light text. The partner and admin dashboards mark themselves with
    data-light-surface and keep their light look. */

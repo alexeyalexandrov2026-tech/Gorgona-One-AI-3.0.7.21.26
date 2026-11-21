@@ -826,5 +826,11 @@ export default {
   "ui.485aefb8f7c19c8c": "Solicita un enlace de restablecimiento",
   "ui.afd25fdf17c7f534": "¿Olvidaste tu contraseña?",
   "ui.50ce2ade7c2e4c8b": "Si existe una cuenta asociada a este correo, te enviaremos un enlace para restablecer la contraseña.",
-  "ui.091f0d0bc02c7d7b": "Revisa tu correo para encontrar el enlace de confirmación."
+  "ui.091f0d0bc02c7d7b": "Revisa tu correo para encontrar el enlace de confirmación.",
+  "ui.66b47af4363b47e3": "Descarga la app de Miami Elio en Google Play",
+  "ui.341b3d56fe9cbc4d": "Disponible en",
+  "ui.0d04bfeb7d64b71c": "App",
+  "ui.ec54f5e123930357": "Miami Elio para Android",
+  "ui.358a99cb750c1980": "Yates, villas, coches, eventos y el conserje con IA en una sola app.",
+  "ui.0a61addc18446dc9": "Abrir en Google Play"
 };

@@ -4,6 +4,7 @@ import { walk } from './catalogue.mjs';
 const exempt = new Map([
   ['app/admin/page.js',new Set(['/api/notify','USD','admin@gorgona.com'])],
   ['app/components/Header.jsx',new Set(['Miami','Elio'])],
+  ['app/components/GetTheApp.jsx',new Set(['Google Play'])],
   ['app/components/Footer.jsx',new Set(['Miami','Elio'])],
   ['app/components/ai/DiscoveryDock.jsx',new Set(['AI'])],
   ['app/events/TicketNetworkEvents.jsx',new Set(['ET','Time TBA'])],
