@@ -129,6 +129,7 @@ export function ChatProvider({ children }) {
     const timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
 
     let answer = '';
+    let handoff = false;
     let nextCards=navigation.cards,nextSuggestions=navigation.suggestions,nextListings=[],nextPlan=null;
     let prepared=null;
 
@@ -158,6 +159,7 @@ export function ChatProvider({ children }) {
 
       if (response.ok && typeof data?.reply === 'string' && data.reply.trim()) {
         answer = data.reply.trim();
+        handoff = data.handoff === true;
       }
       // Conversation replies can explicitly omit navigation, even when the
       // offline matcher recognized a place or section name in the question.
@@ -176,9 +178,12 @@ export function ChatProvider({ children }) {
         inFlightRef.current=false;
         return;
       }
-      if(!answer) answer = prepared?.matched ? prepared.reply : unavailableReply(locale);
+      if(!answer){
+        answer = prepared?.matched ? prepared.reply : unavailableReply(locale);
+        handoff = prepared?.handoff === true;
+      }
       operationRef.current=null;
-      setMessages(prev=>[...prev,{role:'assistant',content:answer}].slice(-MAX_MESSAGES));
+      setMessages(prev=>[...prev,{role:'assistant',content:answer,...(handoff?{handoff:true}:{})}].slice(-MAX_MESSAGES));
       setCards(nextCards);
       setSuggestions(nextSuggestions);
       setListings(nextListings);

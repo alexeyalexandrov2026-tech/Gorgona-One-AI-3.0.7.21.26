@@ -11,6 +11,11 @@ import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
+import { configuredManagerTelegram } from '../../../lib/managerContact.mjs';
+
+// The floating manager button hides while the chat is open, so a booking or
+// payment answer carries the same live-manager link inside the reply.
+const managerHref = configuredManagerTelegram();
 
 // i18n carries per-locale AI copy; this is the English original, used when a
 // locale has not translated the key yet.
@@ -83,8 +88,9 @@ function AnswerReport({ question, answer, locale }) {
   );
 }
 
-function Message({ role, content, question, locale }) {
+function Message({ role, content, question, locale, handoff = false }) {
   const isUser = role === 'user';
+  const t = getTranslation(locale);
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
@@ -93,6 +99,12 @@ function Message({ role, content, question, locale }) {
         }`}
       >
         {content}
+        {!isUser && handoff && managerHref && (
+          <a href={managerHref} target="_blank" rel="noopener noreferrer"
+            className="mt-2 block min-h-11 text-xs text-brand-gold underline">
+            {t.ai?.liveManager}
+          </a>
+        )}
         {!isUser && content.trim() && (
           <div className="mt-1">
             <AnswerReport key={JSON.stringify([question, content])} question={question} answer={content} locale={locale} />
@@ -172,7 +184,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         )}
 
         {messages.map((message, index) => (
-          <Message key={index} role={message.role} content={message.content}
+          <Message key={index} role={message.role} content={message.content} handoff={message.handoff === true}
             question={messages[index - 1]?.role === 'user' ? messages[index - 1].content : ''} locale={locale} />
         ))}
 

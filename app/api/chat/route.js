@@ -9,7 +9,7 @@ import {groundedReply,CATALOGUE_PROTOCOL} from '../../../lib/ai/groundedReply.mj
 import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
 import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
-import { catalogueAnswer } from '../../../lib/ai/catalogueAnswer.mjs';
+import { catalogueAnswer, explicitBooking, bookingDisclaimer } from '../../../lib/ai/catalogueAnswer.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
@@ -52,7 +52,7 @@ function logRouterIssue(...args) {
   console.error('AI router:', ...args);
 }
 
-function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null, listings = [] } = {}) {
+function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null, listings = [], handoff = false } = {}) {
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
@@ -69,6 +69,8 @@ function reply(text, { messages = [], latestUserMessage = '', source = null, ses
     // client echoes it back on the next turn; without it the service would
     // open a fresh, context-free session per message.
     ...(sessionId ? { sessionId } : {}),
+    // A booking or payment request: the client offers the live manager.
+    ...(handoff ? { handoff: true } : {}),
     ...(error ? { error: true } : {})
   });
 }
@@ -161,11 +163,19 @@ export async function POST(request) {
   const plan = conversationPlan(modelMessages, { locale });
   const localAnswer = catalogueAnswer(modelMessages, locale);
   const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(locale);
-  const respond=async(text,options)=>reply(fact?fact.reply+'\n\n'+text:text,{
-    messages:modelMessages,locale,listings:localAnswer.listings,...options,plan:await plan
-  });
+  // Booking and payment requests are a handoff whichever engine answers: the
+  // disclaimer is guaranteed here, in code, and no catalogue rows are attached.
+  const bookingTurn=explicitBooking([...modelMessages].reverse().find(m=>m.role==='user')?.content||'');
+  const respond=async(text,options={})=>{
+    const handoff=bookingTurn||options.handoff===true;
+    let answer=fact?fact.reply+'\n\n'+text:text;
+    const disclaimer=bookingDisclaimer(locale);
+    if(handoff&&!answer.includes(disclaimer))answer=disclaimer+'\n\n'+answer;
+    return reply(answer,{messages:modelMessages,locale,listings:localAnswer.listings,...options,
+      ...(handoff?{listings:[],handoff:true}:{}),plan:await plan});
+  };
   const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages});
-  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy});
+  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff});
   // A denied/failed metered engine must not start another unmetered engine.
   // The guest still gets the catalogue sentence and the links the keywords found.
   if(cloud.kind!=='disabled')return respond(degraded,{source:'navigation',error:true,navigation:localAnswer.navigation});
@@ -175,7 +185,7 @@ export async function POST(request) {
   const local = await askLocalBrain({ messages:modelMessages, systemPrompt: SYSTEM_PROMPT+CATALOGUE_PROTOCOL, sessionId, locale,responseProtocol:CATALOGUE_PROTOCOL });
   if (local.ok) {
     const projection=groundedReply(local.reply,{messages:modelMessages,locale});
-    if(projection)return respond(projection.reply,{source:'local',sessionId:local.sessionId,navigation:projection.navigation,responsePolicy:projection.responsePolicy});
+    if(projection)return respond(projection.reply,{source:'local',sessionId:local.sessionId,navigation:projection.navigation,responsePolicy:projection.responsePolicy,handoff:projection.handoff});
     return respond(degraded,{source:'navigation',error:true,navigation:localAnswer.navigation});
   }
 
@@ -183,7 +193,7 @@ export async function POST(request) {
   const routed = await askRouter(modelMessages, locale);
   if (routed) {
     const projection=groundedReply(routed,{messages:modelMessages,locale});
-    if(projection)return respond(projection.reply,{source:'router',navigation:projection.navigation,responsePolicy:projection.responsePolicy});
+    if(projection)return respond(projection.reply,{source:'router',navigation:projection.navigation,responsePolicy:projection.responsePolicy,handoff:projection.handoff});
   }
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the

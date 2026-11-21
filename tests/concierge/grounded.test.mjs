@@ -26,7 +26,8 @@ test('provider wrappers contain no public prose and unsupported questions retain
  assert.equal(groundedReply(raw+' I confirmed your booking.',input),null);
  assert.equal(groundedReply(encode(['/sportsbook'],'unsupported'),input),null);
  const handoff=groundedReply(encode([],'handoff'),{messages:[{role:'user',content:'Please book it and take payment now'}],locale:'en'});assert.match(handoff.reply,/does not create or confirm/);assert.doesNotMatch(handoff.reply,/cards below/);
- const want=groundedReply(encode(['/yachts'],'handoff'),{messages:[{role:'user',content:'I want a yacht this weekend'}],locale:'en'});assert.doesNotMatch(want.reply,/does not create or confirm/);assert.match(want.reply,/water|charter/i);
+ // A model handoff is honoured even without booking words: disclaimer first, section kept, no advice copy.
+ const want=groundedReply(encode(['/yachts'],'handoff'),{messages:[{role:'user',content:'I want a yacht this weekend'}],locale:'en'});assert.match(want.reply,/does not create or confirm/);assert.equal(want.action,'handoff');assert.equal(want.handoff,true);assert.equal(want.navigation.cards[0].href,'/yachts');assert.doesNotMatch(want.reply,/swim stop|time on the water/i);
  const clarify=groundedReply(encode([],'clarify'),input);assert.ok(clarify.reply);assert.notEqual(clarify.reply,handoff.reply);
 });
 
