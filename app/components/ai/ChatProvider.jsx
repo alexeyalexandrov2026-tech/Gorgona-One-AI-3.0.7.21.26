@@ -125,7 +125,9 @@ export function ChatProvider({ children }) {
 
     const controller = new AbortController();
     const generation=++generationRef.current;operationRef.current=controller;
-    const timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
+    // Started just before the request leaves, so loading the local fallback
+    // does not eat into the time the server has to answer.
+    let timeout;
 
     let answer = '';
     let handoff = false;
@@ -148,6 +150,7 @@ export function ChatProvider({ children }) {
         if(prepared.listings?.length){nextListings=prepared.listings;setListings(prepared.listings);}
         if(prepared.plan){nextPlan=prepared.plan;setPlan(prepared.plan);}
       }
+      timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',...(globalThis.crypto?.randomUUID?{'Idempotency-Key':crypto.randomUUID()}:{}) },
