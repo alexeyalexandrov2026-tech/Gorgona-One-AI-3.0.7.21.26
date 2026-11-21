@@ -826,5 +826,11 @@ export default {
   "ui.485aefb8f7c19c8c": "获取重置链接",
   "ui.afd25fdf17c7f534": "忘记密码？",
   "ui.50ce2ade7c2e4c8b": "如果此邮箱已注册账户，我们将发送密码重置链接。",
-  "ui.091f0d0bc02c7d7b": "请查收包含确认链接的邮件。"
+  "ui.091f0d0bc02c7d7b": "请查收包含确认链接的邮件。",
+  "ui.66b47af4363b47e3": "在 Google Play 下载 Miami Elio 应用",
+  "ui.341b3d56fe9cbc4d": "下载于",
+  "ui.0d04bfeb7d64b71c": "应用",
+  "ui.ec54f5e123930357": "Miami Elio Android 版",
+  "ui.358a99cb750c1980": "游艇、别墅、汽车、活动和 AI 礼宾，尽在一个应用。",
+  "ui.0a61addc18446dc9": "在 Google Play 中打开"
 };

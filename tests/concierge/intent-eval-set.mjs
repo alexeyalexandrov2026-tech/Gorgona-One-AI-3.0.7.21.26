@@ -125,8 +125,8 @@ export const intentEval = [
   ['ru','прыжок с парашютом','/experiences'],
   ['es','qué hacer en miami','/experiences'],
   ['ar','ماذا نفعل في ميامي','/experiences'],
-  ['en','adrenaline 365 skydiving','/entertainment/adrenaline-365'],
-  ['ru','адреналин 365','/entertainment/adrenaline-365'],
+  ['en','skydiving over miami','/experiences'],
+  ['ru','вертолётная экскурсия','/experiences'],
   ['zh','迈阿密有什么体验','/experiences'],
   ['fr','saut en parachute','/experiences'],
   // Events
