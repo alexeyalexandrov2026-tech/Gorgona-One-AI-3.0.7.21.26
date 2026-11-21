@@ -3,7 +3,7 @@ import {useEffect,useRef,useState} from 'react';
 import {useAuth} from '../AuthProvider';
 import {useLocale} from '../LocaleProvider';
 import {supabase} from '../../../lib/supabase';
-import {getDiningCopy} from '../../../lib/dining/copy.mjs';
+import {getDiningCopy,getDiningHandoffCopy} from '../../../lib/dining/copy.mjs';
 import {getWorldsCopy} from '../../../lib/worldsCopy';
 import {isReceipt,submissionKey} from '../../../lib/bookingSubmission.mjs';
 import {readJournal,writeJournal,clearJournal} from '../../../lib/bookingJournal.mjs';
@@ -15,8 +15,10 @@ export default function DiningBooking(props) {
  if(auth?.loading)return <p role="status">{getWorldsCopy(locale).form.sending}</p>;
  return <BookingWorkspace key={(auth?.session?.id||'guest')+':'+props.venue.slug} {...props} owner={auth?.session?.id||null} loading={auth?.loading}/>;
 }
-function BookingWorkspace({venue,channels,enabled,owner,loading}) {
- const locale=useLocale(),copy=getDiningCopy(locale),form=getWorldsCopy(locale).form;
+// A fallback only: the main action is the venue's own booking page (BookingButton).
+// Rendered only when concierge requests are enabled; collapsed until the guest opens it.
+function BookingWorkspace({venue,owner,loading}) {
+ const locale=useLocale(),copy=getDiningCopy(locale),handoff=getDiningHandoffCopy(locale),form=getWorldsCopy(locale).form;
  const [selection,setSelection]=useState({version:1,date:'',time:'19:00',guests:2,option:'table',note:''});
  const [contact,setContact]=useState({name:'',email:'',phone:''});
  const [state,setState]=useState('idle'),[receipt,setReceipt]=useState(null);
@@ -55,10 +57,9 @@ function BookingWorkspace({venue,channels,enabled,owner,loading}) {
    if(mounted.current){setLocked(false);setReceipt(result.bookingId);setState('sent');}
   } catch {if(mounted.current)setState('error');} finally {flight.current=false;}
  }
- return <section aria-label={copy.channels} className="grid min-w-0 gap-6 rounded-[22px] border border-g1-rule bg-g1-card p-5 sm:p-6">
-  <div><h2 className="font-g1display text-2xl">{copy.channels}</h2><p className="mt-3 text-sm leading-relaxed text-g1-soft">{copy.handoff}</p></div>
-  <div className="grid gap-2">{channels.map(channel=><a key={channel.provider+channel.externalId} className={`${btn.base} ${btn.ghost} justify-between flex-wrap text-start`} href={channel.href} target="_blank" rel="noopener noreferrer">{copy.continue}<span>{channel.name}</span></a>)}</div>
-  {enabled&&(state==='sent'?<div role="status" className="grid gap-3 border-t border-g1-rule pt-5"><p>{copy.pending}</p><p className="break-all font-mono text-sm">{receipt}</p></div>:<form onSubmit={submit} className="grid gap-4 border-t border-g1-rule pt-5">
+ return <details className="group min-w-0 border-t border-g1-rule pt-4" open={locked||state!=='idle'||undefined}>
+  <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 text-sm font-medium text-g1-soft">{handoff.requestFallback}<span aria-hidden="true" className="transition-transform group-open:rotate-180">⌄</span></summary>
+  {state==='sent'?<div role="status" className="grid gap-3 pt-4"><p>{copy.pending}</p><p className="break-all font-mono text-sm">{receipt}</p></div>:<form onSubmit={submit} className="grid gap-4 pt-4">
    <h3 className="font-g1display text-xl">{copy.request}</h3>
    <fieldset disabled={locked||state==='sending'||loading} className="grid min-w-0 gap-4">
     <div className="grid gap-3 min-[480px]:grid-cols-2"><label className="grid min-w-0 gap-2 text-sm">{form.date}<input type="date" required className={field} value={selection.date} onChange={e=>set('date',e.target.value)}/></label><label className="grid min-w-0 gap-2 text-sm">{copy.time}<input type="time" required className={field} value={selection.time} onChange={e=>set('time',e.target.value)}/></label></div>
@@ -66,8 +67,8 @@ function BookingWorkspace({venue,channels,enabled,owner,loading}) {
     {['name','email','phone'].map(key=><label key={key} className="grid gap-2 text-sm">{form[key]}<input className={field} type={key==='phone'?'tel':key==='email'?'email':'text'} autoComplete={key==='phone'?'tel':key} required maxLength={key==='name'?120:key==='email'?254:40} value={contact[key]} onChange={e=>setContact(current=>({...current,[key]:e.target.value}))}/></label>)}
     <label className="grid gap-2 text-sm">{copy.notes}<textarea className={field+' min-h-[90px] py-3'} maxLength={1000} value={selection.note} onChange={e=>set('note',e.target.value)}/></label>
    </fieldset>
-   <button type="submit" disabled={state==='sending'||loading} className={`${btn.base} ${btn.primary}`}>{state==='sending'?form.sending:copy.request}</button>
+   <button type="submit" disabled={state==="sending"||loading} className={`${btn.base} ${btn.ink}`}>{state==='sending'?form.sending:copy.request}</button>
    {state==='error'&&<p role="alert" className="text-sm">{copy.uncertainty}</p>}
-  </form>)}
- </section>;
+  </form>}
+ </details>;
 }

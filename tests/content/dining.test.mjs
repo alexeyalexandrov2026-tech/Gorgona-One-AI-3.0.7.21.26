@@ -26,9 +26,12 @@ test('external handoffs do not invent availability or confirmations',()=>{
   assert.equal(result.slots,null);assert.equal(result.confirmation,null);assert.equal(result.status,'check_with_provider');
 });
 test('canonical catalogue is expanded, deduplicated and source-backed without unverifiable ratings and with licensed, correctly identified images',()=>{
- const venues=getVenues();assert.ok(venues.length>=24);
- for(const field of ['id','slug','address'])assert.equal(new Set(venues.map(v=>v[field])).size,venues.length,field);
- for(const venue of venues){assert.equal(venue.status,'verified');assert.equal(venue.rating,undefined);assert.ok(venue.address);assert.ok(venue.sources.length);assert.ok(venue.image.startsWith('/images/dining/'));assert.ok(venue.photo.source.startsWith('https://'));assert.ok(venue.photo.license);assert.ok(['venue','editorial'].includes(venue.photo.kind));channelsFor(venue);}
+ const venues=getVenues();assert.equal(venues.length,75);
+ for(const field of ['id','slug'])assert.equal(new Set(venues.map(v=>v[field])).size,venues.length,field);
+ // Venues in one building share an address (LPM and Osaka; Club Space and Floyd); an empty sheet cell stays empty.
+ for(const venue of venues){assert.equal(venue.status,'verified');assert.equal(venue.rating,undefined);assert.ok(venue.address||venue.neighborhood);assert.ok(venue.sources.length);channelsFor(venue);
+  // New venues have no licensed photography yet; nothing is scraped to fill the gap.
+  if(venue.photo){assert.ok(venue.image.startsWith('/images/dining/'));assert.ok(venue.photo.source.startsWith('https://'));assert.ok(venue.photo.license);assert.ok(['venue','editorial'].includes(venue.photo.kind));}else assert.equal(venue.image,null);}
  for(const slug of ['komodo-miami','papi-steak-miami','sexy-fish-miami','carbone-miami','prime-112-miami','joes-stone-crab-miami','liv-miami','e11even-miami','club-space-miami','rosa-sky-miami','sugar-rooftop-miami','story-miami'])assert.ok(getVenueBySlug(slug),slug);
  assert.equal(getVenueBySlug('sexy-fish-miami').neighborhood,'Brickell');
  assert.equal(getVenueBySlug('story-miami').status,'unverified');assert.equal(channelsFor(getVenueBySlug('story-miami')).length,0);
@@ -40,7 +43,7 @@ test('dining copy is complete and translated across all sixteen site languages',
 
 test('every photographic asset has recorded provenance and matches its licensed file',async()=>{
  const {readFileSync}=await import('node:fs');const {createHash}=await import('node:crypto');
- for(const venue of getVenues()){
+ for(const venue of getVenues().filter(venue=>venue.photo)){
   const image=readFileSync(new URL('../../public'+venue.image,import.meta.url));
   assert.equal(createHash('sha256').update(image).digest('hex'),venue.photo.sha256,venue.id);
   assert.ok(image.length<=4_000_000);assert.ok(venue.photo.author);
