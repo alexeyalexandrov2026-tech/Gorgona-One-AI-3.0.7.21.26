@@ -65,11 +65,12 @@ export function Header() {
     <header
       dir="ltr"
       // Dashboard pages have a light surface; keep their sticky navigation readable.
-      style={['/profile','/partner','/admin'].includes(pathname)
+      style={['/partner','/admin'].includes(pathname)
         ? { backgroundColor:'#0b1419', '--g1-paper':'#0b1419', '--g1-ink':'#f3f6f7', '--g1-soft':'#b9c2c8', '--g1-rule':'#35454f' }
-        : pathname === '/yachts' ? { backgroundColor: 'var(--g1-paper)' } : undefined}
+        : pathname === '/yachts' ? { backgroundColor: 'rgba(1, 22, 30, 0.95)' } : undefined}
+      // Everywhere else the bar is the deep water of the sea under the page.
       className={`sticky top-0 z-40 border-b font-g1sans backdrop-blur-xl transition-colors duration-300 ${
-        scrolled ? "border-g1-rule bg-g1-paper/90" : "border-transparent bg-g1-paper/60"
+        scrolled ? "border-g1-rule bg-[rgba(1,22,30,0.95)]" : "border-transparent bg-[rgba(1,22,30,0.6)]"
       }`}
     >
       <div className="flex items-center justify-between gap-2 py-3 sm:gap-4 sm:py-4 lg:flex-wrap">

@@ -17,16 +17,76 @@ html:has([data-ticketnetwork-calendar]) {
   overflow-x: clip;
 }
 
+html {
+  /* The deepest water of the sea below, shown until the picture loads. */
+  background: #01212c;
+}
+
 body {
   min-height: 100vh;
-  /* Plain paper from the design system; the old gold glow is gone. */
-  background: var(--g1-paper);
+  /* The page shows the sea drawn by body::before below. */
+  background: transparent;
   color: #f5f2eb;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* The sea of the Miami Elio app under every page: the brand art cropped to
+   fill the window, under a veil that keeps text legible. A fixed layer, not
+   background-attachment: fixed, which Safari on iPhone does not honour.
+   The colours match the app's Ocean.veil. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(1, 33, 44, 0.85) 0%, rgba(1, 33, 44, 0.65) 50%, rgba(1, 15, 22, 0.9) 100%),
+    url('/images/ocean/sea.jpg') center / cover no-repeat,
+    #01212c;
+}
+
+/* Inside the Android app the app draws this sea itself, behind the page. */
+html[data-app="android"] body::before {
+  display: none;
+}
+
+/* Over the sea: cards turn to frosted glass and the light "parchment" pages
+   take light text. The partner and admin dashboards mark themselves with
+   data-light-surface and keep their light look. */
+body .bg-g1-paper:not([data-light-surface], [data-light-surface] *),
+body .bg-g1-card:not([data-light-surface], [data-light-surface] *) {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(1, 26, 34, 0.55));
+}
+body .bg-villa-parchment:not([data-light-surface], [data-light-surface] *) {
+  background: transparent;
+}
+body .text-villa-obsidian:not([data-light-surface], [data-light-surface] *),
+body .text-villa-charcoal:not([data-light-surface], [data-light-surface] *) {
+  color: #f4f1ea;
+}
+body .text-villa-graphite:not([data-light-surface], [data-light-surface] *) {
+  color: rgba(244, 241, 234, 0.78);
+}
+body .text-villa-ash:not([data-light-surface], [data-light-surface] *) {
+  color: #e6c88e;
+}
+body .border-villa-obsidian:not([data-light-surface], [data-light-surface] *) {
+  border-color: rgba(244, 241, 234, 0.55);
+}
+body [class~="border-villa-obsidian/20"]:not([data-light-surface], [data-light-surface] *),
+body [class~="border-villa-obsidian/25"]:not([data-light-surface], [data-light-surface] *) {
+  border-color: rgba(244, 241, 234, 0.2);
+}
+body .theme-villa [data-my-miami] {
+  --g1-ink: #f4f1ea;
+  --g1-ink-soft: rgba(244, 241, 234, 0.72);
+  --g1-rule: rgba(244, 241, 234, 0.2);
+  --g1-card: rgba(255, 255, 255, 0.08);
 }
 
 a {
