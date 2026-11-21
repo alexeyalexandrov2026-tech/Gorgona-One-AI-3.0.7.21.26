@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import load from './load.cjs';
 import {SUPPORTED_LANGUAGES} from '../../lib/languages.js';
-const {groundedReply,CATALOGUE_PROTOCOL}=load('lib/ai/groundedReply.mjs');
+const {groundedReply}=load('lib/ai/groundedReply.mjs');
 const {SECTIONS}=load('lib/aiSuggestions.js');
 const input={messages:[{role:'user',content:'Help me choose something special'}],locale:'en'};
 const encode=(sections,action='recommend',extra={})=>JSON.stringify({version:1,action,sections,...extra});
@@ -10,7 +10,6 @@ test('only canonical section identities and authored copy cross the model bounda
  for(const {code:locale}of SUPPORTED_LANGUAGES)for(const {href}of SECTIONS){
   const r=groundedReply(encode([href]),{...input,locale});assert.ok(r,locale+' '+href);assert.equal(r.navigation.cards[0]?.href,href);assert.equal(r.responsePolicy,'catalogue-v1');assert.ok(r.reply.trim());assert.doesNotMatch(r.reply,/https?:|\$180|guaranteed|on the guest list|I arranged|Zuma/);
  }
- assert.match(CATALOGUE_PROTOCOL,/exactly these fields/);
 });
 test('prose, extra factual fields, invented routes and malformed plans are rejected',()=>{
  for(const raw of ['Your table for eight tomorrow is guaranteed.','I arranged your VIP entry for tonight.','You are on the guest list.','Zuma is open tonight. Dinner is $180/person.',encode(['/yachts'],'recommend',{reply:'Your table is confirmed'}),encode(['/yachts?date=tomorrow']),encode(['/admin']),encode(['/stores']),encode(['https://evil.example']),encode(['/yachts','/yachts']),encode([]),encode(['/yachts'],'confirmed'),JSON.stringify({version:2,action:'recommend',sections:['/yachts']}),'null','[]','{'])assert.equal(groundedReply(raw,input),null,raw);

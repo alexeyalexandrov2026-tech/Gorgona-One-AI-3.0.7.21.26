@@ -8,38 +8,23 @@ only the discovery assistant feature and must never displace the brand.
 ## Current state (2026-07-17, commit d898ac4)
 
 **Live in production (protect — do not regress):**
-- Unified AI brain: `lib/ai/brain.js` — every LLM call goes through
-  `askBrain()`; `/api/chat` is a thin adapter. Model policy is env-driven
-  (default `openrouter/free`; paid chain = 3 env vars, no code change).
-  Free-pool hardening: provider ignore list (novita, poolside PII-redact
-  prompts), degenerate-completion detection + retry.
+- Concierge chain (updated 2026-11-21, concierge cleanup PR 2):
+  `/api/chat` runs exactly three steps — deterministic facts (greeting,
+  Miami time, NWS weather; `lib/ai/conciergeFacts.mjs`) → native Workers AI
+  (`lib/ai/workersBrain.mjs`, `CONCIERGE_WORKERS_AI_ENABLED`, durable usage
+  limits) → the deterministic authored fallback (`lib/ai/catalogueAnswer.mjs`).
+  A disabled, denied or failed Workers AI call never starts a second engine.
+  The former `lib/ai/brain.js` (OpenRouter via a local router port),
+  `lib/ai/localBrain.js` (FastAPI + Ollama) and the vendored `ai-router`
+  were unreachable from the deployed Worker and have been removed.
 - Homepage concierge chat (GorgonaOneAI): conversation context
   (sessionStorage), voice in/out, 16 locales, ecosystem-grounded replies
   via `lib/aiEcosystemDigest.js` (server-only inventory digest).
 - Track B dock (AiSphere/AiDock/AiConversation) sharing the same backend.
-- Local AI backend: `lib/ai/localBrain.js` — an optional, self-contained
-  adapter for the self-hosted Miami Elio AI Brain microservice (FastAPI +
-  Ollama, `POST /api/v1/chat/completions`). `/api/chat` runs a fallback
-  chain (local brain → ai-router → canned concierge reply) and always
-  answers `200` with the same JSON contract, so the chat widget has no
-  failure branch and an offline backend is a non-event.
-  - Detection: `GET /api/health` identifies the service and reports whether
-    Ollama itself is connected, so "engine down" is caught without spending
-    a completion. If the service moves, the adapter falls back to reading
-    `/openapi.json`, then to probing conventional paths.
-  - Sessions: the service owns conversation memory and its own system
-    prompt — it reads only the newest turn (`ChatRequest.get_user_input()`)
-    and rebuilds context from `session_id`. So `/api/chat` echoes
-    `sessionId` back to the client and the client returns it on the next
-    turn; dropping it would start a fresh, amnesiac session per message.
-    Corollary: on this path the site's `SYSTEM_PROMPT` is not in play (the
-    service injects `GORGONA_SYSTEM_PROMPT`), while the internal-link
-    suggestions still come from `matchSuggestions` client-side.
-  - A circuit breaker keeps a switched-off backend from costing latency
-    (measured: ~15-30ms per message with everything down).
-  - `GET /api/chat` reports engine status without spending a completion.
-  - Config: `GORGONA_AI_*` in `.env.example`; nothing is required for the
-    site to run, build, or deploy.
+- `/api/chat` always answers `200` with the same JSON contract for a
+  well-formed request, so the chat widget has no failure branch; a degraded
+  answer is labelled `error:true`/`configured:false`. `GET /api/chat` is a
+  bare `{ok:true}` health check.
 - Client intent index (`lib/ai/provider.js`) — non-LLM constellation
   highlighting; intentionally client-side, do not "upgrade" it to LLM calls.
 - Deploy: push to `main` → Cloudflare Workers Builds (OpenNext).
@@ -60,8 +45,8 @@ path:
   jsonb, price_text, image_url, href, status), `worlds`, `venues` folded
   into `listings.world`. Multilingual display stays in app i18n; data
   fields remain English (matches current behavior).
-- Access via `lib/data/listings.js` (server-only repository module —
-  the data twin of `lib/ai/brain.js`). Pages keep their current props by
+- Access via `lib/data/listings.js` (server-only repository module).
+  Pages keep their current props by
   reading through it; static `lib/*Data.js` files become seed scripts
   (`scripts/seed/*.mjs`) and are deleted from runtime imports.
 - `lib/aiEcosystemDigest.js` switches to the repository (cached, per-worker)
@@ -87,8 +72,9 @@ reproducible; zero visual change.
 ## Phase 3 — AI system completion
 
 - Streaming replies (SSE from `/api/chat`, incremental render in both
-  surfaces). Implement in `brain.js` as `askBrainStream()` alongside
-  `askBrain()` — adapters choose.
+  surfaces). Not built: the earlier unwired prototype (`askBrainStream()`
+  in `brain.js` plus the client `chatTransport.js`) was removed as dead
+  code in the 2026-11-21 concierge cleanup.
 - Tool use: expose `search_listings` (Phase 2) to paid models via
   OpenRouter tool-calling; free pool keeps digest grounding.
 - Premium TTS behind an interface (`lib/ai/voice.js`) with system
