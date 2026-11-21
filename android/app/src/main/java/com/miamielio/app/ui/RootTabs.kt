@@ -213,8 +213,8 @@ fun RootTabs(services: AppServices, modifier: Modifier = Modifier) {
     val typing = WindowInsets.isImeVisible
     val openMenu = { menuOpen = true }
 
-    // Under the orb: Today's paper on Today, the night sea on the screens over the ocean.
-    val ground = if (tab == AppTab.Today && !events) Theme.paper else Ocean.night
+    // Under the orb: the bar's own lighter sea, so the strip above the bar is part of it.
+    val ground = Ocean.bar
     Box(modifier.fillMaxSize().background(ground)) {
         // First, so that it is where Compose puts the focus when nobody has asked for it.
         FocusRest(LocalInputModeManager.current)
@@ -331,7 +331,7 @@ fun TabBar(selected: AppTab, onSelect: (AppTab) -> Unit, modifier: Modifier = Mo
     Column(
         modifier
             .fillMaxWidth()
-            .background(Ocean.night),
+            .background(Ocean.bar),
     ) {
         Hairline()
         Row(
@@ -388,7 +388,7 @@ private fun TabItem(tab: AppTab, selected: Boolean, onClick: () -> Unit, modifie
                     modifier = Modifier
                         .requiredSize(58.dp)
                         .offset(y = (-16).dp)
-                        .background(Ocean.night, CircleShape)
+                        .background(Ocean.bar, CircleShape)
                         .padding(3.dp)
                         .testTag("tab.orb"),
                 )

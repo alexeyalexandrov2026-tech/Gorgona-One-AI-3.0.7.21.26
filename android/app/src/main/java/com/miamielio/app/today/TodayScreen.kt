@@ -70,9 +70,11 @@ import com.miamielio.app.ui.LocalReduceMotion
 import com.miamielio.app.core.HomeSection
 import com.miamielio.app.core.ShowcaseFeed
 import com.miamielio.app.ui.MenuButton
+import com.miamielio.app.ui.Ocean
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.ui.filled
+import com.miamielio.app.ui.oceanBackground
 import com.miamielio.app.ui.pressable
 import kotlinx.coroutines.delay
 import java.time.Instant
@@ -120,7 +122,8 @@ internal fun TodayScreen(
     Column(
         modifier
             .fillMaxSize()
-            .background(Theme.paper)
+            // The app's sea, as on every other screen; it stays put while the page scrolls.
+            .oceanBackground(Ocean.veilLight)
             .verticalScroll(rememberScrollState())
             .testTag("content.Today"),
     ) {

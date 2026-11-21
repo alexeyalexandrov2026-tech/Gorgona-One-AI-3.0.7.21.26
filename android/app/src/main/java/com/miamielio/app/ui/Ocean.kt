@@ -16,7 +16,7 @@ import com.miamielio.app.R
 import kotlin.math.max
 
 /**
- * The look of the app's own screens (all but Today): the deep sea of the
+ * The look of the app's own screens, Today included: the deep sea of the
  * brand art behind frosted glass, edged in pearl, aqua and champagne, with
  * icons on the colours of a Miami sunset.
  */
@@ -60,13 +60,19 @@ object Ocean {
 
     /** What is laid over the sea so that text stays legible on it. */
     val veil = Brush.verticalGradient(listOf(Color(0xD901212C), Color(0xA601212C), Color(0xE6010F16)))
+
+    /** A thinner veil for Today, where the cards carry their own glass: more of the sea shows. */
+    val veilLight = Brush.verticalGradient(listOf(Color(0x9901212C), Color(0x5901212C), Color(0xA6010F16)))
+
+    /** The tab bar and the strip above it: the sea a shade lighter than [night]. */
+    val bar = Color(0xFF0C3440)
 }
 
 /**
  * The sea of the brand art behind a screen, cropped to fill it, under the
  * [Ocean.veil]. It is drawn behind, so the screen's own content stays as it is.
  */
-fun Modifier.oceanBackground(): Modifier = composed {
+fun Modifier.oceanBackground(veil: Brush = Ocean.veil): Modifier = composed {
     val sea = painterResource(R.drawable.splash_ocean)
     drawBehind {
         drawRect(Ocean.deep)
@@ -78,7 +84,7 @@ fun Modifier.oceanBackground(): Modifier = composed {
                 with(sea) { draw(drawn) }
             }
         }
-        drawRect(Ocean.veil)
+        drawRect(veil)
     }
 }
 
