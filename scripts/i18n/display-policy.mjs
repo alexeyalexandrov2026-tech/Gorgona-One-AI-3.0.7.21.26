@@ -6,7 +6,6 @@ const exempt = new Map([
   ['app/components/Header.jsx',new Set(['Miami','Elio'])],
   ['app/components/Footer.jsx',new Set(['Miami','Elio'])],
   ['app/components/ai/DiscoveryDock.jsx',new Set(['AI'])],
-  ['app/entertainment/adrenaline-365/page.js',new Set(['Adrenaline 365'])],
   ['app/events/TicketNetworkEvents.jsx',new Set(['ET','Time TBA'])],
   ['app/events/TicketProviders.jsx',new Set(['TicketNetwork'])],
   ['app/partner/page.js',new Set(['USD ($)','EUR (€)','AED (د.إ)','THB (฿)'])],
