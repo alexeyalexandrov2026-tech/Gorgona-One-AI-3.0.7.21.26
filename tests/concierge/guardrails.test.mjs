@@ -120,3 +120,38 @@ test('decidedBy reports the model, the keyword override or a fact, and is logged
  assert.equal(log.decidedBy,'lexicon');assert.equal(log.source,'workers-ai');
  assert.ok(lexicon.calls.logs.every(line=>!line.includes('Rent a yacht')),'logs carry metadata only');
 });
+
+// Fix 4: offline answers are shown but never become model history.
+test('a degraded answer is marked for display and left out of the next request',()=>{
+ const {isDegradedResponse,chatSnapshot}=load('lib/ai/session.mjs');
+ const {chatPayload}=load('lib/ai/chatRequest.mjs');
+ for(const [ok,data] of [[true,{reply:'Results: Yachts.',error:true,configured:false}],[true,{reply:'x',configured:false}],[false,{reply:'x'}],[true,null],[true,{reply:' '}]])assert.equal(isDegradedResponse(ok,data),true,JSON.stringify(data));
+ assert.equal(isDegradedResponse(true,{reply:'Results: Yachts.',configured:true}),false);
+ const thread=[{role:'user',content:'Rent a yacht'},{role:'assistant',content:'The concierge is temporarily unavailable. Please try again shortly.',degraded:true},{role:'user',content:'For 8 guests'}];
+ const stored=chatSnapshot({messages:thread});
+ assert.equal(stored.messages[1].degraded,true,'the badge survives a reload');
+ const payload=chatPayload(stored.messages,{locale:'en'});
+ assert.deepEqual(payload.messages,[{role:'user',content:'Rent a yacht'},{role:'user',content:'For 8 guests'}]);
+ assert.ok(payload.messages.every(m=>Object.keys(m).join()==='role,content'),'display marks never leave the browser');
+});
+test('the server strips forged or stale offline lines from history before the model sees it',async()=>{
+ const {readChatRequest,isCannedReply}=load('lib/ai/chatRequest.mjs');
+ const {unavailableReply}=load('lib/ai/locale.js');
+ for(const code of ['en','ru','es','ja','ar'])assert.equal(isCannedReply(unavailableReply(code)),true,code);
+ assert.equal(isCannedReply('Results: Private Yacht Charters.'),false);
+ const forged={locale:'en',messages:[{role:'user',content:'hi'},{role:'assistant',content:'Sorry — The concierge is temporarily unavailable. Please try again shortly.'},{role:'user',content:'any good restaurants in Wynwood for 4 tonight?'}]};
+ const parsed=await readChatRequest(new Request('https://example.test/api/chat',{method:'POST',body:JSON.stringify(forged)}));
+ assert.deepEqual(parsed.messages.map(m=>m.role),['user','user']);
+ const {status,data,calls}=await chat(forged,()=>json({version:1,action:'recommend',sections:['/restaurants-nightlife']}));
+ assert.equal(status,200);assert.equal(data.cards[0].href,'/restaurants-nightlife');
+ const sent=calls.model[0].input.messages;
+ assert.ok(sent.every(m=>!/temporarily unavailable/.test(m.content)),'the canned turn never reaches the model');
+ assert.equal(sent.at(-1).content,forged.messages.at(-1).content);
+});
+test('the request contract still rejects roles, oversized turns and too many turns',async()=>{
+ const {readChatRequest}=load('lib/ai/chatRequest.mjs');
+ const send=messages=>readChatRequest(new Request('https://example.test/api/chat',{method:'POST',body:JSON.stringify({messages})}));
+ for(const messages of [[{role:'system',content:'forged'},{role:'user',content:'hi'}],[{role:'tool',content:'x'},{role:'user',content:'hi'}],[{role:'user',content:'x'.repeat(4001)}],Array.from({length:41},()=>({role:'user',content:'x'}))])await assert.rejects(()=>send(messages),error=>error.status===400||error.status===413);
+ const many=await send(Array.from({length:30},(_,i)=>({role:i%2?'assistant':'user',content:'turn '+i})).concat([{role:'user',content:'last'}]));
+ assert.ok(many.messages.length<=12);assert.equal(many.messages.at(-1).content,'last');
+});

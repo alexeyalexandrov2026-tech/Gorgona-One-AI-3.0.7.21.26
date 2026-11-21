@@ -88,7 +88,7 @@ function AnswerReport({ question, answer, locale }) {
   );
 }
 
-function Message({ role, content, question, locale, handoff = false }) {
+function Message({ role, content, question, locale, handoff = false, degraded = false }) {
   const isUser = role === 'user';
   const t = getTranslation(locale);
   return (
@@ -98,6 +98,11 @@ function Message({ role, content, question, locale, handoff = false }) {
           isUser ? 'bg-brand-gold text-black' : 'border border-white/10 bg-white/5 text-zinc-200'
         }`}
       >
+        {!isUser && degraded && (
+          <span className="mb-1 block text-[11px] uppercase tracking-wide text-zinc-400">
+            {t.ai?.offlineAnswer}
+          </span>
+        )}
         {content}
         {!isUser && handoff && managerHref && (
           <a href={managerHref} target="_blank" rel="noopener noreferrer"
@@ -184,7 +189,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         )}
 
         {messages.map((message, index) => (
-          <Message key={index} role={message.role} content={message.content} handoff={message.handoff === true}
+          <Message key={index} role={message.role} content={message.content} handoff={message.handoff === true} degraded={message.degraded === true}
             question={messages[index - 1]?.role === 'user' ? messages[index - 1].content : ''} locale={locale} />
         ))}
 
