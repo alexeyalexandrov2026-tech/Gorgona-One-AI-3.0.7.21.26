@@ -10,6 +10,7 @@ import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
 import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 import { catalogueAnswer, explicitBooking, bookingDisclaimer } from '../../../lib/ai/catalogueAnswer.mjs';
+import { gatedListings } from '../../../lib/ai/listingCards.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
@@ -52,7 +53,15 @@ function logRouterIssue(...args) {
   console.error('AI router:', ...args);
 }
 
-function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null, listings = [], handoff = false } = {}) {
+// Who chose the final answer: the validated model output, the keyword
+// matcher that replaced it, or a deterministic fact (greeting, time, weather).
+const DECIDERS = new Set(['model', 'lexicon', 'fact']);
+
+function reply(text, { messages = [], latestUserMessage = '', source = null, sessionId = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null, listings = [], handoff = false, action = null, decidedBy = 'lexicon' } = {}) {
+  const decider = DECIDERS.has(decidedBy) ? decidedBy : 'lexicon';
+  const rows = Array.isArray(listings) ? listings.slice(0, 4) : [];
+  // One structured line per turn, metadata only: never the guest's words or the reply.
+  console.info(JSON.stringify({ event: 'concierge.chat', decidedBy: decider, source, action, listings: rows.length, handoff: Boolean(handoff), error: Boolean(error), locale }));
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
@@ -60,7 +69,9 @@ function reply(text, { messages = [], latestUserMessage = '', source = null, ses
     // lead; the reply only reinforces - and on the degraded path it is a
     // canned line, so it is excluded entirely.
     ...(navigation||conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale})),
-    listings: Array.isArray(listings) ? listings.slice(0, 4) : [],
+    listings: rows,
+    decidedBy: decider,
+    ...(action ? { action } : {}),
     ...(responsePolicy?{responsePolicy}:{}),
     ...(plan ? { plan } : {}),
     configured: !error,
@@ -157,7 +168,7 @@ export async function POST(request) {
 
   const fact=await answerConciergeFact(latestUserMessage,locale,request.signal);
   if(fact&&!fact.remainingMessage)return reply(fact.reply,{source:fact.source,error:fact.error,locale,
-    navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY});
+    navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY,action:'fact',decidedBy:'fact'});
 
   const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
   const plan = conversationPlan(modelMessages, { locale });
@@ -171,36 +182,44 @@ export async function POST(request) {
     let answer=fact?fact.reply+'\n\n'+text:text;
     const disclaimer=bookingDisclaimer(locale);
     if(handoff&&!answer.includes(disclaimer))answer=disclaimer+'\n\n'+answer;
-    return reply(answer,{messages:modelMessages,locale,listings:localAnswer.listings,...options,
-      ...(handoff?{listings:[],handoff:true}:{}),plan:await plan});
+    // Listing rows follow the final decision: a recommend or consult action,
+    // and only inside the sections this answer shows.
+    const action=handoff?'handoff':options.action;
+    const sections=(options.navigation?.cards||[]).map(card=>card.href);
+    const query=options.navigation?.query||localAnswer.navigation.query||latestUserMessage;
+    const decidedBy=handoff&&!options.handoff?'lexicon':options.decidedBy;
+    return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,
+      listings:gatedListings(query,{locale,action,sections}),...(handoff?{handoff:true}:{}),plan:await plan});
   };
+  // Degraded turns: the keyword matcher decides.
+  const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon'};
   const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages});
-  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff});
+  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy});
   // A denied/failed metered engine must not start another unmetered engine.
   // The guest still gets the catalogue sentence and the links the keywords found.
-  if(cloud.kind!=='disabled')return respond(degraded,{source:'navigation',error:true,navigation:localAnswer.navigation});
+  if(cloud.kind!=='disabled')return respond(degraded,fallback);
 
   // Link 1 - the local brain. Resolves to a plain result object on every path
   // (including "switched off"), so no try/catch is needed here.
   const local = await askLocalBrain({ messages:modelMessages, systemPrompt: SYSTEM_PROMPT+CATALOGUE_PROTOCOL, sessionId, locale,responseProtocol:CATALOGUE_PROTOCOL });
   if (local.ok) {
     const projection=groundedReply(local.reply,{messages:modelMessages,locale});
-    if(projection)return respond(projection.reply,{source:'local',sessionId:local.sessionId,navigation:projection.navigation,responsePolicy:projection.responsePolicy,handoff:projection.handoff});
-    return respond(degraded,{source:'navigation',error:true,navigation:localAnswer.navigation});
+    if(projection)return respond(projection.reply,{source:'local',sessionId:local.sessionId,navigation:projection.navigation,responsePolicy:projection.responsePolicy,handoff:projection.handoff,action:projection.action,decidedBy:projection.decidedBy});
+    return respond(degraded,fallback);
   }
 
   // Link 2 - the hosted router.
   const routed = await askRouter(modelMessages, locale);
   if (routed) {
     const projection=groundedReply(routed,{messages:modelMessages,locale});
-    if(projection)return respond(projection.reply,{source:'router',navigation:projection.navigation,responsePolicy:projection.responsePolicy,handoff:projection.handoff});
+    if(projection)return respond(projection.reply,{source:'router',navigation:projection.navigation,responsePolicy:projection.responsePolicy,handoff:projection.handoff,action:projection.action,decidedBy:projection.decidedBy});
   }
 
   // Link 3 - graceful degradation. Still a 200 with a well-formed body: the
   // widget renders this like any other answer instead of hitting an error path.
   // A recognised request gets the catalogue sentence and listing links, not
   // the "temporarily unavailable" line.
-  return respond(degraded,{source:'navigation',error:true,navigation:localAnswer.navigation});
+  return respond(degraded,fallback);
 }
 
 // Non-LLM diagnostics: confirms which engines are wired up without spending a
