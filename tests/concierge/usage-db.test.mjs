@@ -34,20 +34,36 @@ test('AI limits use database UTC days, expire owned rate state and never touch b
   assert.equal((await db.query("select count(*)::int as n from private.request_rate_limits where key='concierge-ai:old'")).rows[0].n,0);
  }finally{await db.close();}
 });
-test('a failed inference releases the daily reservation and the client rate slot',async()=>{
- const db=await fixture({migrationFiles:['20261023145628_dashboard_workspaces.sql','20261102030000_concierge_usage.sql','20261116120000_concierge_usage_release.sql']});
+const releaseMigrations=['20261023145628_dashboard_workspaces.sql','20261102030000_concierge_usage.sql','20261116120000_concierge_usage_release.sql','20261121120000_concierge_usage_release_keep_guest_rate.sql'];
+const guestAttempts=async db=>(await db.query("select attempts from private.request_rate_limits where key like 'concierge-ai:%'")).rows[0]?.attempts;
+test('a release gives back the daily reservation but never the guest rate attempt',async()=>{
+ const db=await fixture({migrationFiles:releaseMigrations});
  try{
   const reserved=claim();
   assert.equal((await rpc(db,'concierge_ai_reserve',reserved)).allowed,true);
   assert.equal((await db.query('select calls from private.concierge_ai_days')).rows[0].calls,1);
+  assert.equal(await guestAttempts(db),1);
   assert.equal((await rpc(db,'concierge_ai_release',{p_key:reserved.p_key,p_client:reserved.p_client})).released,true);
-  assert.equal((await db.query('select calls,input_bytes,output_tokens from private.concierge_ai_days')).rows[0].calls,0);
+  assert.equal(await guestAttempts(db),1,'the per-guest attempt stays counted after a release');
+  assert.deepEqual((await db.query('select calls,input_bytes,output_tokens from private.concierge_ai_days')).rows[0],{calls:0,input_bytes:0,output_tokens:0});
   assert.equal((await db.query('select count(*)::int as n from private.concierge_ai_claims')).rows[0].n,0);
   assert.equal((await rpc(db,'concierge_ai_release',{p_key:reserved.p_key,p_client:reserved.p_client})).reason,'absent');
   assert.equal((await rpc(db,'concierge_ai_reserve',reserved)).allowed,true);
   await db.exec('set role anon');
   try{await assert.rejects(()=>db.query('select public.concierge_ai_release($1,$2)',[reserved.p_key,reserved.p_client]));}
   finally{await db.exec('reset role');}
+ }finally{await db.close();}
+});
+test('releasing cannot buy a guest calls beyond the per-client rate limit',async()=>{
+ const db=await fixture({migrationFiles:releaseMigrations});
+ try{
+  await db.exec('update private.concierge_ai_policy set client_calls=2');
+  for(let i=0;i<2;i++){const held=claim();assert.equal((await rpc(db,'concierge_ai_reserve',held)).allowed,true);assert.equal((await rpc(db,'concierge_ai_release',{p_key:held.p_key,p_client:held.p_client})).released,true);}
+  assert.equal((await rpc(db,'concierge_ai_reserve',claim())).reason,'rate');
+  assert.equal((await db.query('select calls from private.concierge_ai_days')).rows[0].calls,0,'the daily counter never goes below zero');
+  const source=(await db.query("select prosrc from pg_proc where proname='concierge_ai_release'")).rows[0].prosrc;
+  assert.doesNotMatch(source,/request_rate_limits/);
+  assert.equal((await db.query("select prosecdef from pg_proc where proname='concierge_ai_release'")).rows[0].prosecdef,false,'security invoker is kept');
  }finally{await db.close();}
 });
 test('quota state and RPC are inaccessible to anonymous, customer, partner and admin browser identities',async()=>{

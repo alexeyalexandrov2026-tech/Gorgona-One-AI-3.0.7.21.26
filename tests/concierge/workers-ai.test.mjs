@@ -40,16 +40,50 @@ test('cloud adapter never forwards malformed, empty, truncated or reasoning-only
  for(const result of [null,{}, {response:42},{response:' '},{response:'<think>private reasoning'},{choices:[{message:{content:'Partial'},finish_reason:'length'}]},{response:'x'.repeat(4001)},{response:'x'.repeat(12001)}])assert.equal((await workersAiChat(environment(async()=>result),input)).ok,false);
  const projected=await workersAiChat(environment(async()=>({response:'<think>hidden</think>'+valid})),input);assert.equal(projected.ok,true);assert.doesNotMatch(projected.reply,/hidden|version|sections/);
 });
-test('a failed model reply gives the reservation back',async()=>{
- let released=0;
- const authorize=async()=>true;
- authorize.release=async()=>{released++;return true;};
- const failed=await meteredChat(environment(async()=>({response:'not-json'})),input,{authorize});
- assert.equal(failed.kind,'invalid_reply');
- assert.equal(released,1);
- const kept=await meteredChat(environment(async()=>({response:valid})),input,{authorize});
- assert.equal(kept.ok,true);
- assert.equal(released,1);
+const counting=()=>{const authorize=async()=>true;authorize.released=0;authorize.release=async()=>{authorize.released++;return true;};return authorize;};
+test('a dispatched call keeps its reservation when the reply is invalid, extra, truncated or repeats a given detail',async()=>{
+ const replies=[
+  {response:'not-json'},
+  {response:JSON.stringify({version:1,action:'recommend',sections:['/yachts'],price:'$500'})},
+  {choices:[{message:{content:valid},finish_reason:'length'}]},
+  // Asks for the group size the guest already gave ("8 гостей").
+  {response:JSON.stringify({version:2,action:'ask',choice:'group'})},
+ ];
+ for(const reply of replies){
+  const authorize=counting();
+  const failed=await meteredChat(environment(async()=>reply),input,{authorize});
+  assert.equal(failed.ok,false,JSON.stringify(reply));assert.equal(failed.kind,'invalid_reply');
+  assert.equal(authorize.released,0,'a billed call must not be refunded: '+JSON.stringify(reply));
+ }
+ const authorize=counting();
+ assert.equal((await meteredChat(environment(async()=>({response:valid})),input,{authorize})).ok,true);
+ assert.equal(authorize.released,0);
+});
+test('a timed-out call is aborted upstream and keeps its reservation',async()=>{
+ const authorize=counting();let upstream;
+ const result=await meteredChat(environment((model,body,options)=>{upstream=options?.signal;return new Promise(()=>{});}),input,{authorize,timeoutMs:20});
+ assert.deepEqual(result,{ok:false,kind:'timeout'});
+ assert.ok(upstream instanceof AbortSignal,'the binding receives an AbortSignal');
+ assert.equal(upstream.aborted,true);
+ assert.equal(authorize.released,0);
+});
+test('a guest who leaves after dispatch aborts the call without a refund',async()=>{
+ const authorize=counting(),guest=new AbortController();let upstream;
+ const pending=meteredChat(environment((model,body,options)=>{upstream=options.signal;return new Promise(()=>{});}),input,{authorize,signal:guest.signal});
+ await new Promise(resolve=>setTimeout(resolve,10));guest.abort();
+ assert.equal((await pending).kind,'cancelled');assert.equal(upstream.aborted,true);assert.equal(authorize.released,0);
+});
+test('an upstream error after dispatch keeps the reservation',async()=>{
+ const authorize=counting();
+ assert.equal((await meteredChat(environment(async()=>{throw Error('capacity');}),input,{authorize})).kind,'unavailable');
+ assert.equal(authorize.released,0);
+});
+test('a call that never leaves gives the reservation back',async()=>{
+ // Pre-flight: the guest leaves while the reservation is being made.
+ const guest=new AbortController(),authorize=async()=>{guest.abort();return true;};authorize.released=0;authorize.release=async()=>{authorize.released++;return true;};
+ let calls=0;
+ assert.equal((await meteredChat(environment(async()=>{calls++;return {response:valid};}),input,{authorize,signal:guest.signal})).kind,'cancelled');
+ assert.equal(calls,0);assert.equal(authorize.released,1);
 });
 test('cloud adapter bounds waiting and isolates upstream errors',async()=>{
  assert.equal((await workersAiChat(environment(async()=>{throw Error('sensitive provider diagnostic');}),input)).kind,'unavailable');
