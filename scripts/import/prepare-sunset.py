@@ -23,7 +23,7 @@ from urllib.request import Request, urlopen
 
 from PIL import Image, ImageOps
 
-from sunset_cards import ensure_cards
+from sunset_cards import apply_cover_overrides, ensure_cards
 
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / 'docs/sunset-import'
@@ -159,7 +159,7 @@ def build(snapshot: dict[str, Any], assets: list[Asset], record_evidence: bool =
             'sourceSeoTitle': vehicle['seo_title'], 'sourceSeoDescription': vehicle['seo_description'],
             'capturedAt': snapshot['capturedAt']}
     # Card-size 3:2 covers for listing cards, cut from the same published previews.
-    write_json(ROOT / 'lib/sunsetFleetSummary.json', ensure_cards(summaries))
+    write_json(ROOT / 'lib/sunsetFleetSummary.json', ensure_cards(apply_cover_overrides(summaries, assets)))
     write_json(ROOT / 'lib/server/sunsetFleetDetails.json', details)
     if not record_evidence:
         return

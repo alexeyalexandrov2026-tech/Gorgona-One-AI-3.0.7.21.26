@@ -84,6 +84,20 @@ test('listing cards show a sharp 3:2 card photo cut from the same supplier cover
   assert.ok(showcase.some(card=>card.image===car.card),'the home showcase uses the card photo');
 });
 
+test('hand-picked covers are real photos from the same car gallery', () => {
+  const {covers}=read('docs/sunset-import/cover-overrides.json');
+  const summaries=read('lib/sunsetFleetSummary.json'),details=read('lib/server/sunsetFleetDetails.json');
+  const assets=read('docs/sunset-import/assets.json').assets;
+  assert.ok(Object.keys(covers).length>0);
+  for(const [slug,url] of Object.entries(covers)){
+    const car=summaries.find(row=>row.slug===slug),asset=assets.find(a=>a.sourceUrl===url);
+    assert.ok(car&&asset,slug);
+    assert.ok(details[slug].gallery.includes(asset.preview),`${slug}: the cover must come from its own supplier gallery`);
+    assert.equal(car.image,asset.preview,slug); assert.equal(car.thumbnail,asset.thumbnail,slug);
+    assert.equal(car.card,asset.preview.replace('/previews/','/cards/'),slug);
+  }
+});
+
 test('source cards use our existing booking route with manual confirmation and payment', () => {
   const detail=fs.readFileSync(new URL('../../app/rentals/[slug]/page.js',import.meta.url),'utf8');
   const form=fs.readFileSync(new URL('../../app/components/BookingForm.jsx',import.meta.url),'utf8');

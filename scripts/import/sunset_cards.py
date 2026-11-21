@@ -23,7 +23,33 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]
 PUBLIC = ROOT / 'public'
 SUMMARY = ROOT / 'lib/sunsetFleetSummary.json'
+ASSETS = ROOT / 'docs/sunset-import/assets.json'
+OVERRIDES = ROOT / 'docs/sunset-import/cover-overrides.json'
 CARD_WIDTH, CARD_HEIGHT, QUALITY = 1200, 800, 80
+
+
+def cover_overrides() -> dict[str, str]:
+    """slug -> supplier photo URL picked by hand as a sharper exterior cover."""
+    if not OVERRIDES.exists():
+        return {}
+    return json.loads(OVERRIDES.read_text(encoding='utf-8'))['covers']
+
+
+def apply_cover_overrides(summaries: list[dict[str, Any]], assets: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Points image/thumbnail at the chosen photo; the photo must be one of the imported supplier assets."""
+    by_url = {asset['sourceUrl']: asset for asset in assets}
+    overrides, rows = cover_overrides(), []
+    for summary in summaries:
+        url = overrides.get(summary['slug'])
+        if url:
+            if url not in by_url:
+                raise ValueError(f"Cover override is not an imported photo: {summary['slug']}")
+            summary = {**summary, 'image': by_url[url]['preview'], 'thumbnail': by_url[url]['thumbnail']}
+        rows.append(summary)
+    unknown = set(overrides) - {row['slug'] for row in rows}
+    if unknown:
+        raise ValueError(f'Cover overrides for unknown cars: {sorted(unknown)}')
+    return rows
 
 
 def card_path(preview: str) -> str:
@@ -76,7 +102,8 @@ def ensure_cards(summaries: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def main() -> None:
     summaries = json.loads(SUMMARY.read_text(encoding='utf-8'))
-    rows = ensure_cards(summaries)
+    assets = json.loads(ASSETS.read_text(encoding='utf-8'))['assets']
+    rows = ensure_cards(apply_cover_overrides(summaries, assets))
     missing = [row['slug'] for row in rows if not (PUBLIC / row['card'].lstrip('/')).exists()]
     if missing:
         raise SystemExit(f'Missing preview for {len(missing)} cars: {missing[:5]}')

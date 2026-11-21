@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "note": "Cover photo chosen by hand from the same car's supplier gallery when the source cover is too small for a sharp listing card. Exterior shots only; values are the supplier photo URLs.",
+  "covers": {
+    "sunset-mercedes-maybach-gls-600-3": "https://vvjvoesmujtoyysjyzbj.supabase.co/storage/v1/object/public/fleet-images/ebc7ef99-cd69-4e2e-9733-b2f9584694a6.jpeg",
+    "sunset-2022-mercedes-eqs-580": "https://vvjvoesmujtoyysjyzbj.supabase.co/storage/v1/object/public/fleet-images/89197e26-2059-408a-b492-75be4b2986d9.jpeg",
+    "sunset-rolls-royce-cullinan-8": "https://vvjvoesmujtoyysjyzbj.supabase.co/storage/v1/object/public/fleet-images/fbbe3eac-d95c-4bb4-a36c-3e124d53e9a7.jpeg",
+    "sunset-mercedes-maybach-s580-2": "https://vvjvoesmujtoyysjyzbj.supabase.co/storage/v1/object/public/fleet-images/0555b59f-76d1-436d-bb85-8c818bd396d7.jpeg",
+    "sunset-2023-rolls-royce-cullinan": "https://vvjvoesmujtoyysjyzbj.supabase.co/storage/v1/object/public/fleet-images/01a71116-64bd-4938-a6bb-333994e895f9.jpeg",
+    "sunset-mercedes-g63-amg-7": "https://vvjvoesmujtoyysjyzbj.supabase.co/storage/v1/object/public/fleet-images/e986fd53-cc18-41f1-96b5-6dfad82459db.jpeg"
+  }
+}
