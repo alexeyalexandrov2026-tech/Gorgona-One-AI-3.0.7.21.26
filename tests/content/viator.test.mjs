@@ -1,7 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {VIATOR_MIAMI,VIATOR_SINGLE_CARDS,getViatorCopy} from '../../lib/viatorCatalogue.mjs';
-import {EXPERIENCE_CARDS,getExperienceCards} from '../../lib/experienceCards.mjs';
+import {readFileSync} from 'node:fs';
+import {EXPERIENCE_CARDS,getExperienceCards,getViatorExperience,VIATOR_EXPERIENCE_SLUGS} from '../../lib/experienceCards.mjs';
 import {OWNED_RECORDS} from '../../scripts/i18n/owned-inventory.mjs';
 import {HEADOUT_COPY} from '../../lib/headoutCopy.mjs';
 import config from '../../next.config.js';
@@ -47,8 +48,10 @@ test('all twenty referrals retain attribution in native cards without republishi
  for(const widget of VIATOR_SINGLE_CARDS){
   const card=all.find(item=>item.supplier==='Viator'&&item.productCode===widget.productCode);
   assert.equal(card.src,widget.src);
-  assert.equal(card.href,widget.href);
-  const frame=new URL(card.src),link=new URL(card.href);
+  // The card opens our own page; the referral is kept for "Open on Viator".
+  assert.equal(card.href,'/experiences/viator/'+widget.productCode.toLowerCase());
+  assert.equal(card.partnerHref,widget.href);
+  const frame=new URL(card.src),link=new URL(card.partnerHref);
   assert.equal(frame.origin,'https://www.viator.com');
   assert.equal(frame.pathname,`/widget/partner/P00329248/${widget.widgetRef}`);
   assert.equal(frame.searchParams.get('widgetPreview'),'false');
@@ -64,6 +67,38 @@ test('all twenty referrals retain attribution in native cards without republishi
  }
  assert.ok(!OWNED_RECORDS.some(({record})=>record.supplier==='Viator'));
  assert.equal(miami[1].productCode,'231628P7');
+});
+
+test('every Viator card has a page of ours, found only through the registry',()=>{
+ assert.equal(VIATOR_EXPERIENCE_SLUGS.length,20);
+ assert.equal(new Set(VIATOR_EXPERIENCE_SLUGS).size,20);
+ for(const slug of VIATOR_EXPERIENCE_SLUGS){
+  assert.match(slug,/^[0-9a-z]+$/);
+  const item=getViatorExperience(slug);
+  assert.equal(item.kind,'viator');
+  assert.equal(item.href,'/experiences/viator/'+slug);
+  assert.equal(new URL(item.src).origin,'https://www.viator.com');
+ }
+ for(const unknown of ['', 'nope', '28744P2', '../yachts', 'https://evil.example', null, undefined, 42])assert.equal(getViatorExperience(unknown),null);
+ const page=readFileSync('app/experiences/viator/[code]/page.js','utf8');
+ assert.match(page,/if\(!item\)notFound\(\)/);
+ const view=readFileSync('app/experiences/ViatorCollection.jsx','utf8');
+ assert.match(view,/getViatorExperience\(slug\)/);
+ assert.match(view,/VIATOR_MIAMI\.src/);
+ assert.match(view,/partnerHref/);
+});
+
+test('Viator and Headout cards stay inside the site; only official park sites open outside',()=>{
+ const source=readFileSync('app/experiences/ExperienceCard.jsx','utf8');
+ assert.match(source,/const external=item\.kind==='official';/);
+ for(const card of EXPERIENCE_CARDS.filter(item=>item.kind!=='official'))assert.match(card.href,/^\/experiences\//,card.id);
+});
+
+test('the Viator pages are in the sitemap',async()=>{
+ const {default:sitemap}=await import('../../app/sitemap.js').catch(()=>({default:null}));
+ const urls=sitemap?(await sitemap()).map(entry=>entry.url):readFileSync('app/sitemap.js','utf8');
+ if(Array.isArray(urls))for(const slug of VIATOR_EXPERIENCE_SLUGS)assert.ok(urls.some(url=>url.endsWith('/experiences/viator/'+slug)),slug);
+ else assert.match(urls,/VIATOR_EXPERIENCE_SLUGS\.map\(\(slug\) => `viator\/\$\{slug\}`\)/);
 });
 
 test('legacy Miami helicopter URL points into the combined catalogue',async()=>{

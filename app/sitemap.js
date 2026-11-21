@@ -1,4 +1,5 @@
 import { HEADOUT_COLLECTIONS } from '../lib/headoutCatalog.mjs';
+import { VIATOR_EXPERIENCE_SLUGS } from '../lib/experienceCards.mjs';
 import { getRentals } from '../lib/rentalsData.js';
 import { EVENT_CATEGORIES, EVENT_CATEGORY_GROUPS, LEAGUES } from '../lib/mockEventsData';
 import { getAllEvents } from '../lib/eventsData';
@@ -15,7 +16,7 @@ const slugs = async (load) => {
 
 export default async function sitemap() {
   return sitemapEntries({
-    experiences: HEADOUT_COLLECTIONS.map((item) => item.slug),
+    experiences: [...HEADOUT_COLLECTIONS.map((item) => item.slug), ...VIATOR_EXPERIENCE_SLUGS.map((slug) => `viator/${slug}`)],
     eventCategories: [...EVENT_CATEGORY_GROUPS, ...EVENT_CATEGORIES].map((category) => category.slug),
     leagues: LEAGUES.map((league) => league.slug),
     events: await slugs(getAllEvents),
