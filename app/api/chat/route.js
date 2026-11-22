@@ -126,7 +126,10 @@ export async function POST(request) {
     const sections=(options.navigation?.cards||[]).map(card=>card.href);
     const query=options.navigation?.query||localAnswer.navigation.query||latestUserMessage;
     const decidedBy=handoff&&!options.handoff?'lexicon':options.decidedBy;
-    const [dyn, liveEvents] = await Promise.all([dynamicEntities, liveEventEntities]);
+    const [dyn, initialLiveEvents] = await Promise.all([dynamicEntities, liveEventEntities]);
+    const liveEvents = initialLiveEvents.length || !sections.includes('/events')
+      ? initialLiveEvents
+      : await getLiveEventEntities(query, { profile, locale, env: process.env });
     const extraEntities = liveEvents.length ? [...dyn, ...liveEvents] : dyn;
     return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,started,
       listings:handoff?namedVenueCards(bookingText,{locale,extraEntities,profile}):gatedListings(query,{locale,action,sections,extraEntities,profile}),...(handoff?{handoff:true}:{}),plan:await plan});

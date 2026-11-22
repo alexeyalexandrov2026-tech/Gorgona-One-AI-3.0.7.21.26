@@ -6,6 +6,22 @@ import { getTranslation } from '../../../lib/i18n';
 import { getDiningHandoffCopy } from '../../../lib/dining/copy.mjs';
 import { PROVIDERS } from '../../../lib/dining/gateway.mjs';
 
+const PARTNER_PLATFORMS = Object.freeze({
+  ticketnetwork: 'TicketNetwork',
+  viator: 'Viator',
+  headout: 'Headout',
+  ovago: 'Ovago',
+  yatr: 'YATR',
+  stay22: 'Stay22',
+  privatejetfinder: 'PrivateJetFinder'
+});
+
+const SECTION_PARTNER_BOOKING = Object.freeze({
+  '/yachts': { kind: 'book', platform: 'yatr', href: 'https://yatr.co?ref=MIAMI-ELIO-GORGONA-ONE' },
+  '/private-jets': { kind: 'book', platform: 'privatejetfinder', href: 'https://www.privatejetfinder.com/?tk=716179668192' },
+  '/vacation-rentals': { kind: 'book', platform: 'stay22', href: 'https://www.stay22.com/embed/gm?aid=gorgonaone&address=Miami%2C+FL%2C+USA&viewmode=listview&showhotels=false&rentalsapi=vrbo&campaign=gorgona_miami_rentals_list' }
+});
+
 // ===========================================================================
 // Navigation frame rendered under a concierge reply.
 //
@@ -79,7 +95,8 @@ function ListingLink({ card, onNavigate }) {
 function VenueActions({ card, copy, onNavigate }) {
   if (!card.booking) return null;
   const platform = card.booking.kind === 'book' && card.booking.platform !== 'venue'
-    ? PROVIDERS.find((provider) => provider.id === card.booking.platform)?.name : null;
+    ? (PROVIDERS.find((provider) => provider.id === card.booking.platform)?.name || PARTNER_PLATFORMS[card.booking.platform] || null)
+    : null;
   const label = card.booking.kind === 'maps' ? copy.openMaps : platform ? copy.bookOn.replace('{platform}', platform) : copy.bookOnSite;
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-1 text-xs">
@@ -99,18 +116,19 @@ export function AiListingCards({ listings, onNavigate, className = '' }) {
   return (
     <div className={`grid gap-2.5 pt-1 ${className}`}>
       {listings.map((card) => (
-        <div key={card.href} className="grid gap-1.5">
+        <div key={card.booking?.href || card.href} className="grid gap-1.5">
           <ListingLink card={card} onNavigate={onNavigate} />
           <VenueActions card={card} copy={copy} onNavigate={onNavigate} />
         </div>
       ))}
-      {listings.some((card) => card.booking) ? <p className="px-1 text-[0.7rem] leading-snug text-zinc-400">{copy.chatNote}</p> : null}
+      {listings.some((card) => card.booking && !PARTNER_PLATFORMS[card.booking.platform]) ? <p className="px-1 text-[0.7rem] leading-snug text-zinc-400">{copy.chatNote}</p> : null}
     </div>
   );
 }
 
 /** A multi-item plan: one row of real catalogue choices per section. */
 export function AiPlan({ plan, onNavigate }) {
+  const copy = getDiningHandoffCopy(useLocale());
   if (!plan?.sections?.length) return null;
   return (
     <div className="grid gap-4 pt-1">
@@ -119,7 +137,10 @@ export function AiPlan({ plan, onNavigate }) {
           <p className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-brand-gold/80">{section.label}</p>
           <div className="mt-2 grid gap-2">
             {section.candidates.slice(0, 2).map((card) => (
-              <ListingLink key={card.href} card={card} onNavigate={onNavigate} />
+              <div key={card.booking?.href || card.href} className="grid gap-1.5">
+                <ListingLink card={card} onNavigate={onNavigate} />
+                <VenueActions card={card} copy={copy} onNavigate={onNavigate} />
+              </div>
             ))}
           </div>
         </div>
@@ -130,13 +151,20 @@ export function AiPlan({ plan, onNavigate }) {
 
 /** The frames under one reply. Renders nothing when there is no match. */
 export function AiActionCards({ cards, onNavigate, className = '' }) {
+  const copy = getDiningHandoffCopy(useLocale());
   if (!cards?.length) return null;
 
   return (
     <div className={`grid gap-2.5 pt-1 ${className}`}>
-      {cards.map((card) => (
-        <AiActionCard key={card.href} card={card} onNavigate={onNavigate} />
-      ))}
+      {cards.map((card) => {
+        const partnerBooking = card.booking || SECTION_PARTNER_BOOKING[card.href];
+        return (
+          <div key={card.href} className="grid gap-1.5">
+            <AiActionCard card={card} onNavigate={onNavigate} />
+            {partnerBooking ? <VenueActions card={{ ...card, booking: partnerBooking }} copy={copy} onNavigate={onNavigate} /> : null}
+          </div>
+        );
+      })}
     </div>
   );
 }
