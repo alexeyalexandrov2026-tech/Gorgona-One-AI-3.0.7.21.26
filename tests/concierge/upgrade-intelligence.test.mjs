@@ -174,6 +174,10 @@ test('six core concierge smoke dialogues produce accurate advice, listings, fact
   assert.ok(footballHrefs.includes('/events/category/mls'), `expected MLS in ${footballHrefs}`);
   assert.ok(footballHrefs.includes('/events/category/nfl'), `expected NFL in ${footballHrefs}`);
 
+  // City word ("Miami") must not outrank the actual subject ("concierto")
+  const esConcerts = listingCards('Quiero entradas para un concierto en Miami', { locale: 'es', sections: ['/events'] });
+  assert.equal(esConcerts[0]?.href, '/events/category/concerts', `expected concerts #1, got ${JSON.stringify(esConcerts.map(c => c.href))}`);
+
   // 2. Lamborghini for 3 days -> 3 distinct Lamborghini models + supercar advice
   const lambo = catalogueAnswer([{ role: 'user', content: 'Найди Lamborghini на три дня' }], 'ru');
   assert.equal(lambo.navigation.cards[0]?.href, '/rentals');
