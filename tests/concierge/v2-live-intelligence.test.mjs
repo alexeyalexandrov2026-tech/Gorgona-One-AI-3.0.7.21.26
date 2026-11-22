@@ -29,6 +29,9 @@ const {
   clearLiveEventsCache
 } = load('lib/server/conciergeEvents.mjs');
 const { GET: chatGet } = load('app/api/chat/route.js');
+const { buildFactPack, normalizePagePath, resolvePageEntity } = load('lib/ai/factPack.mjs');
+const { validateGroundedReplyText } = load('lib/ai/factGuard.mjs');
+const { chatPayload, readChatRequest } = load('lib/ai/chatRequest.mjs');
 
 const encoder = new TextEncoder();
 
@@ -432,4 +435,116 @@ test('Phase 4: stop experience cards for ideas/plan, multi-section consult reply
   assert.equal(stayUrl.searchParams.get('checkin'), '2026-12-05');
   assert.equal(stayUrl.searchParams.get('checkout'), '2026-12-07');
   assert.equal(stayUrl.searchParams.get('guests'), '6');
+});
+
+test('Phase 5: version 3 Grounded NLG, Zero-Hallucination Fact Guard, Pre-Inference Fact Pack, Page-Aware Context and clean artist card', async () => {
+  // 1. Clean artist fallback card (no unrelated NFL/NHL/NBA titles)
+  const badBunny = listingCards('Билеты на Bad Bunny', { locale: 'ru', sections: ['/events'] });
+  assert.equal(badBunny.length, 1);
+  assert.equal(badBunny[0].title, 'Bad Bunny — TicketNetwork');
+  assert.equal(badBunny[0].href, '/events/category/concerts');
+  assert.equal(badBunny[0].booking?.platform, 'ticketnetwork');
+  assert.equal(new URL(badBunny[0].booking.href).searchParams.get('url'), 'https://www.ticketnetwork.com/search?q=Bad%20Bunny');
+
+  // 2. Page-Aware Context normalization & resolution + request transport
+  assert.equal(normalizePagePath('/restaurants-nightlife/komodo-miami?ref=abc#top'), '/restaurants-nightlife/komodo-miami');
+  assert.equal(normalizePagePath('https://evil.example/komodo'), '');
+  assert.equal(normalizePagePath('/../etc/passwd'), '');
+  const komodoPage = resolvePageEntity('/restaurants-nightlife/komodo-miami');
+  assert.equal(komodoPage?.title, 'Komodo');
+  assert.equal(komodoPage?.section, '/restaurants-nightlife');
+  assert.equal(komodoPage?.partner, 'sevenrooms');
+
+  const payload = chatPayload([{ role: 'user', content: 'Какой тут дресс-код?' }], { locale: 'ru', pagePath: '/restaurants-nightlife/komodo-miami' });
+  assert.equal(payload.pagePath, '/restaurants-nightlife/komodo-miami');
+  const parsedReq = await readChatRequest(new Request('https://example.test/api/chat', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }));
+  assert.equal(parsedReq.pagePath, '/restaurants-nightlife/komodo-miami');
+
+  // 3. Pre-Inference Grounded Fact Pack injects page entity, exact catalog prices & Miami logistics into system prompt
+  const pack = buildFactPack({
+    messages: [{ role: 'user', content: 'Сравни Komodo и Sexy Fish в Brickell, успеем после матча в Kaseya Center?' }],
+    locale: 'ru',
+    pagePath: '/restaurants-nightlife/komodo-miami'
+  });
+  assert.equal(pack.pageEntity?.title, 'Komodo');
+  assert.ok(pack.facts.some((f) => /Komodo/i.test(f.title)));
+  assert.match(pack.logisticsNote, /Kaseya Center/);
+  const prompt = modelMessages(
+    [{ role: 'user', content: 'Какой тут дресс-код?' }],
+    'ru',
+    { pagePath: '/restaurants-nightlife/komodo-miami' }
+  );
+  assert.match(prompt[0].content, /Guest is currently viewing:.*"Komodo"/);
+  assert.match(prompt[0].content, /Grounded facts/);
+
+  // 4. Controlled Grounded NLG (version: 3): accepts verified prose, strips stray markdown bold, preserves stops
+  const allowedPrices = new Set([400, 700]);
+  const v3Good = groundedReply(JSON.stringify({
+    version: 3,
+    action: 'consult',
+    sections: ['/rentals'],
+    reply: '**Cadillac Escalade** ($400/день) спокойно укладывается в ваш бюджет до $700/день и свободно вместит 6 гостей с чемоданами из MIA.'
+  }), {
+    messages: [{ role: 'user', content: 'Нужен внедорожник на 6 человек до $700 из аэропорта' }],
+    locale: 'ru',
+    allowedPrices
+  });
+  assert.ok(v3Good);
+  assert.equal(v3Good.decidedBy, 'model');
+  assert.equal(v3Good.action, 'consult');
+  assert.doesNotMatch(v3Good.reply, /\*\*/, 'stray markdown bold must be stripped for plain-text chat UI');
+  assert.match(v3Good.reply, /Cadillac Escalade \(\$400\/день\)/);
+  assert.equal(v3Good.navigation.cards[0]?.href, '/rentals');
+
+  const v3Plan = groundedReply(JSON.stringify({
+    version: 3,
+    action: 'plan',
+    sections: ['/experiences'],
+    stops: ['zoo-miami', 'everglades'],
+    reply: 'День 1 — начните с Zoo Miami утром, пока не жарко.\nДень 2 — отправляйтесь в Everglades на аэролодке.'
+  }), {
+    messages: [{ role: 'user', content: 'План на 2 дня с детьми' }],
+    locale: 'ru',
+    allowedPrices: new Set()
+  });
+  assert.deepEqual(v3Plan?.stops, ['zoo-miami', 'everglades']);
+  const planCards = gatedListings('План на 2 дня с детьми', { locale: 'ru', action: 'plan', sections: ['/experiences'], stops: v3Plan.stops });
+  assert.ok(planCards.some((c) => c.href === '/experiences/zoo-miami' && c.booking?.platform === 'headout'));
+
+  // 5. Zero-Hallucination Fact Guard blocks invented prices, URLs, phones, fake booking claims & wrong script
+  assert.equal(validateGroundedReplyText('Попробуйте яхту за $1,850 в час на заливе Бискейн.', { locale: 'ru', allowedPrices }).ok, false);
+  assert.equal(validateGroundedReplyText('Смотрите подробности на https://fake-booking.example прямо сейчас.', { locale: 'ru', allowedPrices }).ok, false);
+  assert.equal(validateGroundedReplyText('Позвоните менеджеру по номеру +1 305-555-0199 для подтверждения.', { locale: 'ru', allowedPrices }).ok, false);
+  assert.equal(validateGroundedReplyText('Я уже забронировал для вас столик в Komodo на субботу.', { locale: 'ru', allowedPrices }).ok, false);
+  assert.equal(validateGroundedReplyText('Cadillac Escalade is a great choice for Brickell trips.', { locale: 'ru', allowedPrices }).ok, false);
+
+  // Version 3 with invented price fails closed (returns null so route falls back safely)
+  assert.equal(groundedReply(JSON.stringify({
+    version: 3,
+    action: 'consult',
+    sections: ['/yachts'],
+    reply: 'Эта яхта стоит $2,950 за четыре часа на заливе Бискейн.'
+  }), {
+    messages: [{ role: 'user', content: 'Хочу яхту в Майами' }],
+    locale: 'ru',
+    allowedPrices
+  }), null);
+
+  // Hard booking rule STILL overrides version 3 with booking disclaimer & handoff:true
+  const v3Booking = groundedReply(JSON.stringify({
+    version: 3,
+    action: 'consult',
+    sections: ['/restaurants-nightlife'],
+    reply: 'Komodo — отличный выбор в Brickell, переходите по кнопке ниже для брони.'
+  }), {
+    messages: [{ role: 'user', content: 'Забронируй столик в Komodo на пятницу' }],
+    locale: 'ru',
+    allowedPrices
+  });
+  assert.equal(v3Booking?.handoff, true);
+  assert.equal(v3Booking?.action, 'handoff');
+  assert.match(v3Booking?.reply || '', /этот чат не создаёт и не подтверждает бронирования/);
 });

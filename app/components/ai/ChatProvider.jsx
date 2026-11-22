@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { conversationNavigation } from '../../../lib/ai/conversation.mjs';
 import { chatSnapshot, isDegradedResponse } from '../../../lib/ai/session.mjs';
 import {chatPayload} from '../../../lib/ai/chatRequest.mjs';
@@ -62,6 +63,7 @@ export function ChatProvider({ children }) {
   // must not be told in English that the concierge is unavailable.
   const locale = useLocale();
   const localeReady = useLocaleReady();
+  const pathname = usePathname() || '';
   const [messages, setMessages] = useState([]);
   const [cards, setCards] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -154,7 +156,7 @@ export function ChatProvider({ children }) {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',...(globalThis.crypto?.randomUUID?{'Idempotency-Key':crypto.randomUUID()}:{}) },
-        body: JSON.stringify(chatPayload(nextMessages,{locale,sessionId:sessionIdRef.current})),
+        body: JSON.stringify(chatPayload(nextMessages,{locale,sessionId:sessionIdRef.current,pagePath:pathname})),
         signal: controller.signal
       });
 
@@ -200,7 +202,7 @@ export function ChatProvider({ children }) {
     }
 
     return answer;
-  }, [messages, locale, hydrated]);
+  }, [messages, locale, hydrated, pathname]);
 
   const reset = useCallback(() => {
     generationRef.current++;operationRef.current?.abort();operationRef.current=null;
