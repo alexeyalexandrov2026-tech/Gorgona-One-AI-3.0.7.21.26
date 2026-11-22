@@ -14,6 +14,7 @@ import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { formatProfileChips } from '../../../lib/ai/profileChips.mjs';
 import { quickRepliesForTurn } from '../../../lib/ai/quickReplies.mjs';
 import { thinkingStatusForTurn } from '../../../lib/ai/thinkingStatus.mjs';
+import { buildShareablePlanText, buildWhatsAppShareUrl, getShareCopy } from '../../../lib/ai/sharePlan.mjs';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 import { configuredManagerTelegram } from '../../../lib/managerContact.mjs';
 
@@ -129,9 +130,10 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // in the layout), so this component is a VIEW of the conversation rather
   // than an owner of it - the homepage bar, the sphere dock and the Discovery
   // Room all render the same thread.
-  const { messages, cards, suggestions, listings, plan, isLoading, hydrated, send, reset } = useConciergeChat();
+  const { messages, cards, suggestions, listings, plan, savedPrefs, isLoading, hydrated, send, reset } = useConciergeChat();
   const [input, setInput] = useState('');
   const [thinkingStage, setThinkingStage] = useState(0);
+  const [copiedPlan, setCopiedPlan] = useState(false);
   const listRef = useRef(null);
   const inputRef = useRef(null);
   const voice = useVoice();
@@ -169,9 +171,15 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // so a third relevant match is still one tap away without a third frame
   // crowding the transcript.
   const extraChips = suggestions.filter((s) => !cards.some((c) => c.href === s.href));
-  const profile = extractTripProfile(messages);
+  const profile = extractTripProfile(messages, new Date(), savedPrefs);
   const { chips: profileChips, resetLabel } = formatProfileChips(profile, locale);
   const lastMessage = messages.at(-1);
+  const shareCopy = getShareCopy(locale);
+  const canSharePlan = !isLoading && lastMessage?.role === 'assistant' && !lastMessage.degraded && !lastMessage.handoff
+    && (Boolean(plan) || listings.length > 0 || (lastMessage.content?.length || 0) >= 120);
+  const shareText = canSharePlan
+    ? buildShareablePlanText({ reply: lastMessage.content, plan, listings, locale })
+    : '';
   const quickReplies = !isLoading && lastMessage?.role === 'assistant'
     ? quickRepliesForTurn({
         reply: lastMessage.content,
@@ -202,7 +210,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
 
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col" aria-busy={!hydrated||isLoading}>
-      {messages.length > 0 && profileChips.length > 0 && (
+      {profileChips.length > 0 && (
         <div
           data-profile-bar="true"
           className="mb-1 flex flex-wrap items-center gap-1.5 border-b border-white/10 px-1 pb-2"
@@ -283,6 +291,33 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         {plan ? <AiPlan plan={plan} onNavigate={onNavigate} /> : null}
         <AiListingCards listings={nonPlanListings} onNavigate={onNavigate} />
         <AiActionCards cards={nonPlanCards} onNavigate={onNavigate} profile={profile} />
+
+        {/* One-tap Copy / WhatsApp share for curated VIP itineraries & recommendations. */}
+        {canSharePlan && (
+          <div className="flex flex-wrap items-center gap-2 pt-1" data-share-plan="true">
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  navigator.clipboard?.writeText(shareText);
+                  setCopiedPlan(true);
+                  setTimeout(() => setCopiedPlan(false), 2000);
+                } catch {}
+              }}
+              className="rounded-full border border-white/15 bg-white/[0.03] px-3 py-1 text-[11px] text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
+            >
+              {copiedPlan ? shareCopy.copied : shareCopy.copy}
+            </button>
+            <a
+              href={buildWhatsAppShareUrl(shareText)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/20"
+            >
+              {shareCopy.whatsapp}
+            </a>
+          </div>
+        )}
 
         {/* One-tap quick-reply chips matched to the concierge's clarifying question or active topic. */}
         {quickReplies.length > 0 && (
