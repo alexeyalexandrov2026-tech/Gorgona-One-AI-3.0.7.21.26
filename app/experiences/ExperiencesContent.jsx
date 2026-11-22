@@ -8,6 +8,15 @@ import {getViatorCopy,VIATOR_MIAMI} from '../../lib/viatorCatalogue.mjs';
 import ExperienceCard from './ExperienceCard';
 import ExperienceShowcase from './ExperienceShowcase';
 import {seoHeading} from '../../lib/seo.mjs';
+import {HOME_SECTIONS} from '../../lib/homeData';
+import {HomeSectionTile} from '../components/home/HomeSectionRail';
+
+// The home page's Exclusive Destinations tile, repeated on /experiences with a
+// couple's sunset champagne photo from the gallery of the "Private Miami boat
+// charter" tour (Viator 328105P2, Partner API, 2026-11-22), chosen by the owner.
+const HOME_EXCLUSIVE=HOME_SECTIONS.find(section=>section.id==='exclusive');
+const COUPLE_PHOTO='https://media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/15/c0/d4/88.jpg';
+const EXCLUSIVE_TILE=HOME_EXCLUSIVE&&{...HOME_EXCLUSIVE,image:COUPLE_PHOTO};
 
 // One listing for two pages: /experiences (family order) and
 // /exclusive-destinations (luxury first) share the same aggregator catalogue.
@@ -25,6 +34,7 @@ export default function ExperiencesContent({exclusive=false}){
   <header className="pb-6 pt-8 sm:pt-12">
    <h1 className="g1-display max-w-[22ch] font-g1display text-[clamp(2.5rem,5vw,5rem)] font-medium leading-none">{pageTitle}</h1>
    <p className="mt-5 max-w-[65ch] text-lg text-g1-soft">{pageSubtitle}</p>
+   {!exclusive&&EXCLUSIVE_TILE&&<div className="mt-7"><HomeSectionTile section={EXCLUSIVE_TILE} exclusive={labels.exclusiveTitle} className="g1-home-section--feature"/></div>}
    <div className="mt-7"><ExperienceShowcase slides={slides} titles={titles} locale={locale} cta={copy.choose} label={pageTitle}/></div>
    <nav aria-label={copy.nav} className="mt-8 flex gap-3 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible">{sections.map(section=><a key={section.id} href={'#'+section.id} className="shrink-0 whitespace-nowrap rounded-full border border-g1-rule px-5 py-2 text-sm transition hover:border-g1-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-g1-accent">{section.title}</a>)}</nav>
   </header>

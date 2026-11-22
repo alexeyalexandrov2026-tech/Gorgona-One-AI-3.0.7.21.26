@@ -33,6 +33,18 @@ test('every language has the Exclusive Destinations title and subtitle',()=>{
  }
 });
 
+test('/experiences repeats the home page Exclusive Destinations tile under its heading',()=>{
+ const source=readFileSync('app/experiences/ExperiencesContent.jsx','utf8');
+ assert.match(source,/import \{HomeSectionTile\} from '\.\.\/components\/home\/HomeSectionRail'/);
+ assert.match(source,/HOME_SECTIONS\.find\(section=>section\.id==='exclusive'\)/);
+ assert.match(source,/const COUPLE_PHOTO='https:\/\/media-cdn\.tripadvisor\.com\/media\/attractions-splice-spp-720x480\/15\/c0\/d4\/88\.jpg'/);
+ assert.match(source,/image:COUPLE_PHOTO/);
+ assert.match(source,/\{!exclusive&&EXCLUSIVE_TILE&&<div className="mt-7"><HomeSectionTile section=\{EXCLUSIVE_TILE\} exclusive=\{labels\.exclusiveTitle\} className="g1-home-section--feature"\/>/);
+ assert.match(readFileSync('app/design-system.css','utf8'),/\.g1-home-section\.g1-home-section--feature \{[^}]*height: clamp\(280px, 46vw, 460px\)/);
+ assert.match(readFileSync('app/components/home/HomeSectionRail.jsx','utf8'),/export function HomeSectionTile\(/);
+ assert.equal(HOME_SECTIONS.find(section=>section.id==='exclusive').href,'/exclusive-destinations');
+});
+
 test('the new page is in the sitemap, linked from Travel and the home rail',()=>{
  assert.ok(SECTION_ROUTES.includes('/exclusive-destinations'));
  assert.ok(sitemapEntries({}).some(entry=>entry.url.endsWith('/exclusive-destinations')));

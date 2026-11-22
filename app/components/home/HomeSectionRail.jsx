@@ -16,7 +16,8 @@ function sectionLabel(copy, id, exclusive) {
   return copy.worldItems[id][0];
 }
 
-function Tile({ section, copy, exclusive, hidden = false }) {
+// Also shown on /experiences, so the Exclusive Destinations tile looks the same there.
+export function HomeSectionTile({ section, copy, exclusive, hidden = false, className = '' }) {
   const label = sectionLabel(copy, section.id, exclusive);
   return (
     <Link
@@ -24,7 +25,7 @@ function Tile({ section, copy, exclusive, hidden = false }) {
       prefetch={false}
       tabIndex={hidden ? -1 : undefined}
       aria-hidden={hidden || undefined}
-      className={`g1-home-section${section.image ? '' : ' g1-home-section--ai'}`}
+      className={`g1-home-section${section.image ? '' : ' g1-home-section--ai'}${className ? ' ' + className : ''}`}
     >
       {section.image
         ? <img src={section.image} alt="" aria-hidden="true" decoding="async" />
@@ -90,8 +91,8 @@ export default function HomeSectionRail({ copy }) {
   return (
     <nav aria-label={copy.eyebrow} className="g1-home-sections">
       <div ref={railRef} className="g1-home-sections__track" onPointerDown={holdMotion} onPointerUp={holdMotion} onPointerCancel={holdMotion} onWheel={holdMotion}>
-        {HOME_SECTIONS.map((section) => <Tile key={section.id} section={section} copy={copy} exclusive={exclusive} />)}
-        {HOME_SECTIONS.map((section) => <Tile key={`${section.id}-loop`} section={section} copy={copy} exclusive={exclusive} hidden />)}
+        {HOME_SECTIONS.map((section) => <HomeSectionTile key={section.id} section={section} copy={copy} exclusive={exclusive} />)}
+        {HOME_SECTIONS.map((section) => <HomeSectionTile key={`${section.id}-loop`} section={section} copy={copy} exclusive={exclusive} hidden />)}
       </div>
       {scrollable && (
         <button type="button" className="g1-tkt-toggle g1-home-sections__pause" aria-label={paused ? copy.tickets.play : copy.tickets.pause} onClick={() => setPaused(!paused)}>

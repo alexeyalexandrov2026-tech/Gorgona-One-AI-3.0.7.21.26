@@ -355,6 +355,28 @@
   .g1-home-section-orb { top: 8px; width: 30px; height: 30px; margin-left: -15px; }
 }
 
+/* The home tile at the size of a listing page's showcase (/experiences). */
+.g1-home-section.g1-home-section--feature {
+  flex: none;
+  width: 100%;
+  height: clamp(280px, 46vw, 460px);
+  min-height: 0;
+  padding: 28px 24px;
+  border-radius: 1.5rem;
+  border: 1px solid var(--g1-rule);
+}
+.g1-home-section--feature .g1-home-section__label {
+  justify-content: flex-start;
+  gap: 14px;
+  font-family: var(--font-g1-display), var(--font-serif), Georgia, serif;
+  font-size: clamp(1.6rem, 3.6vw, 2.6rem);
+  font-weight: 500;
+  line-height: 1.05;
+}
+.g1-home-section--feature .g1-home-section__label svg { width: 0.8em; height: 0.8em; flex: none; }
+.g1-home-section--feature img { object-position: 50% 60%; }
+@media (min-width: 640px) { .g1-home-section.g1-home-section--feature { padding: 32px; } }
+
 .g1-home-app-hero { display: none; }
 html[data-app="android"] .g1-home-web-hero { display: none; }
 html[data-app="android"] .g1-home-app-hero { display: block; }
