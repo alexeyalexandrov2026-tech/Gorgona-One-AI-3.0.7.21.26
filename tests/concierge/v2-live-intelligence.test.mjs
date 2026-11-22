@@ -138,7 +138,8 @@ test('Miami geographic proximity ranks closest Michelin venues first and builds 
     locale: 'ru',
     sections: ['/experiences']
   });
-  assert.deepEqual(miamiHeli.map((c) => c.href), ['/experiences/viator/231628p7']);
+  // The second hit is the private Miami helicopter flight (a direct Viator card).
+  assert.deepEqual(miamiHeli.map((c) => c.href), ['/experiences/viator/231628p7', '/experiences#florida-flights']);
 });
 
 test('session-wide trip profile carries across topic switches and suppresses already-answered questions', () => {
