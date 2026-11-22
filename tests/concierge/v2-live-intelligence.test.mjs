@@ -345,7 +345,7 @@ test('live TicketNetwork conciergeEvents converts verified events safely, caches
   clearLiveEventsCache();
 });
 
-test('Phase 4: stop experience cards for ideas/plan, multi-section consult reply, 16-locale quick replies and deep partner URLs', () => {
+test('Phase 4: stop experience cards for ideas/plan, multi-section consult reply, 16-locale quick replies and deep partner URLs', async () => {
   // 1. ideas & plan turns attach bookable Viator & Headout partner referral cards for the model's chosen stops
   const ideasProjected = groundedReply(
     JSON.stringify({ version: 2, action: 'ideas', stops: ['zoo-miami', 'everglades'] }),
@@ -392,6 +392,36 @@ test('Phase 4: stop experience cards for ideas/plan, multi-section consult reply
   const tnUrl = new URL(artistFallback[0].booking.href);
   assert.equal(tnUrl.origin + tnUrl.pathname, 'https://www.tkqlhce.com/click-101825540-10793961');
   assert.equal(tnUrl.searchParams.get('url'), 'https://www.ticketnetwork.com/search?q=Bad%20Bunny');
+
+  // Unmatched artist query must NOT fall back to unrelated general events in getLiveEventEntities
+  const emptyArtistFetcher = async (url) => {
+    const s = String(url);
+    if (s === 'https://www.ticketnetwork.com/en/affiliate-plugin') {
+      return new Response('<script src="/_next/static/chunks/tn-config-empty.js"></script>', { status: 200 });
+    }
+    if (s.includes('tn-config-empty.js')) {
+      return new Response('x-typesense-api-key /collections/ dev:{host:"fixture.a1.typesense.net",apiKey:"fixture-public-search-key-123456"}', { status: 200 });
+    }
+    if (s.includes('fixture.a1.typesense.net')) {
+      const hasPerformerQuery = /q=Bad/i.test(s);
+      if (hasPerformerQuery) return Response.json({ found: 0, facet_counts: [], hits: [] });
+      // If called without performer filter, would return unrelated event — must NOT happen for artist queries!
+      return Response.json({
+        found: 1,
+        facet_counts: [],
+        hits: [{ document: { event_id: 111, event_name: 'Unrelated Ballet', event_local_timestamp: 1795370400, venue_name: 'Theater', venue_city: 'Miami', venue_state_province_short: 'FL' } }]
+      });
+    }
+    throw new Error('Unexpected URL: ' + s);
+  };
+  clearLiveEventsCache();
+  const unmatchedArtistLive = await getLiveEventEntities('Билеты на Bad Bunny', {
+    locale: 'ru',
+    fetcher: emptyArtistFetcher,
+    now: new Date('2026-11-22T15:00:00Z')
+  });
+  assert.deepEqual(unmatchedArtistLive, []);
+  clearLiveEventsCache();
 
   const stayUrl = new URL(buildStay22ReferralUrl({
     guests: 6,
