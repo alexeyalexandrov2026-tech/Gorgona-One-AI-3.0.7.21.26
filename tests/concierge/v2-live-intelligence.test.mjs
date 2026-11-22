@@ -109,6 +109,13 @@ test('Miami geographic proximity ranks closest Michelin venues first and builds 
   assert.ok(brickellDinner.length >= 1);
   assert.ok(brickellDinner.every((c) => /Brickell/i.test(c.summary || '')));
   assert.equal(brickellDinner[0].more, '/restaurants-nightlife?neighborhood=Brickell');
+
+  // Helicopter over Miami excludes out-of-state Grand Canyon / Las Vegas helicopter tours
+  const miamiHeli = listingCards('Хочу вертолёт над Майами', {
+    locale: 'ru',
+    sections: ['/experiences']
+  });
+  assert.deepEqual(miamiHeli.map((c) => c.href), ['/experiences/viator/231628p7']);
 });
 
 test('session-wide trip profile carries across topic switches and suppresses already-answered questions', () => {
@@ -117,6 +124,14 @@ test('session-wide trip profile carries across topic switches and suppresses alr
     { role: 'assistant', content: 'Отлично, учту ваши параметры.' },
     { role: 'user', content: 'Посоветуй ресторан' }
   ];
+
+  // Turn 1: spelled-out party size "Нас шестеро" triggers family-suv consult advice rather than bare navigation label
+  const turn1Projected = groundedReply(
+    JSON.stringify({ version: 2, action: 'consult', options: ['family-suv'], question: null }),
+    { messages: [messages[0]], locale: 'ru' }
+  );
+  assert.ok(turn1Projected);
+  assert.match(turn1Projected.reply, /Рассмотрите внедорожник/);
 
   // Turn 2: restaurant query remembers Brickell from Turn 1
   const diningTurn = catalogueAnswer(messages, 'ru');
