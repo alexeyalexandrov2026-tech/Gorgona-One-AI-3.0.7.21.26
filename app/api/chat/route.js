@@ -106,7 +106,7 @@ export async function POST(request) {
     navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY,action:'fact',decidedBy:'fact',started});
 
   const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
-  const profile = extractTripProfile(modelMessages);
+  const profile = extractTripProfile(modelMessages, new Date(), body.savedPrefs || null);
   const plan = conversationPlan(modelMessages, { locale });
   const dynamicEntities = getDynamicEntities(process.env);
   const localAnswer = catalogueAnswer(modelMessages, locale);
@@ -184,7 +184,7 @@ export async function POST(request) {
       }), 1100);
     })
   ]).finally(() => clearTimeout(preTimer));
-  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:pre.extra,pagePath:body.pagePath||'',forecastPeriods:pre.forecast});
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:pre.extra,pagePath:body.pagePath||'',forecastPeriods:pre.forecast,savedPrefs:body.savedPrefs||null});
   if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,stops:cloud.stops,engine:'ok'});
 
   // Disabled, denied or failed: graceful degradation, never a second engine.

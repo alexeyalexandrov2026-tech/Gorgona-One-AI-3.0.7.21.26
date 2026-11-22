@@ -15,6 +15,7 @@ import load from './load.cjs';
 
 const {
   extractTripProfile,
+  extractDurablePrefs,
   tripProfilePromptLine,
   buildStay22ReferralUrl,
   neighborhoodProximity
@@ -22,7 +23,12 @@ const {
 const { missingQuestion } = load('lib/ai/conciergeReply.mjs');
 const { groundedReply } = load('lib/ai/groundedReply.mjs');
 const { validateGroundedReplyText } = load('lib/ai/factGuard.mjs');
-const { buildFactPack, normalizePagePath, resolvePageEntity } = load('lib/ai/factPack.mjs');
+const { buildFactPack, extractMentionedEntities, normalizePagePath, resolvePageEntity } = load('lib/ai/factPack.mjs');
+const { detectMessageLocale, detectSemanticVibes } = load('lib/ai/semanticVibes.mjs');
+const { buildBudgetMath, extractTripDays } = load('lib/ai/budgetEstimator.mjs');
+const { buildShareablePlanText, buildWhatsAppShareUrl, getShareCopy } = load('lib/ai/sharePlan.mjs');
+const { chatPayload, readChatRequest, sanitizeSavedPrefs } = load('lib/ai/chatRequest.mjs');
+const { modelMessages, workersAiChat } = load('lib/ai/workersBrain.mjs');
 const { listingCards, gatedListings } = load('lib/ai/listingCards.mjs');
 const { formatForecastForPrompt, getMiamiForecast, clearForecastCache } = load('lib/ai/miamiForecast.mjs');
 const { formatProfileChips } = load('lib/ai/profileChips.mjs');
@@ -40,7 +46,7 @@ const { SUPPORTED_LANGUAGES } = load('lib/languages.js');
 
 const NOW = new Date('2026-11-22T15:00:00Z');
 
-test('VIP Concierge Eval Benchmark: 52 multi-turn, guardrail, partner, forecast & telemetry scenarios pass 100%', async () => {
+test('VIP Concierge Eval Benchmark: 62 multi-turn, guardrail, partner, forecast, telemetry & Wave 8 Apex Intelligence scenarios pass 100%', async () => {
   let passed = 0;
   const check = (name, fn) => {
     fn();
@@ -322,6 +328,135 @@ test('VIP Concierge Eval Benchmark: 52 multi-turn, guardrail, partner, forecast 
     }
   });
 
-  assert.equal(passed, 52);
+  // --- E. Wave 8 Apex Intelligence (10 scenarios) ---
+  check('E01 Multi-entity compare loads full dossiers for Carbone, Komodo & Papi Steak', () => {
+    const mentioned = extractMentionedEntities('Сравни Carbone, Komodo и Papi Steak для ужина в пятницу');
+    assert.ok(mentioned.length >= 3);
+    const fp = buildFactPack({
+      messages: [{ role: 'user', content: 'Сравни Carbone, Komodo и Papi Steak для ужина в пятницу' }],
+      locale: 'ru'
+    });
+    for (const name of ['Carbone', 'Komodo', 'Papi Steak']) {
+      const entry = fp.facts.find((f) => f.title === name);
+      assert.ok(entry && entry.desc && entry.desc.length > 20, `missing full dossier for ${name}`);
+    }
+  });
+  check('E02 Semantic Vibe Engine translates metaphors & archetypes accurately', () => {
+    assert.ok(detectSemanticVibes('Нужно тихое место для серьёзных переговоров с инвесторами').vibes.includes('executive-quiet'));
+    assert.ok(detectSemanticVibes('Хочу сделать предложение руки и сердца так, чтобы запомнилось на всю жизнь').vibes.includes('proposal-unforgettable'));
+    assert.ok(detectSemanticVibes('Give me a Miami Vice cinematic vibe with a supercar').vibes.includes('miami-vice-cinematic'));
+    assert.ok(detectSemanticVibes('Вайб как в Сен-Тропе и пляжный клуб').vibes.includes('st-tropez-beach-club'));
+    assert.ok(detectSemanticVibes('Looking for quiet luxury old money spots in Miami').vibes.includes('stealth-luxury'));
+  });
+  check('E03 Auto-Language Intelligence detects 10+ languages & allows Russian v3 reply on EN UI', () => {
+    assert.equal(detectMessageLocale('Найди внедорожник в Brickell на выходные', 'en'), 'ru');
+    assert.equal(detectMessageLocale('Знайди ресторан у Маямі на вечерю', 'en'), 'uk');
+    assert.equal(detectMessageLocale('أبحث عن يخت فاخر في ميامي', 'en'), 'ar');
+    assert.equal(detectMessageLocale('می‌خواهم یک قایق در میامی اجاره کنم', 'en'), 'fa');
+    assert.equal(detectMessageLocale('מחפש מסעדה רומנטית במיאמי', 'en'), 'he');
+    assert.equal(detectMessageLocale('マイアミでおすすめのレストランは？', 'en'), 'ja');
+    assert.equal(detectMessageLocale('마이애미 추천 레스토랑 알려줘', 'en'), 'ko');
+    assert.equal(detectMessageLocale('Quiero alquilar un yate en Miami para 6 personas', 'en'), 'es');
+    const crossLang = groundedReply(JSON.stringify({
+      version: 3,
+      action: 'consult',
+      sections: ['/restaurants-nightlife'],
+      reply: 'Для ужина в Brickell отлично подойдут Komodo и Sexy Fish — оба места легко бронируются через карточки ниже.'
+    }), {
+      messages: [{ role: 'user', content: 'Посоветуй ресторан в Brickell' }],
+      locale: 'en',
+      replyLocale: 'ru',
+      allowedPrices: new Set()
+    });
+    assert.ok(crossLang && crossLang.decidedBy === 'model');
+  });
+  check('E04 Deterministic Budget Calculator computes exact multi-day car math & whitelists derived total', () => {
+    assert.equal(extractTripDays('Нужен Cadillac Escalade на 3 дня'), 3);
+    const bm = buildBudgetMath({
+      text: 'Сколько выйдет Cadillac Escalade на 3 дня?',
+      facts: [{ type: 'Car', title: 'Cadillac Escalade', price: '$400' }]
+    });
+    assert.ok(bm.derivedPrices.has(400) && bm.derivedPrices.has(1200));
+    assert.match(bm.budgetNote, /\$1,200/);
+    assert.equal(validateGroundedReplyText('Cadillac Escalade стоит $400 в день, за 3 дня выйдет $1,200.', { locale: 'ru', allowedPrices: bm.derivedPrices }).ok, true);
+    assert.equal(validateGroundedReplyText('Cadillac Escalade за 3 дня выйдет $1,999.', { locale: 'ru', allowedPrices: bm.derivedPrices }).ok, false);
+  });
+  check('E05 Self-healing length truncation preserves long grounded reply at clean sentence boundary', () => {
+    const longReply = Array.from({ length: 16 }, (_, i) => `Sentence ${i + 1} highlights Komodo in Brickell for an upscale evening dinner with friends.`).join(' ');
+    assert.ok(longReply.length > 1350);
+    const verdict = validateGroundedReplyText(longReply, { locale: 'en', allowedPrices: new Set() });
+    assert.equal(verdict.ok, true);
+    assert.ok(verdict.text.length <= 1350 && verdict.text.endsWith('.'));
+  });
+  // E06 async: Self-Healing Micro-Retry saves v3 when Call #1 hallucinates an unverified price
+  {
+    let attempts = 0;
+    const repaired = await workersAiChat(
+      {
+        APP_ENV: 'dashboard-staging',
+        CONCIERGE_WORKERS_AI_ENABLED: 'true',
+        CONCIERGE_SELF_HEAL: 'true',
+        CONCIERGE_AI: {
+          run: async () => {
+            attempts += 1;
+            if (attempts === 1) {
+              return { response: JSON.stringify({ version: 3, action: 'consult', sections: ['/yachts'], reply: 'Яхта на заливе Бискейн стоит ровно $2,950 за 4 часа.' }) };
+            }
+            return { response: JSON.stringify({ version: 3, action: 'consult', sections: ['/yachts'], reply: 'Для компании отлично подойдёт чартер по заливу Бискейн — актуальные цены и доступность открываются в партнёрских карточках ниже.' }) };
+          }
+        }
+      },
+      { locale: 'ru', messages: [{ role: 'user', content: 'Хочу яхту в Майами' }] },
+      { authorize: async () => true, timeoutMs: 10000 }
+    );
+    assert.equal(attempts, 2);
+    assert.equal(repaired.ok, true);
+    assert.equal(repaired.decidedBy, 'model');
+    passed += 1;
+  }
+  check('E07 Cross-session persistent VIP preferences seed defaults & yield to current-session overrides', () => {
+    const saved = extractDurablePrefs(prof);
+    assert.deepEqual(saved, { neighborhood: 'Brickell', maxDailyBudget: 700, airport: 'MIA', dietaryOrCuisine: ['no-seafood', 'sushi'] });
+    const nextSession = extractTripProfile([{ role: 'user', content: 'Recommend dinner tonight' }], NOW, saved);
+    assert.equal(nextSession.neighborhood, 'Brickell');
+    assert.equal(nextSession.airport, 'MIA');
+    const overridden = extractTripProfile([{ role: 'user', content: 'Dinner in South Beach tonight' }], NOW, saved);
+    assert.equal(overridden.neighborhood, 'South Beach');
+  });
+  check('E08 Share VIP Plan works across all 16 locales with verified links & WhatsApp URL', () => {
+    for (const { code } of SUPPORTED_LANGUAGES) {
+      const c = getShareCopy(code);
+      assert.ok(c.copy.length >= 3 && c.whatsapp.length >= 3, code);
+    }
+    const text = buildShareablePlanText({
+      reply: 'Komodo in Brickell at 8 PM.',
+      listings: [{ title: 'Komodo', booking: { href: 'https://www.sevenrooms.com/reservations/komodo' } }],
+      locale: 'ru'
+    });
+    assert.match(text, /MIAMI ELIO/);
+    assert.match(text, /sevenrooms\.com\/reservations\/komodo/);
+    assert.match(buildWhatsAppShareUrl(text), /^https:\/\/wa\.me\/\?text=/);
+  });
+  check('E09 System prompt with dossiers + vibes + budget math stays comfortably under 9,000 bytes', () => {
+    const msgs = modelMessages(
+      [{ role: 'user', content: 'Сравни Carbone, Komodo и Papi Steak — тихие переговоры с инвесторами, плюс Escalade на 3 дня' }],
+      'ru',
+      { savedPrefs: { neighborhood: 'Brickell', airport: 'MIA' } }
+    );
+    const bytes = new TextEncoder().encode(msgs[0].content).byteLength;
+    assert.ok(bytes < 9000, `system prompt too large: ${bytes} bytes`);
+  });
+  // E10 async: chatPayload + readChatRequest sanitize & forward savedPrefs cleanly
+  {
+    const dirty = { neighborhood: 'Brickell', maxDailyBudget: 700, airport: 'MIA', dietaryOrCuisine: ['sushi', 'evil_tag'], piiEmail: 'secret@test.com' };
+    const clean = sanitizeSavedPrefs(dirty);
+    assert.deepEqual(clean, { neighborhood: 'Brickell', maxDailyBudget: 700, airport: 'MIA', dietaryOrCuisine: ['sushi'] });
+    const wire = chatPayload([{ role: 'user', content: 'Dinner tonight' }], { locale: 'en', savedPrefs: dirty });
+    const parsed = await readChatRequest(new Request('https://example.test/api/chat', { method: 'POST', body: JSON.stringify(wire) }));
+    assert.deepEqual(parsed.savedPrefs, clean);
+    passed += 1;
+  }
+
+  assert.equal(passed, 62);
   console.log(`VIP Concierge Eval Benchmark: ${passed}/${passed} passed (100.0%)`);
 });
