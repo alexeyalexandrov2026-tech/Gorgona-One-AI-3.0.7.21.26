@@ -11,6 +11,7 @@ import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
+import { formatProfileChips } from '../../../lib/ai/profileChips.mjs';
 import { quickRepliesForTurn } from '../../../lib/ai/quickReplies.mjs';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 import { configuredManagerTelegram } from '../../../lib/managerContact.mjs';
@@ -127,9 +128,10 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // in the layout), so this component is a VIEW of the conversation rather
   // than an owner of it - the homepage bar, the sphere dock and the Discovery
   // Room all render the same thread.
-  const { messages, cards, suggestions, listings, plan, isLoading, hydrated, send } = useConciergeChat();
+  const { messages, cards, suggestions, listings, plan, isLoading, hydrated, send, reset } = useConciergeChat();
   const [input, setInput] = useState('');
   const listRef = useRef(null);
+  const inputRef = useRef(null);
   const voice = useVoice();
   useEffect(()=>{if(!active||!messages.length)voice.stopListening();},[active,messages.length,voice.stopListening]);
   // Every visible string follows the global switcher, so the surface a guest
@@ -158,6 +160,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // crowding the transcript.
   const extraChips = suggestions.filter((s) => !cards.some((c) => c.href === s.href));
   const profile = extractTripProfile(messages);
+  const { chips: profileChips, resetLabel } = formatProfileChips(profile, locale);
   const lastMessage = messages.at(-1);
   const quickReplies = !isLoading && lastMessage?.role === 'assistant'
     ? quickRepliesForTurn({
@@ -189,6 +192,38 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
 
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col" aria-busy={!hydrated||isLoading}>
+      {messages.length > 0 && profileChips.length > 0 && (
+        <div
+          data-profile-bar="true"
+          className="mb-1 flex flex-wrap items-center gap-1.5 border-b border-white/10 px-1 pb-2"
+        >
+          {profileChips.map((chip) => (
+            <button
+              key={chip.key}
+              type="button"
+              data-profile-chip={chip.key}
+              disabled={!hydrated || isLoading || !chip.editPrefix}
+              onClick={() => {
+                if (!chip.editPrefix) return;
+                setInput(chip.editPrefix);
+                inputRef.current?.focus();
+              }}
+              className="rounded-full border border-brand-gold/30 bg-brand-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-brand-gold transition hover:border-brand-gold hover:bg-brand-gold/20 disabled:cursor-default disabled:opacity-90"
+            >
+              {chip.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            data-profile-reset="true"
+            disabled={!hydrated || isLoading}
+            onClick={reset}
+            className="ml-auto rounded-full border border-white/10 px-2 py-0.5 text-[11px] text-zinc-400 transition hover:border-white/30 hover:text-zinc-200"
+          >
+            {resetLabel}
+          </button>
+        </div>
+      )}
       <div ref={listRef} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
         {messages.length === 0 && (
           <div className="space-y-3">
@@ -272,6 +307,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         className="mt-3 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] p-1.5 pl-4"
       >
         <input
+          ref={inputRef}
           aria-label={t.ai?.askPlaceholder || 'Ask the concierge anything…'}
           maxLength={4000}
           disabled={!hydrated||isLoading}
