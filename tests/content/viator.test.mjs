@@ -39,10 +39,10 @@ test('reused interface copy names the booking provider without changing Headout 
 
 test('all twenty referrals retain attribution in native cards with each product\'s own Partner API photo',()=>{
  const all=EXPERIENCE_CARDS,miami=getExperienceCards('miami');
- assert.equal(all.length,69);
- assert.equal(miami.length,32);
+ assert.equal(all.length,86);
+ assert.equal(miami.length,44);
  assert.equal(VIATOR_SINGLE_CARDS.length,20);
- assert.equal(new Set(all.map(item=>item.id)).size,69);
+ assert.equal(new Set(all.map(item=>item.id)).size,86);
  assert.deepEqual(new Set(miami.slice(0,3).map(item=>item.supplier)),new Set(['Headout','Viator']));
  assert.deepEqual(getExperienceCards('unknown'),[]);
  for(const widget of VIATOR_SINGLE_CARDS){
@@ -83,6 +83,31 @@ test('direct Viator cards open Viator with the partner referral and have no page
   assert.match(card.image,/^https:\/\/media-cdn\.tripadvisor\.com\//);
   assert.ok(!VIATOR_EXPERIENCE_SLUGS.includes(direct.productCode.toLowerCase()));
  }
+});
+
+test('Exclusive Destinations adds seventeen private and VIP offers, each with its own photo',()=>{
+ const added=VIATOR_DIRECT_CARDS.filter(direct=>direct.productCode!=='170398P1');
+ assert.equal(added.length,17);
+ const cards=added.map(direct=>EXPERIENCE_CARDS.find(item=>item.productCode===direct.productCode));
+ const taken=new Set([...VIATOR_SINGLE_CARDS.map(widget=>EXPERIENCE_CARDS.find(item=>item.productCode===widget.productCode).image),EXPERIENCE_CARDS.find(item=>item.id==='headout-3124').image]);
+ assert.equal(new Set(cards.map(card=>card.image)).size,17,'every offer has its own photo');
+ for(const card of cards){
+  assert.ok(!taken.has(card.image),card.id+' reuses a photo');
+  assert.ok(['boats','florida-flights','nature'].includes(card.section),card.id);
+  assert.ok(card.title&&card.titleRu&&card.location,card.id);
+  assert.equal(card.imageCredit,'Viator');
+  assert.equal(card.region,card.location==='Miami / South Florida'?'miami':'south-florida',card.id);
+ }
+ assert.equal(cards.filter(card=>card.region==='miami').length,12);
+});
+
+test('Miami Boat Tours shows a boat photo credited to Viator and still opens the Headout page',()=>{
+ const card=EXPERIENCE_CARDS.find(item=>item.id==='headout-3124');
+ assert.equal(card.title,'Miami Boat Tours');
+ assert.equal(card.supplier,'Headout');
+ assert.equal(card.href,'/experiences/'+card.slug);
+ assert.match(card.image,/^https:\/\/media-cdn\.tripadvisor\.com\/media\/attractions-splice-spp-720x480\//);
+ assert.equal(card.imageCredit,'Viator');
 });
 
 test('every Viator card has a page of ours, found only through the registry',()=>{
