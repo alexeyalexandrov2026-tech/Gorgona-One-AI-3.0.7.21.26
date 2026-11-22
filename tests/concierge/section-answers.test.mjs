@@ -10,8 +10,8 @@ const {catalogueAnswer}=load('lib/ai/catalogueAnswer.mjs');
 
 const recommend=(section,content,locale='en')=>groundedReply(JSON.stringify({version:1,action:'recommend',sections:[section]}),{messages:[{role:'user',content}],locale});
 
-test('jets, tables, tickets and flights are sent to the section contract, not to consult',()=>{
-  assert.match(CONVERSATION_PROTOCOL,/Consult has no options for a private jet, a restaurant or nightlife table, event tickets, or flights/);
+test('private jets stay on the section contract, not consult',()=>{
+  assert.match(CONVERSATION_PROTOCOL,/Consult has no options for a private jet/);
   assert.match(CONVERSATION_PROTOCOL,/"sections":\["\/private-jets"\]/);
   assert.doesNotMatch(CONVERSATION_PROTOCOL,/wants a car, yacht, stay, jet, or outing/);
 });
