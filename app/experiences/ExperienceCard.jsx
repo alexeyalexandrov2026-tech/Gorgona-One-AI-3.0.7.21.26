@@ -4,13 +4,13 @@ import {experienceImageUrl} from '../../lib/experienceCards.mjs';
 export default function ExperienceCard({item,copy,labels,locale,eager=false,regionAnchor}){
  // Headout and Viator cards open our own pages with the partner's listing;
  // only the parks' official sites are links out.
- const external=item.kind==='official';
+ const external=item.kind==='official'||item.direct===true;
  const CardLink=external?'a':Link;
  const title=locale==='ru'&&item.titleRu?item.titleRu:item.title;
  const action=item.kind==='official'?(item.ticketLink?labels.officialTickets:labels.official):copy.choose;
  return <article id={'experience-'+item.id} data-supplier={item.supplier} data-section={item.section} className="relative flex h-full min-w-0 scroll-mt-40 flex-col overflow-hidden rounded-2xl border border-g1-rule bg-g1-paper">
   {regionAnchor&&<span id={regionAnchor} className="absolute top-0 scroll-mt-40" aria-hidden="true"/>}
-  <CardLink href={item.href} {...(external?{target:'_blank',rel:'noopener noreferrer'}:{prefetch:false})} className="group flex flex-1 flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-g1-accent">
+  <CardLink href={item.href} {...(external?{target:'_blank',rel:item.direct?'sponsored noopener noreferrer':'noopener noreferrer'}:{prefetch:false})} className="group flex flex-1 flex-col focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-g1-accent">
    <div className="relative aspect-[4/3] overflow-hidden">
     <img src={experienceImageUrl(item)} alt={item.imageAlt||item.title} loading={eager?'eager':'lazy'} fetchPriority={eager?'high':'auto'} decoding="async" width="960" height="720" className="h-full w-full object-cover transition-transform duration-300 motion-safe:group-hover:scale-[1.03]"/>
     {item.illustrative&&<span className="absolute bottom-3 left-3 rounded-full bg-black/75 px-3 py-1 text-[11px] text-white">{labels.illustration}</span>}
@@ -23,7 +23,7 @@ export default function ExperienceCard({item,copy,labels,locale,eager=false,regi
    </div>
   </CardLink>
   <div className="flex min-h-8 items-center border-t border-g1-rule px-5 py-2 text-[11px] text-g1-soft">
-   {item.imageCredit?<a href={item.imageSource} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">{item.imageCredit+' / Unsplash'}</a>:<span>{item.supplier}</span>}
+   {item.imageCredit&&item.imageSource?.startsWith('https://unsplash.com/')?<a href={item.imageSource} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">{item.imageCredit+' / Unsplash'}</a>:<span>{item.imageCredit?'Photo: '+item.imageCredit:item.supplier}</span>}
   </div>
  </article>;
 }

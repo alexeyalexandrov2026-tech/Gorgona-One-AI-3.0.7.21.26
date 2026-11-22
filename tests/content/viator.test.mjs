@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {VIATOR_MIAMI,VIATOR_SINGLE_CARDS,getViatorCopy} from '../../lib/viatorCatalogue.mjs';
+import {VIATOR_MIAMI,VIATOR_SINGLE_CARDS,VIATOR_DIRECT_CARDS,getViatorCopy} from '../../lib/viatorCatalogue.mjs';
 import {readFileSync} from 'node:fs';
 import {EXPERIENCE_CARDS,getExperienceCards,getViatorExperience,VIATOR_EXPERIENCE_SLUGS} from '../../lib/experienceCards.mjs';
 import {OWNED_RECORDS} from '../../scripts/i18n/owned-inventory.mjs';
@@ -37,12 +37,12 @@ test('reused interface copy names the booking provider without changing Headout 
  assert.equal(getViatorCopy('invalid').open,getViatorCopy('en').open);
 });
 
-test('all twenty referrals retain attribution in native cards without republishing supplier images',()=>{
+test('all twenty referrals retain attribution in native cards with each product\'s own Partner API photo',()=>{
  const all=EXPERIENCE_CARDS,miami=getExperienceCards('miami');
- assert.equal(all.length,71);
+ assert.equal(all.length,69);
  assert.equal(miami.length,32);
  assert.equal(VIATOR_SINGLE_CARDS.length,20);
- assert.equal(new Set(all.map(item=>item.id)).size,71);
+ assert.equal(new Set(all.map(item=>item.id)).size,69);
  assert.deepEqual(new Set(miami.slice(0,3).map(item=>item.supplier)),new Set(['Headout','Viator']));
  assert.deepEqual(getExperienceCards('unknown'),[]);
  for(const widget of VIATOR_SINGLE_CARDS){
@@ -59,14 +59,30 @@ test('all twenty referrals retain attribution in native cards without republishi
   assert.equal(link.searchParams.get('pid'),'P00329248');
   assert.equal(link.searchParams.get('widget_ref'),widget.widgetRef);
   assert.equal(link.searchParams.get('campaign'),'miami-elio-unified');
-  assert.match(card.image,/^\/images\/experiences\//);
-  assert.equal(new URL(card.imageSource).origin,'https://unsplash.com');
-  assert.equal(card.imageLicense,'https://unsplash.com/license');
-  assert.equal(card.illustrative,true);
+  assert.match(card.image,/^https:\/\/media-cdn\.tripadvisor\.com\/media\/attractions-splice-spp-720x480\//);
+  assert.equal(card.imageCredit,'Viator');
+  assert.ok(!card.illustrative,'a product photo is not an illustration');
   assert.ok(!['image','price','reviews','title'].some(key=>key in widget));
  }
+ assert.equal(new Set(VIATOR_SINGLE_CARDS.map(widget=>all.find(item=>item.productCode===widget.productCode).image)).size,20,'every tour has its own photo');
  assert.ok(!OWNED_RECORDS.some(({record})=>record.supplier==='Viator'));
  assert.equal(miami[1].productCode,'231628P7');
+});
+
+test('direct Viator cards open Viator with the partner referral and have no page of ours',()=>{
+ assert.ok(VIATOR_DIRECT_CARDS.length>=1);
+ for(const direct of VIATOR_DIRECT_CARDS){
+  const card=EXPERIENCE_CARDS.find(item=>item.productCode===direct.productCode);
+  assert.equal(card.kind,'viator');
+  assert.equal(card.direct,true);
+  const link=new URL(card.href);
+  assert.equal(link.origin,'https://www.viator.com');
+  assert.ok(link.pathname.endsWith('-'+direct.productCode));
+  assert.equal(link.searchParams.get('pid'),'P00329248');
+  assert.equal(link.searchParams.get('mcid'),'42383');
+  assert.match(card.image,/^https:\/\/media-cdn\.tripadvisor\.com\//);
+  assert.ok(!VIATOR_EXPERIENCE_SLUGS.includes(direct.productCode.toLowerCase()));
+ }
 });
 
 test('every Viator card has a page of ours, found only through the registry',()=>{
@@ -88,10 +104,10 @@ test('every Viator card has a page of ours, found only through the registry',()=
  assert.match(view,/partnerHref/);
 });
 
-test('Viator and Headout cards stay inside the site; only official park sites open outside',()=>{
+test('Viator and Headout cards stay inside the site; only official sites and direct Viator cards open outside',()=>{
  const source=readFileSync('app/experiences/ExperienceCard.jsx','utf8');
- assert.match(source,/const external=item\.kind==='official';/);
- for(const card of EXPERIENCE_CARDS.filter(item=>item.kind!=='official'))assert.match(card.href,/^\/experiences\//,card.id);
+ assert.match(source,/const external=item\.kind==='official'\|\|item\.direct===true;/);
+ for(const card of EXPERIENCE_CARDS.filter(item=>item.kind!=='official'&&!item.direct))assert.match(card.href,/^\/experiences\//,card.id);
 });
 
 test('the Viator pages are in the sitemap',async()=>{

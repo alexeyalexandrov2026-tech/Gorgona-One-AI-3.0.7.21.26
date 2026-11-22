@@ -58,16 +58,18 @@ test('every canonical catalogue card is present in ecosystemIndex with safe href
     assert.equal(byHref.has(`/restaurants-nightlife/${held.slug}`), false, `unverified venue leaked into index: ${held.slug}`);
   }
 
-  // 3. Experiences (48 Headout + 20 Viator + 3 Official Florida Parks = 71) + 51 Park Coasters
-  assert.ok(EXPERIENCE_CARDS.length >= 71, `expected >= 71 experience cards, got ${EXPERIENCE_CARDS.length}`);
+  // 3. Experiences (48 Headout + 20 Viator with our pages + 1 direct Viator = 69) + 49 Park Coasters
+  assert.ok(EXPERIENCE_CARDS.length >= 69, `expected >= 69 experience cards, got ${EXPERIENCE_CARDS.length}`);
   for (const exp of EXPERIENCE_CARDS) {
     const entity = byId.get(`exp-${exp.id}`);
     assert.ok(entity, `missing experience in index: ${exp.id}`);
     assert.equal(entity.type, 'Experience');
     assert.ok(safeImage(entity.image), `unsafe experience image: ${exp.id}`);
-    if (exp.kind === 'viator') {
+    if (exp.kind === 'viator' && exp.direct) {
+      assert.ok(entity.href.startsWith('/experiences#'), `direct Viator card must use safe internal anchor: ${exp.id}`);
+    } else if (exp.kind === 'viator') {
       assert.equal(entity.href, `/experiences/viator/${exp.slug}`);
-      assert.ok(entity.image.startsWith('/images/experiences/'), `Viator must use local licensed image: ${exp.id}`);
+      assert.ok(entity.image.startsWith('https://media-cdn.tripadvisor.com/'), `Viator must use its Partner API product photo: ${exp.id}`);
     } else if (exp.kind === 'official') {
       assert.ok(entity.href.startsWith('/experiences#'), `official park must use safe internal anchor: ${exp.id}`);
     } else {
