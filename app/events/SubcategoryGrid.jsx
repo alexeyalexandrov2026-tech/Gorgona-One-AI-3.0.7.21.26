@@ -35,32 +35,38 @@ export function SubcategoryGrid({ categories, activeSlug, columns = 6 }) {
             key={category.slug}
             href={`/events/category/${category.slug}`}
             aria-current={isActive ? 'page' : undefined}
+            // Frosted-glass tile over the dark sea, matching the site's other
+            // cards. Colours are explicit so the global light-text overrides
+            // cannot reach them; league emblems sit on a small white plate.
             className={`
-              group flex flex-col items-center justify-start gap-3 rounded-2xl border bg-white px-3 py-5
+              group flex flex-col items-center justify-start gap-3 rounded-2xl border px-3 py-5 backdrop-blur-md
+              bg-[linear-gradient(180deg,rgba(255,255,255,0.10),rgba(1,26,34,0.55))]
               transition-all duration-500 ease-out hover:-translate-y-1
               ${isActive
                 ? 'border-brand-gold shadow-[0_10px_30px_rgba(212,175,55,0.25)]'
-                : 'border-villa-obsidian/10 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:border-brand-gold hover:shadow-[0_14px_34px_rgba(0,0,0,0.12)]'}
+                : 'border-white/15 shadow-[0_10px_30px_rgba(0,0,0,0.25)] hover:border-brand-gold/70 hover:shadow-[0_14px_34px_rgba(0,0,0,0.35)]'}
             `}
           >
             <span className="flex h-12 w-full items-center justify-center">
               {category.logo ? (
-                <img
-                  src={category.logo}
-                  alt=""
-                  aria-hidden="true"
-                  className={`max-h-12 w-auto max-w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105 ${LOGO_FIXES[category.slug] || ''}`}
-                />
+                <span className="flex h-12 w-[78%] items-center justify-center rounded-xl bg-white px-4 py-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.25)]">
+                  <img
+                    src={category.logo}
+                    alt=""
+                    aria-hidden="true"
+                    className={`max-h-9 w-auto max-w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105 ${LOGO_FIXES[category.slug] || ''}`}
+                  />
+                </span>
               ) : (
                 <CategoryGlyph
                   slug={category.slug}
-                  className="h-10 w-10 text-villa-graphite transition-colors duration-500 group-hover:text-villa-obsidian"
+                  className="h-10 w-10 text-[#e6c88e] transition-colors duration-500 group-hover:text-brand-gold"
                 />
               )}
             </span>
             <span
               className={`text-center font-fira text-[0.6rem] font-medium uppercase leading-tight tracking-[0.14em] transition-colors duration-500 ${
-                isActive ? 'text-brand-gold' : 'text-villa-ash group-hover:text-villa-obsidian'
+                isActive ? 'text-brand-gold' : 'text-[#f4f1ea] group-hover:text-[#e6c88e]'
               }`}
             >
               <LocalizedText source={category.label} />

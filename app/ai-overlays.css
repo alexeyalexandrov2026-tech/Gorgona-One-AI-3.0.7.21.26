@@ -20,10 +20,11 @@
 .dr__panel {
   position: absolute; top: 0; right: 0; height: 100%;
   width: min(440px, 92vw); display: flex; flex-direction: column;
-  transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-  box-shadow: -30px 0 80px -30px rgba(0, 0, 0, 0.6);
+  transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease;
 }
-.dr.is-open .dr__panel { transform: translateX(0); }
+/* The shadow only while open: on the closed, off-screen panel it bled onto the
+   right edge of every page as a grey band. */
+.dr.is-open .dr__panel { transform: translateX(0); box-shadow: -30px 0 80px -30px rgba(0, 0, 0, 0.6); }
 .dr[data-ai-theme="dark"] .dr__panel {
   background: linear-gradient(180deg, #211a11 0%, #14100b 100%); color: #ece4d4;
   border-left: 1px solid rgba(216, 180, 120, 0.2);
