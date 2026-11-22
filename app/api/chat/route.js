@@ -8,6 +8,7 @@ import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 import { catalogueAnswer, explicitBooking, bookingDisclaimer } from '../../../lib/ai/catalogueAnswer.mjs';
 import { gatedListings, namedVenueCards } from '../../../lib/ai/listingCards.mjs';
+import { getDynamicEntities, peekDynamicEntities } from '../../../lib/server/conciergeIndex.mjs';
 import { SERVER_BUDGET_MS } from '../../../lib/ai/chatDeadline.mjs';
 
 // ===========================================================================
@@ -98,6 +99,7 @@ export async function POST(request) {
 
   const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
   const plan = conversationPlan(modelMessages, { locale });
+  const dynamicEntities = getDynamicEntities(process.env);
   const localAnswer = catalogueAnswer(modelMessages, locale);
   const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(locale);
   // Booking and payment requests are a handoff whichever engine answers: the
@@ -116,14 +118,15 @@ export async function POST(request) {
     const sections=(options.navigation?.cards||[]).map(card=>card.href);
     const query=options.navigation?.query||localAnswer.navigation.query||latestUserMessage;
     const decidedBy=handoff&&!options.handoff?'lexicon':options.decidedBy;
+    const extraEntities = await dynamicEntities;
     return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,started,
-      listings:handoff?namedVenueCards(bookingText,{locale}):gatedListings(query,{locale,action,sections}),...(handoff?{handoff:true}:{}),plan:await plan});
+      listings:handoff?namedVenueCards(bookingText,{locale,extraEntities}):gatedListings(query,{locale,action,sections,extraEntities}),...(handoff?{handoff:true}:{}),plan:await plan});
   };
   // Degraded turns: the keyword matcher decides.
   const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon'};
   // One clock for the whole turn: facts and the usage reservation come out of
   // the model's share, so the answer lands before the browser gives up.
-  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started)});
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:peekDynamicEntities(process.env)});
   if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,engine:'ok'});
 
   // Disabled, denied or failed: graceful degradation, never a second engine.
