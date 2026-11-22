@@ -13,6 +13,7 @@ import { getLiveEventEntities, peekLiveEventEntities } from '../../../lib/server
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { resolvePageEntity } from '../../../lib/ai/factPack.mjs';
 import { getMiamiForecast, peekMiamiForecast, shouldFetchForecast } from '../../../lib/ai/miamiForecast.mjs';
+import { recordChatTurn, recordReferralClick } from '../../../lib/server/conciergeTelemetry.mjs';
 import { SERVER_BUDGET_MS } from '../../../lib/ai/chatDeadline.mjs';
 
 // ===========================================================================
@@ -52,10 +53,12 @@ function reply(text, { messages = [], latestUserMessage = '', source = null, loc
   const decider = DECIDERS.has(decidedBy) ? decidedBy : 'lexicon';
   const rows = Array.isArray(listings) ? listings.slice(0, 4) : [];
   const referrals = [...new Set(rows.map((r) => r?.booking?.platform).filter(Boolean))];
+  const elapsedMs = Number.isFinite(started) ? Date.now() - started : null;
+  recordChatTurn({ decidedBy: decider, action, locale, referrals, handoff: Boolean(handoff), error: Boolean(error), ms: elapsedMs });
   // One structured line per turn, metadata only: never the guest's words or the reply.
   // engine says why a model did not answer; ms is the whole server turn.
   console.info(JSON.stringify({ event: 'concierge.chat', decidedBy: decider, source, action, listings: rows.length, ...(referrals.length ? { referrals } : {}), handoff: Boolean(handoff), error: Boolean(error), locale,
-    ...(ENGINE_STATES.has(engine) ? { engine } : {}), ...(Number.isFinite(started) ? { ms: Date.now() - started } : {}) }));
+    ...(ENGINE_STATES.has(engine) ? { engine } : {}), ...(elapsedMs !== null ? { ms: elapsedMs } : {}) }));
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
@@ -203,6 +206,7 @@ export async function GET(request) {
     const url = request?.url ? new URL(request.url, 'https://gorgona-one.com') : null;
     const platform = url?.searchParams?.get('referral');
     if (platform && TRACKED_REFERRAL_PLATFORMS.has(platform)) {
+      recordReferralClick(platform);
       console.info(JSON.stringify({ event: 'concierge.referral_click', platform }));
     }
   } catch {}
