@@ -14,7 +14,7 @@ import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { formatProfileChips } from '../../../lib/ai/profileChips.mjs';
 import { quickRepliesForTurn } from '../../../lib/ai/quickReplies.mjs';
 import { thinkingStatusForTurn } from '../../../lib/ai/thinkingStatus.mjs';
-import { buildShareablePlanText, buildWhatsAppShareUrl, getShareCopy } from '../../../lib/ai/sharePlan.mjs';
+import { buildShareablePlanText, buildTelegramShareUrl, buildWhatsAppShareUrl, getShareCopy } from '../../../lib/ai/sharePlan.mjs';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 import { configuredManagerTelegram } from '../../../lib/managerContact.mjs';
 
@@ -315,6 +315,14 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
               className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/20"
             >
               {shareCopy.whatsapp}
+            </a>
+            <a
+              href={buildTelegramShareUrl(shareText)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1 text-[11px] text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/20"
+            >
+              {shareCopy.telegram}
             </a>
           </div>
         )}
