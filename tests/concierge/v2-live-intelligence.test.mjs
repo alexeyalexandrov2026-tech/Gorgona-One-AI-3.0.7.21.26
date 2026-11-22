@@ -9,9 +9,12 @@ const {
   extractDateRange,
   extractTripProfile,
   tripProfilePromptLine,
-  parseDailyPrice
+  parseDailyPrice,
+  buildStay22ReferralUrl
 } = load('lib/ai/tripProfile.mjs');
-const { listingCards } = load('lib/ai/listingCards.mjs');
+const { listingCards, gatedListings, stopExperienceCards } = load('lib/ai/listingCards.mjs');
+const { quickRepliesForTurn } = load('lib/ai/quickReplies.mjs');
+const { SUPPORTED_LANGUAGES } = load('lib/languages.js');
 const { catalogueAnswer } = load('lib/ai/catalogueAnswer.mjs');
 const { groundedReply } = load('lib/ai/groundedReply.mjs');
 const { modelMessages } = load('lib/ai/workersBrain.mjs');
@@ -340,4 +343,62 @@ test('live TicketNetwork conciergeEvents converts verified events safely, caches
   });
   assert.deepEqual(failed, []);
   clearLiveEventsCache();
+});
+
+test('Phase 4: stop experience cards for ideas/plan, multi-section consult reply, 16-locale quick replies and deep partner URLs', () => {
+  // 1. ideas & plan turns attach bookable Viator & Headout partner referral cards for the model's chosen stops
+  const ideasProjected = groundedReply(
+    JSON.stringify({ version: 2, action: 'ideas', stops: ['zoo-miami', 'everglades'] }),
+    { messages: [{ role: 'user', content: 'Куда пойти с детьми в Майами?' }], locale: 'ru' }
+  );
+  assert.deepEqual(ideasProjected.stops, ['zoo-miami', 'everglades']);
+  const ideaCards = gatedListings('Куда пойти с детьми в Майами?', {
+    locale: 'ru', action: 'ideas', sections: ['/experiences'], stops: ideasProjected.stops
+  });
+  assert.ok(ideaCards.length >= 2);
+  assert.equal(ideaCards[0].href, '/experiences/zoo-miami');
+  assert.equal(ideaCards[0].booking?.platform, 'headout');
+  assert.ok(ideaCards.some((c) => c.href === '/experiences/viator/5096p35' && c.booking?.platform === 'viator'));
+  assert.equal(stopExperienceCards(['biscayne-bay'])[0]?.booking?.platform, 'viator');
+
+  // Guardrail check: ideas/plan on /rentals or without stops still returns []
+  assert.deepEqual(gatedListings('Lamborghini Urus', { action: 'ideas', sections: ['/rentals'] }), []);
+  assert.deepEqual(gatedListings('Plan 2 days', { action: 'plan', sections: ['/experiences'] }), []);
+
+  // 2. Multi-section answerForNavigation includes consultative advice for requested sections
+  const multi = catalogueAnswer([{ role: 'user', content: 'Хочу яхту на весь день и внедорожник в Майами' }], 'ru');
+  assert.match(multi.reply, /яхту|внедорожник/i);
+
+  // 3. One-tap quick-reply chips work across all 16 locales and stay empty on handoff/degraded
+  for (const { code } of SUPPORTED_LANGUAGES) {
+    const chips = quickRepliesForTurn({
+      reply: 'Sample concierge reply',
+      cards: [{ href: '/restaurants-nightlife' }],
+      locale: code
+    });
+    assert.ok(chips.length >= 3, `missing quick replies for locale ${code}`);
+  }
+  const vibeChipsRu = quickRepliesForTurn({
+    reply: 'Какая атмосфера вам нужна: ресторан со звёздами Мишлен, романтический ужин, закат на руфтопе или активная ночная жизнь?',
+    cards: [{ href: '/restaurants-nightlife' }],
+    locale: 'ru'
+  });
+  assert.ok(vibeChipsRu.some((c) => /Мишлен/.test(c)));
+  assert.deepEqual(quickRepliesForTurn({ reply: 'Handoff', cards: [{ href: '/yachts' }], locale: 'ru', handoff: true }), []);
+
+  // 4. Dynamic TicketNetwork artist search referral URL & Stay22 pre-filled check-in/out/guests URL
+  const artistFallback = listingCards('Билеты на Bad Bunny', { locale: 'ru', sections: ['/events'] });
+  assert.ok(artistFallback.length >= 1);
+  const tnUrl = new URL(artistFallback[0].booking.href);
+  assert.equal(tnUrl.origin + tnUrl.pathname, 'https://www.tkqlhce.com/click-101825540-10793961');
+  assert.equal(tnUrl.searchParams.get('url'), 'https://www.ticketnetwork.com/search?q=Bad%20Bunny');
+
+  const stayUrl = new URL(buildStay22ReferralUrl({
+    guests: 6,
+    dateRange: { from: '2026-12-05', to: '2026-12-07' }
+  }));
+  assert.equal(stayUrl.searchParams.get('aid'), 'gorgonaone');
+  assert.equal(stayUrl.searchParams.get('checkin'), '2026-12-05');
+  assert.equal(stayUrl.searchParams.get('checkout'), '2026-12-07');
+  assert.equal(stayUrl.searchParams.get('guests'), '6');
 });

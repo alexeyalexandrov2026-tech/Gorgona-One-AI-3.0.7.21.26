@@ -10,6 +10,8 @@ import { AiActionCards, AiListingCards, AiPlan } from './AiActionCard';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
+import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
+import { quickRepliesForTurn } from '../../../lib/ai/quickReplies.mjs';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 import { configuredManagerTelegram } from '../../../lib/managerContact.mjs';
 
@@ -155,6 +157,18 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // so a third relevant match is still one tap away without a third frame
   // crowding the transcript.
   const extraChips = suggestions.filter((s) => !cards.some((c) => c.href === s.href));
+  const profile = extractTripProfile(messages);
+  const lastMessage = messages.at(-1);
+  const quickReplies = !isLoading && lastMessage?.role === 'assistant'
+    ? quickRepliesForTurn({
+        reply: lastMessage.content,
+        cards,
+        listings,
+        locale,
+        handoff: lastMessage.handoff === true,
+        degraded: lastMessage.degraded === true
+      })
+    : [];
   const planHrefs = new Set((plan?.sections || []).map((s) => s.href));
   const nonPlanListings = plan
     ? listings.filter((l) => ![...planHrefs].some((root) => l.href === root || l.href.startsWith(root + '/')))
@@ -213,7 +227,25 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         {/* Rich frames for the strongest intents... */}
         {plan ? <AiPlan plan={plan} onNavigate={onNavigate} /> : null}
         <AiListingCards listings={nonPlanListings} onNavigate={onNavigate} />
-        <AiActionCards cards={nonPlanCards} onNavigate={onNavigate} />
+        <AiActionCards cards={nonPlanCards} onNavigate={onNavigate} profile={profile} />
+
+        {/* One-tap quick-reply chips matched to the concierge's clarifying question or active topic. */}
+        {quickReplies.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-1">
+            {quickReplies.map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                disabled={!hydrated || isLoading}
+                data-quick-reply={prompt}
+                onClick={() => submit(prompt)}
+                className="rounded-full border border-brand-gold/30 bg-white/[0.04] px-3 py-1.5 text-xs text-zinc-200 transition hover:border-brand-gold hover:bg-brand-gold/15 hover:text-white"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* ...and compact chips for any further section they did not cover. */}
         {!plan && extraChips.length > 0 && (
