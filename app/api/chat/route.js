@@ -7,7 +7,7 @@ import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
 import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 import { catalogueAnswer, explicitBooking, bookingDisclaimer } from '../../../lib/ai/catalogueAnswer.mjs';
-import { gatedListings, namedVenueCards } from '../../../lib/ai/listingCards.mjs';
+import { gatedListings, namedVenueCards, replyMentionedCards } from '../../../lib/ai/listingCards.mjs';
 import { getDynamicEntities, peekDynamicEntities } from '../../../lib/server/conciergeIndex.mjs';
 import { getLiveEventEntities, peekLiveEventEntities } from '../../../lib/server/conciergeEvents.mjs';
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
@@ -159,10 +159,23 @@ export async function POST(request) {
       : [];
     const listingSections = partnerSections.length ? partnerSections : sections;
     const listingLimit = partnerSections.length ? 4 : 3;
+    let resolvedListings = handoff
+      ? namedVenueCards(bookingText, { locale, extraEntities, profile })
+      : gatedListings(effectiveQuery, { locale, action, sections: listingSections, extraEntities, profile, stops: options.stops, limit: listingLimit });
+    if (!handoff && decidedBy === 'model' && (action === 'consult' || action === 'recommend') && resolvedListings.length < 2 && listingSections.length) {
+      const fromReply = replyMentionedCards(text, { sections: listingSections, extraEntities, limit: listingLimit });
+      if (fromReply.length) {
+        const seen = new Set(resolvedListings.map((c) => c.href));
+        for (const card of fromReply) {
+          if (!seen.has(card.href) && resolvedListings.length < listingLimit) {
+            seen.add(card.href);
+            resolvedListings.push(card);
+          }
+        }
+      }
+    }
     return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,started,
-      listings:handoff
-        ? namedVenueCards(bookingText,{locale,extraEntities,profile})
-        : gatedListings(effectiveQuery,{locale,action,sections:listingSections,extraEntities,profile,stops:options.stops,limit:listingLimit}),
+      listings:resolvedListings,
       ...(handoff?{handoff:true}:{}),plan:resolvedPlan});
   };
   // Degraded turns: the keyword matcher decides.

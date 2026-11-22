@@ -26,10 +26,10 @@ const { validateGroundedReplyText } = load('lib/ai/factGuard.mjs');
 const { buildFactPack, extractMentionedEntities, normalizePagePath, resolvePageEntity } = load('lib/ai/factPack.mjs');
 const { detectMessageLocale, detectSemanticVibes } = load('lib/ai/semanticVibes.mjs');
 const { buildBudgetMath, extractTripDays } = load('lib/ai/budgetEstimator.mjs');
-const { buildShareablePlanText, buildWhatsAppShareUrl, getShareCopy } = load('lib/ai/sharePlan.mjs');
+const { buildShareablePlanText, buildTelegramShareUrl, buildWhatsAppShareUrl, getShareCopy } = load('lib/ai/sharePlan.mjs');
 const { chatPayload, readChatRequest, sanitizeSavedPrefs } = load('lib/ai/chatRequest.mjs');
 const { modelMessages, workersAiChat } = load('lib/ai/workersBrain.mjs');
-const { listingCards, gatedListings } = load('lib/ai/listingCards.mjs');
+const { listingCards, gatedListings, replyMentionedCards } = load('lib/ai/listingCards.mjs');
 const { formatForecastForPrompt, getMiamiForecast, clearForecastCache } = load('lib/ai/miamiForecast.mjs');
 const { formatProfileChips } = load('lib/ai/profileChips.mjs');
 const { quickRepliesForTurn } = load('lib/ai/quickReplies.mjs');
@@ -46,7 +46,7 @@ const { SUPPORTED_LANGUAGES } = load('lib/languages.js');
 
 const NOW = new Date('2026-11-22T15:00:00Z');
 
-test('VIP Concierge Eval Benchmark: 62 multi-turn, guardrail, partner, forecast, telemetry & Wave 8 Apex Intelligence scenarios pass 100%', async () => {
+test('VIP Concierge Eval Benchmark: 66 multi-turn, guardrail, partner, forecast, telemetry & Wave 8-9 Apex Intelligence scenarios pass 100%', async () => {
   let passed = 0;
   const check = (name, fn) => {
     fn();
@@ -457,6 +457,63 @@ test('VIP Concierge Eval Benchmark: 62 multi-turn, guardrail, partner, forecast,
     passed += 1;
   }
 
-  assert.equal(passed, 62);
+  // --- F. Wave 9 Zero-Gap Conversion & 4-Service VIP Day (4 scenarios) ---
+  check('F01 Version 3 accepts 4-service VIP day (rentals + dining + yachts + experiences) without lexicon fallback', () => {
+    const res = groundedReply(JSON.stringify({
+      version: 3,
+      action: 'consult',
+      sections: ['/rentals', '/yachts', '/experiences', '/restaurants-nightlife'],
+      reply: 'На субботу в Brickell на 6 гостей удобно выстроить день так: утром Cadillac Escalade ($400/день), днём яхта по заливу Бискейн, на закате вертолётный полёт, а вечером ужин в Komodo или Sexy Fish.'
+    }), {
+      messages: [{ role: 'user', content: 'Собери субботу на 6 человек в Brickell: внедорожник до $700, яхта днём, вертолёт на закате и ужин вечером' }],
+      locale: 'ru',
+      allowedPrices: new Set([400, 700])
+    });
+    assert.ok(res && res.decidedBy === 'model');
+    assert.equal(res.navigation.cards.length >= 2, true);
+  });
+  check('F02 replyMentionedCards attaches clickable booking frames for semantic-vibe recommendations (LPM, COTE, Carbone)', () => {
+    const reply = 'Для переговоров с инвесторами лучше всего подойдут LPM Restaurant & Bar в Brickell, COTE Miami в Design District и Carbone на South Beach.';
+    const cards = replyMentionedCards(reply, { sections: ['/restaurants-nightlife'], limit: 3 });
+    assert.equal(cards.length, 3);
+    assert.ok(cards.every((c) => c.booking?.href && c.href.startsWith('/restaurants-nightlife/')));
+    // Strictly bounded to requested sections: must NOT leak dining cards when sections is ['/yachts']
+    assert.deepEqual(replyMentionedCards(reply, { sections: ['/yachts'], limit: 3 }), []);
+  });
+  check('F03 Telegram share URL & 16-locale Telegram label work cleanly', () => {
+    for (const { code } of SUPPORTED_LANGUAGES) {
+      assert.ok(getShareCopy(code).telegram.length >= 4, code);
+    }
+    const tg = buildTelegramShareUrl('MIAMI ELIO plan for Brickell');
+    assert.match(tg, /^https:\/\/t\.me\/share\/url\?url=https%3A%2F%2Fgorgona-one\.com&text=/);
+  });
+  // F04 async: Exact-reason Self-Healing Micro-Retry passes specific unverified_price hint into repair prompt
+  {
+    let seenRepairHint = '';
+    const healed = await workersAiChat(
+      {
+        APP_ENV: 'dashboard-staging',
+        CONCIERGE_WORKERS_AI_ENABLED: 'true',
+        CONCIERGE_SELF_HEAL: 'true',
+        CONCIERGE_AI: {
+          run: async (_m, body) => {
+            const last = body.messages.at(-1)?.content || '';
+            if (last.includes('failed verification')) {
+              seenRepairHint = last;
+              return { response: JSON.stringify({ version: 3, action: 'consult', sections: ['/yachts'], reply: 'Для субботы на 6 человек подойдёт частный чартер по заливу Бискейн — актуальные цены открываются в партнёрских карточках ниже.' }) };
+            }
+            return { response: JSON.stringify({ version: 3, action: 'consult', sections: ['/yachts'], reply: 'Частная яхта на субботу стоит ровно $3,200 за 4 часа.' }) };
+          }
+        }
+      },
+      { locale: 'ru', messages: [{ role: 'user', content: 'Хочу яхту в субботу' }] },
+      { authorize: async () => true, timeoutMs: 10000 }
+    );
+    assert.equal(healed.ok, true);
+    assert.match(seenRepairHint, /unverified dollar price/i);
+    passed += 1;
+  }
+
+  assert.equal(passed, 66);
   console.log(`VIP Concierge Eval Benchmark: ${passed}/${passed} passed (100.0%)`);
 });
