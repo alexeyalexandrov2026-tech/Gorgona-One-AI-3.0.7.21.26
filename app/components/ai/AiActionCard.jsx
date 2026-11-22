@@ -5,6 +5,7 @@ import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { getDiningHandoffCopy } from '../../../lib/dining/copy.mjs';
 import { PROVIDERS } from '../../../lib/dining/gateway.mjs';
+import { buildStay22ReferralUrl } from '../../../lib/ai/tripProfile.mjs';
 
 const PARTNER_PLATFORMS = Object.freeze({
   ticketnetwork: 'TicketNetwork',
@@ -19,8 +20,17 @@ const PARTNER_PLATFORMS = Object.freeze({
 const SECTION_PARTNER_BOOKING = Object.freeze({
   '/yachts': { kind: 'book', platform: 'yatr', href: 'https://yatr.co?ref=MIAMI-ELIO-GORGONA-ONE' },
   '/private-jets': { kind: 'book', platform: 'privatejetfinder', href: 'https://www.privatejetfinder.com/?tk=716179668192' },
-  '/vacation-rentals': { kind: 'book', platform: 'stay22', href: 'https://www.stay22.com/embed/gm?aid=gorgonaone&address=Miami%2C+FL%2C+USA&viewmode=listview&showhotels=false&rentalsapi=vrbo&campaign=gorgona_miami_rentals_list' }
+  '/vacation-rentals': { kind: 'book', platform: 'stay22', href: buildStay22ReferralUrl() }
 });
+
+export function buildSectionPartnerBooking(href, profile = null) {
+  const base = SECTION_PARTNER_BOOKING[href];
+  if (!base) return null;
+  if (href === '/vacation-rentals' && profile) {
+    return { ...base, href: buildStay22ReferralUrl(profile) };
+  }
+  return base;
+}
 
 // ===========================================================================
 // Navigation frame rendered under a concierge reply.
@@ -156,14 +166,14 @@ export function AiPlan({ plan, onNavigate }) {
 }
 
 /** The frames under one reply. Renders nothing when there is no match. */
-export function AiActionCards({ cards, onNavigate, className = '' }) {
+export function AiActionCards({ cards, onNavigate, profile = null, className = '' }) {
   const copy = getDiningHandoffCopy(useLocale());
   if (!cards?.length) return null;
 
   return (
     <div className={`grid gap-2.5 pt-1 ${className}`}>
       {cards.map((card) => {
-        const partnerBooking = card.booking || SECTION_PARTNER_BOOKING[card.href];
+        const partnerBooking = card.booking || buildSectionPartnerBooking(card.href, profile);
         return (
           <div key={card.href} className="grid gap-1.5">
             <AiActionCard card={card} onNavigate={onNavigate} />

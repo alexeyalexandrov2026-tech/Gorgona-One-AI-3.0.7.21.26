@@ -133,7 +133,7 @@ export async function POST(request) {
       : await getLiveEventEntities(query, { profile, locale, env: process.env });
     const extraEntities = liveEvents.length ? [...dyn, ...liveEvents] : dyn;
     return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,started,
-      listings:handoff?namedVenueCards(bookingText,{locale,extraEntities,profile}):gatedListings(query,{locale,action,sections,extraEntities,profile}),...(handoff?{handoff:true}:{}),plan:await plan});
+      listings:handoff?namedVenueCards(bookingText,{locale,extraEntities,profile}):gatedListings(query,{locale,action,sections,extraEntities,profile,stops:options.stops}),...(handoff?{handoff:true}:{}),plan:await plan});
   };
   // Degraded turns: the keyword matcher decides.
   const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon'};
@@ -144,7 +144,7 @@ export async function POST(request) {
     ...(wantsEvents ? peekLiveEventEntities(localQuery, { profile, locale }) : [])
   ];
   const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:warmExtra});
-  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,engine:'ok'});
+  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,stops:cloud.stops,engine:'ok'});
 
   // Disabled, denied or failed: graceful degradation, never a second engine.
   // Still a 200 with a well-formed body: the widget renders this like any
