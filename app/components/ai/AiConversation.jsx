@@ -13,6 +13,7 @@ import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { formatProfileChips } from '../../../lib/ai/profileChips.mjs';
 import { quickRepliesForTurn } from '../../../lib/ai/quickReplies.mjs';
+import { thinkingStatusForTurn } from '../../../lib/ai/thinkingStatus.mjs';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 import { configuredManagerTelegram } from '../../../lib/managerContact.mjs';
 
@@ -130,10 +131,19 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // Room all render the same thread.
   const { messages, cards, suggestions, listings, plan, isLoading, hydrated, send, reset } = useConciergeChat();
   const [input, setInput] = useState('');
+  const [thinkingStage, setThinkingStage] = useState(0);
   const listRef = useRef(null);
   const inputRef = useRef(null);
   const voice = useVoice();
   useEffect(()=>{if(!active||!messages.length)voice.stopListening();},[active,messages.length,voice.stopListening]);
+  useEffect(() => {
+    if (!isLoading) {
+      setThinkingStage(0);
+      return;
+    }
+    const timer = setTimeout(() => setThinkingStage(1), 1400);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
   // Every visible string follows the global switcher, so the surface a guest
   // is reading and the language the concierge answers in never disagree.
   const locale = useLocale();
@@ -250,11 +260,21 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         ))}
 
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold" />
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:120ms]" />
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:240ms]" />
+          <div className="flex justify-start" role="status" aria-live="polite" data-thinking-status="true">
+            <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5">
+              <span className="flex items-center gap-1">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold" />
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:120ms]" />
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:240ms]" />
+              </span>
+              <span className="text-xs text-zinc-300">
+                {thinkingStatusForTurn({
+                  message: [...messages].reverse().find((m) => m.role === 'user')?.content || '',
+                  cards,
+                  locale,
+                  stage: thinkingStage
+                })}
+              </span>
             </div>
           </div>
         )}
