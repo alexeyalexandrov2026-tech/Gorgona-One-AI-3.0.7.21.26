@@ -20,10 +20,12 @@ const { syncPlanCatalog } = load('lib/ai/syncPlanCatalog.mjs');
 const { safeNavigationHref } = load('lib/ai/session.mjs');
 const {
   detectEventQuery,
+  extractPerformerFromQuery,
   getLiveEventEntities,
   peekLiveEventEntities,
   clearLiveEventsCache
 } = load('lib/server/conciergeEvents.mjs');
+const { GET: chatGet } = load('app/api/chat/route.js');
 
 const encoder = new TextEncoder();
 
@@ -193,14 +195,20 @@ test('multi-section VIP buildPlan applies session budget and Miami neighborhood 
   }
   assert.ok(diningSection && diningSection.candidates.length >= 1);
   assert.ok(/Brickell/i.test(diningSection.candidates[0].subtitle || ''), `expected Brickell dining #1 in plan, got ${diningSection.candidates[0].title} (${diningSection.candidates[0].subtitle})`);
+  assert.ok(diningSection.candidates[0].booking?.href?.startsWith('https://'), 'expected direct restaurant booking link inside multi-section plan');
 });
 
 test('live TicketNetwork conciergeEvents converts verified events safely, caches and fails safe without stray fetches', async () => {
   clearLiveEventsCache();
 
-  // Category & team detection
+  // Category, home team, visiting opponent team & named artist/comedian detection
   assert.deepEqual(detectEventQuery('Miami Heat tickets this weekend'), { category: 'nba', performer: 'Miami Heat', maxLiveCards: 3 });
   assert.deepEqual(detectEventQuery('Когда матч Интер Майами?'), { category: 'mls', performer: 'Inter Miami', maxLiveCards: 3 });
+  assert.deepEqual(detectEventQuery('Когда играют Boston Celtics в Майами?'), { category: 'nba', performer: 'Celtics', maxLiveCards: 3 });
+  assert.deepEqual(detectEventQuery('Билеты на Лейкерс'), { category: 'nba', performer: 'Lakers', maxLiveCards: 3 });
+  assert.deepEqual(detectEventQuery('Есть ли билеты на Damon Wayans в декабре?'), { category: 'events', performer: 'Damon Wayans', maxLiveCards: 3 });
+  assert.deepEqual(detectEventQuery('Концерт Andrea Bocelli в Майами'), { category: 'concerts', performer: 'Andrea Bocelli', maxLiveCards: 3 });
+  assert.equal(extractPerformerFromQuery('Tickets for Sebastian Maniscalco in Miami'), 'Sebastian Maniscalco');
   assert.deepEqual(detectEventQuery('Найди два билета на футбол в воскресенье'), { category: 'mls', performer: '', maxLiveCards: 1 });
   assert.deepEqual(detectEventQuery('Quiero entradas para un concierto en Miami'), { category: 'concerts', performer: '', maxLiveCards: 2 });
 
@@ -296,6 +304,33 @@ test('live TicketNetwork conciergeEvents converts verified events safely, caches
   const flightCards = listingCards('Дешёвые авиабилеты в Майами', { locale: 'ru', sections: ['/travel'] });
   assert.ok(flightCards.length >= 2, 'expected Ovago flight deal frames on /travel flight query');
   assert.ok(flightCards.every((c) => c.booking?.platform === 'ovago' && /click-101825540-/.test(c.booking.href)));
+
+  // Smart occasion routing: Anniversary -> date-night romantic dining with booking links; Family with kids -> Zoo Miami / Everglades with partner referrals
+  const anniversaryTurn = catalogueAnswer([{ role: 'user', content: 'У нас годовщина свадьбы в субботу' }], 'ru');
+  assert.equal(anniversaryTurn.navigation.cards[0]?.href, '/restaurants-nightlife');
+  assert.ok(anniversaryTurn.listings.length >= 1);
+  assert.ok(anniversaryTurn.listings.every((c) => c.booking?.href && c.more === '/restaurants-nightlife?collection=date-night'));
+
+  const kidsTurn = catalogueAnswer([{ role: 'user', content: 'Куда пойти с детьми в Майами?' }], 'ru');
+  assert.equal(kidsTurn.navigation.cards[0]?.href, '/experiences');
+  assert.ok(kidsTurn.listings.length >= 1);
+  assert.ok(kidsTurn.listings.some((c) => /zoo-miami|everglades|5096p35/i.test(c.href) && ['headout', 'viator'].includes(c.booking?.platform)));
+
+  // Zero-PII referral click attribution telemetry via GET /api/chat?referral=<platform>
+  const logged = [];
+  const origInfo = console.info;
+  console.info = (...args) => logged.push(args.join(' '));
+  try {
+    const okRes = await chatGet(new Request('https://gorgona-one.com/api/chat?referral=ticketnetwork'));
+    assert.equal(okRes.status, 200);
+    assert.ok(logged.some((line) => line.includes('"event":"concierge.referral_click"') && line.includes('"platform":"ticketnetwork"')));
+
+    const beforeCount = logged.length;
+    await chatGet(new Request('https://gorgona-one.com/api/chat?referral=untrusted_evil_value'));
+    assert.equal(logged.length, beforeCount, 'unrecognized referral platform must not be logged');
+  } finally {
+    console.info = origInfo;
+  }
 
   // Fail-safe on upstream failure
   clearLiveEventsCache();

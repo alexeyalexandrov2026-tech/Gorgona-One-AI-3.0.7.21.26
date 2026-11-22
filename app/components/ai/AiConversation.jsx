@@ -155,6 +155,13 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // so a third relevant match is still one tap away without a third frame
   // crowding the transcript.
   const extraChips = suggestions.filter((s) => !cards.some((c) => c.href === s.href));
+  const planHrefs = new Set((plan?.sections || []).map((s) => s.href));
+  const nonPlanListings = plan
+    ? listings.filter((l) => ![...planHrefs].some((root) => l.href === root || l.href.startsWith(root + '/')))
+    : listings;
+  const nonPlanCards = plan
+    ? cards.filter((c) => !planHrefs.has(c.href))
+    : cards;
 
   function handleMicClick() {
     if (voice.isListening) {
@@ -204,10 +211,9 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         )}
 
         {/* Rich frames for the strongest intents... */}
-        {plan ? <AiPlan plan={plan} onNavigate={onNavigate} /> : <>
-          <AiListingCards listings={listings} onNavigate={onNavigate} />
-          <AiActionCards cards={cards} onNavigate={onNavigate} />
-        </>}
+        {plan ? <AiPlan plan={plan} onNavigate={onNavigate} /> : null}
+        <AiListingCards listings={nonPlanListings} onNavigate={onNavigate} />
+        <AiActionCards cards={nonPlanCards} onNavigate={onNavigate} />
 
         {/* ...and compact chips for any further section they did not cover. */}
         {!plan && extraChips.length > 0 && (
