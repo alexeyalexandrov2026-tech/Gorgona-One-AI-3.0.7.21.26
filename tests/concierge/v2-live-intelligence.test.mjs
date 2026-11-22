@@ -64,11 +64,12 @@ test('tripProfile extracts budget, Miami neighborhood, relative dates and sessio
 });
 
 test('numeric car budget filtering and cheapest sorting return accurately priced vehicles', () => {
-  const under700 = listingCards('SUV до $700 в день', { locale: 'ru', sections: ['/rentals'] });
+  const under700 = listingCards('Нужен SUV до $700 в день', { locale: 'ru', sections: ['/rentals'] });
   assert.ok(under700.length >= 1 && under700.length <= 3);
   for (const card of under700) {
     const price = parseDailyPrice(card.price);
     assert.ok(price !== null && price <= 700, `expected <= $700, got ${card.title} (${card.price})`);
+    assert.doesNotMatch(card.title, /Nissan GTR/i, `budget amount token must not match non-SUV by price string: ${card.title}`);
   }
 
   const cheapestCabrio = listingCards('Самый дешёвый кабриолет', { locale: 'ru', sections: ['/rentals'] });
