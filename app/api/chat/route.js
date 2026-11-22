@@ -11,6 +11,7 @@ import { gatedListings, namedVenueCards } from '../../../lib/ai/listingCards.mjs
 import { getDynamicEntities, peekDynamicEntities } from '../../../lib/server/conciergeIndex.mjs';
 import { getLiveEventEntities, peekLiveEventEntities } from '../../../lib/server/conciergeEvents.mjs';
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
+import { resolvePageEntity } from '../../../lib/ai/factPack.mjs';
 import { SERVER_BUDGET_MS } from '../../../lib/ai/chatDeadline.mjs';
 
 // ===========================================================================
@@ -132,18 +133,30 @@ export async function POST(request) {
       ? initialLiveEvents
       : await getLiveEventEntities(query, { profile, locale, env: process.env });
     const extraEntities = liveEvents.length ? [...dyn, ...liveEvents] : dyn;
+    const viewedEntity = body.pagePath ? resolvePageEntity(body.pagePath, extraEntities) : null;
+    const effectiveQuery = viewedEntity && viewedEntity.type !== 'Section' && sections.includes(viewedEntity.section)
+      && !query.toLowerCase().includes(viewedEntity.title.toLowerCase())
+      ? `${query} ${viewedEntity.title}`
+      : query;
     return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,started,
-      listings:handoff?namedVenueCards(bookingText,{locale,extraEntities,profile}):gatedListings(query,{locale,action,sections,extraEntities,profile,stops:options.stops}),...(handoff?{handoff:true}:{}),plan:await plan});
+      listings:handoff?namedVenueCards(bookingText,{locale,extraEntities,profile}):gatedListings(effectiveQuery,{locale,action,sections,extraEntities,profile,stops:options.stops}),...(handoff?{handoff:true}:{}),plan:await plan});
   };
   // Degraded turns: the keyword matcher decides.
   const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon'};
-  // One clock for the whole turn: facts and the usage reservation come out of
-  // the model's share, so the answer lands before the browser gives up.
-  const warmExtra = [
-    ...peekDynamicEntities(process.env),
-    ...(wantsEvents ? peekLiveEventEntities(localQuery, { profile, locale }) : [])
-  ];
-  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:warmExtra});
+  // Give live events & dynamic catalog a brief pre-inference window (<= 1100 ms)
+  // so DeepSeek V4.1 Flash sees real live dates, venues, and prices before answering.
+  const preWait = Promise.all([dynamicEntities, liveEventEntities]).then(([dyn, live]) => [...dyn, ...live]);
+  let preTimer;
+  const preExtra = await Promise.race([
+    preWait,
+    new Promise((resolve) => {
+      preTimer = setTimeout(() => resolve([
+        ...peekDynamicEntities(process.env),
+        ...(wantsEvents ? peekLiveEventEntities(localQuery, { profile, locale }) : [])
+      ]), 1100);
+    })
+  ]).finally(() => clearTimeout(preTimer));
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:preExtra,pagePath:body.pagePath||''});
   if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,stops:cloud.stops,engine:'ok'});
 
   // Disabled, denied or failed: graceful degradation, never a second engine.
