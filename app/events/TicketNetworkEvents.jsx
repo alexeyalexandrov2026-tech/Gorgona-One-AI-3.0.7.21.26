@@ -40,6 +40,34 @@ export function TicketNetworkEvents({ category, group, today }) {
   const { filters, page, revision } = search;
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const next = { ...INITIAL_FILTERS };
+    let changed = false;
+    for (const key of ['area', 'from', 'to', 'performer', 'city']) {
+      const val = (params.get(key) || '').trim();
+      if (val && val !== next[key]) {
+        next[key] = val;
+        changed = true;
+      }
+    }
+    if (changed) {
+      setDraft(next);
+      setSearch({ filters: next, page: 1, revision: 1 });
+    }
+  }, [category]);
+
+  useEffect(() => {
+    if (phase !== 'ready' || typeof window === 'undefined') return;
+    const match = window.location.hash.match(/^#event-(\d+)$/);
+    if (!match) return;
+    const row = document.querySelector(`[data-event-id="${match[1]}"]`);
+    if (row && typeof row.scrollIntoView === 'function') {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [phase, result]);
+
+  useEffect(() => {
     const controller = new AbortController();
     const current = ++sequence.current;
     const timeout = setTimeout(() => controller.abort(), 30000);

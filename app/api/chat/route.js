@@ -49,9 +49,10 @@ const ENGINE_STATES = new Set(['ok', 'disabled', 'unavailable', 'usage_denied', 
 function reply(text, { messages = [], latestUserMessage = '', source = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null, listings = [], handoff = false, action = null, decidedBy = 'lexicon', engine = null, started = null } = {}) {
   const decider = DECIDERS.has(decidedBy) ? decidedBy : 'lexicon';
   const rows = Array.isArray(listings) ? listings.slice(0, 4) : [];
+  const referrals = [...new Set(rows.map((r) => r?.booking?.platform).filter(Boolean))];
   // One structured line per turn, metadata only: never the guest's words or the reply.
   // engine says why a model did not answer; ms is the whole server turn.
-  console.info(JSON.stringify({ event: 'concierge.chat', decidedBy: decider, source, action, listings: rows.length, handoff: Boolean(handoff), error: Boolean(error), locale,
+  console.info(JSON.stringify({ event: 'concierge.chat', decidedBy: decider, source, action, listings: rows.length, ...(referrals.length ? { referrals } : {}), handoff: Boolean(handoff), error: Boolean(error), locale,
     ...(ENGINE_STATES.has(engine) ? { engine } : {}), ...(Number.isFinite(started) ? { ms: Date.now() - started } : {}) }));
   return NextResponse.json({
     reply: text,
@@ -153,8 +154,19 @@ export async function POST(request) {
   return respond(degraded,{...fallback,engine:cloud.kind});
 }
 
-// Public health check only: engine configuration is an internal detail and
-// stays off the open internet.
-export async function GET() {
+const TRACKED_REFERRAL_PLATFORMS = new Set([
+  'ticketnetwork', 'viator', 'headout', 'ovago', 'yatr', 'stay22', 'privatejetfinder',
+  'opentable', 'resy', 'sevenrooms', 'tock', 'discotech', 'tablelistpro', 'dice', 'eatwith', 'venue', 'maps'
+]);
+
+// Public health check + zero-PII partner referral click attribution beacon.
+export async function GET(request) {
+  try {
+    const url = request?.url ? new URL(request.url, 'https://gorgona-one.com') : null;
+    const platform = url?.searchParams?.get('referral');
+    if (platform && TRACKED_REFERRAL_PLATFORMS.has(platform)) {
+      console.info(JSON.stringify({ event: 'concierge.referral_click', platform }));
+    }
+  } catch {}
   return NextResponse.json({ ok: true });
 }

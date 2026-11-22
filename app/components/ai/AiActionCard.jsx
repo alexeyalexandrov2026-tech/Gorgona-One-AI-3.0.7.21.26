@@ -94,13 +94,19 @@ function ListingLink({ card, onNavigate }) {
 // directory filter for the guest's request. The chat never books a table.
 function VenueActions({ card, copy, onNavigate }) {
   if (!card.booking) return null;
+  const bookingPlatform = card.booking.kind === 'book' ? card.booking.platform : 'maps';
   const platform = card.booking.kind === 'book' && card.booking.platform !== 'venue'
     ? (PROVIDERS.find((provider) => provider.id === card.booking.platform)?.name || PARTNER_PLATFORMS[card.booking.platform] || null)
     : null;
   const label = card.booking.kind === 'maps' ? copy.openMaps : platform ? copy.bookOn.replace('{platform}', platform) : copy.bookOnSite;
+  const trackReferralClick = () => {
+    try {
+      fetch(`/api/chat?referral=${encodeURIComponent(bookingPlatform)}`, { method: 'GET', keepalive: true }).catch(() => {});
+    } catch {}
+  };
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-1 text-xs">
-      <a href={card.booking.href} target="_blank" rel="noopener noreferrer" data-booking={card.booking.kind === 'book' ? card.booking.platform : 'maps'}
+      <a href={card.booking.href} target="_blank" rel="noopener noreferrer" data-booking={bookingPlatform} onClick={trackReferralClick}
         className="inline-flex min-h-[32px] items-center gap-1 rounded-full bg-brand-gold px-3 font-semibold text-black hover:brightness-110">
         {label}<span aria-hidden="true">↗</span><span className="sr-only">({copy.newTab})</span>
       </a>
