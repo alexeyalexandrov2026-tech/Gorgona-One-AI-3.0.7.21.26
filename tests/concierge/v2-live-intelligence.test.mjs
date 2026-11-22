@@ -44,11 +44,18 @@ test('tripProfile extracts budget, Miami neighborhood, relative dates and sessio
   assert.ok(neighborhoodProximity('Brickell', 'Downtown Miami') > neighborhoodProximity('Brickell', 'Design District'));
   assert.ok(neighborhoodProximity('Sunny Isles Beach', 'Surfside') >= 0.8);
 
-  // Relative Miami dates against fixed Sunday 2026-11-22
+  // Relative & natural calendar Miami dates against fixed Sunday 2026-11-22
   const sunday = new Date('2026-11-22T15:00:00Z');
   assert.deepEqual(extractDateRange('сегодня вечером', sunday), { from: '2026-11-22', to: '2026-11-22' });
   assert.deepEqual(extractDateRange('завтра', sunday), { from: '2026-11-23', to: '2026-11-23' });
+  assert.deepEqual(extractDateRange('послезавтра', sunday), { from: '2026-11-24', to: '2026-11-24' });
   assert.deepEqual(extractDateRange('в пятницу', sunday), { from: '2026-11-27', to: '2026-11-27' });
+  assert.deepEqual(extractDateRange('Концерт 5 декабря', sunday), { from: '2026-12-05', to: '2026-12-05' });
+  assert.deepEqual(extractDateRange('с 5 по 7 декабря', sunday), { from: '2026-12-05', to: '2026-12-07' });
+  assert.deepEqual(extractDateRange('Events on December 15', sunday), { from: '2026-12-15', to: '2026-12-15' });
+  assert.deepEqual(extractDateRange('Билеты на 15 января', sunday), { from: '2027-01-15', to: '2027-01-15' });
+  assert.deepEqual(extractDateRange('Шоу 05.12', sunday), { from: '2026-12-05', to: '2026-12-05' });
+  assert.deepEqual(extractDateRange('Концерты в декабре', sunday), { from: '2026-12-01', to: '2026-12-31' });
 
   // Multi-turn session aggregation (newest turn overrides older value for same slot)
   const profile = extractTripProfile([
@@ -259,7 +266,7 @@ test('live TicketNetwork conciergeEvents converts verified events safely, caches
   });
   assert.equal(peeked.length, 1);
 
-  // Live event surfaces at #1 in listingCards alongside static NBA category!
+  // Live event surfaces at #1 in listingCards alongside static NBA category, with verified CJ affiliate referral URL!
   const cards = listingCards('Miami Heat tickets this Friday', {
     locale: 'en',
     sections: ['/events'],
@@ -267,6 +274,28 @@ test('live TicketNetwork conciergeEvents converts verified events safely, caches
   });
   assert.equal(cards[0]?.href, '/events/category/nba#event-987654');
   assert.equal(cards[0]?.title, 'Miami Heat vs. Boston Celtics');
+  assert.equal(cards[0]?.booking?.platform, 'ticketnetwork');
+  assert.match(cards[0]?.booking?.href || '', /^https:\/\/www\.tkqlhce\.com\/click-101825540-10793961\?/);
+  assert.equal(cards[0]?.more, '/events/category/nba');
+
+  // Partner referral links are embedded directly in frames for Viator helicopters, Headout tours, Yachts, and Ovago flights
+  const heliCards = listingCards('Хочу вертолёт над Майами', { locale: 'ru', sections: ['/experiences'] });
+  assert.equal(heliCards[0]?.href, '/experiences/viator/231628p7');
+  assert.equal(heliCards[0]?.booking?.platform, 'viator');
+  assert.match(heliCards[0]?.booking?.href || '', /pid=P00329248/);
+
+  const evergladesCards = listingCards('Everglades', { locale: 'en', sections: ['/experiences'] });
+  const headoutEverglades = evergladesCards.find((c) => c.booking?.platform === 'headout');
+  assert.ok(headoutEverglades, 'expected Headout Everglades card with affiliate referral link');
+  assert.match(headoutEverglades.booking.href, /^https:\/\/www\.headout\.com\/.*affiliate_code=/);
+
+  const yachtCards = listingCards('Хочу яхту в субботу на 8 гостей', { locale: 'ru', sections: ['/yachts'] });
+  assert.ok(yachtCards.length >= 2, 'expected capacity-matched Miami yacht charter proposals on /yachts turn');
+  assert.ok(yachtCards.every((c) => !c.href.startsWith('/yachts/') && c.booking?.platform === 'viator' && /pid=P00329248/.test(c.booking.href)));
+
+  const flightCards = listingCards('Дешёвые авиабилеты в Майами', { locale: 'ru', sections: ['/travel'] });
+  assert.ok(flightCards.length >= 2, 'expected Ovago flight deal frames on /travel flight query');
+  assert.ok(flightCards.every((c) => c.booking?.platform === 'ovago' && /click-101825540-/.test(c.booking.href)));
 
   // Fail-safe on upstream failure
   clearLiveEventsCache();
