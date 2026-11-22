@@ -24,8 +24,8 @@ test('sections cover every card once and put Florida parks before worldwide flig
  assert.equal(EXPERIENCE_SECTION_IDS[0],'parks');
  assert.equal(EXPERIENCE_SECTION_IDS.at(-1),'helicopters');
  const grouped=EXPERIENCE_SECTION_IDS.flatMap(getExperienceSection);
- assert.equal(grouped.length,71);
- assert.equal(new Set(grouped.map(card=>card.id)).size,71);
+ assert.equal(grouped.length,69);
+ assert.equal(new Set(grouped.map(card=>card.id)).size,69);
  assert.deepEqual(new Set(grouped.map(card=>card.id)),new Set(EXPERIENCE_CARDS.map(card=>card.id)));
  assert.deepEqual(getExperienceSection('parks').slice(0,4).map(card=>card.id),['headout-3676','headout-2331','headout-6224','headout-6225']);
  assert.equal(getExperienceSection('florida-flights')[0].productCode,'231628P7');
@@ -49,15 +49,11 @@ test('licensed editorial media are local WebP files with author, source and lice
  }
 });
 
-test('regional visitor links are explicit official sources, not pretend affiliate accounts',()=>{
- assert.equal(FLORIDA_OFFICIAL_PARKS.length,3);
- for(const card of FLORIDA_OFFICIAL_PARKS){
-  assert.equal(card.kind,'official');
-  assert.equal(new URL(card.href).protocol,'https:');
-  assert.ok(!new URL(card.href).searchParams.has('affiliate_code'));
- }
+test('every card earns through a partner: no official-site cards without an affiliate programme',()=>{
+ assert.equal(FLORIDA_OFFICIAL_PARKS.length,0);
+ assert.ok(!EXPERIENCE_CARDS.some(card=>card.kind==='official'));
  const rides=Object.values(FLORIDA_PARK_GUIDES).flatMap(guide=>[...guide.coasters,...(guide.related||[]).flatMap(park=>park.coasters)]).concat(FLORIDA_OFFICIAL_PARKS.flatMap(park=>park.coasters));
- assert.equal(rides.length,51);
+ assert.equal(rides.length,49);
  assert.ok(rides.includes('Pteranodon Flyers'));
  for(const retired of ['Kumba','Scorpion','Hollywood Rip Ride Rockit','Flying School','Dragon Wagon'])assert.ok(!rides.includes(retired),retired);
  assert.ok(rides.includes('Galacticoaster'));

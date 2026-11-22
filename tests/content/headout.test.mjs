@@ -13,7 +13,9 @@ test('all imported collections retain the partner attribution and approved media
   const link=new URL(item.href),image=new URL(item.image);
   assert.equal(link.origin,'https://www.headout.com');
   assert.equal(link.searchParams.get('affiliate_code'),HEADOUT_AFFILIATE_CODE);
-  assert.match(link.pathname,new RegExp('-'+(item.type==='experience'?'e':'c')+'-'+item.id+'/$'));
+  // A collection Headout moved to a sub-category is linked at its final
+  // address: its old /-c-<id>/ redirect drops the affiliate code (2026-11-22).
+  assert.match(link.pathname,new RegExp('-(?:'+(item.type==='experience'?'e':'c')+'-'+item.id+'|sc-\\d+~\\d+)/$'));
   assert.equal(image.origin,'https://cdn-imgix.headout.com');
   assert.ok(['miami','orlando','tampa','helicopters'].includes(item.region));
   assert.equal(getHeadoutCollection(item.slug),item);
