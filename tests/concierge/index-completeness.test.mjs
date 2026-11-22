@@ -58,8 +58,8 @@ test('every canonical catalogue card is present in ecosystemIndex with safe href
     assert.equal(byHref.has(`/restaurants-nightlife/${held.slug}`), false, `unverified venue leaked into index: ${held.slug}`);
   }
 
-  // 3. Experiences (48 Headout + 20 Viator with our pages + 1 direct Viator = 69) + 49 Park Coasters
-  assert.ok(EXPERIENCE_CARDS.length >= 69, `expected >= 69 experience cards, got ${EXPERIENCE_CARDS.length}`);
+  // 3. Experiences (48 Headout + 20 Viator with our pages + 18 direct Viator = 86) + 49 Park Coasters
+  assert.ok(EXPERIENCE_CARDS.length >= 86, `expected >= 86 experience cards, got ${EXPERIENCE_CARDS.length}`);
   for (const exp of EXPERIENCE_CARDS) {
     const entity = byId.get(`exp-${exp.id}`);
     assert.ok(entity, `missing experience in index: ${exp.id}`);
