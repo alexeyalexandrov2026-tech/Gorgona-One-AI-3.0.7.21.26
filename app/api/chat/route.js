@@ -9,6 +9,8 @@ import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 import { catalogueAnswer, explicitBooking, bookingDisclaimer } from '../../../lib/ai/catalogueAnswer.mjs';
 import { gatedListings, namedVenueCards } from '../../../lib/ai/listingCards.mjs';
 import { getDynamicEntities, peekDynamicEntities } from '../../../lib/server/conciergeIndex.mjs';
+import { getLiveEventEntities, peekLiveEventEntities } from '../../../lib/server/conciergeEvents.mjs';
+import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { SERVER_BUDGET_MS } from '../../../lib/ai/chatDeadline.mjs';
 
 // ===========================================================================
@@ -98,9 +100,15 @@ export async function POST(request) {
     navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY,action:'fact',decidedBy:'fact',started});
 
   const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
+  const profile = extractTripProfile(modelMessages);
   const plan = conversationPlan(modelMessages, { locale });
   const dynamicEntities = getDynamicEntities(process.env);
   const localAnswer = catalogueAnswer(modelMessages, locale);
+  const localQuery = localAnswer.navigation.query || latestUserMessage;
+  const wantsEvents = (localAnswer.navigation.cards || []).some((card) => card.href === '/events');
+  const liveEventEntities = wantsEvents
+    ? getLiveEventEntities(localQuery, { profile, locale, env: process.env })
+    : Promise.resolve([]);
   const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(locale);
   // Booking and payment requests are a handoff whichever engine answers: the
   // disclaimer is guaranteed here, in code. The only rows attached are the
@@ -118,15 +126,20 @@ export async function POST(request) {
     const sections=(options.navigation?.cards||[]).map(card=>card.href);
     const query=options.navigation?.query||localAnswer.navigation.query||latestUserMessage;
     const decidedBy=handoff&&!options.handoff?'lexicon':options.decidedBy;
-    const extraEntities = await dynamicEntities;
+    const [dyn, liveEvents] = await Promise.all([dynamicEntities, liveEventEntities]);
+    const extraEntities = liveEvents.length ? [...dyn, ...liveEvents] : dyn;
     return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,started,
-      listings:handoff?namedVenueCards(bookingText,{locale,extraEntities}):gatedListings(query,{locale,action,sections,extraEntities}),...(handoff?{handoff:true}:{}),plan:await plan});
+      listings:handoff?namedVenueCards(bookingText,{locale,extraEntities,profile}):gatedListings(query,{locale,action,sections,extraEntities,profile}),...(handoff?{handoff:true}:{}),plan:await plan});
   };
   // Degraded turns: the keyword matcher decides.
   const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon'};
   // One clock for the whole turn: facts and the usage reservation come out of
   // the model's share, so the answer lands before the browser gives up.
-  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:peekDynamicEntities(process.env)});
+  const warmExtra = [
+    ...peekDynamicEntities(process.env),
+    ...(wantsEvents ? peekLiveEventEntities(localQuery, { profile, locale }) : [])
+  ];
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:warmExtra});
   if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,engine:'ok'});
 
   // Disabled, denied or failed: graceful degradation, never a second engine.
