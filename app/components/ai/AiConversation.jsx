@@ -11,7 +11,10 @@ import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
+import { formatProfileChips } from '../../../lib/ai/profileChips.mjs';
 import { quickRepliesForTurn } from '../../../lib/ai/quickReplies.mjs';
+import { thinkingStatusForTurn } from '../../../lib/ai/thinkingStatus.mjs';
+import { buildShareablePlanText, buildWhatsAppShareUrl, getShareCopy } from '../../../lib/ai/sharePlan.mjs';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 import { configuredManagerTelegram } from '../../../lib/managerContact.mjs';
 
@@ -127,11 +130,22 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // in the layout), so this component is a VIEW of the conversation rather
   // than an owner of it - the homepage bar, the sphere dock and the Discovery
   // Room all render the same thread.
-  const { messages, cards, suggestions, listings, plan, isLoading, hydrated, send } = useConciergeChat();
+  const { messages, cards, suggestions, listings, plan, savedPrefs, isLoading, hydrated, send, reset } = useConciergeChat();
   const [input, setInput] = useState('');
+  const [thinkingStage, setThinkingStage] = useState(0);
+  const [copiedPlan, setCopiedPlan] = useState(false);
   const listRef = useRef(null);
+  const inputRef = useRef(null);
   const voice = useVoice();
   useEffect(()=>{if(!active||!messages.length)voice.stopListening();},[active,messages.length,voice.stopListening]);
+  useEffect(() => {
+    if (!isLoading) {
+      setThinkingStage(0);
+      return;
+    }
+    const timer = setTimeout(() => setThinkingStage(1), 1400);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
   // Every visible string follows the global switcher, so the surface a guest
   // is reading and the language the concierge answers in never disagree.
   const locale = useLocale();
@@ -157,8 +171,15 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // so a third relevant match is still one tap away without a third frame
   // crowding the transcript.
   const extraChips = suggestions.filter((s) => !cards.some((c) => c.href === s.href));
-  const profile = extractTripProfile(messages);
+  const profile = extractTripProfile(messages, new Date(), savedPrefs);
+  const { chips: profileChips, resetLabel } = formatProfileChips(profile, locale);
   const lastMessage = messages.at(-1);
+  const shareCopy = getShareCopy(locale);
+  const canSharePlan = !isLoading && lastMessage?.role === 'assistant' && !lastMessage.degraded && !lastMessage.handoff
+    && (Boolean(plan) || listings.length > 0 || (lastMessage.content?.length || 0) >= 120);
+  const shareText = canSharePlan
+    ? buildShareablePlanText({ reply: lastMessage.content, plan, listings, locale })
+    : '';
   const quickReplies = !isLoading && lastMessage?.role === 'assistant'
     ? quickRepliesForTurn({
         reply: lastMessage.content,
@@ -189,6 +210,38 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
 
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col" aria-busy={!hydrated||isLoading}>
+      {profileChips.length > 0 && (
+        <div
+          data-profile-bar="true"
+          className="mb-1 flex flex-wrap items-center gap-1.5 border-b border-white/10 px-1 pb-2"
+        >
+          {profileChips.map((chip) => (
+            <button
+              key={chip.key}
+              type="button"
+              data-profile-chip={chip.key}
+              disabled={!hydrated || isLoading || !chip.editPrefix}
+              onClick={() => {
+                if (!chip.editPrefix) return;
+                setInput(chip.editPrefix);
+                inputRef.current?.focus();
+              }}
+              className="rounded-full border border-brand-gold/30 bg-brand-gold/10 px-2.5 py-0.5 text-[11px] font-medium text-brand-gold transition hover:border-brand-gold hover:bg-brand-gold/20 disabled:cursor-default disabled:opacity-90"
+            >
+              {chip.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            data-profile-reset="true"
+            disabled={!hydrated || isLoading}
+            onClick={reset}
+            className="ml-auto rounded-full border border-white/10 px-2 py-0.5 text-[11px] text-zinc-400 transition hover:border-white/30 hover:text-zinc-200"
+          >
+            {resetLabel}
+          </button>
+        </div>
+      )}
       <div ref={listRef} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
         {messages.length === 0 && (
           <div className="space-y-3">
@@ -215,11 +268,21 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         ))}
 
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="flex items-center gap-1.5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold" />
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:120ms]" />
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:240ms]" />
+          <div className="flex justify-start" role="status" aria-live="polite" data-thinking-status="true">
+            <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5">
+              <span className="flex items-center gap-1">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold" />
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:120ms]" />
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:240ms]" />
+              </span>
+              <span className="text-xs text-zinc-300">
+                {thinkingStatusForTurn({
+                  message: [...messages].reverse().find((m) => m.role === 'user')?.content || '',
+                  cards,
+                  locale,
+                  stage: thinkingStage
+                })}
+              </span>
             </div>
           </div>
         )}
@@ -228,6 +291,33 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         {plan ? <AiPlan plan={plan} onNavigate={onNavigate} /> : null}
         <AiListingCards listings={nonPlanListings} onNavigate={onNavigate} />
         <AiActionCards cards={nonPlanCards} onNavigate={onNavigate} profile={profile} />
+
+        {/* One-tap Copy / WhatsApp share for curated VIP itineraries & recommendations. */}
+        {canSharePlan && (
+          <div className="flex flex-wrap items-center gap-2 pt-1" data-share-plan="true">
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  navigator.clipboard?.writeText(shareText);
+                  setCopiedPlan(true);
+                  setTimeout(() => setCopiedPlan(false), 2000);
+                } catch {}
+              }}
+              className="rounded-full border border-white/15 bg-white/[0.03] px-3 py-1 text-[11px] text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
+            >
+              {copiedPlan ? shareCopy.copied : shareCopy.copy}
+            </button>
+            <a
+              href={buildWhatsAppShareUrl(shareText)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/20"
+            >
+              {shareCopy.whatsapp}
+            </a>
+          </div>
+        )}
 
         {/* One-tap quick-reply chips matched to the concierge's clarifying question or active topic. */}
         {quickReplies.length > 0 && (
@@ -272,6 +362,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         className="mt-3 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] p-1.5 pl-4"
       >
         <input
+          ref={inputRef}
           aria-label={t.ai?.askPlaceholder || 'Ask the concierge anything…'}
           maxLength={4000}
           disabled={!hydrated||isLoading}

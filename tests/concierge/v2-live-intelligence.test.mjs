@@ -32,6 +32,14 @@ const { GET: chatGet } = load('app/api/chat/route.js');
 const { buildFactPack, normalizePagePath, resolvePageEntity } = load('lib/ai/factPack.mjs');
 const { validateGroundedReplyText } = load('lib/ai/factGuard.mjs');
 const { chatPayload, readChatRequest } = load('lib/ai/chatRequest.mjs');
+const {
+  MIAMI_FORECAST_URL,
+  getMiamiForecast,
+  formatForecastForPrompt,
+  shouldFetchForecast,
+  clearForecastCache
+} = load('lib/ai/miamiForecast.mjs');
+const { formatProfileChips } = load('lib/ai/profileChips.mjs');
 
 const encoder = new TextEncoder();
 
@@ -547,4 +555,81 @@ test('Phase 5: version 3 Grounded NLG, Zero-Hallucination Fact Guard, Pre-Infere
   assert.equal(v3Booking?.handoff, true);
   assert.equal(v3Booking?.action, 'handoff');
   assert.match(v3Booking?.reply || '', /этот чат не создаёт и не подтверждает бронирования/);
+});
+
+test('Phase 6: 7-day NOAA/NWS forecast, deep VIP profile + 16-locale memory chips, and multi-section balanced partner listings', async () => {
+  // 1. NOAA/NWS 7-day Miami forecast skips stray network calls in Node tests and parses verified periods cleanly
+  clearForecastCache();
+  assert.deepEqual(await getMiamiForecast({ env: {} }), []);
+  assert.equal(shouldFetchForecast('Хочу яхту в субботу', null, ['/yachts']), true);
+
+  const mockForecastFetcher = async (url, init) => {
+    assert.equal(url, MIAMI_FORECAST_URL);
+    assert.equal(init.redirect, 'manual');
+    return Response.json({
+      properties: {
+        periods: [
+          { name: 'Saturday', startTime: '2026-11-28T06:00:00-05:00', isDaytime: true, temperature: 79, temperatureUnit: 'F', windSpeed: '10 mph', probabilityOfPrecipitation: { value: 60 }, shortForecast: 'Chance Showers And Thunderstorms' },
+          { name: 'Saturday Night', startTime: '2026-11-28T18:00:00-05:00', isDaytime: false, temperature: 71, temperatureUnit: 'F', windSpeed: '8 mph', probabilityOfPrecipitation: { value: 20 }, shortForecast: 'Partly Cloudy' },
+          { name: 'Sunday', startTime: '2026-11-29T06:00:00-05:00', isDaytime: true, temperature: 81, temperatureUnit: 'F', windSpeed: '8 mph', probabilityOfPrecipitation: { value: 10 }, shortForecast: 'Mostly Sunny' }
+        ]
+      }
+    });
+  };
+  const periods = await getMiamiForecast({ fetcher: mockForecastFetcher });
+  assert.equal(periods.length, 2);
+  assert.equal(periods[0].date, '2026-11-28');
+  assert.equal(periods[0].tempC, 26);
+  assert.equal(periods[0].rainChance, 60);
+
+  const satLine = formatForecastForPrompt(periods, { from: '2026-11-28', to: '2026-11-28' });
+  assert.match(satLine, /2026-11-28 \(Saturday\): 26°C\/79°F.*rain 60%/);
+  assert.match(satLine, /High rain\/storm chance/);
+  assert.equal(formatForecastForPrompt(periods, { from: '2026-12-25', to: '2026-12-26' }), '', 'dates beyond 7-day window must not produce a forecast');
+
+  const promptWithForecast = modelMessages(
+    [{ role: 'user', content: 'Хочу яхту в субботу на 6 человек' }],
+    'ru',
+    { forecastPeriods: periods }
+  );
+  assert.match(promptWithForecast[0].content, /Miami official NOAA\/NWS forecast:/);
+  assert.ok(encoder.encode(promptWithForecast[0].content).byteLength < 9000, 'system prompt with forecast must stay under 9,000 bytes');
+  clearForecastCache();
+
+  // 2. Deep VIP TripProfile extraction (occasion, airport, cuisine/dietary) & 16-locale visible memory chips
+  const vipProfile = extractTripProfile([
+    { role: 'user', content: 'Летим в Майами 5–7 декабря вшестером на годовщину, прилёт в MIA' },
+    { role: 'user', content: 'Живём в Brickell, бюджет на авто до $700' },
+    { role: 'user', content: 'Любим суши, но жена не ест морепродукты' }
+  ], new Date('2026-11-22T15:00:00Z'));
+  assert.equal(vipProfile.guests, 6);
+  assert.equal(vipProfile.neighborhood, 'Brickell');
+  assert.equal(vipProfile.maxDailyBudget, 700);
+  assert.equal(vipProfile.occasion, 'anniversary');
+  assert.equal(vipProfile.airport, 'MIA');
+  assert.ok(vipProfile.dietaryOrCuisine.includes('sushi'));
+  assert.ok(vipProfile.dietaryOrCuisine.includes('no-seafood'));
+  assert.ok(!vipProfile.dietaryOrCuisine.includes('seafood'));
+  const line = tripProfilePromptLine(vipProfile);
+  assert.match(line, /occasion=anniversary/);
+  assert.match(line, /airport=MIA/);
+  assert.match(line, /cuisine=.*no-seafood/);
+
+  for (const { code } of SUPPORTED_LANGUAGES) {
+    const rendered = formatProfileChips(vipProfile, code);
+    assert.ok(rendered.chips.length >= 5, `expected profile chips for locale ${code}`);
+    assert.ok(rendered.resetLabel.length >= 2, `expected reset label for locale ${code}`);
+    assert.ok(rendered.chips.every((c) => c.label && c.key));
+  }
+
+  // 3. Multi-section balanced partner listings surface both yacht AND helicopter/experience cards together
+  const balanced = listingCards('Собери субботу на 6 человек: яхта днём и вертолёт на закате', {
+    locale: 'ru',
+    limit: 4,
+    sections: ['/yachts', '/experiences'],
+    profile: vipProfile
+  });
+  assert.ok(balanced.length >= 2);
+  assert.ok(balanced.some((c) => c.href === '/experiences/viator/231628p7'), 'helicopter tour must appear alongside yacht charters');
+  assert.ok(balanced.some((c) => c.href !== '/experiences/viator/231628p7' && c.booking?.platform === 'viator'), 'yacht charter must also appear');
 });

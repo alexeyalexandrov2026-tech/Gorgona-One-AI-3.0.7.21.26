@@ -12,6 +12,8 @@ import { getDynamicEntities, peekDynamicEntities } from '../../../lib/server/con
 import { getLiveEventEntities, peekLiveEventEntities } from '../../../lib/server/conciergeEvents.mjs';
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { resolvePageEntity } from '../../../lib/ai/factPack.mjs';
+import { getMiamiForecast, peekMiamiForecast, shouldFetchForecast } from '../../../lib/ai/miamiForecast.mjs';
+import { recordChatTurn, recordReferralClick } from '../../../lib/server/conciergeTelemetry.mjs';
 import { SERVER_BUDGET_MS } from '../../../lib/ai/chatDeadline.mjs';
 
 // ===========================================================================
@@ -51,10 +53,12 @@ function reply(text, { messages = [], latestUserMessage = '', source = null, loc
   const decider = DECIDERS.has(decidedBy) ? decidedBy : 'lexicon';
   const rows = Array.isArray(listings) ? listings.slice(0, 4) : [];
   const referrals = [...new Set(rows.map((r) => r?.booking?.platform).filter(Boolean))];
+  const elapsedMs = Number.isFinite(started) ? Date.now() - started : null;
+  recordChatTurn({ decidedBy: decider, action, locale, referrals, handoff: Boolean(handoff), error: Boolean(error), ms: elapsedMs });
   // One structured line per turn, metadata only: never the guest's words or the reply.
   // engine says why a model did not answer; ms is the whole server turn.
   console.info(JSON.stringify({ event: 'concierge.chat', decidedBy: decider, source, action, listings: rows.length, ...(referrals.length ? { referrals } : {}), handoff: Boolean(handoff), error: Boolean(error), locale,
-    ...(ENGINE_STATES.has(engine) ? { engine } : {}), ...(Number.isFinite(started) ? { ms: Date.now() - started } : {}) }));
+    ...(ENGINE_STATES.has(engine) ? { engine } : {}), ...(elapsedMs !== null ? { ms: elapsedMs } : {}) }));
   return NextResponse.json({
     reply: text,
     // Navigation is computed locally from keywords, so the guest still gets
@@ -102,14 +106,22 @@ export async function POST(request) {
     navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY,action:'fact',decidedBy:'fact',started});
 
   const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
-  const profile = extractTripProfile(modelMessages);
+  const profile = extractTripProfile(modelMessages, new Date(), body.savedPrefs || null);
   const plan = conversationPlan(modelMessages, { locale });
   const dynamicEntities = getDynamicEntities(process.env);
   const localAnswer = catalogueAnswer(modelMessages, locale);
   const localQuery = localAnswer.navigation.query || latestUserMessage;
-  const wantsEvents = (localAnswer.navigation.cards || []).some((card) => card.href === '/events');
+  const localSections = [
+    ...(localAnswer.navigation.cards || []).map((c) => c.href),
+    ...(localAnswer.navigation.suggestions || []).map((s) => s.href)
+  ];
+  const wantsEvents = localSections.includes('/events');
   const liveEventEntities = wantsEvents
     ? getLiveEventEntities(localQuery, { profile, locale, env: process.env })
+    : Promise.resolve([]);
+  const wantsForecast = shouldFetchForecast(latestUserMessage, profile, localSections);
+  const forecastPromise = wantsForecast
+    ? getMiamiForecast({ env: process.env, signal: request.signal })
     : Promise.resolve([]);
   const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(locale);
   // Booking and payment requests are a handoff whichever engine answers: the
@@ -128,7 +140,7 @@ export async function POST(request) {
     const sections=(options.navigation?.cards||[]).map(card=>card.href);
     const query=options.navigation?.query||localAnswer.navigation.query||latestUserMessage;
     const decidedBy=handoff&&!options.handoff?'lexicon':options.decidedBy;
-    const [dyn, initialLiveEvents] = await Promise.all([dynamicEntities, liveEventEntities]);
+    const [dyn, initialLiveEvents, resolvedPlan] = await Promise.all([dynamicEntities, liveEventEntities, plan]);
     const liveEvents = initialLiveEvents.length || !sections.includes('/events')
       ? initialLiveEvents
       : await getLiveEventEntities(query, { profile, locale, env: process.env });
@@ -138,25 +150,41 @@ export async function POST(request) {
       && !query.toLowerCase().includes(viewedEntity.title.toLowerCase())
       ? `${query} ${viewedEntity.title}`
       : query;
+    // When a multi-section VIP plan is active, surface balanced partner cards
+    // (yachts, helicopters/experiences, live events) for any requested sections
+    // not already shown inside AiPlan.
+    const planHrefs = new Set((resolvedPlan?.sections || []).map((s) => s.href));
+    const partnerSections = resolvedPlan
+      ? [...new Set([...sections, ...localSections])].filter((href) => !planHrefs.has(href))
+      : [];
+    const listingSections = partnerSections.length ? partnerSections : sections;
+    const listingLimit = partnerSections.length ? 4 : 3;
     return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,started,
-      listings:handoff?namedVenueCards(bookingText,{locale,extraEntities,profile}):gatedListings(effectiveQuery,{locale,action,sections,extraEntities,profile,stops:options.stops}),...(handoff?{handoff:true}:{}),plan:await plan});
+      listings:handoff
+        ? namedVenueCards(bookingText,{locale,extraEntities,profile})
+        : gatedListings(effectiveQuery,{locale,action,sections:listingSections,extraEntities,profile,stops:options.stops,limit:listingLimit}),
+      ...(handoff?{handoff:true}:{}),plan:resolvedPlan});
   };
   // Degraded turns: the keyword matcher decides.
   const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon'};
-  // Give live events & dynamic catalog a brief pre-inference window (<= 1100 ms)
-  // so DeepSeek V4.1 Flash sees real live dates, venues, and prices before answering.
-  const preWait = Promise.all([dynamicEntities, liveEventEntities]).then(([dyn, live]) => [...dyn, ...live]);
+  // Give live events, dynamic catalog & 7-day NWS forecast a brief pre-inference window (<= 1100 ms)
+  // so DeepSeek V4.1 Flash sees real live dates, venues, prices, and forecast before answering.
+  const preWait = Promise.all([dynamicEntities, liveEventEntities, forecastPromise])
+    .then(([dyn, live, forecast]) => ({ extra: [...dyn, ...live], forecast }));
   let preTimer;
-  const preExtra = await Promise.race([
+  const pre = await Promise.race([
     preWait,
     new Promise((resolve) => {
-      preTimer = setTimeout(() => resolve([
-        ...peekDynamicEntities(process.env),
-        ...(wantsEvents ? peekLiveEventEntities(localQuery, { profile, locale }) : [])
-      ]), 1100);
+      preTimer = setTimeout(() => resolve({
+        extra: [
+          ...peekDynamicEntities(process.env),
+          ...(wantsEvents ? peekLiveEventEntities(localQuery, { profile, locale }) : [])
+        ],
+        forecast: wantsForecast ? peekMiamiForecast() : []
+      }), 1100);
     })
   ]).finally(() => clearTimeout(preTimer));
-  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:preExtra,pagePath:body.pagePath||''});
+  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:pre.extra,pagePath:body.pagePath||'',forecastPeriods:pre.forecast,savedPrefs:body.savedPrefs||null});
   if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,stops:cloud.stops,engine:'ok'});
 
   // Disabled, denied or failed: graceful degradation, never a second engine.
@@ -178,6 +206,7 @@ export async function GET(request) {
     const url = request?.url ? new URL(request.url, 'https://gorgona-one.com') : null;
     const platform = url?.searchParams?.get('referral');
     if (platform && TRACKED_REFERRAL_PLATFORMS.has(platform)) {
+      recordReferralClick(platform);
       console.info(JSON.stringify({ event: 'concierge.referral_click', platform }));
     }
   } catch {}

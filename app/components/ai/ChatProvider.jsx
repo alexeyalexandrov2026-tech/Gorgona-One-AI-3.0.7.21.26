@@ -4,7 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { usePathname } from 'next/navigation';
 import { conversationNavigation } from '../../../lib/ai/conversation.mjs';
 import { chatSnapshot, isDegradedResponse } from '../../../lib/ai/session.mjs';
-import {chatPayload} from '../../../lib/ai/chatRequest.mjs';
+import {chatPayload, sanitizeSavedPrefs} from '../../../lib/ai/chatRequest.mjs';
+import { extractDurablePrefs, extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { useLocale, useLocaleReady } from '../LocaleProvider';
 import { unavailableReply } from '../../../lib/ai/locale';
 import { CLIENT_TIMEOUT_MS } from '../../../lib/ai/chatDeadline.mjs';
@@ -39,6 +40,7 @@ import {useHydratedValue} from '../useHydratedValue';
 const ChatContext = createContext(null);
 
 const STORAGE_KEY = 'gorgona-concierge-thread';
+const PREFS_STORAGE_KEY = 'gorgona-concierge-vip-prefs';
 const MAX_MESSAGES = 40;
 // Above the server's own budget so the server's graceful answer wins the race
 // in the normal case; this only fires if the request never comes back at all.
@@ -51,6 +53,7 @@ const NOOP = {
   suggestions: [],
   listings: [],
   plan: null,
+  savedPrefs: null,
   isLoading: false,
   hydrated: false,
   send() {},
@@ -69,6 +72,7 @@ export function ChatProvider({ children }) {
   const [suggestions, setSuggestions] = useState([]);
   const [listings, setListings] = useState([]);
   const [plan, setPlan] = useState(null);
+  const [savedPrefs, setSavedPrefs] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [storageReady, setHydrated] = useState(false);
   const hydrated = storageReady && localeReady;
@@ -90,6 +94,11 @@ export function ChatProvider({ children }) {
         setMessages(data.messages);setCards(data.cards);setSuggestions(data.suggestions);setListings(data.listings||[]);setPlan(data.plan||null);
         sessionIdRef.current = data.sessionId;
       }
+      const rawPrefs = localStorage.getItem(PREFS_STORAGE_KEY);
+      if (rawPrefs) {
+        const cleanPrefs = sanitizeSavedPrefs(JSON.parse(rawPrefs));
+        if (cleanPrefs) setSavedPrefs(cleanPrefs);
+      }
     } catch {
       /* malformed or blocked storage - start fresh */
     }
@@ -104,10 +113,17 @@ export function ChatProvider({ children }) {
         STORAGE_KEY,
         JSON.stringify({ messages, cards, suggestions, listings, plan, sessionId: sessionIdRef.current })
       );
+      if (messages.length) {
+        const durable = extractDurablePrefs(extractTripProfile(messages, new Date(), savedPrefs));
+        if (durable) {
+          localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(durable));
+          if (JSON.stringify(durable) !== JSON.stringify(savedPrefs)) setSavedPrefs(durable);
+        }
+      }
     } catch {
       /* storage full or blocked - non-fatal, the thread just won't survive a reload */
     }
-  }, [messages, cards, suggestions, listings, plan, hydrated]);
+  }, [messages, cards, suggestions, listings, plan, hydrated, savedPrefs]);
 
   const send = useCallback(async (rawText) => {
     const content = String(rawText || '').trim();
@@ -156,7 +172,7 @@ export function ChatProvider({ children }) {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',...(globalThis.crypto?.randomUUID?{'Idempotency-Key':crypto.randomUUID()}:{}) },
-        body: JSON.stringify(chatPayload(nextMessages,{locale,sessionId:sessionIdRef.current,pagePath:pathname})),
+        body: JSON.stringify(chatPayload(nextMessages,{locale,sessionId:sessionIdRef.current,pagePath:pathname,savedPrefs})),
         signal: controller.signal
       });
 
@@ -202,7 +218,7 @@ export function ChatProvider({ children }) {
     }
 
     return answer;
-  }, [messages, locale, hydrated, pathname]);
+  }, [messages, locale, hydrated, pathname, savedPrefs]);
 
   const reset = useCallback(() => {
     generationRef.current++;operationRef.current?.abort();operationRef.current=null;
@@ -212,17 +228,19 @@ export function ChatProvider({ children }) {
     setSuggestions([]);
     setListings([]);
     setPlan(null);
+    setSavedPrefs(null);
     sessionIdRef.current = null;
     try {
       sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(PREFS_STORAGE_KEY);
     } catch {
       /* blocked storage - in-memory reset already happened */
     }
   }, []);
 
   const value = useMemo(
-    () => ({ messages, cards, suggestions, listings, plan, isLoading, hydrated, send, reset }),
-    [messages, cards, suggestions, listings, plan, isLoading, hydrated, send, reset]
+    () => ({ messages, cards, suggestions, listings, plan, savedPrefs, isLoading, hydrated, send, reset }),
+    [messages, cards, suggestions, listings, plan, savedPrefs, isLoading, hydrated, send, reset]
   );
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
