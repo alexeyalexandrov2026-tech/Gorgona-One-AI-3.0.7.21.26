@@ -15,7 +15,7 @@ export default function ProfilePage() {
   const t = getTranslation(locale);
   const auth = useAuth();
 
-  if (auth?.loading) return <main className="flex-1 theme-villa bg-villa-parchment p-10 text-villa-obsidian" role="status">{msg('Loading...')}</main>;
+  if (auth?.loading) return <main data-light-surface className="flex-1 theme-villa bg-villa-parchment p-10 text-villa-obsidian" role="status">{msg('Loading...')}</main>;
   if (auth?.error) {
     return (
       <main className="flex-1 p-10">
@@ -29,7 +29,7 @@ export default function ProfilePage() {
   }
   if (!auth?.session) {
     return (
-      <main className="flex-1 theme-villa full-bleed bg-villa-parchment text-villa-obsidian pb-20 pt-16">
+      <main data-light-surface className="flex-1 theme-villa full-bleed bg-villa-parchment text-villa-obsidian pb-20 pt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="border-t border-villa-obsidian/20 pt-6">
             <p className="font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash mb-4">{msg("User Profile")}</p>
@@ -48,7 +48,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="flex-1 theme-villa full-bleed bg-villa-parchment text-villa-obsidian pb-20 pt-16">
+    <main data-light-surface className="flex-1 theme-villa full-bleed bg-villa-parchment text-villa-obsidian pb-20 pt-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-villa-obsidian/20 pb-4 font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash">
