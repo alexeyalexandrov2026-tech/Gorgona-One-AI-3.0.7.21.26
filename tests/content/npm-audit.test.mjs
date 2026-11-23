@@ -1,17 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { assessAudit } from '../../scripts/check-npm-audit.mjs';
 
-const now = Date.parse('2026-11-17T20:00:00Z');
-const files = Object.fromEntries(['package-lock.json', 'tailwind.config.js', 'next.config.js'].map(file => [
-  file, readFileSync(new URL('../../' + file, import.meta.url), 'utf8')
-]));
-const knownAdvisory = {
-  source: 1247710, name: 'picomatch', dependency: 'picomatch',
-  url: 'https://github.com/advisories/GHSA-fc5q-39xc-vjpf',
-  severity: 'high', range: '<=4.0.7'
+const sampleAdvisory = {
+  source: 999001, name: 'example-pkg', dependency: 'example-pkg',
+  url: 'https://github.com/advisories/GHSA-0000-0000-0000',
+  severity: 'high', range: '<=1.0.0'
 };
+
 function execution(vulnerabilities) {
   const entries = Object.values(vulnerabilities);
   const high = entries.filter(entry => entry.severity === 'high').length;
@@ -21,123 +17,62 @@ function execution(vulnerabilities) {
     stdout: JSON.stringify({ auditReportVersion: 2, vulnerabilities, metadata: { vulnerabilities: { high, critical } } })
   };
 }
-function known() {
-  return {
-    picomatch: { name: 'picomatch', severity: 'high', via: [{ ...knownAdvisory }] },
-    micromatch: { name: 'micromatch', severity: 'high', via: ['picomatch'] },
-    tailwindcss: { name: 'tailwindcss', severity: 'high', via: ['micromatch'] }
-  };
-}
 
-test('only the reviewed advisory and its dependency chain receive the temporary exception', () => {
-  const result = assessAudit(execution(known()), files, now);
-  assert.deepEqual(result.excepted, ['picomatch', 'micromatch', 'tailwindcss']);
-  assert.equal(result.high, 3);
-  assert.equal(result.expiresAt, '2026-12-01T05:00:00Z');
+test('a clean audit passes with zero exceptions', () => {
+  assert.deepEqual(assessAudit(execution({})), { high: 0, critical: 0, excepted: [] });
 });
 
-test('equivalent Windows line endings preserve the reviewed scope', () => {
-  const windowsFiles = Object.fromEntries(Object.entries(files).map(([name, text]) => [
-    name, text.replace(/\r?\n/g, '\r\n')
-  ]));
-  assert.equal(assessAudit(execution(known()), windowsFiles, now).excepted.length, 3);
-});
-
-for (const file of Object.keys(files)) {
-  test('a change to ' + file + ' invalidates the exception', () => {
-    assert.throws(() => assessAudit(execution(known()), { ...files, [file]: files[file] + '\n' }, now), /scope changed/);
-  });
-}
-
-for (const time of ['2026-12-01T05:00:00Z', '2026-12-02T00:00:00Z']) {
-  test('the exception is refused at ' + time, () => {
-    assert.throws(() => assessAudit(execution(known()), files, Date.parse(time)), /expired/);
-  });
-}
-
-test('the exception remains valid immediately before its New York deadline', () => {
-  assert.equal(assessAudit(execution(known()), files, Date.parse('2026-12-01T04:59:59Z')).excepted.length, 3);
-});
-
-test('a clean audit passes after expiry without depending on the exception scope', () => {
-  assert.deepEqual(assessAudit(execution({}), {}, Date.parse('2026-12-02T00:00:00Z')).excepted, []);
-});
-
-test('the original high severity threshold remains in effect for unrelated moderate findings', () => {
-  const report = { other: { name: 'other', severity: 'moderate', via: [] } };
-  assert.deepEqual(assessAudit(execution(report), files, now).excepted, []);
-});
-
-test('a second advisory on picomatch blocks the check', () => {
-  const report = known();
-  report.picomatch.via.push({ ...knownAdvisory, source: 9999999, url: 'https://github.com/advisories/another-advisory' });
-  assert.throws(() => assessAudit(execution(report), files, now), /Unexcepted/);
-});
-
-test('the exact reviewed advisory scope is required', () => {
-  for (const change of [{ source: 999 }, { range: '<=4.0.8' }, { dependency: 'other' }]) {
-    const report = known();
-    Object.assign(report.picomatch.via[0], change);
-    assert.throws(() => assessAudit(execution(report), files, now), /Unexcepted/);
-  }
-});
-
-test('a high severity advisory on another dependency blocks the check', () => {
-  const report = { ...known(), other: { name: 'other', severity: 'high', via: [knownAdvisory] } };
-  assert.throws(() => assessAudit(execution(report), files, now), /Unexcepted/);
-});
-
-test('critical findings remain blocking', () => {
+test('the high severity threshold remains in effect for moderate and low findings', () => {
   const report = {
-    picomatch: { name: 'picomatch', severity: 'critical', via: [{ ...knownAdvisory, severity: 'critical' }] }
+    modPkg: { name: 'modPkg', severity: 'moderate', via: [] },
+    lowPkg: { name: 'lowPkg', severity: 'low', via: [] }
   };
-  assert.throws(() => assessAudit(execution(report), files, now), /Unexcepted/);
+  assert.deepEqual(assessAudit(execution(report)), { high: 0, critical: 0, excepted: [] });
 });
 
-test('cycles and missing dependency findings fail closed', () => {
-  for (const via of ['tailwindcss', 'missing']) {
-    const report = known();
-    report.picomatch.via = [via];
-    assert.throws(() => assessAudit(execution(report), files, now), /Unexcepted|inconsistent advisory/);
-  }
+test('any high or critical advisory blocks the check with no temporary exceptions', () => {
+  const highReport = {
+    'example-pkg': { name: 'example-pkg', severity: 'high', via: [{ ...sampleAdvisory }] }
+  };
+  assert.throws(() => assessAudit(execution(highReport)), /Unexcepted high or critical/);
+
+  const criticalReport = {
+    'example-pkg': { name: 'example-pkg', severity: 'critical', via: [{ ...sampleAdvisory, severity: 'critical' }] }
+  };
+  assert.throws(() => assessAudit(execution(criticalReport)), /Unexcepted high or critical/);
 });
 
 test('an advisory cannot hide a higher severity behind a lower aggregate entry', () => {
   for (const severity of ['high', 'critical']) {
-    const report = { other: { name: 'other', severity: 'moderate', via: [{ ...knownAdvisory, severity }] } };
-    assert.throws(() => assessAudit(execution(report), files, now), /inconsistent advisory/);
+    const report = { other: { name: 'other', severity: 'moderate', via: [{ ...sampleAdvisory, severity }] } };
+    assert.throws(() => assessAudit(execution(report)), /inconsistent advisory/);
   }
 });
 
-test('invalid advisory shapes and unknown severities fail closed', () => {
-  for (const via of [null, {}, { severity: 'unknown' }]) {
+test('invalid advisory shapes, missing references and unknown severities fail closed', () => {
+  for (const via of [null, {}, { severity: 'unknown' }, 'missing']) {
     const report = { other: { name: 'other', severity: 'moderate', via: [via] } };
-    assert.throws(() => assessAudit(execution(report), files, now), /inconsistent advisory/);
+    assert.throws(() => assessAudit(execution(report)), /inconsistent advisory/);
   }
   const report = { other: { name: 'other', severity: 'moderate' } };
-  assert.throws(() => assessAudit(execution(report), files, now), /Invalid vulnerability/);
-});
-
-test('missing scope files and invalid clocks fail closed', () => {
-  assert.throws(() => assessAudit(execution(known()), {}, now), /Missing reviewed/);
-  assert.throws(() => assessAudit(execution(known()), files, NaN), /expired/);
+  assert.throws(() => assessAudit(execution(report)), /Invalid vulnerability/);
 });
 
 test('registry failures, timeouts and unsuccessful process exits fail closed', () => {
   for (const result of [{ error: new Error('network') }, { status: null, signal: 'SIGTERM' }, { status: 2 }]) {
-    assert.throws(() => assessAudit(result, files, now), /did not complete/);
+    assert.throws(() => assessAudit(result), /did not complete/);
   }
-  assert.throws(() => assessAudit({ status: 1, stdout: '{"error":{"code":"ENOAUDIT"}}' }, files, now), /unsuccessful/);
+  assert.throws(() => assessAudit({ status: 1, stdout: '{"error":{"code":"ENOAUDIT"}}' }), /unsuccessful/);
 });
 
 test('invalid, incomplete and inconsistent audit reports fail closed', () => {
-  assert.throws(() => assessAudit({ status: 0, stdout: 'not json' }, files, now), SyntaxError);
+  assert.throws(() => assessAudit({ status: 0, stdout: 'not json' }), SyntaxError);
   for (const value of [{}, { auditReportVersion: 2, vulnerabilities: [] }]) {
-    assert.throws(() => assessAudit({ status: 0, stdout: JSON.stringify(value) }, files, now), /Unsupported/);
+    assert.throws(() => assessAudit({ status: 0, stdout: JSON.stringify(value) }), /Unsupported/);
   }
-  const result = execution(known());
-  const report = JSON.parse(result.stdout);
-  report.metadata.vulnerabilities.high = 0;
-  assert.throws(() => assessAudit({ ...result, stdout: JSON.stringify(report) }, files, now), /inconsistent/);
-  assert.throws(() => assessAudit({ ...execution(known()), status: 0 }, files, now), /inconsistent/);
+  const highReport = execution({ 'example-pkg': { name: 'example-pkg', severity: 'high', via: [{ ...sampleAdvisory }] } });
+  const parsed = JSON.parse(highReport.stdout);
+  parsed.metadata.vulnerabilities.high = 0;
+  assert.throws(() => assessAudit({ ...highReport, stdout: JSON.stringify(parsed) }), /inconsistent/);
+  assert.throws(() => assessAudit({ ...highReport, status: 0 }), /inconsistent/);
 });
