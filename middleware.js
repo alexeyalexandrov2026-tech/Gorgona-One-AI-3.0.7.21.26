@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server';
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://privatejetfinder.com https://*.privatejetfinder.com",
-  "style-src 'self' 'unsafe-inline' https://www.privatejetfinder.com https://*.privatejetfinder.com",
+  "style-src 'self' 'unsafe-inline' https://www.privatejetfinder.com https://*.privatejetfinder.com https://fonts.googleapis.com",
   "img-src 'self' https: data: blob:",
-  "font-src 'self' data:",
+  "font-src 'self' data: https://fonts.gstatic.com",
   "media-src 'self' https:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cloudflareinsights.com https://static.cloudflareinsights.com https://privatejetfinder.com https://*.privatejetfinder.com",
   "frame-src 'self' https://yatr.co https://*.yatr.co https://www.stay22.com https://*.stay22.com https://widgets.bokun.io https://*.viator.com https://*.headout.com https://www.privatejetfinder.com https://*.privatejetfinder.com https://www.google.com https://maps.google.com",
@@ -15,7 +15,7 @@ const CONTENT_SECURITY_POLICY = [
   "form-action 'self' https:"
 ].join('; ');
 
-const PRIVATE_PREFIXES = ['/admin', '/partner', '/login', '/register', '/profile', '/account', '/forgot-password'];
+const PRIVATE_PREFIXES = ['/admin', '/partner', '/login', '/register', '/profile', '/account', '/forgot-password', '/pay'];
 
 export function middleware(request) {
   const response = NextResponse.next();

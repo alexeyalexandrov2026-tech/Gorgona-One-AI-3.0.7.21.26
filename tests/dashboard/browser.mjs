@@ -140,7 +140,7 @@ try{
     let dropped=false;
     await page.route('**/api/book',async route=>{if(!dropped){dropped=true;await route.fetch();await route.abort('failed');}else await route.continue();});
     await page.goto(base+'/rentals/lamborghini-urus-se',{waitUntil:'domcontentloaded'});const form=page.locator('main form');
-    await form.locator('[autocomplete="name"]').fill('Demo guest');await form.locator('input[type=tel]').fill('+13055550123');await form.locator('input[type=email]').fill('guest@example.com');
+    await form.locator('[autocomplete="name"]').fill('Demo guest');await form.locator('input[type=tel]').fill('+13055550123');await form.locator('input[type=email]').fill('guest@example.com');await form.locator('input[type="checkbox"]').check();
     await form.locator('button[type=submit]').click();await expect(form.getByRole('alert')).toBeVisible();
     await expect(form.locator('[autocomplete="name"]')).toBeDisabled();
     await page.reload({waitUntil:'domcontentloaded'});

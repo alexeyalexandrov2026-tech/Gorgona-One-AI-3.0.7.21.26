@@ -2,6 +2,7 @@
 import {getDiningCopy} from '../../../lib/dining/copy.mjs';
 import HeadoutPreview from '../dining/HeadoutPreview';
 import VenueEditor from '../dining/VenueEditor';
+import AdminQuotePanel from './AdminQuotePanel';
 import {getDiningEditorCopy} from '../../../lib/dining/editorCopy.mjs';
 
 import { useEffect, useRef, useState } from 'react';
@@ -131,6 +132,7 @@ export default function RequestBoard({ scope = 'customer' }) {
           <form onSubmit={event=>{event.preventDefault();command('respond');}} className="grid gap-3"><label className="grid gap-2 text-sm">{msg('Response')}<textarea className={`${input} min-h-[110px] w-full resize-y`} required maxLength={2000} value={reply} onChange={event=>setReply(event.target.value)} disabled={busy}/></label><button className={`${button} w-fit`} type="submit" disabled={busy||!reply.trim()}>{msg('Send response')}</button></form>
           {scope==='admin'&&<div className="flex flex-wrap gap-3">{detail.request.status==='pending'&&<button type="button" className={button} onClick={()=>command('review')} disabled={busy}>{msg('Start review')}</button>}<button type="button" className={button} onClick={()=>command('close')} disabled={busy}>{msg('Close request')}</button></div>}
         </div>}
+        {scope==='admin'&&<AdminQuotePanel userId={userId} locale={locale} request={detail.request} api={api}/>}
         {actionError&&<p role="alert" className="mt-4 text-sm">{actionError==='conflict'?msg('Changed by another user. Refresh and try again.'):msg('Unable to load requests.')}</p>}
       </>}
     </div>}

@@ -160,6 +160,7 @@ await scenario('booking-state',{width:1440,height:1000},async page => {
   await form.locator('input[type="tel"]').fill('+13055550123');
   await form.locator('input[type="email"]').fill('i18n-qa@example.com');
   await form.locator('select').selectOption('4');
+  await form.locator('input[type="checkbox"]').check();
   const before = await form.locator('input, select').evaluateAll(nodes=>nodes.map(node=>node.value));
   for(const locale of locales){
     await choose(page,locale);
