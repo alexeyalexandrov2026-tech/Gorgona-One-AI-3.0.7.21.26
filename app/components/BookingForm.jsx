@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { isReceipt, submissionKey } from '../../lib/bookingSubmission.mjs';
 import { readJournal, writeJournal, clearJournal } from '../../lib/bookingJournal.mjs';
 import { useAuth } from './AuthProvider';
@@ -8,6 +9,8 @@ import { useSavedText } from './LocalizedText';
 import { supabase } from '../../lib/supabase';
 import { useLocale } from './LocaleProvider';
 import { getWorldsCopy, summarizeRequest } from '../../lib/worldsCopy';
+import { getConsentCopy } from '../../lib/legal/consentCopy.mjs';
+import { TERMS_VERSION } from '../../lib/legal/termsContent.mjs';
 import { btn } from './g1/ui';
 import Icon from './g1/icons';
 
@@ -33,10 +36,12 @@ function BookingWorkspace({rentalSlug,rentalTitle,kind,pickupLocation}) {
   const msg=useSavedText();
   const locale = useLocale();
   const copy = getWorldsCopy(locale).form;
+  const legal = getConsentCopy(locale);
   const [status, setStatus] = useState('idle'); // idle | sending | sent
   const [error, setError] = useState('');
   const [contact, setContact] = useState({ name: '', phone: '', email: '' });
   const [trip, setTrip] = useState({ from: '', to: '', place: 0, duration: 0, guests: 2 });
+  const [accepted, setAccepted] = useState(false);
   const [today, setToday] = useState('');
   const sending = useRef(false);
   const attempt = useRef(null);
@@ -59,7 +64,7 @@ function BookingWorkspace({rentalSlug,rentalTitle,kind,pickupLocation}) {
       if(!active)return;
       const saved=readJournal(storage(),scope,user?.id||null);
       if(saved){
-        pending.current=saved;setLocked(true);
+        pending.current=saved;setLocked(true);setAccepted(true);
         setContact({name:saved.body.name,email:saved.body.email,phone:saved.body.phone});setTrip(saved.trip);
         return send(saved,data?.session);
       }
@@ -81,6 +86,10 @@ function BookingWorkspace({rentalSlug,rentalTitle,kind,pickupLocation}) {
       setError('badDates');
       return;
     }
+    if (!pending.current && !accepted) {
+      setError('consentRequired');
+      return;
+    }
     try {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) throw sessionError;
@@ -88,7 +97,7 @@ function BookingWorkspace({rentalSlug,rentalTitle,kind,pickupLocation}) {
         if(pending.current.owner!==(sessionData?.session?.user?.id||null))throw new Error('Session changed');
         return await send(pending.current,sessionData?.session);
       }
-      const body = { ...contact, dates: summarizeRequest(kind, trip), itemSlug: rentalSlug, itemTitle: rentalTitle, kind };
+      const body = { ...contact, dates: summarizeRequest(kind, trip), itemSlug: rentalSlug, itemTitle: rentalTitle, kind, termsAccepted: true, termsVersion: TERMS_VERSION };
       if(pickupLocation && kind==='car' && trip.place===0)body.dates=`${trip.from} → ${trip.to} · Pickup / delivery: ${pickupLocation}`;
       attempt.current = submissionKey(attempt.current, JSON.stringify([body, sessionData?.session?.user?.id || null]));
       const entry={version:1,key:attempt.current.key,owner:sessionData?.session?.user?.id||null,createdAt:Date.now(),body,trip};
@@ -208,8 +217,24 @@ function BookingWorkspace({rentalSlug,rentalTitle,kind,pickupLocation}) {
           <input className={inputClass} type="email" required autoComplete="email" maxLength={254} value={contact.email} onChange={setC('email')} />
         </label>
       </div>
+      <label className="flex items-start gap-2.5 pt-1 text-[0.82rem] leading-relaxed text-g1-soft">
+        <input
+          type="checkbox"
+          required
+          checked={accepted}
+          onChange={(event) => setAccepted(event.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-g1-ink"
+        />
+        <span>
+          {legal.consentPrefix}{' '}
+          <Link href="/terms" className="underline text-g1-ink hover:text-g1-accent">{legal.termsLink}</Link>{' '}
+          {legal.consentAnd}{' '}
+          <Link href="/privacy" className="underline text-g1-ink hover:text-g1-accent">{legal.privacyLink}</Link>{' '}
+          {legal.consentSuffix}
+        </span>
+      </label>
       </fieldset>
-      {error && <p role="alert" className="rounded-xl border border-g1-accent bg-g1-accent-wash px-3 py-2 text-[0.9rem] text-g1-ink">{copy[error] || error}</p>}
+      {error && <p role="alert" className="rounded-xl border border-g1-accent bg-g1-accent-wash px-3 py-2 text-[0.9rem] text-g1-ink">{error === 'consentRequired' ? legal.consentRequired : (copy[error] || error)}</p>}
 
       <button type="submit" disabled={status === 'sending'} className={`${btn.base} ${btn.primary} w-full disabled:opacity-60`}>
         {status === 'sending' ? copy.sending : copy.submit}
