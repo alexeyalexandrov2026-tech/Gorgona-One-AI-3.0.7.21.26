@@ -15,7 +15,7 @@ const CONTENT_SECURITY_POLICY = [
   "form-action 'self' https:"
 ].join('; ');
 
-const PRIVATE_PREFIXES = ['/admin', '/partner', '/login', '/register', '/profile', '/account', '/forgot-password', '/pay'];
+const PRIVATE_PREFIXES = ['/admin', '/partner', '/login', '/register', '/profile', '/account', '/forgot-password', '/pay', '/trip'];
 
 export function middleware(request) {
   const response = NextResponse.next();

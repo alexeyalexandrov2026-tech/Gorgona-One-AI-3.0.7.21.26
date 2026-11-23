@@ -1,0 +1,80 @@
+"use client";
+
+import Link from 'next/link';
+import { useAuth } from '../components/AuthProvider';
+import { useLocale } from '../components/LocaleProvider';
+import { useSavedText } from '../components/LocalizedText';
+import LiveTripRoom from '../components/dashboard/LiveTripRoom';
+import MyMiami from '../components/MyMiami';
+import { getTripRoomCopy } from '../../lib/tripRoomCopy.mjs';
+
+export default function TripRoomPage() {
+  const auth = useAuth();
+  const locale = useLocale();
+  const msg = useSavedText();
+  const copy = getTripRoomCopy(locale);
+
+  if (auth?.loading) {
+    return (
+      <main className="flex-1 theme-villa full-bleed bg-villa-parchment p-10 text-villa-obsidian" role="status">
+        {msg('Loading...')}
+      </main>
+    );
+  }
+
+  if (!auth?.session) {
+    return (
+      <main className="flex-1 theme-villa full-bleed bg-villa-parchment pb-20 pt-16 text-villa-obsidian">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-5 border-t border-villa-obsidian/20 pt-8">
+            <p className="font-fira text-[0.66rem] font-medium uppercase tracking-[0.22em] text-villa-ash">
+              {copy.signInEyebrow}
+            </p>
+            <h1 className="font-display text-4xl font-medium leading-[1.02] text-villa-charcoal sm:text-6xl">
+              {copy.signInTitle}
+            </h1>
+            <p className="max-w-[58ch] text-base leading-relaxed text-villa-graphite">
+              {copy.signInBody}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-3">
+              <Link
+                href="/login?next=/trip"
+                className="inline-flex min-h-[44px] items-center rounded-full border border-villa-obsidian bg-villa-obsidian px-6 text-xs font-medium uppercase tracking-[0.16em] text-villa-parchment transition hover:opacity-90"
+              >
+                {copy.signInCta}
+              </Link>
+              <Link
+                href="/yachts"
+                className="inline-flex min-h-[44px] items-center rounded-full border border-villa-obsidian/25 px-5 text-xs font-medium uppercase tracking-[0.16em] text-villa-obsidian transition hover:border-villa-obsidian"
+              >
+                {copy.browseYachts}
+              </Link>
+              <Link
+                href="/rentals"
+                className="inline-flex min-h-[44px] items-center rounded-full border border-villa-obsidian/25 px-5 text-xs font-medium uppercase tracking-[0.16em] text-villa-obsidian transition hover:border-villa-obsidian"
+              >
+                {copy.browseCars}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="flex-1 theme-villa full-bleed bg-villa-parchment pb-20 pt-14 text-villa-obsidian">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-villa-obsidian/20 pb-4 font-fira text-[0.64rem] font-medium uppercase tracking-[0.18em] text-villa-ash">
+          <span>{copy.eyebrow}</span>
+          <span>{auth.session.name} ({auth.session.email})</span>
+        </div>
+        <h1 className="mt-8 font-display text-4xl font-medium leading-[0.98] text-villa-charcoal sm:text-6xl">
+          {copy.title}
+        </h1>
+        <LiveTripRoom key={auth.session.id} userId={auth.session.id} standalone />
+        <MyMiami />
+      </div>
+    </main>
+  );
+}

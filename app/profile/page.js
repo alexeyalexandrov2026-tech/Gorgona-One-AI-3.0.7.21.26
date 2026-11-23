@@ -3,7 +3,9 @@ import { LocalizedTitle, useSavedText } from "../components/LocalizedText";
 
 import Link from 'next/link';
 import RequestBoard from '../components/dashboard/RequestBoard';
+import LiveTripRoom from '../components/dashboard/LiveTripRoom';
 import { getTranslation } from '../../lib/i18n';
+import { getTripRoomCopy } from '../../lib/tripRoomCopy.mjs';
 import { useLocale } from '../components/LocaleProvider';
 import { useAuth } from '../components/AuthProvider';
 import { authErrorSource } from '../../lib/authMessages';
@@ -60,10 +62,12 @@ export default function ProfilePage() {
         </h1>
 
         <nav className="flex flex-wrap gap-5 text-sm text-villa-obsidian">
+          <Link href="/trip" className="underline">{getTripRoomCopy(locale).openFullRoom}</Link>
           {auth?.session?.role === 'admin' && <Link href="/admin" className="underline">{msg('Admin Portal')}</Link>}
           {['partner','admin'].includes(auth?.session?.role) && <Link href="/partner" className="underline">{msg('Partner Portal')}</Link>}
           <Link href="/account/delete" className="underline">{msg('Request account deletion')}</Link>
         </nav>
+        {auth?.session && <LiveTripRoom key={'trip:' + auth.session.id} userId={auth.session.id} />}
         {auth?.session && <RequestBoard key={auth.session.id} scope="customer" />}
         <MyMiami />
 
