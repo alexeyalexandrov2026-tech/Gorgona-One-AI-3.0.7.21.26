@@ -3,9 +3,9 @@ import JsonLd from '../components/JsonLd';
 import { pageMetadata, sectionJsonLd } from '../../lib/seo.mjs';
 
 export const metadata = pageMetadata({
-  title: 'Discovery Room',
+  title: 'ELIO+ Guide — Discovery Room',
   description:
-    'The Discovery Room — a 16-language AI concierge for luxury yacht charters, exotic cars, villas, private jets, dining and live events in Miami.',
+    'ELIO+ Guide — a 16-language AI guide for luxury yacht charters, exotic cars, villas, private jets, dining and live events in Miami.',
   path: '/discovery'
 });
 

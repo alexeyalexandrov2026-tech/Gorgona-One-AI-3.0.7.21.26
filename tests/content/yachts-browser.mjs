@@ -9,7 +9,7 @@ const origin = `http://127.0.0.1:${port}`;
 const yachtsUrl = origin + '/yachts';
 const expected = {
   title: ['Miami Yacht Charters & Luxury Boat Rentals | Miami Elio'],
-  description: ['Charter luxury yachts in Miami with captain and crew. Compare fleet options, hourly rates, and VIP packages with instant concierge support on Miami Elio.'],
+  description: ['Charter luxury yachts in Miami with captain and crew. Compare fleet options, hourly rates, and VIP packages with 24/7 ELIO+ Guide support on Miami Elio.'],
   canonical: ['https://gorgona-one.com/yachts']
 };
 

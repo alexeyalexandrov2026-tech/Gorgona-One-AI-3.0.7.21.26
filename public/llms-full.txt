@@ -1,11 +1,11 @@
 # Miami Elio — Full AI & LLM Reference (`llms-full.txt`)
 
-> Miami Elio (`https://gorgona-one.com`), by Gorgona One, is a luxury hospitality, rental, dining, event and 16-language AI concierge platform for Miami, Florida. It is not a real estate sales brokerage and not a retail goods store.
+> Miami Elio (`https://gorgona-one.com`), by Gorgona One, is a luxury hospitality, rental, dining, event and 16-language ELIO+ Guide platform for Miami, Florida. It is not a real estate sales brokerage and not a retail goods store.
 
 ## 1. Platform Overview & Supported Languages (16 Locales)
 
 - **Canonical URL:** https://gorgona-one.com
-- **AI Concierge Hub:** https://gorgona-one.com/discovery
+- **ELIO+ Guide Hub:** https://gorgona-one.com/discovery
 - **Supported Languages (16):** English (`en`), Russian (`ru`), Spanish (`es`), Hebrew (`he`), Chinese Simplified (`zh`), Portuguese (`pt`), Ukrainian (`uk`), Japanese (`ja`), Korean (`ko`), German (`de`), Arabic (`ar`), Turkish (`tr`), Persian/Farsi (`fa`), Italian (`it`), French (`fr`), Polish (`pl`).
 - **Support Contact:** support@gorgona-one.com
 
@@ -49,7 +49,7 @@
 - **South / West Cluster:** Coconut Grove ↔ Coral Gables (`10–12 min`) ↔ Brickell (`15–20 min`).
 - **Airports & Stadiums:** `MIA` ↔ Brickell (`18–30 min`), `MIA` ↔ South Beach (`25–40 min`), `FLL` ↔ Brickell (`35–55 min`), Brickell ↔ Hard Rock Stadium (`30–50 min`).
 
-## 4. AI Concierge Capabilities & Factual Boundaries
+## 4. ELIO+ Guide Capabilities & Factual Boundaries
 
-- **Zero-Hallucination Grounding:** The Miami Elio AI Concierge quotes only verified catalog prices, capacities, neighborhoods, live TicketNetwork event dates, and official 7-day NOAA/NWS Miami weather forecasts (`KMIA`).
-- **Reservation Handoff Policy:** The chat concierge recommends, compares, calculates multi-day car budgets, and surfaces direct booking cards, but does not directly charge payment cards or confirm third-party reservations inside the chat text. Guests complete reservations on the linked official partner platform or via live concierge handoff.
+- **Zero-Hallucination Grounding:** ELIO (`ELIO+ Guide`) quotes only verified catalog prices, capacities, neighborhoods, live TicketNetwork event dates, and official 7-day NOAA/NWS Miami weather forecasts (`KMIA`).
+- **Reservation Handoff Policy:** ELIO recommends, compares, calculates multi-day car budgets, and surfaces direct booking cards, but does not directly charge payment cards or confirm third-party reservations inside the chat text. Guests complete reservations on the linked official partner platform or via live manager chat handoff.

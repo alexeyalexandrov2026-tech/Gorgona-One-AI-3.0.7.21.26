@@ -1,17 +1,10 @@
-
-import { LocalizedText, LocalizedElement } from "../../components/LocalizedText";
+import { LocalizedText, LocalizedElement } from '../../components/LocalizedText';
+import JsonLd from '../../components/JsonLd';
+import { btn } from '../../components/g1/ui';
 import { getServerTranslation } from '../../../lib/serverLocale';
+import { pageMetadata, sectionJsonLd } from '../../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
-
-// Same premium hero/feature-strip/deal-card presentation system as the
-// Sportsbook profile pages (see app/sportsbook/[slug]/page.js), reusing the
-// existing .sportsbook-banner/.market-card/.market-button styles as-is -
-// just carried over for Ovago's Travel profile instead of a sportsbook.
-const OVAGO_HERO_STYLE = {
-  gradient: 'radial-gradient(70% 90% at 18% 32%, #8f7fd6 0%, #6a58b8 22%, #4a3d8f 42%, #201a3f 68%, #050409 100%)',
-  glow: 'rgba(180,165,235,0.4)'
-};
 
 const OVAGO_FEATURES = [
   { title: 'Trusted Brand', sub: 'Established travel agency', d: 'M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z' },
@@ -44,67 +37,93 @@ const OVAGO_DEALS = [
   }
 ];
 
-export const metadata = {
-  title: 'Ovago Flight Deals | MIAMI ELIO',
-  description: 'Ovago flight deals - last minute flights, cheap flights, and business class fares.'
-};
+const description = 'Ovago flight deals - last minute flights, cheap flights, and business class fares.';
+
+export const metadata = pageMetadata({
+  title: 'Ovago Flight Deals',
+  fullTitle: 'Ovago Flight Deals | MIAMI ELIO',
+  description,
+  path: '/travel/ovago'
+});
 
 export default async function OvagoProfilePage() {
   const { t } = await getServerTranslation();
 
   return (
-    <main className="flex-1 py-10">
-      <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-premium">
-        <div
-          className="sportsbook-banner relative flex flex-col items-center gap-10 px-8 py-12 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left lg:px-14 lg:py-16"
-          style={{ '--sb-gradient': OVAGO_HERO_STYLE.gradient, '--sb-glow': OVAGO_HERO_STYLE.glow }}
-        >
-          <div className="relative z-[2] max-w-lg">
-            <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{t.categories.travel}<LocalizedText source=" Profile" /></p>
-            <h1 className="mt-4 text-4xl font-extrabold tracking-tight text-white">Ovago</h1>
-            <p className="mt-4 text-base leading-relaxed text-zinc-300"><LocalizedText source="Flight deals and discounts, including last-minute fares, cheap flights, and business class offers." /></p>
-          </div>
-          <div className="relative z-[2] w-3/4 max-w-[380px] rounded-2xl bg-white p-6 sm:w-[42%]">
-            <img src="/images/brands/ovago-travel.svg" alt="Ovago" className="w-full drop-shadow-[0_18px_40px_rgba(0,0,0,0.6)]" />
-          </div>
-        </div>
+    <main className="min-w-0 flex-1 pb-12 font-g1sans text-g1-ink">
+      <JsonLd data={sectionJsonLd({ name: 'Ovago Flight Deals', description, path: '/travel/ovago' })} />
 
-        <div className="grid grid-cols-2 border-y border-white/10 lg:grid-cols-4">
-          {OVAGO_FEATURES.map((f) => (
-            <div key={f.title} className="flex items-start gap-3 border-r border-white/10 p-5 last:border-r-0">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 h-[22px] w-[22px] shrink-0 text-brand-gold">
-                <path d={f.d} />
-              </svg>
-              <div>
-                <p className="text-sm font-semibold text-white"><LocalizedText source={f.title} /></p>
-                <p className="text-sm text-zinc-500"><LocalizedText source={f.sub} /></p>
-              </div>
+      <header className="grid items-center gap-8 py-10 sm:py-14 md:grid-cols-[1.2fr_1fr]">
+        <div className="grid justify-items-start gap-4">
+          <p className="font-g1mono text-[0.76rem] uppercase tracking-[0.16em] text-g1-soft">
+            {t.categories.travel}
+            <LocalizedText source=" Profile" />
+          </p>
+          <h1 className="g1-display font-g1display text-[clamp(2.8rem,6vw,5.2rem)] font-medium leading-none">
+            Ovago
+          </h1>
+          <p className="max-w-[50ch] text-lg leading-relaxed text-g1-soft">
+            <LocalizedText source="Flight deals and discounts, including last-minute fares, cheap flights, and business class offers." />
+          </p>
+        </div>
+        <div className="flex items-center justify-center rounded-2xl border border-g1-rule bg-white p-10 shadow-sm">
+          <img
+            src="/images/brands/ovago-travel.svg"
+            alt="Ovago"
+            width="360"
+            height="120"
+            className="max-h-24 w-auto object-contain"
+          />
+        </div>
+      </header>
+
+      <section className="grid grid-cols-2 border-y border-g1-rule lg:grid-cols-4">
+        {OVAGO_FEATURES.map((f) => (
+          <div key={f.title} className="flex items-start gap-3 border-b border-g1-rule py-5 pr-4 lg:border-b-0 lg:border-r lg:px-5 lg:last:border-r-0">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="mt-0.5 h-5 w-5 shrink-0 text-g1-accent" aria-hidden="true">
+              <path d={f.d} />
+            </svg>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-g1-ink"><LocalizedText source={f.title} /></p>
+              <p className="mt-0.5 text-xs text-g1-soft"><LocalizedText source={f.sub} /></p>
             </div>
+          </div>
+        ))}
+      </section>
+
+      <section aria-labelledby="ovago-deals-heading" className="pt-9">
+        <h2 id="ovago-deals-heading" className="font-g1mono text-[0.76rem] uppercase tracking-[0.16em] text-g1-soft">
+          <LocalizedText source="Ovago Deals" />
+        </h2>
+        <div className="mt-6 grid gap-6 md:grid-cols-3">
+          {OVAGO_DEALS.map((deal) => (
+            <article key={deal.name} className="flex flex-col overflow-hidden rounded-2xl border border-g1-rule bg-g1-card">
+              <div className="aspect-[16/10] w-full overflow-hidden border-b border-g1-rule bg-g1-paper">
+                <LocalizedElement as="img" src={deal.image} alt={deal.name} className="h-full w-full object-cover" />
+              </div>
+              <div className="flex flex-1 flex-col justify-between gap-6 p-6">
+                <div>
+                  <h3 className="font-g1display text-2xl font-medium leading-snug text-g1-ink">
+                    <LocalizedText source={deal.name} />
+                  </h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-g1-soft">
+                    <LocalizedText source={deal.description} />
+                  </p>
+                </div>
+                <a
+                  href={deal.href}
+                  target="_blank"
+                  rel="sponsored noopener noreferrer"
+                  className={`${btn.base} ${btn.ink} w-full justify-center`}
+                >
+                  {t.buttons.getDeal}
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </article>
           ))}
         </div>
-
-        <div className="p-8 lg:p-10">
-          <p className="text-sm uppercase tracking-[0.3em] text-brand-gold"><LocalizedText source="Ovago Deals" /></p>
-          <div className="mt-6 grid gap-6 md:grid-cols-3">
-            {OVAGO_DEALS.map((deal) => (
-              <article key={deal.name} className="market-card flex flex-col overflow-hidden rounded-2xl">
-                <div className="flex items-center justify-center bg-black/40 p-4">
-                  <LocalizedElement as="img" src={deal.image} alt={deal.name} className="max-h-40 w-full object-contain" />
-                </div>
-                <div className="flex flex-1 flex-col justify-between p-6">
-                  <div>
-                    <h2 className="text-lg font-semibold text-white"><LocalizedText source={deal.name} /></h2>
-                    <p className="mt-3 text-sm text-zinc-400"><LocalizedText source={deal.description} /></p>
-                  </div>
-                  <a href={deal.href} target="_blank" rel="sponsored noopener noreferrer" className="market-button mt-6 inline-flex justify-center">
-                    {t.buttons.getDeal}
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </div>
+      </section>
     </main>
   );
 }

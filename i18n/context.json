@@ -16,7 +16,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.lede": {
-    "sourceHash": "25b0f8b1acb214ac87a9cfce4dbab8be23b5e2e99806f765813154f484948d56",
+    "sourceHash": "33d2e6e4232933232c83b398c127c5a00d3ac7ccb276eccd3c6165c80111bf5b",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.stats.0": {
@@ -32,7 +32,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.searchLabel": {
-    "sourceHash": "b2524a3246567ad34b808103f50b2ded4ca68d506509a0d6f0430a9072cd8163",
+    "sourceHash": "f8a6d4b7b648c65e2af01728308f8092550ccb7e3a69a00b98c15e4ffa87420c",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.searchPlaceholder": {
@@ -256,7 +256,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.worldsSub": {
-    "sourceHash": "82bd05915d611d46ba98c2fd326183a77e110de725ad090f288b8e1dc1460a99",
+    "sourceHash": "3425f37a7510b5340b8dc5e9078ab3cdbab5532fe23132dc4bfe15c8eb30de24",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.worldItems.deals.0": {
@@ -316,7 +316,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.worldItems.concierge.0": {
-    "sourceHash": "6fd6628dffd218e9e6629a6147624ab9736c8d005278ba2d11c025312158b0b1",
+    "sourceHash": "bc961c9bc3c4961d782bfd07b493b031abbdefede5ab08a7c28e77c3dc9b92bc",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.worldItems.concierge.1": {
@@ -384,7 +384,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.conciergeEyebrow": {
-    "sourceHash": "6fd6628dffd218e9e6629a6147624ab9736c8d005278ba2d11c025312158b0b1",
+    "sourceHash": "bc961c9bc3c4961d782bfd07b493b031abbdefede5ab08a7c28e77c3dc9b92bc",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.concierge": {
@@ -396,7 +396,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.open": {
-    "sourceHash": "afa17cc6eb789e01bdc41c3d04f199f57803cde69be2956b26d22f3a0e1997dd",
+    "sourceHash": "e58806388f3220e1b27a781309a32ec955e4c8f080a23a4d3f76552dcfb6200b",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.exampleLanguage": {
@@ -504,7 +504,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.cars.steps.0.1": {
-    "sourceHash": "6b9ab48cd9adbde55303e42f916ed22a43701c73e0d7d06e069d494bf7648dde",
+    "sourceHash": "882e91e0a4df543207da39f4def2dba1b85f93ca69f7e7b555c9f685458a212f",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.cars.steps.1.0": {
@@ -552,7 +552,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.yachts.steps.0.1": {
-    "sourceHash": "c4dd3e1e3410024d7f14ae90282834681338a83bde7363a14e008a18e1b6f02f",
+    "sourceHash": "b351d544b9b9e9f65bb6e8a52872a21acaa0addf865f5255ceec4e95672f6742",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.yachts.steps.1.0": {
@@ -600,7 +600,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.stays.steps.0.1": {
-    "sourceHash": "8268a3fb9a5145f629384f6ab62d4b461cbdfec064913a5842bff48449004550",
+    "sourceHash": "efa06def79e87bc3f4b5fc1cf117475186bf8e4d0d0542effbcc2206307bd894",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.stays.steps.1.0": {
@@ -756,7 +756,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.form.failed": {
-    "sourceHash": "03a60580cd51f05689410fc345df392db67492a5b2fdb5f932f059ae5b97c57b",
+    "sourceHash": "595d08bf8d9c6c663f80d44b965d2188a74919d31a12c71cf82c916d27a6b85d",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "worlds.form.sentTitle": {
@@ -1275,24 +1275,8 @@
     "sourceHash": "c87ade9428c523ec24acc466aa12f9e34a091b889a9fc7e7118a552a9ee07052",
     "description": "app/affiliate-disclosure/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.f232a12eae2df39c": {
-    "sourceHash": "f232a12eae2df39c00d4d852e8474d4bb8005fdd17ee6b84fc63d290498492df",
-    "description": "app/ai-ready/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.a4ce6cd690c54c53": {
-    "sourceHash": "a4ce6cd690c54c53abf838bbfc16c46b7d16f0d90001971f0928c141cca53274",
-    "description": "app/ai-ready/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.5b2b2555bcf58322": {
-    "sourceHash": "5b2b2555bcf58322e473d620be1fb0afe413716e144ea98c8cada6bc646e4fa8",
-    "description": "app/ai-ready/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.0f7664c62a90fb50": {
     "sourceHash": "0f7664c62a90fb50b89b4dbc42cc24074acbadc50db392494a65baa67a3c07a1",
-    "description": "app/components/CategoryOrb.jsx; app/components/home/HomeHero.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.0ae1096fdd45527e": {
-    "sourceHash": "0ae1096fdd45527eac7be41cf4f923297d4e716490e71be4e25135d1a08d14b0",
     "description": "app/components/CategoryOrb.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.94fa9b236332e81d": {
@@ -1319,10 +1303,6 @@
     "sourceHash": "0f31329cd239a34f73eb5da914912026fc7159b4c759a490892fdbdb55e006ba",
     "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.42184a4f8cd23d51": {
-    "sourceHash": "42184a4f8cd23d514eab2811a9328337f41e87885df8371985c2e8dcec265123",
-    "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.569ca49f4aaf7846": {
     "sourceHash": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572",
     "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -1347,14 +1327,6 @@
     "sourceHash": "eb2a19523d639a48a66458e7f5a6f1e30db5962afa1923e810ee098561f2c3d7",
     "description": "app/components/ai/AiDock.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.024e346f201c8330": {
-    "sourceHash": "024e346f201c8330b8c6a57c5b44009b06dafb79050c5624e273835a7f4da53f",
-    "description": "app/components/ai/AiDock.jsx; app/components/ai/ConciergeRoom.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.91112f165505b715": {
-    "sourceHash": "91112f165505b7153d07d7aea7d8a25b5368e9791ebe325c1a09e8bf8f0c7dec",
-    "description": "app/components/ai/ConciergeRoom.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.38118013d0c7f614": {
     "sourceHash": "38118013d0c7f6140f1226fac9bc2d47942110aa6c0b531874e852f155cd8e21",
     "description": "app/components/ai/ConciergeRoom.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -1369,7 +1341,7 @@
   },
   "ui.a2595eb51357c95e": {
     "sourceHash": "a2595eb51357c95ed12203109088d86fa15263ebc0c6ba5df8be9ede4fee4b06",
-    "description": "app/components/ai/AiDock.jsx; app/components/ai/ConciergeRoom.jsx; app/components/ai/DiscoveryRoom.jsx; lib/aiSuggestions.js: owned section navigation label; owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/ai/AiDock.jsx; app/components/ai/ConciergeRoom.jsx; app/components/ai/DiscoveryRoom.jsx; lib/aiSuggestions.js: owned section navigation label. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.9ca1550b66974cc3": {
     "sourceHash": "9ca1550b66974cc3c7a523f0cb98f724447510c4beb329ef6154e85a7c432564",
@@ -1729,10 +1701,6 @@
   },
   "ui.c1f41fb9291904b2": {
     "sourceHash": "c1f41fb9291904b234e057367a160508c0c90ce0f39a8a0fae2f29f6c5cfc6fc",
-    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.682dd028e7f37171": {
-    "sourceHash": "682dd028e7f37171b34f133f4bb48eb83c01d820828e589d1d8e2e972e49e466",
     "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.a97d2edef5d1731d": {
@@ -2291,10 +2259,6 @@
     "sourceHash": "58fc0383cc8129fa0c98bfa0807dfe8949f7a588de0d79c2691513a5882281d0",
     "description": "owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.dcfa02444f085724": {
-    "sourceHash": "dcfa02444f085724add4326c007748692635af97b79a855e557a5329b9d8bf82",
-    "description": "owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.0beeae358e6644c8": {
     "sourceHash": "0beeae358e6644c8c9137d88260ecd52fceea599ef073432930ecdabeb162253",
     "description": "owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -2451,10 +2415,6 @@
     "sourceHash": "4b909cfeb60b9b19c47d15fa16975721360dfd60d1746ff7a79d2fb7a17dd7dd",
     "description": "app/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.7c3384f4b0cc1269": {
-    "sourceHash": "7c3384f4b0cc12697472a4f632c143ef8a727dc46ca078856cab805c4fee9104",
-    "description": "app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.4b9be66676208143": {
     "sourceHash": "4b9be66676208143c191bf940ac77ccf48e05a5718eb966903d95e558fe2e5e3",
     "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -2486,10 +2446,6 @@
   "ui.b8c209cdead61a09": {
     "sourceHash": "b8c209cdead61a095ec097b7a13c4fc9264c04b3e3bd0fca42ec8dbaeebeeafe",
     "description": "app/components/ai/AiConversation.jsx; app/components/ai/DiscoveryRoom.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.a98810050d41057b": {
-    "sourceHash": "a98810050d41057b5a29b11ae70dc681060d156b2c6f803b7778dc7c7068544a",
-    "description": "app/components/ai/ConciergeRoom.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.186ddecadf853d9b": {
     "sourceHash": "186ddecadf853d9b320575578c3900c60a87b1b868ceb2d80a2b4d129ecc9a51",
@@ -2867,10 +2823,6 @@
     "sourceHash": "2b61fbe5809981d41d4ed406b1475f9e5675d829ec446d4f8458102f35567d9b",
     "description": "app/components/dashboard/AppSupport.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.543e21037823cd87": {
-    "sourceHash": "543e21037823cd8732b3884486db5ee15a139ca480892a20a72bc2f82eb2a715",
-    "description": "app/components/dashboard/AppSupport.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.c5f1ceaddb8d91d5": {
     "sourceHash": "c5f1ceaddb8d91d53800f9d6d09d38501cd5f3ecfed299cd93a464479dae6424",
     "description": "app/components/dashboard/AppSupport.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -2903,14 +2855,6 @@
     "sourceHash": "d97d51d37092b10c15171339f0917540436953f7b5e28790bf187bce4a3fff20",
     "description": "app/components/MyMiami.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.cd0c8800f6d24172": {
-    "sourceHash": "cd0c8800f6d24172f24bc03ba6e3f44b4aaa1df1c2dc5a57352e958b9670696f",
-    "description": "app/components/MyMiami.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.e212f22f07582bb4": {
-    "sourceHash": "e212f22f07582bb4573a62d7b7633525f1e66a025478294fcafed0b2da4616d9",
-    "description": "app/components/MyMiami.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.43c5a322e4b76af6": {
     "sourceHash": "43c5a322e4b76af6c1294ba9b6f9a6aa6072d8d54c56a43a7d9816ffc37dc7ba",
     "description": "app/components/SaveButton.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -2922,10 +2866,6 @@
   "ui.f241dfe7c5029dec": {
     "sourceHash": "f241dfe7c5029dece06dedcd5eb30962b1ddec3cc50cf4bbc96d2f9dda0a64b0",
     "description": "app/components/SaveButton.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.77145db4404087ce": {
-    "sourceHash": "77145db4404087ce5bc3d5d972d07871f2a2341672953f6840b700f571c938bb",
-    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.8a2947831d8bc571": {
     "sourceHash": "8a2947831d8bc5710ac30a8c9caec59cdbac578ac0ccfcdfa5d034430de77a35",
@@ -2975,10 +2915,6 @@
     "sourceHash": "e39930d15197afc1294ca96ca231d4bae7b5b2b2c9512c0f4c065553a215bb2c",
     "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.25d1295d21a9ce07": {
-    "sourceHash": "25d1295d21a9ce07f3895f7908c36446c90aa2896e58f8a71ed8ea02787582dd",
-    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.15e2f6f793fb4c50": {
     "sourceHash": "15e2f6f793fb4c50ab9f594444cc9730b811fcb29b4adce6d35cf77813bdec84",
     "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -2995,16 +2931,8 @@
     "sourceHash": "dc8a88f8ccf2f485a720f8575104fd677957d549ca6fb55b0dd2a0b3c905a6f5",
     "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.fde8857d1f86bbe7": {
-    "sourceHash": "fde8857d1f86bbe7e3ff1f23e0d8d9b74cc80554e9f584e36b46cc5c9c3a38ae",
-    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.9ea4d38b0a160303": {
     "sourceHash": "9ea4d38b0a1603037a6ef61e97c918e5b944aebb941aa7f874cddd6499a75c30",
-    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.d20b05144c376bc1": {
-    "sourceHash": "d20b05144c376bc1196a4f32d2fc80478b911afb961602254e0d63eee5296ea9",
     "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.b005767dfbdb9683": {
@@ -3021,10 +2949,6 @@
   },
   "ui.1db8c30974123bb0": {
     "sourceHash": "1db8c30974123bb0870462e65f685341bb0e0868cd09f79955dab7c222822724",
-    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.dc7dc0b9563dd7c6": {
-    "sourceHash": "dc7dc0b9563dd7c6744ddaf6edaf9771e8aaeac983cb48a89fd7c392054f0c78",
     "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.5d00bf9350af1674": {
@@ -3095,10 +3019,6 @@
     "sourceHash": "e12796a571a160e9b4bb7e42c6dbf601485b1ec32986540be96e7d2b22c2be33",
     "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.f56b7a2ccae8dd57": {
-    "sourceHash": "f56b7a2ccae8dd572020ba7cda952d260e63f11a1defac48c1b6b366aad1a03f",
-    "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.5eb859dff1d12a38": {
     "sourceHash": "5eb859dff1d12a38d1fc65d8d8ec4c6a838b9bdeee29934eb5b4269dbf9b2802",
     "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -3136,7 +3056,7 @@
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.railConcierge": {
-    "sourceHash": "ad74fd828a4b258aeb7b9af4e8a786a43457abfe1d1e0bdfa1274e3481ea87a3",
+    "sourceHash": "bc961c9bc3c4961d782bfd07b493b031abbdefede5ab08a7c28e77c3dc9b92bc",
     "description": "Owned source namespace. Translate complete messages and retain named slots."
   },
   "home.live": {
@@ -3321,10 +3241,6 @@
   },
   "ui.ec54f5e123930357": {
     "sourceHash": "ec54f5e123930357d54436ab0224526365ed975f5beafce681dcb0ddf7aacd75",
-    "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.358a99cb750c1980": {
-    "sourceHash": "358a99cb750c198092804d976234b2592b7208b4c52a5b32dca453f2813f0e66",
     "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.0a61addc18446dc9": {
@@ -3522,5 +3438,109 @@
   "listing.bombay-darbar.description": {
     "sourceHash": "d8839961bbd3b5e72dc94cfb4df5df3538cad8246749ea35707f761cfa1b7f14",
     "description": "Owned listing: venues / bombay-darbar-miami / description. Product/brand/place names remain intact."
+  },
+  "yatr.shieldEyebrow": {
+    "sourceHash": "ee042786b5e272d827835e4f6f6e84df3a9a9ac36a908d11d5b94c61c2db8588",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "yatr.shieldTitle": {
+    "sourceHash": "408fbf088a22f49cec7eac5b52f3b71d5921973478c21121bc73ba2248878c0a",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "yatr.shieldPillar1Title": {
+    "sourceHash": "62126a5d05d1586b0f8759a69b18dbb92905bbc9d8de94b1643076e877d3dae2",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "yatr.shieldPillar1Body": {
+    "sourceHash": "0caedab273580e08ff9282f292b015fc9d532955d261eb28491967662ccddd22",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "yatr.shieldPillar2Title": {
+    "sourceHash": "56cdd7c1998f9d046de18bb0d21b66c91cbfd035ed45de27ee66502cb1eaa959",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "yatr.shieldPillar2Body": {
+    "sourceHash": "5e7641df4537d347d6834f305e73c2e545b6517cec1c763ec17304e4d7028075",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "yatr.shieldPillar3Title": {
+    "sourceHash": "f047e687cb19a82e5e9bb6d666c8267b7141e05f075f687e341d7ab4e6b1fa78",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "yatr.shieldPillar3Body": {
+    "sourceHash": "4ffc602e2828051adf850282edecf54dea88478c8db2025d623252e5c2774004",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "yatr.shieldAskElio": {
+    "sourceHash": "bd6efea5f3a09447a4e873c0debc83751ce855fc8733936413b66326d2832b19",
+    "description": "Owned source namespace. Translate complete messages and retain named slots."
+  },
+  "ui.3751a42285601cad": {
+    "sourceHash": "3751a42285601cad0b5471ca8c1c0635f9adb9fd366d7ce0aafc20ea616dfbab",
+    "description": "app/account/delete/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.bc961c9bc3c4961d": {
+    "sourceHash": "bc961c9bc3c4961d782bfd07b493b031abbdefede5ab08a7c28e77c3dc9b92bc",
+    "description": "app/components/ai/AiDock.jsx; app/components/ai/ConciergeRoom.jsx; app/components/Footer.jsx; app/components/home/HomeHero.jsx; owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.35a92e0b2a77ec4e": {
+    "sourceHash": "35a92e0b2a77ec4e87e52a89d98cc61caf34816fc5d552001028b533f6d95b6b",
+    "description": "app/components/ai/ConciergeRoom.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.c3665e61abf18856": {
+    "sourceHash": "c3665e61abf1885619892f62307d2a39a9d1c45b9e155f46c3fbf6d69068260d",
+    "description": "app/components/CategoryOrb.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.0070864cb2d11c2d": {
+    "sourceHash": "0070864cb2d11c2d0a9d17214e29daa7c281672b0ebe5262685b46863e1f22d8",
+    "description": "app/components/dashboard/AppSupport.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.f8d45abf54d5b89c": {
+    "sourceHash": "f8d45abf54d5b89c2c54d7ea5433ef657617874b6f8e78c9eddb38177b08fb76",
+    "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.2450508162e11ae5": {
+    "sourceHash": "2450508162e11ae5a87b0590c37c5f2e26cd947af7d5f70328a9529116ff29ad",
+    "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.9ad177f06f7aa148": {
+    "sourceHash": "9ad177f06f7aa14814ff487d593b36a0f5df94cc73aab5bb5704acbb13d2cf83",
+    "description": "app/components/MyMiami.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.7445bc4e05ae2f1d": {
+    "sourceHash": "7445bc4e05ae2f1d44e66d527b0dd7c5c6b4266cf7f6ed6dec1e6ed485fbefa9",
+    "description": "app/components/MyMiami.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.21b66b20e3d414b7": {
+    "sourceHash": "21b66b20e3d414b7dc72ebc4586ace902c5c3e8be65ebb834d6fbec2e7617dd7",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.1ac31508dc1054ee": {
+    "sourceHash": "1ac31508dc1054eebf957ef5a2d83b8086f8ef3aeadc3f4643e0284e3242fab8",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.3dff487bf3eb5d23": {
+    "sourceHash": "3dff487bf3eb5d2314336573856e1f26f8d8df1960da5bab67501c1888f8bdd3",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.5e0f6a378dd797ca": {
+    "sourceHash": "5e0f6a378dd797cae22fe1ed01d64e15ee1b37015f037713a2697472ad96e73a",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.45928ac91f9b9bbe": {
+    "sourceHash": "45928ac91f9b9bbe1d0458b4cf222a08d0b53a1b307521f32cfc7c400b862ba5",
+    "description": "app/privacy/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.1b731c78dbf48909": {
+    "sourceHash": "1b731c78dbf489091a822d5673478ef74a7763960715885762af2b2fbbd6e5e6",
+    "description": "app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.46fe8ff77f9b437f": {
+    "sourceHash": "46fe8ff77f9b437f7743e1028be3afd9ceff67c3c8b6625e966c8748dce16fb8",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.b7a86a4d0d83e7f8": {
+    "sourceHash": "b7a86a4d0d83e7f8334862dcc43e81a7944d707d16c91e9f09e6f6e1c5704ecf",
+    "description": "owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   }
 }

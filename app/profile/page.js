@@ -56,7 +56,7 @@ export default function ProfilePage() {
           {auth?.session && <span>{t.auth.signedInAs} {auth.session.name} ({auth.session.email})</span>}
         </div>
 
-        <h1 className="mt-10 font-display text-[10vw] sm:text-[6rem] font-medium leading-[0.92] tracking-[-0.02em] text-villa-charcoal uppercase mb-16"><LocalizedTitle source="Concierge{break}Desk" />
+        <h1 className="mt-10 font-display text-[10vw] sm:text-[6rem] font-medium leading-[0.92] tracking-[-0.02em] text-villa-charcoal uppercase mb-16"><LocalizedTitle source="ELIO+{break}Desk" />
         </h1>
 
         <nav className="flex flex-wrap gap-5 text-sm text-villa-obsidian">

@@ -16,11 +16,12 @@ import { quickRepliesForTurn } from '../../../lib/ai/quickReplies.mjs';
 import { thinkingStatusForTurn } from '../../../lib/ai/thinkingStatus.mjs';
 import { buildShareablePlanText, buildTelegramShareUrl, buildWhatsAppShareUrl, getShareCopy } from '../../../lib/ai/sharePlan.mjs';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
-import { configuredManagerTelegram } from '../../../lib/managerContact.mjs';
+import { configuredManagerTelegram, configuredManagerWhatsApp } from '../../../lib/managerContact.mjs';
 
-// The floating manager button hides while the chat is open, so a booking or
-// payment answer carries the same live-manager link inside the reply.
+// The floating manager buttons hide while the chat is open, so a booking or
+// payment answer carries the same live-manager chat links inside the reply.
 const managerHref = configuredManagerTelegram();
+const managerWhatsAppHref = configuredManagerWhatsApp();
 
 // i18n carries per-locale AI copy; this is the English original, used when a
 // locale has not translated the key yet.
@@ -109,11 +110,21 @@ function Message({ role, content, question, locale, handoff = false, degraded = 
           </span>
         )}
         {content}
-        {!isUser && handoff && managerHref && (
-          <a href={managerHref} target="_blank" rel="noopener noreferrer"
-            className="mt-2 block min-h-11 text-xs text-brand-gold underline">
-            {t.ai?.liveManager}
-          </a>
+        {!isUser && handoff && (managerHref || managerWhatsAppHref) && (
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            {managerHref && (
+              <a href={managerHref} target="_blank" rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center text-xs text-brand-gold underline">
+                {t.ai?.liveManager}
+              </a>
+            )}
+            {managerWhatsAppHref && (
+              <a href={managerWhatsAppHref} target="_blank" rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center text-xs text-brand-gold underline">
+                {t.ai?.liveManagerWhatsApp}
+              </a>
+            )}
+          </div>
         )}
         {!isUser && content.trim() && (
           <div className="mt-1">
@@ -371,12 +382,12 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
       >
         <input
           ref={inputRef}
-          aria-label={t.ai?.askPlaceholder || 'Ask the concierge anything…'}
+          aria-label={t.ai?.askPlaceholder || 'Ask ELIO anything…'}
           maxLength={4000}
           disabled={!hydrated||isLoading}
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          placeholder={voice.isListening ? `${t.ai?.listening || 'Listening'}…` : (t.ai?.askPlaceholder || 'Ask the concierge anything…')}
+          placeholder={voice.isListening ? `${t.ai?.listening || 'Listening'}…` : (t.ai?.askPlaceholder || 'Ask ELIO anything…')}
           className="min-w-0 flex-1 bg-transparent py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none"
         />
         {voice.recognitionSupported && (

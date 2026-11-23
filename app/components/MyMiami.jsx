@@ -40,7 +40,7 @@ export default function MyMiami() {
         </h2>
         {request && (
           <button type="button" onClick={() => ask(request)} className={`${btn.base} ${btn.primary}`} data-plan-from-favourites>
-            {kinds.size > 1 ? msg('Build a plan with the concierge') : msg('Ask the concierge about these')}
+            {kinds.size > 1 ? msg('Build a plan with ELIO') : msg('Ask ELIO about these')}
           </button>
         )}
       </div>

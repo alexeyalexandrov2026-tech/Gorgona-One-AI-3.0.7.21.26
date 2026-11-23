@@ -104,7 +104,7 @@ export function InstallPrompt() {
           <img src={APP_ICON} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-xl" />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-white">{msg("Miami Elio for Android")}</p>
-            <p className="mt-1 text-xs leading-relaxed text-zinc-400">{msg("Yachts, villas, cars, events and the AI concierge in one app.")}</p>
+            <p className="mt-1 text-xs leading-relaxed text-zinc-400">{msg("Yachts, villas, cars, events and ELIO+ Guide in one app.")}</p>
             <div className="mt-3 flex gap-2">
               <a
                 href={GOOGLE_PLAY_URL}
@@ -136,7 +136,7 @@ export function InstallPrompt() {
           <p className="text-sm font-semibold text-white">{msg("Add MIAMI ELIO to your Home Screen")}</p>
           {deferredPrompt ? (
             <>
-              <p className="mt-1 text-xs leading-relaxed text-zinc-400">{msg("Install the app for a focused, standalone concierge experience.")}</p>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-400">{msg("Install the app for a focused, standalone ELIO+ Guide experience.")}</p>
               <div className="mt-3 flex gap-2">
                 <button
                   type="button"

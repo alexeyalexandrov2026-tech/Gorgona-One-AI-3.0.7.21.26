@@ -92,7 +92,7 @@ test('home page carries organization and website structured data', () => {
 
 test('the organization describes the business and lists only contact details that exist', () => {
   const org = organizationJsonLd();
-  assert.match(org.description, /16-language AI concierge/);
+  assert.match(org.description, /16-language ELIO\+ Guide/);
   assert.doesNotMatch(org.description, /real estate|retail/i);
   assert.equal(org.contactPoint.email, SUPPORT_EMAIL);
   assert.match(source('app/privacy/page.js'), new RegExp(`CONTACT = '${SUPPORT_EMAIL}'`), 'the privacy page names the same address');
@@ -101,7 +101,7 @@ test('the organization describes the business and lists only contact details tha
 
 test('titles and descriptions on the section pages use the approved search wording', () => {
   const expected = {
-    'app/page.js': ['Miami Yachts, Villas, Car Rentals & Events | Miami Elio', 'Miami Elio: Yachts, Villas, Exotic Cars, Events & AI Concierge'],
+    'app/page.js': ['Miami Yachts, Villas, Car Rentals & Events | Miami Elio', 'Miami Elio: Yachts, Villas, Exotic Cars, Events & ELIO+ Guide'],
     'app/yachts/page.js': ['Miami Yacht Charters & Luxury Boat Rentals | Miami Elio'],
     'app/private-jets/page.js': ['Private Jet Charter Miami — On-Demand Flights | Miami Elio'],
     'app/experiences/page.js': ['Things to Do in Miami: Tours & Experiences | Miami Elio'],
@@ -141,7 +141,7 @@ test('car pages show a daily price in the title only when the catalogue has one'
   assert.equal(onRequest.title, 'Lamborghini Urus SE Rental in Miami | Miami Elio');
   for (const text of [priced, onRequest]) {
     assert.equal(text.title.split('| Miami Elio').length, 2, 'the brand closes the title once');
-    assert.equal(text.description, 'Rent the Lamborghini Urus SE in Miami with Miami Elio. Flexible daily rates, delivery across Miami Beach & Brickell, and 24/7 concierge support. Book now.');
+    assert.equal(text.description, 'Rent the Lamborghini Urus SE in Miami with Miami Elio. Flexible daily rates, delivery across Miami Beach & Brickell, and 24/7 ELIO+ Guide support. Book now.');
   }
   const long = rentalSearchText({ title: '2024 Lamborghini Huracan Evo Spyder Performante', dailyPrice: '$1,100' });
   assert.ok(long.description.length <= 160 && !long.description.endsWith('Book now.'), 'the closing call to action goes before a name is cut');

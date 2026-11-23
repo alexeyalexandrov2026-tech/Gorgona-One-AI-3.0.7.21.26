@@ -76,7 +76,7 @@ export default function AccountDeletionPage() {
         </section>
         <section className="grid gap-2">
           <h2 className="text-lg font-semibold">{msg('What we keep')}</h2>
-          <p className="text-zinc-300">{msg('Requests you sent before deletion, including the name, email and phone number in them, are kept for 24 months after the request date for booking, accounting and legal purposes, and are then deleted or anonymized. Reported concierge answers are kept for 12 months.')}</p>
+          <p className="text-zinc-300">{msg('Requests you sent before deletion, including the name, email and phone number in them, are kept for 24 months after the request date for booking, accounting and legal purposes, and are then deleted or anonymized. Reported ELIO answers are kept for 12 months.')}</p>
         </section>
         {auth?.loading ? <p role="status">{msg('Loading...')}</p> : auth?.session ? (
           <DeletionRequest key={auth.session.id} userId={auth.session.id} />

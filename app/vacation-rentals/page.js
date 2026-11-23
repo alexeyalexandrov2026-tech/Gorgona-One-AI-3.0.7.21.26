@@ -4,7 +4,7 @@ import { pageMetadata, sectionJsonLd } from '../../lib/seo.mjs';
 
 export const metadata = pageMetadata({
   title: 'Villas and vacation rentals in Miami',
-  description: 'Search villas and vacation homes across Miami, with an AI concierge in your language.',
+  description: 'Search villas and vacation homes across Miami, with ELIO+ Guide in your language.',
   path: '/vacation-rentals'
 });
 

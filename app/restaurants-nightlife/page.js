@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata = pageMetadata({
   title: 'Restaurants and nightlife in Miami',
-  description: 'Verified Miami restaurants, lounges and clubs, with ways to reserve and an AI concierge to help you pick the night.',
+  description: 'Verified Miami restaurants, lounges and clubs, with ways to reserve and ELIO+ Guide to help you pick the night.',
   path: '/restaurants-nightlife'
 });
 
