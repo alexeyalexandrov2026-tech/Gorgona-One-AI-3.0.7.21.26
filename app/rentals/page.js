@@ -6,6 +6,7 @@ import { getWorldsCopy, displayValue } from '../../lib/worldsCopy';
 import { fill } from '../../lib/homeCopy';
 import { carThumb } from '../../lib/homeData';
 import { WorldHero, ListingCard, Steps, chipClass } from '../components/g1/ui';
+import SaveButton from '../components/SaveButton';
 import { getSunsetCopy } from '../../lib/sunsetCopy.mjs';
 import { rentalPage } from '../../lib/sunsetFleet.mjs';
 import JsonLd from '../components/JsonLd';
@@ -94,6 +95,7 @@ export default async function RentalsPage({ searchParams }) {
               note={getContentText(rentalDescriptions, locale, car.id, car.description)}
               rate={`${t.rentals.daily}: ${displayValue(car.dailyPrice, copy)}`}
               priority={i < 3}
+              action={<SaveButton overlay href={`/rentals/${car.slug}`} kind="car" title={car.title} subtitle={`${copy.categories[car.category] || car.category} · ${displayValue(car.location,copy)}`} image={carThumb(car)} />}
             />
           ))}
         </div>

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {LocalizedListing} from './LocalizedText';
 import DiningPhoto from './dining/DiningPhoto';
 import BookingButton from './dining/BookingButton';
+import SaveButton from './SaveButton';
 
 // No licensed photo yet: a typographic header in the same frame, so the grid stays even.
 function TextHeader({venue}) {
@@ -15,7 +16,10 @@ export function VenueCard({venue,t,styles={},locale='en',handoff}) {
  const kind=venue.category==='restaurant'?t.restaurantsNightlife.restaurants:t.restaurantsNightlife.nightlife;
  const chips=[venue.price,venue.michelin&&handoff?.[venue.michelin]].filter(Boolean);
  return <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-[22px] border border-g1-rule bg-g1-card transition-colors hover:border-g1-soft">
-  {venue.photo?<DiningPhoto venue={venue} locale={locale}/>:<TextHeader venue={venue}/>}
+  <div className="relative">
+   {venue.photo?<DiningPhoto venue={venue} locale={locale}/>:<TextHeader venue={venue}/>}
+   <SaveButton overlay href={`/restaurants-nightlife/${venue.slug}`} kind={venue.category==='nightlife'?'nightlife':'dining'} title={venue.name} subtitle={[venue.cuisine,venue.neighborhood].filter(Boolean).join(' · ')} image={venue.image||undefined}/>
+  </div>
   <div className="flex flex-1 flex-col p-5 pt-4 sm:p-6 sm:pt-4">
   <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.18em] text-g1-soft">{kind}</p>
   <h2 className="mb-3 font-g1display text-[clamp(1.65rem,2vw,2.2rem)] leading-tight"><Link prefetch={false} className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4" href={`/restaurants-nightlife/${venue.slug}`}>{venue.name}</Link></h2>
