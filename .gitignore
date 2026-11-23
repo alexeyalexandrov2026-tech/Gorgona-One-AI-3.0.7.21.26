@@ -11,3 +11,6 @@ node_modules/
 .wrangler/
 .cache/
 supabase/.temp/
+playwright-report/
+test-results/
+debug.log

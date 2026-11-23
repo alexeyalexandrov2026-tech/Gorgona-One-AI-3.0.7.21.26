@@ -14,7 +14,7 @@ export async function generateMetadata({ params }) {
   if (!league) return {};
   return pageMetadata({
     title: `${league.name} tickets in Miami`,
-    description: `${league.name} ${league.sport ? league.sport.toLowerCase() + ' ' : ''}games and tickets in Miami, with teams, dates and an AI concierge to plan the trip.`,
+    description: `${league.name} ${league.sport ? league.sport.toLowerCase() + ' ' : ''}games and tickets in Miami, with teams, dates and ELIO+ Guide to plan the trip.`,
     path: `/events/league/${league.slug}`
   });
 }
