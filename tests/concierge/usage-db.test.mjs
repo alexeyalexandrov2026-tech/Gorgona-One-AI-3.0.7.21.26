@@ -78,3 +78,11 @@ test('quota state and RPC are inaccessible to anonymous, customer, partner and a
   assert.equal((await db.query('select count(*)::int as n from private.concierge_ai_days')).rows[0].n,0);
  }finally{await db.close();}
 });
+test('20261123110454_increase_ai_usage_limits raises durable AI quotas within table bounds',async()=>{
+ const db=await fixture({migrationFiles:[...releaseMigrations,'20261123110454_increase_ai_usage_limits.sql']});
+ try{
+  const policy=(await db.query('select enabled,daily_calls,daily_bytes,daily_output_tokens,client_calls from private.concierge_ai_policy where id')).rows[0];
+  assert.deepEqual(policy,{enabled:true,daily_calls:3000,daily_bytes:30000000,daily_output_tokens:1152000,client_calls:120});
+  assert.equal((await rpc(db,'concierge_ai_reserve',claim())).allowed,true);
+ }finally{await db.close();}
+});

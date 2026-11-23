@@ -4,7 +4,7 @@ import { createTicketNetworkSource, ticketNetworkFailureDetails } from '../../..
 export const dynamic = 'force-dynamic';
 let source;
 const RATE_WINDOW_MS = 60_000;
-const RATE_LIMIT = 30;
+const RATE_LIMIT = 90;
 const ipHits = new Map();
 
 function checkRateLimit(request) {
