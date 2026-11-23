@@ -5,20 +5,20 @@ import {VIATOR_YACHTS,VIATOR_YACHT_CITIES,getViatorYachts} from '../../lib/viato
 import {VIATOR_YACHT_COPY,getViatorYachtCopy} from '../../lib/viatorYachtCopy.mjs';
 import {EXPERIENCE_CARDS} from '../../lib/experienceCards.mjs';
 
-test('/yachts lists 36 private Viator charters from Key West to Palm Beach, south to north',()=>{
- assert.equal(VIATOR_YACHTS.length,36);
- assert.deepEqual(VIATOR_YACHT_CITIES.map(city=>city.id),['key-west','florida-keys','miami','fort-lauderdale','palm-beach']);
- assert.deepEqual(VIATOR_YACHT_CITIES.map(city=>getViatorYachts(city.id).length),[3,2,22,6,3]);
+test('/yachts lists 14 curated private Viator yacht charters from Key West to Palm Beach, south to north',()=>{
+ assert.equal(VIATOR_YACHTS.length,14);
+ assert.deepEqual(VIATOR_YACHT_CITIES.map(city=>city.id),['key-west','miami','fort-lauderdale','palm-beach']);
+ assert.deepEqual(VIATOR_YACHT_CITIES.map(city=>getViatorYachts(city.id).length),[1,11,1,1]);
  // Cards come out in city order, so each grid is already sorted.
  const order=VIATOR_YACHT_CITIES.map(city=>city.id);
  const indexes=VIATOR_YACHTS.map(card=>order.indexOf(card.city));
  assert.deepEqual(indexes,[...indexes].sort((a,b)=>a-b));
 });
 
-test('every offer is a sponsored direct link to Viator with the partner referral and its own photo',()=>{
- assert.equal(new Set(VIATOR_YACHTS.map(card=>card.productCode)).size,36);
- assert.equal(new Set(VIATOR_YACHTS.map(card=>card.id)).size,36);
- assert.equal(new Set(VIATOR_YACHTS.map(card=>card.image)).size,36,'every offer has its own photo');
+test('every offer is a sponsored direct link to Viator with the partner referral, its own photo, logical framing, and no sightseeing excursions',()=>{
+ assert.equal(new Set(VIATOR_YACHTS.map(card=>card.productCode)).size,14);
+ assert.equal(new Set(VIATOR_YACHTS.map(card=>card.id)).size,14);
+ assert.equal(new Set(VIATOR_YACHTS.map(card=>card.image)).size,14,'every offer has its own photo');
  for(const card of VIATOR_YACHTS){
   const link=new URL(card.href);
   assert.equal(link.origin,'https://www.viator.com',card.id);
@@ -30,9 +30,11 @@ test('every offer is a sponsored direct link to Viator with the partner referral
   assert.equal(card.kind,'viator');
   assert.equal(card.direct,true);
   assert.match(card.image,/^https:\/\/media-cdn\.tripadvisor\.com\/media\/attractions-splice-spp-720x480\//,card.id);
+  assert.match(card.imagePosition,/^\d{1,3}%\s+\d{1,3}%$/,card.id);
   assert.equal(card.imageCredit,'Viator');
   assert.ok(card.title&&card.titleRu&&card.location,card.id);
   assert.ok(!/all[- ]inclusive|free/i.test(card.title+' '+card.titleRu),card.id+' promises more than Viator lists');
+  assert.ok(!/экскурси|narrated|1-hour|millionaire/i.test(card.title+' '+card.titleRu),card.id+' must be a charter, not an excursion');
  }
 });
 
