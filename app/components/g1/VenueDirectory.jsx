@@ -81,7 +81,7 @@ export default async function VenueDirectory({ basePath, searchParams, t, eyebro
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {picks.map(venue => (
             <li key={venue.id} className="grid min-w-0 content-start gap-2 border-t border-g1-rule pt-4">
-              <Link href={`/restaurants-nightlife/${venue.slug}`} className="font-g1display text-xl leading-tight underline-offset-4 hover:underline">{venue.name}</Link>
+              <Link prefetch={false} href={`/restaurants-nightlife/${venue.slug}`} className="font-g1display text-xl leading-tight underline-offset-4 hover:underline">{venue.name}</Link>
               <p className="text-sm text-g1-soft">{[venue.cuisine,venue.neighborhood,venue.price].filter(Boolean).join(' · ')}</p>
               <BookingButton venue={venue} copy={handoff} compact/>
             </li>

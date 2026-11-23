@@ -5,6 +5,8 @@ import { Reveal, Stagger, StaggerItem, Parallax } from '../components/Motion';
 import { TicketNetworkCatalogue } from './TicketNetworkCatalogue';
 import { EventPass } from './EventPass';
 import { getEventCategoriesByGroup } from '../../lib/mockEventsData';
+import JsonLd from '../components/JsonLd';
+import { sectionJsonLd } from '../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +41,7 @@ export default async function EventsMarketplacePage() {
 
   return (
     <main className="flex-1 theme-events">
+      <JsonLd data={sectionJsonLd({ name: 'Miami Concerts, Sports & VIP Event Tickets', description: metadata.description, path: '/events' })} />
       {/* Hero — matching the dark premium travel theme but for events */}
       <section className="lux-hero full-bleed -mt-[60px] flex min-h-[92svh] items-end bg-travel-void">
         <div className="lux-hero__bg">

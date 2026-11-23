@@ -18,13 +18,13 @@ export function VenueCard({venue,t,styles={},locale='en',handoff}) {
   {venue.photo?<DiningPhoto venue={venue} locale={locale}/>:<TextHeader venue={venue}/>}
   <div className="flex flex-1 flex-col p-5 pt-4 sm:p-6 sm:pt-4">
   <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.18em] text-g1-soft">{kind}</p>
-  <h2 className="mb-3 font-g1display text-[clamp(1.65rem,2vw,2.2rem)] leading-tight"><Link className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4" href={`/restaurants-nightlife/${venue.slug}`}>{venue.name}</Link></h2>
+  <h2 className="mb-3 font-g1display text-[clamp(1.65rem,2vw,2.2rem)] leading-tight"><Link prefetch={false} className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4" href={`/restaurants-nightlife/${venue.slug}`}>{venue.name}</Link></h2>
   <p className="text-sm text-g1-soft">{[venue.cuisine,venue.neighborhood].filter(Boolean).join(' · ')}</p>
   {handoff&&<BookingButton venue={venue} copy={handoff} compact className="mt-4"/>}
   {chips.length>0&&<ul className="mt-4 flex flex-wrap gap-1.5">{chips.map(chip=><li key={chip} className="rounded-full border border-g1-rule px-2.5 py-1 text-[11px] font-medium text-g1-soft">{chip}</li>)}</ul>}
   <p className="mt-3 text-xs uppercase tracking-wide text-g1-soft">{venue.features.filter(feature=>styles[feature]).map(feature=>styles[feature]).join(' · ')}</p>
-  <p className="mb-6 mt-4 text-[0.95rem] leading-relaxed text-g1-soft"><LocalizedListing itemId={venue.id} source={venue.description}/></p>
-  <Link className="mt-auto flex min-h-[46px] items-center justify-between border-t border-g1-rule pt-3 text-sm font-medium underline-offset-4 hover:underline" href={`/restaurants-nightlife/${venue.slug}`}>{t.common.viewDetails}<span aria-hidden="true">→</span></Link>
+  {venue.description&&<p className="mb-6 mt-4 text-[0.95rem] leading-relaxed text-g1-soft"><LocalizedListing itemId={venue.id} source={venue.description}/></p>}
+  <Link prefetch={false} className="mt-auto flex min-h-[46px] items-center justify-between border-t border-g1-rule pt-3 text-sm font-medium underline-offset-4 hover:underline" href={`/restaurants-nightlife/${venue.slug}`}>{t.common.viewDetails}<span aria-hidden="true">→</span></Link>
   </div>
  </article>;
 }

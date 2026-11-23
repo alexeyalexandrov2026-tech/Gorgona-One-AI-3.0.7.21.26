@@ -36,23 +36,42 @@ export function HomeSectionTile({ section, copy, exclusive, hidden = false, clas
 }
 
 export default function HomeSectionRail({ copy }) {
-  const exclusive = getExperienceCopy(useLocale()).exclusiveTitle;
+  const locale = useLocale();
+  const exclusive = getExperienceCopy(locale).exclusiveTitle;
   const railRef = useRef(null);
   const holdUntil = useRef(0);
+  const metricsRef = useRef({ setWidth: 0, isRtl: false, inView: true, hovered: false, focused: false });
   const [scrollable, setScrollable] = useState(false);
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     const rail = railRef.current;
-    const measure = () => setScrollable(rail.scrollWidth > rail.clientWidth + 1);
+    if (!rail) return undefined;
+    const measure = () => {
+      const [first, second] = rail.children;
+      metricsRef.current.setWidth = second ? Math.abs(second.offsetLeft - first.offsetLeft) * HOME_SECTIONS.length : 0;
+      metricsRef.current.isRtl = window.getComputedStyle(rail).direction === 'rtl';
+      setScrollable(rail.scrollWidth > rail.clientWidth + 1);
+    };
     const observer = new ResizeObserver(measure);
     observer.observe(rail);
+    let io = null;
+    if (typeof IntersectionObserver === 'function') {
+      io = new IntersectionObserver(([entry]) => {
+        if (entry) metricsRef.current.inView = entry.isIntersecting;
+      });
+      io.observe(rail);
+    }
     measure();
-    return () => observer.disconnect();
-  }, []);
+    return () => {
+      observer.disconnect();
+      io?.disconnect();
+    };
+  }, [locale]);
 
-  // A slow, continuous drift. The position is kept as a float because the
-  // browser rounds scrollLeft, which would stall sub-pixel steps.
+  // A slow, continuous drift. Layout geometry (setWidth, RTL direction, and
+  // viewport visibility) is cached outside rAF so tick() never triggers a
+  // forced synchronous layout reflow.
   useEffect(() => {
     if (!scrollable || paused) return undefined;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -65,19 +84,15 @@ export default function HomeSectionRail({ copy }) {
       const dt = last ? Math.min(now - last, 100) / 1000 : 0;
       last = now;
       const rail = railRef.current;
-      if (!rail || reducedMotion.matches || document.hidden || Date.now() < holdUntil.current ||
-          rail.matches(':focus-within') || (hover.matches && rail.matches(':hover'))) { pos = null; return; }
-      const box = rail.getBoundingClientRect();
-      if (box.bottom <= 0 || box.top >= window.innerHeight) return;
-      const [first, second] = rail.children;
-      if (!second) return;
-      const setWidth = Math.abs(second.offsetLeft - first.offsetLeft) * HOME_SECTIONS.length;
-      if (!setWidth) return;
-      const sign = getComputedStyle(rail).direction === 'rtl' && rail.scrollLeft <= 0 ? -1 : 1;
-      const actual = rail.scrollLeft * sign;
+      const m = metricsRef.current;
+      if (!rail || !m.inView || !m.setWidth || reducedMotion.matches || document.hidden || Date.now() < holdUntil.current ||
+          m.focused || (hover.matches && m.hovered)) { pos = null; return; }
+      const currentScroll = rail.scrollLeft;
+      const sign = m.isRtl && currentScroll <= 0 ? -1 : 1;
+      const actual = currentScroll * sign;
       if (pos === null || Math.abs(actual - pos) > 2) pos = actual;
       pos += RAIL_SPEED_PX_PER_S * dt;
-      if (pos >= setWidth) pos -= setWidth;
+      if (pos >= m.setWidth) pos -= m.setWidth;
       rail.scrollLeft = pos * sign;
     };
     frame = window.requestAnimationFrame(tick);
@@ -90,7 +105,18 @@ export default function HomeSectionRail({ copy }) {
 
   return (
     <nav aria-label={copy.eyebrow} className="g1-home-sections">
-      <div ref={railRef} className="g1-home-sections__track" onPointerDown={holdMotion} onPointerUp={holdMotion} onPointerCancel={holdMotion} onWheel={holdMotion}>
+      <div
+        ref={railRef}
+        className="g1-home-sections__track"
+        onPointerEnter={() => { metricsRef.current.hovered = true; }}
+        onPointerLeave={() => { metricsRef.current.hovered = false; }}
+        onFocusCapture={() => { metricsRef.current.focused = true; }}
+        onBlurCapture={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) metricsRef.current.focused = false; }}
+        onPointerDown={holdMotion}
+        onPointerUp={holdMotion}
+        onPointerCancel={holdMotion}
+        onWheel={holdMotion}
+      >
         {HOME_SECTIONS.map((section) => <HomeSectionTile key={section.id} section={section} copy={copy} exclusive={exclusive} />)}
         {HOME_SECTIONS.map((section) => <HomeSectionTile key={`${section.id}-loop`} section={section} copy={copy} exclusive={exclusive} hidden />)}
       </div>
