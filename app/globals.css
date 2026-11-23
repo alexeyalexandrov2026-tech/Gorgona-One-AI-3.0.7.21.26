@@ -63,9 +63,13 @@ html[data-app="android"] [data-app-link] {
 /* Over the sea: cards turn to frosted glass and the light "parchment" pages
    take light text. The partner and admin dashboards mark themselves with
    data-light-surface and keep their light look. */
-body .bg-g1-paper:not([data-light-surface], [data-light-surface] *),
-body .bg-g1-card:not([data-light-surface], [data-light-surface] *) {
+body .bg-g1-paper:not([data-light-surface], [data-light-surface] *, [aria-current="page"], [aria-pressed="true"]),
+body .bg-g1-card:not([data-light-surface], [data-light-surface] *, [aria-current="page"], [aria-pressed="true"]) {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(1, 26, 34, 0.55));
+}
+body select:not([data-light-surface], [data-light-surface] *) option {
+  background-color: #081822;
+  color: #edf2f3;
 }
 body .bg-villa-parchment:not([data-light-surface], [data-light-surface] *) {
   background: transparent;
@@ -83,9 +87,16 @@ body .text-villa-ash:not([data-light-surface], [data-light-surface] *) {
 body .border-villa-obsidian:not([data-light-surface], [data-light-surface] *) {
   border-color: rgba(244, 241, 234, 0.55);
 }
+body [class~="border-villa-obsidian/15"]:not([data-light-surface], [data-light-surface] *),
 body [class~="border-villa-obsidian/20"]:not([data-light-surface], [data-light-surface] *),
 body [class~="border-villa-obsidian/25"]:not([data-light-surface], [data-light-surface] *) {
-  border-color: rgba(244, 241, 234, 0.2);
+  border-color: rgba(244, 241, 234, 0.22);
+}
+body [class~="border-villa-obsidian/30"]:not([data-light-surface], [data-light-surface] *),
+body [class~="border-villa-obsidian/40"]:not([data-light-surface], [data-light-surface] *),
+body [class~="border-villa-obsidian/45"]:not([data-light-surface], [data-light-surface] *),
+body [class~="border-villa-obsidian/50"]:not([data-light-surface], [data-light-surface] *) {
+  border-color: rgba(244, 241, 234, 0.36);
 }
 body .theme-villa [data-my-miami] {
   --g1-ink: #f4f1ea;

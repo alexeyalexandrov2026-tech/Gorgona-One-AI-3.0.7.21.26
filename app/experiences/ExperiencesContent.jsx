@@ -38,9 +38,9 @@ export default function ExperiencesContent({exclusive=false}){
    <div className="mt-7"><ExperienceShowcase slides={slides} titles={titles} locale={locale} cta={copy.choose} label={pageTitle}/></div>
    <nav aria-label={copy.nav} className="mt-8 flex gap-3 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible">{sections.map(section=><a key={section.id} href={'#'+section.id} className="shrink-0 whitespace-nowrap rounded-full border border-g1-rule px-5 py-2 text-sm transition hover:border-g1-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-g1-accent">{section.title}</a>)}</nav>
   </header>
-  {sections.map((section,sectionIndex)=><section key={section.id} id={section.id} className="scroll-mt-28 py-7 sm:py-10" aria-labelledby={'heading-'+section.id}>
-   <h2 id={'heading-'+section.id} className="mb-7 font-g1display text-4xl sm:text-5xl">{section.title}</h2>
-   <div className="grid auto-rows-fr gap-5 sm:grid-cols-2 lg:grid-cols-3">{section.items.map((item,index)=><ExperienceCard key={item.id} item={item} copy={copy} labels={labels} locale={locale} eager={sectionIndex===0&&index===0} regionAnchor={firstRegion.get(item.region)===item.id?item.region:undefined}/>)}</div>
+  {sections.map((section,sectionIndex)=><section key={section.id} id={section.id} className="scroll-mt-28 py-5 sm:py-7" aria-labelledby={'heading-'+section.id}>
+   <h2 id={'heading-'+section.id} className="mb-4 font-g1display text-3xl sm:mb-5 sm:text-4xl">{section.title}</h2>
+   <div className="grid auto-rows-fr grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">{section.items.map((item,index)=><ExperienceCard key={item.id} item={item} copy={copy} labels={labels} locale={locale} eager={sectionIndex===0&&index===0} regionAnchor={firstRegion.get(item.region)===item.id?item.region:undefined} compact/>)}</div>
   </section>)}
   <aside className="mt-8 border-t border-g1-rule py-7 text-sm leading-relaxed text-g1-soft">
    <p>{copy.disclosure}</p><p className="mt-2">{viatorCopy.disclosure}</p>

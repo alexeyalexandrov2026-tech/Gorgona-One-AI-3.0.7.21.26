@@ -36,7 +36,7 @@ export default function ExperienceShowcase({ slides, titles, locale, cta, label 
     <section
       aria-roledescription="carousel"
       aria-label={label}
-      className="relative mt-2 h-[clamp(280px,46vw,460px)] overflow-hidden rounded-3xl border border-g1-rule"
+      className="relative mt-2 h-[clamp(200px,28vw,300px)] overflow-hidden rounded-3xl border border-g1-rule"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}

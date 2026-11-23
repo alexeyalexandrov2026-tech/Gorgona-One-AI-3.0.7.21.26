@@ -359,9 +359,9 @@
 .g1-home-section.g1-home-section--feature {
   flex: none;
   width: 100%;
-  height: clamp(280px, 46vw, 460px);
+  height: clamp(180px, 24vw, 260px);
   min-height: 0;
-  padding: 28px 24px;
+  padding: 20px 24px;
   border-radius: 1.5rem;
   border: 1px solid var(--g1-rule);
 }

@@ -17,9 +17,9 @@ export default function ExperienceCard({item,copy,labels,locale,eager=false,regi
     {item.illustrative&&<span className="absolute bottom-3 left-3 rounded-full bg-black/75 px-3 py-1 text-[11px] text-white">{labels.illustration}</span>}
    </div>
    <div className={compact?'flex flex-1 flex-col items-start p-3 sm:p-3.5':'flex min-h-[240px] flex-1 flex-col items-start p-5'}>
-    <h3 className={compact?'min-h-[2.4em] font-g1display text-[0.98rem] leading-[1.22] sm:text-[1.12rem]':'min-h-[3.6em] font-g1display text-2xl leading-[1.2]'}>{title}</h3>
-    <p className={compact?'mb-2.5 mt-1 text-[11px] text-g1-soft sm:mb-3 sm:mt-1.5 sm:text-xs':'mb-5 mt-2 text-sm text-g1-soft'}>{[item.location,item.supplier].filter(Boolean).join(' · ')}</p>
-    {item.coasters?.length>0&&<p className="mb-5 text-sm text-g1-soft">{item.coasters.join(' · ')}</p>}
+    <h3 className={compact?'min-h-[2.2em] font-g1display text-[0.98rem] leading-[1.2] sm:text-[1.08rem]':'min-h-[3.6em] font-g1display text-2xl leading-[1.2]'}>{title}</h3>
+    <p className={compact?'mb-2 mt-1 text-[11px] text-g1-soft sm:mb-2.5 sm:text-xs':'mb-5 mt-2 text-sm text-g1-soft'}>{[item.location,item.supplier].filter(Boolean).join(' · ')}</p>
+    {item.coasters?.length>0&&<p className={compact?'mb-2.5 line-clamp-2 text-[11px] leading-snug text-g1-soft sm:text-xs':'mb-5 text-sm text-g1-soft'}>{item.coasters.join(' · ')}</p>}
     <span className={`mt-auto inline-flex max-w-full items-center gap-2 rounded-full border border-g1-rule text-start leading-snug transition group-hover:border-g1-ink ${compact?'px-3 py-1 text-[11px] sm:px-3.5 sm:py-1.5 sm:text-xs':'gap-3 px-5 py-2 text-sm'}`}>{action}<span aria-hidden="true">↗</span></span>
    </div>
   </CardLink>
