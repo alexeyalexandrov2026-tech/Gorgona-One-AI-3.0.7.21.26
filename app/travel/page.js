@@ -2,6 +2,8 @@
 import { LocalizedText, LocalizedElement } from "../components/LocalizedText";
 import Link from 'next/link';
 import { Reveal, Stagger, StaggerItem, Parallax } from '../components/Motion';
+import JsonLd from '../components/JsonLd';
+import { sectionJsonLd } from '../../lib/seo.mjs';
 
 export const metadata = {
   title: 'Travel, Flights & Stays | Miami Elio Travel',
@@ -49,6 +51,7 @@ const ArrowIcon = ({ className }) => (
 export default function TravelLandingPage() {
   return (
     <main className="flex-1 theme-travel">
+      <JsonLd data={sectionJsonLd({ name: 'Travel, Flights & Stays', description: metadata.description, path: '/travel' })} />
       {/* Hero — midnight terminal with a single violet beacon */}
       <section className="lux-hero full-bleed -mt-[60px] flex min-h-[92svh] items-end bg-travel-void">
         <div className="lux-hero__bg">

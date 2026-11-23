@@ -18,7 +18,17 @@ import { LiveShowsBanner } from '../../LiveShowsBanner';
 import { TicketProviders } from '../../TicketProviders';
 import { TicketNetworkCatalogue } from '../../TicketNetworkCatalogue';
 import { getTicketNetworkCatalogue } from '../../../../lib/ticketnetwork';
-import { pageMetadata } from '../../../../lib/seo.mjs';
+import { pageMetadata, sectionJsonLd } from '../../../../lib/seo.mjs';
+import JsonLd from '../../../components/JsonLd';
+
+function categorySeo(entry) {
+  const label = /tickets$/i.test(entry.label) ? entry.label : `${entry.label} tickets`;
+  return {
+    name: `${label} in Miami`,
+    description: `${label} in Miami: dates, venues and ELIO+ Guide to plan the night.`,
+    path: `/events/category/${entry.slug}`
+  };
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -26,12 +36,8 @@ export async function generateMetadata({ params }) {
   const { category } = await params;
   const entry = EVENT_CATEGORY_GROUPS.find((group) => group.slug === category) || getEventCategoryBySlug(category);
   if (!entry) return {};
-  const label = /tickets$/i.test(entry.label) ? entry.label : `${entry.label} tickets`;
-  return pageMetadata({
-    title: `${label} in Miami`,
-    description: `${label} in Miami: dates, venues and an AI concierge to plan the night.`,
-    path: `/events/category/${entry.slug}`
-  });
+  const seo = categorySeo(entry);
+  return pageMetadata({ title: seo.name, description: seo.description, path: seo.path });
 }
 
 export default async function EventsCategoryPage({ params }) {
@@ -64,6 +70,7 @@ export default async function EventsCategoryPage({ params }) {
 
   return (
     <main className="flex-1 theme-villa">
+      <JsonLd data={sectionJsonLd(categorySeo(group || specificCategory))} />
       {/* ===== Photographic overture ===== */}
       <section className="lux-hero full-bleed -mt-[60px] flex min-h-[70svh] items-end bg-villa-charcoal">
         <div className="lux-hero__bg">
