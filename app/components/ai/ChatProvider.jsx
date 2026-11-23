@@ -156,18 +156,6 @@ export function ChatProvider({ children }) {
     let prepared=null;
 
     try {
-      prepared=await import('../../../lib/ai/catalogueAnswer.mjs').then(async (mod)=>{
-        const answerSet=mod.catalogueAnswer(nextMessages,locale);
-        const [{buildPlan},{syncPlanCatalog}]=await Promise.all([
-          import('../../../lib/ai/plan.mjs'),
-          import('../../../lib/ai/syncPlanCatalog.mjs')
-        ]);
-        return {...answerSet,plan:buildPlan(nextMessages,{catalog:syncPlanCatalog(),locale})};
-      }).catch(()=>null);
-      if(generation===generationRef.current&&prepared){
-        if(prepared.listings?.length){nextListings=prepared.listings;setListings(prepared.listings);}
-        if(prepared.plan){nextPlan=prepared.plan;setPlan(prepared.plan);}
-      }
       timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -203,6 +191,20 @@ export function ChatProvider({ children }) {
         return;
       }
       if(!answer){
+        prepared=await import('../../../lib/ai/catalogueAnswer.mjs').then(async (mod)=>{
+          const answerSet=mod.catalogueAnswer(nextMessages,locale);
+          const [{buildPlan},{syncPlanCatalog}]=await Promise.all([
+            import('../../../lib/ai/plan.mjs'),
+            import('../../../lib/ai/syncPlanCatalog.mjs')
+          ]);
+          return {...answerSet,plan:buildPlan(nextMessages,{catalog:syncPlanCatalog(),locale})};
+        }).catch(()=>null);
+        if(generation!==generationRef.current){
+          inFlightRef.current=false;
+          return;
+        }
+        if(prepared?.listings?.length) nextListings = prepared.listings;
+        if(prepared?.plan) nextPlan = prepared.plan;
         answer = prepared?.matched ? prepared.reply : unavailableReply(locale);
         handoff = prepared?.handoff === true;
         degraded = true;

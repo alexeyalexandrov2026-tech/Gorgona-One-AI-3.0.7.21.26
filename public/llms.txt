@@ -8,6 +8,7 @@ Many listings come from partners. Quotes, bookings and payments for those listin
 
 ## Main sections
 
+- [AI Concierge — Discovery Room](https://gorgona-one.com/discovery): 16-language AI concierge for Miami itineraries, venue comparisons, live NOAA weather planning and direct booking cards.
 - [Yacht charters](https://gorgona-one.com/yachts): Charter yachts in Miami through a partner catalogue.
 - [Exotic and luxury car rentals](https://gorgona-one.com/rentals): Cars available to rent in Miami, with a page for each vehicle.
 - [Villas and vacation rentals](https://gorgona-one.com/vacation-rentals): Villas and stays in Miami.
@@ -16,9 +17,11 @@ Many listings come from partners. Quotes, bookings and payments for those listin
 - [Event tickets](https://gorgona-one.com/events): Sports and concert tickets.
 - [Restaurants and nightlife](https://gorgona-one.com/restaurants-nightlife): Restaurants, clubs and rooftops in Miami.
 - [Exclusive destinations](https://gorgona-one.com/exclusive-destinations): Private yachts, cruises, helicopter flights and hand-picked tours.
+- [Travel and flight deals](https://gorgona-one.com/travel): Business, first-class and Miami flight offers.
 
 ## Reference
 
+- [Full AI Knowledge Base](https://gorgona-one.com/llms-full.txt): Detailed Miami catalog reference, neighborhoods, driving times, pricing tiers, verified dining directory and concierge capabilities.
 - [Sitemap](https://gorgona-one.com/sitemap.xml): Every public page.
 - [Affiliate disclosure](https://gorgona-one.com/affiliate-disclosure): How partner links work.
 - [Privacy](https://gorgona-one.com/privacy)

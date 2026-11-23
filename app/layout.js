@@ -26,9 +26,9 @@ const baseUrl = 'https://gorgona-one.com';
 // the current page, so a page without its own metadata still names itself as
 // canonical instead of claiming to be a copy of the home page.
 export const metadata = {
-  title: 'MIAMI ELIO | Yachts, villas, cars, events and shopping in Miami',
-  description: 'Yachts, villas, cars, events and shopping in Miami, with one AI concierge in your language.',
-  keywords: ['Miami', 'yacht charters', 'car rentals', 'villas', 'events', 'AI concierge'],
+  title: 'MIAMI ELIO | Yachts, villas, cars, events and dining in Miami',
+  description: 'Yachts, villas, cars, events and dining in Miami, with one AI concierge in your language.',
+  keywords: ['Miami', 'yacht charters', 'car rentals', 'villas', 'events', 'dining', 'AI concierge'],
   metadataBase: new URL(baseUrl),
   alternates: { canonical: './' },
   // The "ME" monogram already in public/: the tab and search results only

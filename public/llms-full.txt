@@ -1,0 +1,55 @@
+# Miami Elio — Full AI & LLM Reference (`llms-full.txt`)
+
+> Miami Elio (`https://gorgona-one.com`), by Gorgona One, is a luxury hospitality, rental, dining, event and 16-language AI concierge platform for Miami, Florida. It is not a real estate sales brokerage and not a retail goods store.
+
+## 1. Platform Overview & Supported Languages (16 Locales)
+
+- **Canonical URL:** https://gorgona-one.com
+- **AI Concierge Hub:** https://gorgona-one.com/discovery
+- **Supported Languages (16):** English (`en`), Russian (`ru`), Spanish (`es`), Hebrew (`he`), Chinese Simplified (`zh`), Portuguese (`pt`), Ukrainian (`uk`), Japanese (`ja`), Korean (`ko`), German (`de`), Arabic (`ar`), Turkish (`tr`), Persian/Farsi (`fa`), Italian (`it`), French (`fr`), Polish (`pl`).
+- **Support Contact:** support@gorgona-one.com
+
+## 2. Core Luxury Verticals & Booking Channels
+
+1. **Restaurants & Nightlife** (`https://gorgona-one.com/restaurants-nightlife`)
+   - 74+ verified Miami restaurants, Michelin-recognized dining rooms, rooftop lounges, beach clubs and nightclubs.
+   - Each verified venue links directly to its official reservation channel (`Resy`, `SevenRooms`, `OpenTable`, `Tock`, `Discotech`, `Tablelist`, `Dice`, or official venue booking page) or Google Maps.
+   - Notable verified Brickell venues: `Komodo` (SevenRooms), `Sexy Fish` (SevenRooms), `LPM Restaurant & Bar` ($$$$, SevenRooms), `Osaka` ($$$-$$$$, OpenTable), `Nuna` ($$$$, OpenTable), `Rosa Sky` (Rooftop), `Sugar Rooftop` (SevenRooms), `Naoe` (Brickell Key, $$$$, Tock).
+   - Notable verified South Beach / Miami Beach venues: `Carbone` (Resy), `Papi Steak` (SevenRooms), `Joe's Stone Crab` ($$$-$$$$, OpenTable), `MILA` (OpenTable), `Nikki Beach Miami Beach` (Resy), `Stubborn Seed` (SevenRooms), `Macchialina` (Resy), `Watr at the 1` (SevenRooms), `Catch Miami Beach` (SevenRooms), `Serena Rooftop` (SevenRooms), `LIV` (Discotech).
+   - Notable verified Design District / Wynwood / Edgewater venues: `COTE Miami` ($$$$, Resy), `L'Atelier de Joël Robuchon` ($$$$, SevenRooms), `Le Jardinier` ($$$$, SevenRooms), `Mandolin Aegean Bistro` ($$$-$$$$, Resy), `Mother Wolf` (Resy), `Torno Subito` (Resy), `DOYA` (Wynwood, SevenRooms), `Klaw` (Edgewater, $$$$, SevenRooms), `Amara at Paraiso` (Edgewater, $$$$, OpenTable).
+   - Notable verified Surfside / Bal Harbour / Sunny Isles / Coconut Grove / Coral Gables venues: `The Surf Club Restaurant` (Surfside, $$$$, Resy), `Makoto` (Bal Harbour, $$$-$$$$, OpenTable), `Il Mulino New York` (Sunny Isles Beach, OpenTable), `Ariete` (Coconut Grove, $$$$, SevenRooms), `Los Félix` (Coconut Grove, $$$, OpenTable), `Level 6` (Coconut Grove, OpenTable), `Shingo` (Coral Gables, $$$$, SevenRooms), `Bouchon Bistro` (Coral Gables, $$$$, Resy), `Luca Osteria` (Coral Gables, $$$-$$$$, OpenTable).
+
+2. **Exotic & Luxury Car Rentals** (`https://gorgona-one.com/rentals`)
+   - Curated Miami exotic and luxury fleet with dedicated vehicle pages (`/rentals/[slug]`) and verified daily rates (`$250/day` to `$2,000+/day`).
+   - Categories: Supercars (`Lamborghini Huracán`, `Lamborghini Aventador`, `Ferrari F8`, `Ferrari 488`, `Ferrari Portofino`, `McLaren 720S`, `Porsche 911 GT3`), Ultra-Luxury SUVs & Sedans (`Rolls-Royce Cullinan`, `Rolls-Royce Ghost`, `Mercedes-Maybach GLS`, `Mercedes-AMG G63`, `Lamborghini Urus`, `Bentley Bentayga`, `Bentley Continental GT`, `Range Rover`, `Cadillac Escalade ESV`, `BMW X7`).
+
+3. **Yacht Charters** (`https://gorgona-one.com/yachts`)
+   - Captained private yacht charters and Biscayne Bay cruises in Miami via YATR and verified Viator boat operators.
+
+4. **Villas & Vacation Rentals** (`https://gorgona-one.com/vacation-rentals`)
+   - Miami villas, waterfront homes and luxury stays with Stay22 check-in, check-out and guest-count deep links.
+
+5. **Private Jets** (`https://gorgona-one.com/private-jets`)
+   - On-demand private aviation charter quotes to and from Miami (`OPF` Opa-locka Executive, `MIA` Miami International, `FXE` Fort Lauderdale Executive) via PrivateJetFinder.
+
+6. **Experiences & Exclusive Destinations** (`https://gorgona-one.com/experiences`, `https://gorgona-one.com/exclusive-destinations`)
+   - Private helicopter flights over Miami & South Beach, Biscayne Bay sightseeing & sunset cruises, Everglades airboat tours, Vizcaya Museum, Wynwood Walls, Zoo Miami, Frost Science, PAMM, and Florida theme parks via Viator and Headout.
+
+7. **Live Concerts, Sports & VIP Event Tickets** (`https://gorgona-one.com/events`)
+   - Live Miami ticket inventory via TicketNetwork across NBA (`Miami Heat` at Kaseya Center), NFL (`Miami Dolphins` at Hard Rock Stadium), MLS (`Inter Miami CF` at Chase Stadium), NHL (`Florida Panthers`), MLB (`Miami Marlins`), Formula 1 (`Miami Grand Prix`), tennis (`Miami Open`), UFC, concerts, comedy and theater.
+
+8. **Flights & Travel Deals** (`https://gorgona-one.com/travel`, `https://gorgona-one.com/travel/ovago`)
+   - International and domestic flight deals to Miami (`MIA` / `FLL`) via Ovago.
+
+## 3. Miami Geographic Clusters & Logistics Reference
+
+- **Bay / Core Cluster:** Brickell ↔ Downtown Miami / Kaseya Center (`8–12 min`) ↔ Bayside Marina (`8 min`) ↔ Key Biscayne (`15 min`).
+- **Art / Luxury Cluster:** Wynwood ↔ Design District (`7 min`) ↔ Edgewater (`10 min`).
+- **Beach / North Cluster:** South Beach ↔ Mid-Beach (`10 min`) ↔ Surfside / Bal Harbour (`20 min`) ↔ Sunny Isles Beach (`28 min`).
+- **South / West Cluster:** Coconut Grove ↔ Coral Gables (`10–12 min`) ↔ Brickell (`15–20 min`).
+- **Airports & Stadiums:** `MIA` ↔ Brickell (`18–30 min`), `MIA` ↔ South Beach (`25–40 min`), `FLL` ↔ Brickell (`35–55 min`), Brickell ↔ Hard Rock Stadium (`30–50 min`).
+
+## 4. AI Concierge Capabilities & Factual Boundaries
+
+- **Zero-Hallucination Grounding:** The Miami Elio AI Concierge quotes only verified catalog prices, capacities, neighborhoods, live TicketNetwork event dates, and official 7-day NOAA/NWS Miami weather forecasts (`KMIA`).
+- **Reservation Handoff Policy:** The chat concierge recommends, compares, calculates multi-day car budgets, and surfaces direct booking cards, but does not directly charge payment cards or confirm third-party reservations inside the chat text. Guests complete reservations on the linked official partner platform or via live concierge handoff.

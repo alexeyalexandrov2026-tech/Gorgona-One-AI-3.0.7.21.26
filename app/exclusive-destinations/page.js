@@ -1,5 +1,6 @@
 import ExperiencesContent from '../experiences/ExperiencesContent';
-import { pageMetadata, withBrand } from '../../lib/seo.mjs';
+import JsonLd from '../components/JsonLd';
+import { pageMetadata, sectionJsonLd, withBrand } from '../../lib/seo.mjs';
 
 // Same Headout and Viator catalogue as /experiences, luxury first.
 export const metadata = pageMetadata({
@@ -11,5 +12,10 @@ export const metadata = pageMetadata({
 });
 
 export default function ExclusiveDestinationsPage() {
-  return <ExperiencesContent exclusive />;
+  return (
+    <>
+      <JsonLd data={sectionJsonLd({ name: 'Exclusive Luxury Destinations & VIP Travel', description: metadata.description, path: '/exclusive-destinations' })} />
+      <ExperiencesContent exclusive />
+    </>
+  );
 }

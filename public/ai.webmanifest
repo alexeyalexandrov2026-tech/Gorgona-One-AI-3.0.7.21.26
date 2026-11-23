@@ -2,9 +2,9 @@
   "name": "Miami Elio AI",
   "short_name": "Miami Elio AI",
   "description": "The intelligence layer of the Miami Elio ecosystem — ask by intent, discover everything.",
-  "start_url": "/ai",
-  "scope": "/ai",
-  "id": "/ai",
+  "start_url": "/discovery",
+  "scope": "/discovery",
+  "id": "/discovery",
   "display": "standalone",
   "background_color": "#100d08",
   "theme_color": "#c6a05e"
