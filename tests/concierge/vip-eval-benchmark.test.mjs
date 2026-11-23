@@ -23,7 +23,8 @@ const {
 const { missingQuestion } = load('lib/ai/conciergeReply.mjs');
 const { groundedReply } = load('lib/ai/groundedReply.mjs');
 const { validateGroundedReplyText } = load('lib/ai/factGuard.mjs');
-const { buildFactPack, collectAllowedPrices, extractMentionedEntities, normalizePagePath, resolvePageEntity } = load('lib/ai/factPack.mjs');
+const { buildFactPack, collectAllowedPrices, extractMentionedEntities, findCrossNeighborhoodDining, normalizePagePath, resolvePageEntity } = load('lib/ai/factPack.mjs');
+const { expandMultilingualAliases, searchEcosystem } = load('lib/ai/intent.js');
 const { STARTER_PROMPTS } = load('lib/ai/conciergePrompts.js');
 const { explicitBooking } = load('lib/ai/catalogueAnswer.mjs');
 const { matchActionCards } = load('lib/aiSuggestions.js');
@@ -49,7 +50,7 @@ const { SUPPORTED_LANGUAGES } = load('lib/languages.js');
 
 const NOW = new Date('2026-11-22T15:00:00Z');
 
-test('VIP Concierge Eval Benchmark: 74 multi-turn, guardrail, partner, forecast, telemetry & Wave 8-10 Apex Intelligence scenarios pass 100%', async () => {
+test('VIP Concierge Eval Benchmark: 82 multi-turn, guardrail, partner, forecast, telemetry & Wave 8-12 Apex Intelligence scenarios pass 100%', async () => {
   let passed = 0;
   const check = (name, fn) => {
     fn();
@@ -610,6 +611,122 @@ test('VIP Concierge Eval Benchmark: 74 multi-turn, guardrail, partner, forecast,
     passed += 1;
   }
 
-  assert.equal(passed, 74);
+  // -------------------------------------------------------------------------
+  // H. WAVE 12: TOP-0.1% MULTILINGUAL PHONETICS, SCOPED BUDGET & PROACTIVE GEO (8)
+  // -------------------------------------------------------------------------
+
+  // H01. Typo-tolerant & transliterated search across Russian/Arabic/typos
+  {
+    const expanded = expandMultilingualAliases('Сравни Карбон, Комодо и Папи Стейк + Lamborgini Урус');
+    assert.match(expanded, /carbone/);
+    assert.match(expanded, /komodo/);
+    assert.match(expanded, /papi steak/);
+    assert.match(expanded, /lamborghini urus/);
+    const hits = searchEcosystem('Хочу Ламборгини Урус или Гелендваген', { limit: 4 }).results;
+    assert.equal(hits.some((h) => /urus|g63/i.test(h.title)), true);
+    const mentioned = extractMentionedEntities([{ role: 'user', content: 'Сравни Карбон, Комодо и Папи Стейк' }], 3);
+    assert.equal(mentioned.length, 3);
+    passed += 1;
+  }
+
+  // H02. 16-language neighborhood script & typo detection
+  {
+    assert.equal(extractTripProfile([{ role: 'user', content: 'مطعم في بريكل' }]).neighborhood, 'Brickell');
+    assert.equal(extractTripProfile([{ role: 'user', content: "מסעדה בסאות' ביץ'" }]).neighborhood, 'South Beach');
+    assert.equal(extractTripProfile([{ role: 'user', content: '布里克尔晚餐' }]).neighborhood, 'Brickell');
+    assert.equal(extractTripProfile([{ role: 'user', content: 'ブリッケルのディナー' }]).neighborhood, 'Brickell');
+    assert.equal(extractTripProfile([{ role: 'user', content: '브리켈 레스토랑' }]).neighborhood, 'Brickell');
+    assert.equal(extractTripProfile([{ role: 'user', content: 'Dinner in Brikell' }]).neighborhood, 'Brickell');
+    passed += 1;
+  }
+
+  // H03. Scoped car budget isolation vs dining budget & explicit multi-turn resets
+  {
+    const p1 = extractTripProfile([
+      { role: 'user', content: 'Едем с детьми, бюджет на авто до $700 в день' },
+      { role: 'user', content: 'Хочу ужин в ресторане до $250 на человека' }
+    ]);
+    assert.equal(p1.maxDailyBudget, 700);
+    assert.equal(p1.hasKids, true);
+
+    const p2 = extractTripProfile([
+      { role: 'user', content: 'Едем с детьми, бюджет на авто до $700 в день' },
+      { role: 'user', content: 'Планы поменялись: уже без детей, и бюджет не важен' }
+    ]);
+    assert.equal(p2.hasKids, false);
+    assert.equal(p2.maxDailyBudget, null);
+    passed += 1;
+  }
+
+  // H04. Supercar capacity protection after large yacht group turn
+  {
+    const history = [
+      { role: 'user', content: 'Нужна яхта на 8 гостей в субботу' },
+      { role: 'user', content: 'А ещё покажи суперкар Ferrari или Huracan на выходные' }
+    ];
+    const profile = extractTripProfile(history);
+    assert.equal(profile.guests, 8);
+    const cards = listingCards('А ещё покажи суперкар Ferrari или Huracan на выходные', ['/rentals'], 'ru', 4, profile);
+    assert.equal(cards.some((c) => /ferrari|hurac/i.test(c.title)), true);
+    passed += 1;
+  }
+
+  // H05. Stay22 referral URL prefills neighborhood address in Miami
+  {
+    const url = buildStay22ReferralUrl({ guests: 4, checkIn: '2026-05-10', checkOut: '2026-05-14', neighborhood: 'Brickell' });
+    assert.match(url, /address=Brickell%2C\+Miami%2C\+FL%2C\+USA/);
+    assert.match(url, /guests=4/);
+    passed += 1;
+  }
+
+  // H06. Cross-neighborhood proactive dining intelligence (e.g. Brickell + steakhouse)
+  {
+    const cross = findCrossNeighborhoodDining('Brickell', ['steakhouse'], 3);
+    assert.equal(cross.length, 3);
+    assert.equal(cross.some((v) => /klaw|cote|papi steak/i.test(v.title)), true);
+    const pack = buildFactPack(
+      [
+        { role: 'user', content: 'Мы остановились в Brickell, очень любим стейки' },
+        { role: 'user', content: 'Куда сходить на ужин?' }
+      ],
+      'ru'
+    );
+    assert.match(pack.crossNeighborhoodNote, /No exact steakhouse match inside Brickell/i);
+    assert.equal(pack.facts.some((f) => /Klaw|COTE Miami|Papi Steak/.test(f.title)), true);
+    passed += 1;
+  }
+
+  // H07. Multi-section 16-language FactPack & listingCards balance (Arabic 3-service VIP day)
+  {
+    const arQuery = 'أريد خطة يوم فاخر في ميامي: يخت خاص، سيارة فاخرة ومطعم راقٍ في بريكل لعشاء رومانسي يوم السبت';
+    const sections = ['/yachts', '/rentals', '/restaurants-nightlife'];
+    const profile = extractTripProfile([{ role: 'user', content: arQuery }]);
+    assert.equal(profile.neighborhood, 'Brickell');
+    const pack = buildFactPack([{ role: 'user', content: arQuery }], 'ar');
+    assert.equal(pack.facts.some((f) => f.section === '/yachts'), true);
+    assert.equal(pack.facts.some((f) => f.section === '/rentals'), true);
+    assert.equal(pack.facts.some((f) => f.section === '/restaurants-nightlife'), true);
+    const cards = listingCards(arQuery, sections, 'ar', 4, profile);
+    assert.equal(cards.some((c) => c.label === 'Experience' || c.href.startsWith('/yachts')), true);
+    assert.equal(cards.some((c) => c.label === 'Car' || c.href.startsWith('/rentals/')), true);
+    assert.equal(cards.some((c) => c.label === 'Restaurant' || c.href.startsWith('/restaurants-nightlife/')), true);
+    passed += 1;
+  }
+
+  // H08. Transliterated replyMentionedCards attaches verified booking cards
+  {
+    const cards = replyMentionedCards(
+      'Для вечернего выхода рекомендую Комодо в Брикелле или Карбон на Саус Бич, а для поездки — Ламборгини Урус.',
+      ['/restaurants-nightlife', '/rentals'],
+      'ru',
+      4
+    );
+    assert.equal(cards.some((c) => c.title === 'Komodo'), true);
+    assert.equal(cards.some((c) => c.title === 'Carbone'), true);
+    assert.equal(cards.some((c) => /Urus/i.test(c.title)), true);
+    passed += 1;
+  }
+
+  assert.equal(passed, 82);
   console.log(`VIP Concierge Eval Benchmark: ${passed}/${passed} passed (100.0%)`);
 });
