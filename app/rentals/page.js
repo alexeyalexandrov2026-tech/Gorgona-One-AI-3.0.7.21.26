@@ -8,7 +8,8 @@ import { carThumb } from '../../lib/homeData';
 import { WorldHero, ListingCard, Steps, chipClass } from '../components/g1/ui';
 import { getSunsetCopy } from '../../lib/sunsetCopy.mjs';
 import { rentalPage } from '../../lib/sunsetFleet.mjs';
-import { pageMetadata } from '../../lib/seo.mjs';
+import JsonLd from '../components/JsonLd';
+import { pageMetadata, sectionJsonLd } from '../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +43,7 @@ export default async function RentalsPage({ searchParams }) {
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
+      <JsonLd data={sectionJsonLd({ name: 'Exotic and luxury car rentals in Miami', description: metadata.description, path: '/rentals' })} />
       <WorldHero
         eyebrow={`${catalogue.catalogue} · ${rentals.length}`}
         title={catalogue.title}

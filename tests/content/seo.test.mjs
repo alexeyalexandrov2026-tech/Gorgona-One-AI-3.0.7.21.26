@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import {
   SITE_URL, DEFAULT_IMAGE, LEGAL_ROUTES, PRIVATE_ROUTES, SECTION_ROUTES, SEO_HEADINGS, SITEMAP_LASTMOD, SUPPORT_EMAIL,
   attractionJsonLd, breadcrumbJsonLd, carJsonLd, clip, dailyPriceNumber, eventJsonLd, experienceSearchText, organizationJsonLd, pageMetadata,
-  rentalSearchText, seoHeading, serializeJsonLd, sitemapEntries, venueJsonLd, withBrand
+  rentalSearchText, sectionJsonLd, seoHeading, serializeJsonLd, sitemapEntries, venueJsonLd, withBrand
 } from '../../lib/seo.mjs';
 import { HEADOUT_COLLECTIONS } from '../../lib/headoutCatalog.mjs';
 import { getRentals } from '../../lib/rentalsData.js';
@@ -268,4 +268,40 @@ test('decorative home page images are hidden from assistive technology', () => {
     assert.ok(emptyAlt.length > 0, file);
     assert.equal((html.match(/alt=""\s+aria-hidden="true"/g) || []).length, emptyAlt.length, `${file}: every empty alt is also aria-hidden`);
   }
+});
+
+test('Wave 11: sectionJsonLd, 16-language organization schema, venue priceRange/telephone, forgot-password noindex and llms-full.txt', () => {
+  const org = organizationJsonLd();
+  assert.equal(Array.isArray(org.knowsLanguage) && org.knowsLanguage.length, 16);
+
+  const sec = sectionJsonLd({ name: 'Miami Yacht Charters', description: 'Charter luxury yachts in Miami.', path: '/yachts' });
+  assert.equal(sec.length, 2);
+  assert.equal(sec[0]['@type'], 'CollectionPage');
+  assert.equal(sec[0].url, `${SITE_URL}/yachts`);
+  assert.equal(sec[1]['@type'], 'BreadcrumbList');
+
+  const venue = venueJsonLd({
+    slug: 'lpm-miami',
+    name: 'LPM Restaurant & Bar',
+    category: 'restaurant',
+    status: 'verified',
+    address: '1300 Brickell Bay Drive, Miami, FL 33131',
+    cuisine: 'French Mediterranean',
+    price: '$$$$',
+    phone: '(305) 403-9133',
+    website: 'https://lpmrestaurants.com/miami/'
+  });
+  assert.equal(venue.priceRange, '$$$$');
+  assert.equal(venue.telephone, '(305) 403-9133');
+
+  assert.match(source('app/forgot-password/layout.js'), /export const metadata = PRIVATE_METADATA/);
+  assert.match(source('app/ai-ready/page.js'), /permanentRedirect\('\/discovery'\)/);
+  assert.doesNotMatch(source('app/layout.js'), /shopping/i);
+  assert.doesNotMatch(source('app/manifest.js'), /shopping/i);
+  assert.match(source('public/ai.webmanifest'), /"start_url": "\/discovery"/);
+
+  const llmsFull = source('public/llms-full.txt');
+  assert.match(llmsFull, /# Miami Elio — Full AI & LLM Reference/);
+  assert.match(llmsFull, /Komodo/);
+  assert.match(llmsFull, /Brickell/);
 });
