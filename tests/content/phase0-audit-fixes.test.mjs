@@ -54,7 +54,8 @@ test('Phase 0: Dining Editor SQL migration, concierge-metrics filter, /profile c
   const migration = read('supabase/migrations/20261123060000_dining_editor_providers.sql');
   assert.match(migration, /'resy'.*'tock'.*'dice'/s);
   assert.match(read('app/api/dashboard/concierge-metrics/route.js'), /resolved_at=is\.null/);
-  assert.match(read('app/profile/page.js'), /data-light-surface/);
+  assert.match(read('app/components/dashboard/RequestBoard.jsx'), /<select data-light-surface/);
+  assert.doesNotMatch(read('app/profile/page.js'), /data-light-surface/);
   assert.match(read('app/HomePage.jsx'), /href="\/register\/partner"/);
   assert.match(read('app/register/partner/layout.js'), /path: '\/register\/partner'/);
   assert.match(read('app/register/partner/layout.js'), /robots:\s*\{\s*index:\s*true,\s*follow:\s*true\s*\}/);
