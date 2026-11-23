@@ -18,7 +18,7 @@ export function TicketProviders({ categoryLabel, category }) {
           target="_blank"
           rel="noopener noreferrer sponsored"
           aria-label="Browse tickets on TicketNetwork (affiliate link)"
-          className="group flex h-28 items-center justify-center rounded-2xl border border-villa-obsidian/10 bg-white px-6 font-display text-xl font-semibold tracking-tight text-villa-obsidian transition-all duration-500 hover:-translate-y-1 hover:border-brand-gold"
+          className="group flex h-28 items-center justify-center rounded-2xl border border-white/20 bg-white/[0.07] px-6 font-display text-xl font-semibold tracking-tight text-[#f4f1ea] transition-all duration-500 hover:-translate-y-1 hover:border-brand-gold hover:bg-white/[0.12]"
         >
           TicketNetwork
         </LocalizedElement>

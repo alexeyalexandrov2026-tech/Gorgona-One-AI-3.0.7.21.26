@@ -10,22 +10,22 @@ import { getTripRoomCopy } from '../../../lib/tripRoomCopy.mjs';
 import { formatUsdCents } from '../../../lib/legal/termsContent.mjs';
 
 const hairlineBtn =
-  'inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full border border-villa-obsidian/25 px-4 py-2 text-xs font-medium uppercase tracking-[0.14em] text-villa-obsidian transition hover:border-villa-obsidian hover:bg-villa-obsidian/5 disabled:opacity-50';
+  'inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full border border-white/30 bg-white/[0.04] px-4 py-2 text-xs font-medium uppercase tracking-[0.14em] text-[#f4f1ea] transition hover:border-white hover:bg-white/10 disabled:opacity-50';
 const solidBtn =
-  'inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full border border-villa-obsidian bg-villa-obsidian px-4 py-2 text-xs font-medium uppercase tracking-[0.14em] text-villa-parchment transition hover:opacity-90 disabled:opacity-50';
+  'inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full border border-g1-ink bg-g1-ink px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-g1-paper transition hover:opacity-90 disabled:opacity-50';
 
 function quoteStatusInfo(status, copy) {
   switch (status) {
     case 'paid':
-      return { label: copy.statusPaid, cta: copy.ctaOpenPass, tone: 'bg-villa-obsidian text-villa-parchment border-villa-obsidian' };
+      return { label: copy.statusPaid, cta: copy.ctaOpenPass, tone: 'bg-g1-ink text-g1-paper border-g1-ink' };
     case 'signed':
-      return { label: copy.statusSigned, cta: copy.ctaCompletePay, tone: 'bg-white text-villa-obsidian border-villa-obsidian/50' };
+      return { label: copy.statusSigned, cta: copy.ctaCompletePay, tone: 'bg-white/15 text-[#f4f1ea] border-white/40' };
     case 'expired':
-      return { label: copy.statusExpired, cta: null, tone: 'bg-transparent text-villa-ash border-villa-obsidian/20' };
+      return { label: copy.statusExpired, cta: null, tone: 'bg-transparent text-villa-ash border-white/20' };
     case 'cancelled':
-      return { label: copy.statusCancelled, cta: null, tone: 'bg-transparent text-villa-ash border-villa-obsidian/20' };
+      return { label: copy.statusCancelled, cta: null, tone: 'bg-transparent text-villa-ash border-white/20' };
     default:
-      return { label: copy.statusOpen, cta: copy.ctaSignAndPay, tone: 'bg-white text-villa-obsidian border-villa-obsidian' };
+      return { label: copy.statusOpen, cta: copy.ctaSignAndPay, tone: 'bg-white/15 text-[#f4f1ea] border-white/40' };
   }
 }
 
@@ -149,19 +149,19 @@ export default function LiveTripRoom({ userId, standalone = false }) {
         <>
           {/* Summary metrics strip */}
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="grid gap-1 border border-villa-obsidian/20 bg-white/55 p-4">
+            <div className="grid gap-1 rounded-xl border border-white/15 bg-white/[0.06] p-4">
               <dt className="font-fira text-[0.62rem] uppercase tracking-[0.18em] text-villa-ash">{copy.statActive}</dt>
               <dd className="font-display text-3xl text-villa-charcoal">{data.summary.activeRequests}</dd>
             </div>
-            <div className="grid gap-1 border border-villa-obsidian/20 bg-white/55 p-4">
+            <div className="grid gap-1 rounded-xl border border-white/15 bg-white/[0.06] p-4">
               <dt className="font-fira text-[0.62rem] uppercase tracking-[0.18em] text-villa-ash">{copy.statAction}</dt>
               <dd className="font-display text-3xl text-villa-charcoal">{data.summary.awaitingAction}</dd>
             </div>
-            <div className="grid gap-1 border border-villa-obsidian/20 bg-white/55 p-4">
+            <div className="grid gap-1 rounded-xl border border-white/15 bg-white/[0.06] p-4">
               <dt className="font-fira text-[0.62rem] uppercase tracking-[0.18em] text-villa-ash">{copy.statConfirmed}</dt>
               <dd className="font-display text-3xl text-villa-charcoal">{data.summary.confirmedPasses}</dd>
             </div>
-            <div className="grid gap-1 border border-villa-obsidian/20 bg-white/55 p-4">
+            <div className="grid gap-1 rounded-xl border border-white/15 bg-white/[0.06] p-4">
               <dt className="font-fira text-[0.62rem] uppercase tracking-[0.18em] text-villa-ash">{copy.statPlans}</dt>
               <dd className="font-display text-3xl text-villa-charcoal">{data.summary.totalPlans}</dd>
             </div>
@@ -171,7 +171,7 @@ export default function LiveTripRoom({ userId, standalone = false }) {
           {data.confirmedSupport?.active && (
             <div
               data-confirmed-support-unlocked
-              className="grid gap-3 border border-villa-obsidian/45 bg-white/80 p-5 sm:flex sm:items-center sm:justify-between"
+              className="grid gap-3 rounded-2xl border border-white/30 bg-white/[0.10] p-5 sm:flex sm:items-center sm:justify-between"
             >
               <div className="grid gap-1">
                 <p className="font-fira text-[0.64rem] font-medium uppercase tracking-[0.2em] text-villa-obsidian">
@@ -204,7 +204,7 @@ export default function LiveTripRoom({ userId, standalone = false }) {
               <p className="text-sm text-villa-graphite">{copy.quotesSub}</p>
             </div>
             {data.quotes.length === 0 ? (
-              <p className="border border-dashed border-villa-obsidian/20 bg-white/40 p-5 text-sm text-villa-graphite">
+              <p className="rounded-xl border border-dashed border-white/20 bg-white/[0.04] p-5 text-sm text-villa-graphite">
                 {copy.quotesEmpty}
               </p>
             ) : (
@@ -214,7 +214,7 @@ export default function LiveTripRoom({ userId, standalone = false }) {
                   return (
                     <li
                       key={quote.id}
-                      className="grid content-between gap-4 border border-villa-obsidian/20 bg-white/65 p-5"
+                      className="grid content-between gap-4 rounded-xl border border-white/15 bg-white/[0.06] p-5"
                     >
                       <div className="grid gap-2">
                         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -266,7 +266,7 @@ export default function LiveTripRoom({ userId, standalone = false }) {
             {data.plans.length > 0 ? (
               <div className="grid gap-4">
                 {data.plans.map((plan) => (
-                  <article key={plan.id} className="grid gap-3 border border-villa-obsidian/20 bg-white/60 p-5">
+                  <article key={plan.id} className="grid gap-3 rounded-xl border border-white/15 bg-white/[0.06] p-5">
                     <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-villa-obsidian/15 pb-3">
                       <p className="font-display text-xl text-villa-charcoal">
                         {plan.startDate} — {plan.endDate}
@@ -305,7 +305,7 @@ export default function LiveTripRoom({ userId, standalone = false }) {
                 ))}
               </div>
             ) : (
-              <div className="grid gap-4 border border-villa-obsidian/20 bg-white/50 p-5">
+              <div className="grid gap-4 rounded-xl border border-white/15 bg-white/[0.05] p-5">
                 <div className="grid gap-1">
                   <p className="font-medium text-villa-obsidian">{copy.plansEmptyTitle}</p>
                   <p className="max-w-[60ch] text-sm text-villa-graphite">{copy.plansEmptyBody}</p>
@@ -331,7 +331,7 @@ export default function LiveTripRoom({ userId, standalone = false }) {
               </div>
               <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 {data.weather.map((day) => (
-                  <li key={day.date} className="grid gap-1.5 border border-villa-obsidian/20 bg-white/55 p-4 text-sm">
+                  <li key={day.date} className="grid gap-1.5 rounded-xl border border-white/15 bg-white/[0.06] p-4 text-sm">
                     <p className="font-fira text-[0.66rem] uppercase tracking-[0.14em] text-villa-ash">
                       {shortDay(day.date, locale)}
                     </p>

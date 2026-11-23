@@ -5,7 +5,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { TICKETNETWORK_AREAS } from '../../lib/ticketnetworkLocation';
 
 const INITIAL_FILTERS = { area: 'miami', from: '', to: '', performer: '', city: '' };
-const fieldClass = 'block min-h-[44px] w-full min-w-0 border border-villa-obsidian/30 bg-transparent px-3 py-2 text-sm text-villa-obsidian outline-offset-2 focus:outline-villa-obsidian [color-scheme:light]';
+const fieldClass = 'block min-h-[44px] w-full min-w-0 rounded-lg border border-white/25 bg-white/[0.06] px-3 py-2 text-sm text-[#f4f1ea] placeholder:text-white/55 outline-offset-2 focus:border-white/60 focus:outline-white/60 [color-scheme:dark]';
 const datePart = (date, options) => new Intl.DateTimeFormat('en-US', { ...options, timeZone: 'UTC' }).format(date);
 
 function EventRow({ event }) {
@@ -23,7 +23,7 @@ function EventRow({ event }) {
         <h4 className="break-words text-base font-medium leading-snug text-villa-obsidian sm:text-lg">{event.name}</h4>
         <p className="mt-2 text-sm text-villa-graphite">{event.venue}<span className="mt-0.5 block">{event.city}{event.state ? `, ${event.state}` : ''}</span></p>
       </div>
-      <a href={event.url} target="_blank" rel="noopener noreferrer sponsored" aria-label={msg("View tickets — {event}", { event: event.name })} className="col-start-2 inline-flex min-h-[44px] min-w-[112px] items-center justify-center justify-self-start bg-villa-obsidian px-5 py-3 text-xs font-medium text-white transition-opacity hover:opacity-75 sm:col-start-3 sm:row-start-1 sm:justify-self-end">{msg("View tickets ↗")}</a>
+      <a href={event.url} target="_blank" rel="noopener noreferrer sponsored" aria-label={msg("View tickets — {event}", { event: event.name })} className="col-start-2 inline-flex min-h-[44px] min-w-[128px] items-center justify-center justify-self-start rounded-full bg-g1-ink px-5 py-2.5 text-xs font-semibold text-g1-paper transition-opacity hover:opacity-90 sm:col-start-3 sm:row-start-1 sm:justify-self-end">{msg("View tickets ↗")}</a>
     </li>
   );
 }
@@ -132,8 +132,8 @@ export function TicketNetworkEvents({ category, group, today }) {
           <datalist id={`${id}-cities`}>{result?.cities.map(name => <option key={name} value={name} />)}</datalist>
         </label>
         <div className="col-span-2 flex flex-wrap items-center gap-4 lg:col-span-6">
-          <button type="submit" className="min-h-[44px] bg-villa-obsidian px-6 py-3 text-xs font-medium text-white transition-opacity hover:opacity-75">{msg("Show events")}</button>
-          <button type="button" onClick={() => apply(INITIAL_FILTERS)} className="min-h-[44px] px-2 text-xs text-villa-graphite underline underline-offset-4">{msg("Reset filters")}</button>
+          <button type="submit" className="min-h-[44px] rounded-full bg-g1-ink px-6 py-2.5 text-xs font-semibold text-g1-paper transition-opacity hover:opacity-90">{msg("Show events")}</button>
+          <button type="button" onClick={() => apply(INITIAL_FILTERS)} className="min-h-[44px] px-2 text-xs text-villa-graphite underline underline-offset-4 hover:text-villa-obsidian">{msg("Reset filters")}</button>
           <p className="text-xs text-villa-graphite">{msg("Miami and nearby South Florida cities by default. All times are local to the venue.")}</p>
         </div>
       </form>
@@ -143,10 +143,10 @@ export function TicketNetworkEvents({ category, group, today }) {
         {error ? <p className="py-4 text-sm text-villa-graphite">{msg(error)} {result?.events.length ? msg("Your loaded events are still available below.") : ''}</p> : null}
         {phase === 'ready' && result ? <p className="py-4 text-xs text-villa-graphite">{msg("Upcoming events: {count}", { count: result.total.toLocaleString('en-US') })}{result.stale ? <>{' · '}<LocalizedText source="Saved results from {date}. Check current availability on TicketNetwork." values={{ date: <time lang="en" dir="auto" dateTime={result.updatedAt}>{new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/New_York' }).format(new Date(result.updatedAt))} ET</time> }} /></> : null}</p> : null}
       </div>
-      {phase === 'error' ? <button type="button" onClick={() => setSearch(previous => ({ ...previous, revision: previous.revision + 1 }))} className="mb-6 min-h-[44px] border border-villa-obsidian px-6 py-3 text-sm">{msg("Try again")}</button> : null}
+      {phase === 'error' ? <button type="button" onClick={() => setSearch(previous => ({ ...previous, revision: previous.revision + 1 }))} className="mb-6 min-h-[44px] rounded-full border border-white/35 px-6 py-2.5 text-sm font-medium text-[#f4f1ea] transition-colors hover:border-white hover:bg-white/10">{msg("Try again")}</button> : null}
       {result?.events.length ? <ul aria-label={msg("Upcoming events")} aria-busy={busy}>{result.events.map(event => <EventRow key={event.id} event={event} />)}</ul> : null}
       {phase === 'ready' && result?.events.length === 0 ? <p className="border-y border-villa-obsidian/15 py-8 text-sm text-villa-graphite">{msg("No upcoming events match this area and your filters. Try different dates or change Area to All Florida or All cities.")}</p> : null}
-      {phase === 'ready' && result?.hasMore ? <button type="button" onClick={() => setSearch(previous => ({ ...previous, page: result.page + 1 }))} className="mt-4 min-h-[48px] w-full border border-villa-obsidian/40 px-6 py-3 text-sm transition-colors hover:bg-villa-obsidian hover:text-white">{msg("Load more events")}</button> : null}
+      {phase === 'ready' && result?.hasMore ? <button type="button" onClick={() => setSearch(previous => ({ ...previous, page: result.page + 1 }))} className="mt-4 min-h-[48px] w-full rounded-full border border-white/35 bg-white/[0.05] px-6 py-3 text-sm font-medium text-[#f4f1ea] transition-colors hover:border-white hover:bg-white/15">{msg("Load more events")}</button> : null}
     </div>
   );
 }

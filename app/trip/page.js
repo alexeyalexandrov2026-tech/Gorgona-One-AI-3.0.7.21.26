@@ -39,7 +39,7 @@ export default function TripRoomPage() {
             <div className="mt-2 flex flex-wrap gap-3">
               <Link
                 href="/login?next=/trip"
-                className="inline-flex min-h-[44px] items-center rounded-full border border-villa-obsidian bg-villa-obsidian px-6 text-xs font-medium uppercase tracking-[0.16em] text-villa-parchment transition hover:opacity-90"
+                className="inline-flex min-h-[44px] items-center rounded-full border border-g1-ink bg-g1-ink px-6 text-xs font-semibold uppercase tracking-[0.16em] text-g1-paper transition hover:opacity-90"
               >
                 {copy.signInCta}
               </Link>

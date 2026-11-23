@@ -147,7 +147,7 @@ export default async function EventsCategoryPage({ params }) {
                       className="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.04]"
                     />
                     {item.featured && (
-                      <span className="absolute left-2.5 top-2.5 rounded-[5px] border border-villa-obsidian bg-white px-2.5 py-1 font-fira text-[0.6rem] font-medium uppercase tracking-[0.183em] text-villa-obsidian"><LocalizedText source="· Featured" /></span>
+                      <span className="absolute left-2.5 top-2.5 rounded-[5px] border border-white/25 bg-black/75 px-2.5 py-1 font-fira text-[0.6rem] font-medium uppercase tracking-[0.183em] text-white backdrop-blur-sm"><LocalizedText source="· Featured" /></span>
                     )}
                   </div>
 
