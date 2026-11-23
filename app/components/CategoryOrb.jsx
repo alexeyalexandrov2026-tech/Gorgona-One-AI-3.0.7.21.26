@@ -178,7 +178,7 @@ export default function CategoryOrb() {
             value={query}
             onChange={onChange}
             placeholder={msg(placeholder)}
-            aria-label={msg("Ask the Miami Elio AI Concierge")}
+            aria-label={msg("Ask ELIO+ Guide")}
             autoComplete="off"
           />
           <button

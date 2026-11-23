@@ -8,7 +8,7 @@ const port = 3073;
 const origin = `http://127.0.0.1:${port}`;
 const expectedMetadata = {
   title: ['Miami Yachts, Villas, Car Rentals & Events | Miami Elio'],
-  description: ['Arrange luxury yacht charters, exotic cars, private villas, VIP event tickets and dining in Miami with our 16-language AI concierge on Miami Elio.'],
+  description: ['Arrange luxury yacht charters, exotic cars, private villas, VIP event tickets and dining in Miami with our 16-language ELIO+ Guide on Miami Elio.'],
   canonical: ['https://gorgona-one.com']
 };
 
@@ -79,7 +79,7 @@ try {
   await expect(page.locator('h1')).toHaveCount(1);
   const androidHeading = page.getByRole('heading', { level: 1 });
   await expect(androidHeading).toHaveCount(1);
-  await expect(androidHeading.getByRole('link', { name: /Miami Elio AI Concierge/ })).toHaveAttribute('href', 'miamielio://concierge');
+  await expect(androidHeading.getByRole('link', { name: /ELIO\+ Guide/ })).toHaveAttribute('href', 'miamielio://concierge');
   console.log('Verified homepage metadata, accessible headings in web and Android modes, and image ALT.');
 } finally {
   await browser?.close();

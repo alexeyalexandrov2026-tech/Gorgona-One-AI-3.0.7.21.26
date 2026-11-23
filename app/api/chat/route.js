@@ -165,20 +165,29 @@ export async function POST(request) {
     let resolvedListings = handoff
       ? namedVenueCards(bookingText, { locale, extraEntities, profile })
       : gatedListings(effectiveQuery, { locale, action, sections: listingSections, extraEntities, profile, stops: options.stops, limit: listingLimit });
-    if (!handoff && decidedBy === 'model' && ['consult', 'recommend', 'plan', 'ideas'].includes(action) && resolvedListings.length < listingLimit && listingSections.length) {
+    if (!handoff && decidedBy === 'model' && ['consult', 'recommend', 'plan', 'ideas'].includes(action) && listingSections.length) {
+      const cardKey = (c) => (c.label === 'Flight' || c.label === 'Yacht') && c.booking?.href ? c.booking.href : c.href;
       const fromReply = replyMentionedCards(text, { sections: listingSections, extraEntities, limit: listingLimit });
-      const seen = new Set(resolvedListings.map((c) => c.href));
-      for (const card of fromReply) {
-        if (!seen.has(card.href) && resolvedListings.length < listingLimit) {
-          seen.add(card.href);
-          resolvedListings.push(card);
+      if (fromReply.length) {
+        // Put entities the model explicitly recommended FIRST so cards always match the reply.
+        const merged = [];
+        const seen = new Set();
+        for (const card of [...fromReply, ...resolvedListings]) {
+          const key = cardKey(card);
+          if (!seen.has(key) && merged.length < listingLimit) {
+            seen.add(key);
+            merged.push(card);
+          }
         }
+        resolvedListings = merged;
       }
       if (action === 'plan' && listingSections.length >= 2 && resolvedListings.length < listingLimit) {
+        const seen = new Set(resolvedListings.map(cardKey));
         const balanced = listingCards(effectiveQuery, { locale, sections: listingSections, extraEntities, profile, limit: listingLimit });
         for (const card of balanced) {
-          if (!seen.has(card.href) && resolvedListings.length < listingLimit) {
-            seen.add(card.href);
+          const key = cardKey(card);
+          if (!seen.has(key) && resolvedListings.length < listingLimit) {
+            seen.add(key);
             resolvedListings.push(card);
           }
         }

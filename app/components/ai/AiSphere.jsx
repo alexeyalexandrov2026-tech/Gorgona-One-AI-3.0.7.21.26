@@ -18,7 +18,7 @@ export function AiSphereArtwork() {
 // thread at a flat cost regardless of page complexity, and it freezes
 // automatically under prefers-reduced-motion (see globals.css). This is
 // what keeps the sphere smooth site-wide instead of dragging FPS down.
-function AiSphereBase({ size = 60, label = 'Open the Discovery Room concierge', className = '' }) {
+function AiSphereBase({ size = 60, label = 'Open ELIO+ Guide', className = '' }) {
   const { toggle, isOpen } = useAiDock();
 
   return (

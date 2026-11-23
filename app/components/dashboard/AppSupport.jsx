@@ -60,7 +60,7 @@ export default function AppSupport({ userId }) {
       <button className="w-fit underline" type="button" onClick={() => refresh()} disabled={busy}>{msg('Refresh')}</button>
       {requests?.map(row => (
         <article key={row.id} className="grid gap-2 break-words rounded-xl border border-villa-obsidian/20 p-4">
-          <h3 className="font-semibold">{row.kind === 'ai_report' ? msg('Concierge answer report') : msg('Account deletion request')}</h3>
+          <h3 className="font-semibold">{row.kind === 'ai_report' ? msg('ELIO+ Guide answer report') : msg('Account deletion request')}</h3>
           <p className="text-sm">{row.created_at} · {row.id}</p>
           {row.kind === 'ai_report' ? (
             <>

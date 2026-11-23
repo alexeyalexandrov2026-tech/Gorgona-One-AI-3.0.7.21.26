@@ -74,7 +74,7 @@ export default function TravelLandingPage() {
           <p className="lux-eyebrow"><LocalizedText source="Travel · Exclusive destinations" /></p>
           <h1 className="mt-6 font-serif text-6xl italic leading-[0.95] text-white sm:text-7xl lg:text-8xl"><LocalizedText source="Go somewhere{break}{highlight}" values={{ break: <br />, highlight: <span className="text-travel-lavender"><LocalizedText source="extraordinary." /></span> }} />
           </h1>
-          <p className="lux-lede mt-8 text-lg"><LocalizedText source="A cinematic travel concierge — luxury destinations, curated flights, and stays, wrapped in a single premium experience." /></p>
+          <p className="lux-lede mt-8 text-lg"><LocalizedText source="ELIO+ Guide for travel — luxury destinations, curated flights, and stays, wrapped in a single premium experience." /></p>
           <div className="mt-10 flex flex-wrap gap-3">
             <Link href="/experiences" className="lux-btn"><LocalizedText source="Explore experiences " /><ArrowIcon className="h-4 w-4" /></Link>
             <Link href="/travel/ovago" className="lux-btn-ghost"><LocalizedText source="Find flights" /></Link>

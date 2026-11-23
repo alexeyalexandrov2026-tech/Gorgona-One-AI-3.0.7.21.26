@@ -105,11 +105,11 @@ try{
    if(dropped)return route.continue();
    dropped=true;const response=await route.fetch();expect(response.status()).toBe(200);await route.abort('failed');
   });
-  await form.getByRole('button',{name:'Send concierge request',exact:true}).click();
+  await form.getByRole('button',{name:'Send ELIO+ Guide request',exact:true}).click();
   await expect(form.getByRole('alert')).toBeVisible();
   await page.reload({waitUntil:'networkidle'});
   await expect(form.getByLabel('Date',{exact:true})).toBeDisabled();
-  await form.getByRole('button',{name:'Send concierge request',exact:true}).click();
+  await form.getByRole('button',{name:'Send ELIO+ Guide request',exact:true}).click();
   await expect(page.getByText('Request saved. This is an inquiry, not a confirmed reservation.',{exact:true})).toBeVisible();
   const rows=(await db.query("select * from public.bookings where item_slug='komodo-miami'")).rows;
   expect(rows.length).toBe(1);diningId=rows[0].id;expect(rows[0].status).toBe('pending');

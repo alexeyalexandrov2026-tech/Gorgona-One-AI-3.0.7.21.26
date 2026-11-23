@@ -52,9 +52,9 @@ try{
   await form.screenshot({path:path.join(output,'customer-form.png'),animations:'disabled'});
   let dropped=false;
   await page.route('**/api/book',async route=>{if(dropped)return route.continue();dropped=true;const response=await route.fetch();expect(response.status()).toBe(200);bookingId=(await response.json()).bookingId;await route.abort('failed');});
-  await form.getByRole('button',{name:'Send concierge request',exact:true}).click();await expect(form.getByRole('alert')).toBeVisible();
+  await form.getByRole('button',{name:'Send ELIO+ Guide request',exact:true}).click();await expect(form.getByRole('alert')).toBeVisible();
   await page.reload({waitUntil:'domcontentloaded'});await expect(form.getByLabel('Date',{exact:true})).toBeDisabled();
-  await form.getByRole('button',{name:'Send concierge request',exact:true}).click();await expect(page.getByText('Request saved. This is an inquiry, not a confirmed reservation.',{exact:true})).toBeVisible();
+  await form.getByRole('button',{name:'Send ELIO+ Guide request',exact:true}).click();await expect(page.getByText('Request saved. This is an inquiry, not a confirmed reservation.',{exact:true})).toBeVisible();
   const saved=await detail();assert.equal(saved.request.status,'pending');assert.equal(saved.request.hospitality.note,note);assert.equal(saved.events.filter(e=>e.event_type==='created').length,1);
   await page.goto(base+'/profile',{waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Komodo',exact:true}).first().click();
   await expect(page.getByText(note,{exact:true})).toBeVisible();await page.getByRole('button',{name:'Withdraw inquiry',exact:true}).click();

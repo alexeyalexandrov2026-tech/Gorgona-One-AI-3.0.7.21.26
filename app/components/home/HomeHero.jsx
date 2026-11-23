@@ -154,7 +154,7 @@ export default function HomeHero({ copy, showcase = [] }) {
         <div role="heading" aria-level={1}>
           <a href="miamielio://concierge" className="g1-home-concierge-link">
             <span className="g1-home-concierge-orb" aria-hidden="true"><AiSphereArtwork /></span>
-            <span>{msg('Miami Elio AI Concierge')}</span>
+            <span>{msg('ELIO+ Guide')}</span>
             <span className="g1-home-concierge-action">{copy.open} <Icon name="arrow" className="g1-flip h-4 w-4" /></span>
           </a>
         </div>
@@ -191,7 +191,7 @@ export default function HomeHero({ copy, showcase = [] }) {
           <form id="g1-hero-glass" ref={glassRef} role="search" onSubmit={submit} className="g1-hero-glass">
             <div className="g1-hero-head">
               <span className="g1-hero-orb" aria-hidden="true"><AiSphereArtwork /></span>
-              <span>{msg('Miami Elio AI Concierge')}</span>
+              <span>{msg('ELIO+ Guide')}</span>
               <span className="g1-hero-live"><i />{copy.live}</span>
             </div>
             <div className="g1-hero-grow">

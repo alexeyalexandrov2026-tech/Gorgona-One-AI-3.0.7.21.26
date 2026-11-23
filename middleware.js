@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://privatejetfinder.com https://*.privatejetfinder.com",
-  "style-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://www.privatejetfinder.com https://*.privatejetfinder.com",
   "img-src 'self' https: data: blob:",
   "font-src 'self' data:",
   "media-src 'self' https:",

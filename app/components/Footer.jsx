@@ -6,6 +6,9 @@ import Link from 'next/link';
 import { useLocale } from './LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
 import { GetTheApp } from './GetTheApp';
+import { configuredManagerTelegram, configuredManagerWhatsApp } from '../../lib/managerContact.mjs';
+const managerTelegram = configuredManagerTelegram();
+const managerWhatsApp = configuredManagerWhatsApp();
 const sections = [
   { key: 'travel', href: '/travel', fallback: 'Travel' },
   { key: 'experiences', href: '/experiences', fallback: 'Experiences' },
@@ -44,6 +47,21 @@ export function Footer() {
           <p className="mt-4 max-w-sm leading-relaxed">
             {t.footer.desc}
           </p>
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-g1-ink">
+            <Link href="/discovery" className="underline decoration-g1-rule underline-offset-4 transition hover:text-g1-accent">
+              <LocalizedText source="ELIO+ Guide" />
+            </Link>
+            {managerTelegram && (
+              <a href={managerTelegram} target="_blank" rel="noopener noreferrer" className="underline decoration-g1-rule underline-offset-4 transition hover:text-g1-accent">
+                {t.ai?.liveManager}
+              </a>
+            )}
+            {managerWhatsApp && (
+              <a href={managerWhatsApp} target="_blank" rel="noopener noreferrer" className="underline decoration-g1-rule underline-offset-4 transition hover:text-g1-accent">
+                {t.ai?.liveManagerWhatsApp}
+              </a>
+            )}
+          </div>
           <GetTheApp variant="footer" />
         </div>
 

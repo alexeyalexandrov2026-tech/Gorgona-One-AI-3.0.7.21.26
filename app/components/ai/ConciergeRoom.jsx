@@ -39,7 +39,7 @@ export function ConciergeRoom() {
           {t.ai?.discoveryRoom || <LocalizedText source={"Discovery Room"} />}
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-          {t.ai?.conciergeTitle || <LocalizedText source={"Your private concierge"} />}
+          {t.ai?.conciergeTitle || <LocalizedText source={"ELIO+ Guide"} />}
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-zinc-400">
           {t.ai?.conciergeSubtitle ||
@@ -49,11 +49,11 @@ export function ConciergeRoom() {
       </header>
 
       <section
-        aria-label={msg("Concierge conversation")}
+        aria-label={msg("ELIO+ Guide conversation")}
         className="mx-auto mt-10 flex h-[min(640px,72vh)] w-full max-w-3xl flex-col rounded-3xl border border-white/10 bg-white/5 p-5 shadow-premium sm:p-7"
       >
         <div className="mb-3 flex items-center justify-between border-b border-white/5 pb-3">
-          <p className="text-sm font-semibold text-white">{msg("MIAMI ELIO Concierge")}</p>
+          <p className="text-sm font-semibold text-white">{msg("ELIO+ Guide")}</p>
           {hasThread && (
             <button
               type="button"

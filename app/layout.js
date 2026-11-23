@@ -15,6 +15,7 @@ import { AiDockProvider } from './components/ai/AiDockProvider';
 import { ChatProvider } from './components/ai/ChatProvider';
 import { AiSphere } from './components/ai/AiSphere';         
 import ManagerTelegramButton from './components/ai/ManagerTelegramButton';
+import ManagerWhatsAppButton from './components/ai/ManagerWhatsAppButton';
 import { AiDock } from './components/ai/AiDock';             
 import { InstallPrompt } from './components/InstallPrompt';   
 import { DEFAULT_IMAGE } from '../lib/seo.mjs';
@@ -27,8 +28,8 @@ const baseUrl = 'https://gorgona-one.com';
 // canonical instead of claiming to be a copy of the home page.
 export const metadata = {
   title: 'MIAMI ELIO | Yachts, villas, cars, events and dining in Miami',
-  description: 'Yachts, villas, cars, events and dining in Miami, with one AI concierge in your language.',
-  keywords: ['Miami', 'yacht charters', 'car rentals', 'villas', 'events', 'dining', 'AI concierge'],
+  description: 'Yachts, villas, cars, events and dining in Miami, with ELIO+ Guide in your language.',
+  keywords: ['Miami', 'yacht charters', 'car rentals', 'villas', 'events', 'dining', 'ELIO+ Guide'],
   metadataBase: new URL(baseUrl),
   alternates: { canonical: './' },
   // The "ME" monogram already in public/: the tab and search results only
@@ -42,7 +43,7 @@ export const metadata = {
   },
   openGraph: {
     title: 'MIAMI ELIO',
-    description: 'Yachts, villas, cars, tickets and an AI concierge in Miami.',
+    description: 'Yachts, villas, cars, tickets and ELIO+ Guide in Miami.',
     url: './',
     siteName: 'MIAMI ELIO',
     images: [DEFAULT_IMAGE],
@@ -51,7 +52,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'MIAMI ELIO',
-    description: 'Yachts, villas, cars, tickets and an AI concierge in Miami.',
+    description: 'Yachts, villas, cars, tickets and ELIO+ Guide in Miami.',
     images: [DEFAULT_IMAGE.url]
   },
   verification: {
@@ -84,6 +85,7 @@ export default function RootLayout({ children }) {
                       <DiscoveryDock />
                       <AiSphere />
                       <ManagerTelegramButton />
+                      <ManagerWhatsAppButton />
                       <AiDock />
                       <InstallPrompt />
                     </div>

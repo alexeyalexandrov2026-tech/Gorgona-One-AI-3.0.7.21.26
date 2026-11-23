@@ -1,6 +1,6 @@
 # Miami Elio
 
-> Miami Elio, by Gorgona One, is a luxury rentals, bookings and AI concierge platform for Miami. The concierge works in 16 languages. It covers yacht charters, exotic car rentals, villa and hotel bookings, private jet charters, curated experiences, concert, sports and VIP event tickets, and restaurants and nightlife. It is not a real estate sales site and not a retail store.
+> Miami Elio, by Gorgona One, is a luxury rentals, bookings and ELIO+ Guide platform for Miami. ELIO works in 16 languages. It covers yacht charters, exotic car rentals, villa and hotel bookings, private jet charters, curated experiences, concert, sports and VIP event tickets, and restaurants and nightlife. It is not a real estate sales site and not a retail store.
 
 Website: https://gorgona-one.com
 
@@ -8,7 +8,7 @@ Many listings come from partners. Quotes, bookings and payments for those listin
 
 ## Main sections
 
-- [AI Concierge — Discovery Room](https://gorgona-one.com/discovery): 16-language AI concierge for Miami itineraries, venue comparisons, live NOAA weather planning and direct booking cards.
+- [ELIO+ Guide — Discovery Room](https://gorgona-one.com/discovery): 16-language AI guide (ELIO) for Miami itineraries, venue comparisons, live NOAA weather planning and direct booking cards.
 - [Yacht charters](https://gorgona-one.com/yachts): Charter yachts in Miami through a partner catalogue.
 - [Exotic and luxury car rentals](https://gorgona-one.com/rentals): Cars available to rent in Miami, with a page for each vehicle.
 - [Villas and vacation rentals](https://gorgona-one.com/vacation-rentals): Villas and stays in Miami.
@@ -21,7 +21,7 @@ Many listings come from partners. Quotes, bookings and payments for those listin
 
 ## Reference
 
-- [Full AI Knowledge Base](https://gorgona-one.com/llms-full.txt): Detailed Miami catalog reference, neighborhoods, driving times, pricing tiers, verified dining directory and concierge capabilities.
+- [Full AI Knowledge Base](https://gorgona-one.com/llms-full.txt): Detailed Miami catalog reference, neighborhoods, driving times, pricing tiers, verified dining directory and ELIO+ Guide capabilities.
 - [Sitemap](https://gorgona-one.com/sitemap.xml): Every public page.
 - [Affiliate disclosure](https://gorgona-one.com/affiliate-disclosure): How partner links work.
 - [Privacy](https://gorgona-one.com/privacy)

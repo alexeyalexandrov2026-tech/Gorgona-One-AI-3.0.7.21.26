@@ -25,7 +25,7 @@ try{
  const page=await browser.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:'+server.address().port);
- for(const [trigger,panel] of [[page.locator('button.aidock'),page.locator('.dr__panel')],[page.getByRole('button',{name:'Open the Discovery Room concierge',exact:true}),page.getByRole('dialog',{name:'MIAMI ELIO AI Dock',exact:true})]]){
+ for(const [trigger,panel] of [[page.locator('button.aidock'),page.locator('.dr__panel')],[page.getByRole('button',{name:'Open ELIO+ Guide',exact:true}),page.getByRole('dialog',{name:'MIAMI ELIO AI Dock',exact:true})]]){
   await expect(trigger).toBeEnabled();await trigger.click();await expect(panel).toBeVisible();
   for(let i=0;i<12;i++){await page.keyboard.press('Tab');assert.ok(await panel.evaluate(el=>el.contains(document.activeElement)),'Focus must stay inside the open dialog');}
   await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
@@ -37,7 +37,7 @@ try{
   reports.push({key:route.request().headers()['idempotency-key'],body:route.request().postDataJSON()});
   return route.fulfill({status:reports.length===1?503:202,json:{received:reports.length>1}});
  });
- await page.getByRole('button',{name:'Open the Discovery Room concierge',exact:true}).click();
+ await page.getByRole('button',{name:'Open ELIO+ Guide',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'MIAMI ELIO AI Dock',exact:true});
  const question=dialog.getByRole('textbox');
  await expect(question).toBeEnabled();

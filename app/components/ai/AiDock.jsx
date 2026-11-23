@@ -66,7 +66,7 @@ export function AiDock() {
         <div className="mb-3 flex items-center justify-between">
           <div>
             <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-brand-gold">{msg("AI Dock")}</p>
-            <p className="mt-1 text-sm font-semibold text-white">{msg("MIAMI ELIO Concierge")}</p>
+            <p className="mt-1 text-sm font-semibold text-white">{msg("ELIO+ Guide")}</p>
           </div>
           <div className="flex items-center gap-2">
             <Link

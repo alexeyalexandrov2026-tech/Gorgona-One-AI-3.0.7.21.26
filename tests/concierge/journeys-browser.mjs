@@ -61,7 +61,7 @@ try{
   async function returnToDiscovery(){
    if(page.url()===base+'/discovery')return;
    if(returnMode==='reload'){await page.goto(base+'/discovery');return;}
-   await page.getByRole('button',{name:'Open the Discovery Room concierge',exact:true}).click();
+   await page.getByRole('button',{name:'Open ELIO+ Guide',exact:true}).click();
    await page.locator('aside[role="dialog"] a[href="/discovery"]').click();
    await expect(page).toHaveURL(base+'/discovery');
   }

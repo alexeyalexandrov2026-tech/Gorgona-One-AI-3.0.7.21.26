@@ -154,6 +154,29 @@
 @media (min-width: 640px) { .aitg { right: 32px; bottom: 162px; } }
 @media (prefers-reduced-motion: reduce) { .aitg { transition: none; } }
 
+/* Live manager on WhatsApp (chat-only): sits above .aitg when configured. */
+.aiwa {
+  position: fixed; right: 20px; bottom: 204px; z-index: 55;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: 999px;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+.aiwa[data-ai-theme="dark"] {
+  background: rgba(26, 22, 15, 0.7); border: 1px solid rgba(216, 180, 120, 0.4); color: #d8b478;
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.7), 0 0 22px rgba(216, 180, 120, 0.14);
+}
+.aiwa[data-ai-theme="light"] {
+  background: rgba(255, 253, 248, 0.85); border: 1px solid rgba(198, 160, 94, 0.45); color: #8a6528;
+  box-shadow: 0 12px 30px -14px rgba(60, 45, 12, 0.4);
+}
+.aiwa:hover { transform: translateY(-2px); }
+.aiwa:focus-visible { outline: 2px solid #c6a05e; outline-offset: 3px; }
+.aiwa.is-hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+.aiwa__icon { width: 20px; height: 20px; }
+@media (min-width: 640px) { .aiwa { right: 32px; bottom: 216px; } }
+@media (prefers-reduced-motion: reduce) { .aiwa { transition: none; } }
+
 .aidock__orb {
   position: relative; width: 22px; height: 22px; border-radius: 50%;
   background: radial-gradient(circle at 34% 30%, #fffdf6 0%, #d8b478 55%, #8a6528 100%);

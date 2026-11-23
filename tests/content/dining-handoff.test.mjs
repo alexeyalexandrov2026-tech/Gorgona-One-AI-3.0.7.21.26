@@ -130,5 +130,5 @@ test('hand-off copy is complete in all sixteen languages and never promises a co
     if (language.code !== 'en') assert.notEqual(copy.disclaimer, DINING_HANDOFF_COPY.en.disclaimer);
   }
   assert.equal(DINING_HANDOFF_COPY.ru.disclaimer, 'Бронь происходит на сайте ресторана. Miami Elio не подтверждает столики.');
-  assert.equal(DINING_HANDOFF_COPY.ru.askAi, 'Спросить ИИ-консьержа');
+  assert.equal(DINING_HANDOFF_COPY.ru.askAi, 'Спросить ELIO');
 });

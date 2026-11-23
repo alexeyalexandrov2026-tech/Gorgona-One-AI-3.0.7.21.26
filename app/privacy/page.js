@@ -41,8 +41,8 @@ export default function PrivacyPage() {
             <li>{msg('Account: your email address, a password stored by our sign-in provider in hashed form, and an account ID.')}</li>
             <li>{msg('Requests: when you ask to book a car, yacht, table or plan, we receive your name, email, phone number, dates, number of guests and any note you add.')}</li>
             <li>{msg('Favorites: the places and services you save while signed in.')}</li>
-            <li>{msg('Concierge: the questions you type to the AI concierge are processed to suggest catalogue options and are not stored in our database.')}</li>
-            <li>{msg('When you report a concierge answer, Miami Elio receives the question, answer and any note you add so our team can review it.')}</li>
+            <li>{msg('ELIO+ Guide: the questions you type to ELIO are processed to suggest catalogue options and are not stored in our database.')}</li>
+            <li>{msg('When you report an ELIO answer, Miami Elio receives the question, answer and any note you add so our team can review it.')}</li>
             <li>{msg('Support requests, including account deletion requests.')}</li>
             <li>{msg('Technical data: our hosting provider processes your IP address to deliver and protect the service. We do not store it in our database; for rate limiting we keep only a keyed one-way hash of it.')}</li>
           </List>
@@ -51,11 +51,11 @@ export default function PrivacyPage() {
         </Section>
 
         <Section title={msg('How we use it')}>
-          <p>{msg('We use this data to create and manage your account, pass your requests to our team and to the partner who fulfils them, keep your favorites in sync, answer concierge questions, review reported answers and protect the service from abuse.')}</p>
+          <p>{msg('We use this data to create and manage your account, pass your requests to our team and to the partner who fulfils them, keep your favorites in sync, answer ELIO+ Guide questions, review reported answers and protect the service from abuse.')}</p>
         </Section>
 
         <Section title={msg('Who processes data for us')}>
-          <p>{msg('These service providers process data on our instructions: Cloudflare (hosting and the Workers AI concierge), Supabase (database and sign-in), Resend (email notifications to our team) and Telegram (request notifications to our team).')}</p>
+          <p>{msg('These service providers process data on our instructions: Cloudflare (hosting and ELIO Workers AI), Supabase (database and sign-in), Resend (email notifications to our team) and Telegram (request notifications to our team).')}</p>
           <p>{msg('When you send a booking request, we share the details needed to fulfil it with the partner who provides the service, such as a yacht or car company. Bookings and payments are then handled by that partner under its own terms. We do not sell personal data.')}</p>
         </Section>
 
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
           <List>
             <li>{msg('Account and favorites: until you delete your account.')}</li>
             <li>{msg('Requests and plans: 24 months after the request date, then deleted or anonymized.')}</li>
-            <li>{msg('Reported concierge answers: 12 months.')}</li>
+            <li>{msg('Reported ELIO answers: 12 months.')}</li>
             <li>{msg('AI usage records: up to 7 days.')}</li>
           </List>
         </Section>

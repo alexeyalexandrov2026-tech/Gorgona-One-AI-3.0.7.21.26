@@ -3,7 +3,7 @@ export default function manifest() {
     id: '/',
     name: 'MIAMI ELIO',
     short_name: 'Miami Elio',
-    description: 'A luxury AI concierge for travel, dining, stays, yachts, cars and events in Miami.',
+    description: 'ELIO+ Guide — private AI travel and lifestyle platform for yachts, cars, stays, dining and events in Miami.',
     start_url: '/?source=pwa',
     scope: '/',
     display: 'standalone',
