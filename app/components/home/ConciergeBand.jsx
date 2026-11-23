@@ -10,11 +10,11 @@ import Icon from '../g1/icons';
 // Sample conversations in the five core languages. Every car, yacht and
 // venue named here is in the site's listings.
 const SAMPLES = {
-  EN: { me: 'Landing at MIA on Friday at 3 PM, four of us. Something fun for Saturday?', them: 'Welcome to Miami! I can meet you at MIA in the Mercedes-Maybach GLS, then take you out on the Azimut 68 Fly from Star Island on Saturday afternoon. Shall I add a dinner table after?', plan: ['Maybach GLS · MIA', 'Azimut 68 Fly · Sat', 'Table request'] },
-  ES: { me: 'Llegamos el viernes, somos cuatro. ¿Un yate el sábado?', them: '¡Perfecto! El Azimut 68 Fly sale de Star Island y lleva a tu grupo con comodidad. ¿Reservo también una mesa en Komodo para la noche?', plan: ['Azimut 68 Fly · sáb', 'Komodo · 20:30'] },
-  PT: { me: 'Chegamos na sexta, somos quatro. Um iate no sábado?', them: 'Perfeito! O Azimut 68 Fly sai de Star Island e acomoda bem o seu grupo. Reservo também uma mesa no Komodo à noite?', plan: ['Azimut 68 Fly · sáb', 'Komodo · 20:30'] },
-  RU: { me: 'Прилетаем в пятницу, нас четверо. Хотим яхту в субботу и ужин.', them: 'Отличный план. В субботу предлагаю Azimut 68 Fly от Star Island, а вечером стол в Komodo в Брикелле. Встретить вас в аэропорту на Maybach GLS?', plan: ['Maybach GLS · аэропорт', 'Azimut 68 Fly · сб', 'Komodo · 20:30'] },
-  HE: { me: 'נוחתים ביום שישי, ארבעה אנשים. יאכטה בשבת?', them: 'בשמחה! ה־Azimut 68 Fly יוצאת מ־Star Island ומתאימה לקבוצה שלכם. להזמין גם שולחן לארוחת ערב ב־Komodo?', plan: ['Azimut 68 Fly · שבת', 'Komodo · 20:30'] }
+  EN: { me: 'Landing at MIA on Friday at 3 PM, four of us. Something fun for Saturday?', them: 'Welcome to Miami! For four with luggage from MIA, a Mercedes-Maybach GLS or Range Rover fits comfortably, followed by a private Biscayne Bay yacht charter on Saturday afternoon and dinner at Komodo in Brickell.', plan: ['Maybach GLS · MIA', 'Biscayne Bay yacht · Sat', 'Komodo · Brickell'] },
+  ES: { me: 'Llegamos el viernes, somos cuatro. ¿Un yate el sábado?', them: '¡Perfecto! Podemos combinar un chárter privado por Biscayne Bay el sábado por la tarde con una cena en Komodo en Brickell y enlace directo para reservar mesa.', plan: ['Yate Biscayne Bay · sáb', 'Komodo · Brickell'] },
+  PT: { me: 'Chegamos na sexta, somos quatro. Um iate no sábado?', them: 'Perfeito! Podemos combinar um passeio de iate privado em Biscayne Bay no sábado à tarde com jantar no Komodo em Brickell e link direto de reserva.', plan: ['Iate Biscayne Bay · sáb', 'Komodo · Brickell'] },
+  RU: { me: 'Прилетаем в пятницу, нас четверо. Хотим яхту в субботу и ужин.', them: 'Отличный план. На субботу днём подберём частную яхту по Бискейн-Бей, вечером — Komodo в Brickell с прямой ссылкой на бронь, а от аэропорта MIA удобно взять Maybach GLS или Range Rover.', plan: ['Maybach GLS · MIA', 'Яхта Бискейн-Бей · сб', 'Komodo · Brickell'] },
+  HE: { me: 'נוחתים ביום שישי, ארבעה אנשים. יאכטה בשבת?', them: 'בשמחה! לשבת אחר הצהריים אפשר לשלב יאכטה פרטית במפרץ ביסקיין וארוחת ערב ב־Komodo בבריקל עם קישור ישיר להזמנת שולחן.', plan: ['יאכטה ביסקיין · שבת', 'Komodo · Brickell'] }
 };
 
 const sampleCode = locale => isSupportedLanguage(locale) ? locale.toUpperCase() : 'EN';
