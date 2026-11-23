@@ -87,7 +87,7 @@ export default function HomePage({ showcase = [] }) {
           <h2 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{copy.partners}</h2>
           <p className="max-w-[58ch] text-[1.08rem] text-g1-soft">{copy.partnersSub}</p>
           <div className="flex flex-wrap gap-2">
-            <Link href="/partner" className={`${btn.base} ${btn.ink}`}>{copy.becomePartner}</Link>
+            <Link href="/register/partner" className={`${btn.base} ${btn.ink}`}>{copy.becomePartner}</Link>
             <Link href="/login" className={`${btn.base} ${btn.ghost}`}>{copy.partnerSignIn}</Link>
           </div>
         </div>

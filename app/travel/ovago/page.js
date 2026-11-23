@@ -1,6 +1,5 @@
 
 import { LocalizedText, LocalizedElement } from "../../components/LocalizedText";
-import Link from 'next/link';
 import { getServerTranslation } from '../../../lib/serverLocale';
 
 export const dynamic = 'force-dynamic';
@@ -97,9 +96,9 @@ export default async function OvagoProfilePage() {
                     <h2 className="text-lg font-semibold text-white"><LocalizedText source={deal.name} /></h2>
                     <p className="mt-3 text-sm text-zinc-400"><LocalizedText source={deal.description} /></p>
                   </div>
-                  <Link href={deal.href} className="market-button mt-6 inline-flex justify-center">
+                  <a href={deal.href} target="_blank" rel="sponsored noopener noreferrer" className="market-button mt-6 inline-flex justify-center">
                     {t.buttons.getDeal}
-                  </Link>
+                  </a>
                 </div>
               </article>
             ))}

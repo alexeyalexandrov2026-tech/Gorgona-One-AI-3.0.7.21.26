@@ -89,7 +89,7 @@ export default function RequestBoard({ scope = 'customer' }) {
     <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
       <h2 className="font-display text-3xl text-villa-charcoal">{msg('Requests')}</h2>
       <div className="flex min-w-0 flex-wrap gap-2">
-        <select aria-label={msg('Status')} className={input} value={filter} onChange={event=>{setFilter(event.target.value);setAfter('');setSelected('');}}>
+        <select data-light-surface aria-label={msg('Status')} className={input} value={filter} onChange={event=>{setFilter(event.target.value);setAfter('');setSelected('');}}>
           <option value="">{msg('All statuses')}</option>
           {Object.entries(labels).map(([value,label])=><option key={value} value={value}>{label}</option>)}
         </select>

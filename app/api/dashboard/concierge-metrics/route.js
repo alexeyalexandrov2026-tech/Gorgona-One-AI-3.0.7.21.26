@@ -12,7 +12,7 @@ export async function GET(request) {
     let openReportsCount = null;
     try {
       const rows = await db.call(
-        '/rest/v1/app_support_requests?select=id&kind=eq.ai_report&status=eq.open&limit=200',
+        '/rest/v1/app_support_requests?select=id&kind=eq.ai_report&resolved_at=is.null&limit=200',
         { service: true }
       );
       if (Array.isArray(rows)) openReportsCount = rows.length;

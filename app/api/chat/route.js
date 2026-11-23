@@ -221,12 +221,26 @@ const TRACKED_REFERRAL_PLATFORMS = new Set([
   'opentable', 'resy', 'sevenrooms', 'tock', 'discotech', 'tablelistpro', 'dice', 'eatwith', 'venue', 'maps'
 ]);
 
-// Public health check + zero-PII partner referral click attribution beacon.
+function isSameOriginReferralRequest(request) {
+  const secFetch = request?.headers?.get('sec-fetch-site');
+  if (secFetch && !['same-origin', 'same-site', 'none'].includes(secFetch)) return false;
+  const origin = request?.headers?.get('origin');
+  if (origin && request?.url) {
+    try {
+      if (new URL(origin).origin !== new URL(request.url).origin) return false;
+    } catch {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Public health check + zero-PII same-origin partner referral click attribution beacon.
 export async function GET(request) {
   try {
     const url = request?.url ? new URL(request.url, 'https://gorgona-one.com') : null;
     const platform = url?.searchParams?.get('referral');
-    if (platform && TRACKED_REFERRAL_PLATFORMS.has(platform)) {
+    if (platform && TRACKED_REFERRAL_PLATFORMS.has(platform) && isSameOriginReferralRequest(request)) {
       recordReferralClick(platform);
       console.info(JSON.stringify({ event: 'concierge.referral_click', platform }));
     }
