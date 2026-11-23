@@ -7,7 +7,7 @@ import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
 import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 import { catalogueAnswer, explicitBooking, bookingDisclaimer } from '../../../lib/ai/catalogueAnswer.mjs';
-import { gatedListings, namedVenueCards, replyMentionedCards } from '../../../lib/ai/listingCards.mjs';
+import { gatedListings, listingCards, namedVenueCards, replyMentionedCards } from '../../../lib/ai/listingCards.mjs';
 import { getDynamicEntities, peekDynamicEntities } from '../../../lib/server/conciergeIndex.mjs';
 import { getLiveEventEntities, peekLiveEventEntities } from '../../../lib/server/conciergeEvents.mjs';
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
@@ -109,21 +109,22 @@ export async function POST(request) {
   const profile = extractTripProfile(modelMessages, new Date(), body.savedPrefs || null);
   const plan = conversationPlan(modelMessages, { locale });
   const dynamicEntities = getDynamicEntities(process.env);
-  const localAnswer = catalogueAnswer(modelMessages, locale);
-  const localQuery = localAnswer.navigation.query || latestUserMessage;
+  const localNav = conversationNavigation(modelMessages, { locale });
+  const localQuery = localNav.query || latestUserMessage;
   const localSections = [
-    ...(localAnswer.navigation.cards || []).map((c) => c.href),
-    ...(localAnswer.navigation.suggestions || []).map((s) => s.href)
+    ...(localNav.cards || []).map((c) => c.href),
+    ...(localNav.suggestions || []).map((s) => s.href)
   ];
-  const wantsEvents = localSections.includes('/events');
+  const clientIp = request?.headers?.get('cf-connecting-ip');
+  const allowLiveUpstream = !globalThis.caches?.default || Boolean(clientIp && /^[a-f0-9:.]{3,64}$/i.test(clientIp));
+  const wantsEvents = allowLiveUpstream && localSections.includes('/events');
   const liveEventEntities = wantsEvents
     ? getLiveEventEntities(localQuery, { profile, locale, env: process.env })
     : Promise.resolve([]);
-  const wantsForecast = shouldFetchForecast(latestUserMessage, profile, localSections);
+  const wantsForecast = allowLiveUpstream && shouldFetchForecast(latestUserMessage, profile, localSections);
   const forecastPromise = wantsForecast
     ? getMiamiForecast({ env: process.env, signal: request.signal })
     : Promise.resolve([]);
-  const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(locale);
   // Booking and payment requests are a handoff whichever engine answers: the
   // disclaimer is guaranteed here, in code. The only rows attached are the
   // restaurants or clubs the guest named, each with its own booking page.
@@ -134,14 +135,16 @@ export async function POST(request) {
     let answer=fact?fact.reply+'\n\n'+text:text;
     const disclaimer=bookingDisclaimer(locale);
     if(handoff&&!answer.includes(disclaimer))answer=disclaimer+'\n\n'+answer;
-    // Listing rows follow the final decision: a recommend or consult action,
-    // and only inside the sections this answer shows.
+    // Listing rows follow the final decision: preserve all up to 4 model sections
+    // (navigation.cards caps visible nav buttons at 2, while booking cards cover all chosen sections).
     const action=handoff?'handoff':options.action;
-    const sections=(options.navigation?.cards||[]).map(card=>card.href);
-    const query=options.navigation?.query||localAnswer.navigation.query||latestUserMessage;
+    const sections=Array.isArray(options.sections)&&options.sections.length
+      ? options.sections
+      : (options.navigation?.cards||[]).map(card=>card.href);
+    const query=options.navigation?.query||localNav.query||latestUserMessage;
     const decidedBy=handoff&&!options.handoff?'lexicon':options.decidedBy;
     const [dyn, initialLiveEvents, resolvedPlan] = await Promise.all([dynamicEntities, liveEventEntities, plan]);
-    const liveEvents = initialLiveEvents.length || !sections.includes('/events')
+    const liveEvents = !allowLiveUpstream || initialLiveEvents.length || !sections.includes('/events')
       ? initialLiveEvents
       : await getLiveEventEntities(query, { profile, locale, env: process.env });
     const extraEntities = liveEvents.length ? [...dyn, ...liveEvents] : dyn;
@@ -158,15 +161,22 @@ export async function POST(request) {
       ? [...new Set([...sections, ...localSections])].filter((href) => !planHrefs.has(href))
       : [];
     const listingSections = partnerSections.length ? partnerSections : sections;
-    const listingLimit = partnerSections.length ? 4 : 3;
+    const listingLimit = partnerSections.length || sections.length >= 2 ? 4 : 3;
     let resolvedListings = handoff
       ? namedVenueCards(bookingText, { locale, extraEntities, profile })
       : gatedListings(effectiveQuery, { locale, action, sections: listingSections, extraEntities, profile, stops: options.stops, limit: listingLimit });
-    if (!handoff && decidedBy === 'model' && (action === 'consult' || action === 'recommend') && resolvedListings.length < 2 && listingSections.length) {
+    if (!handoff && decidedBy === 'model' && ['consult', 'recommend', 'plan', 'ideas'].includes(action) && resolvedListings.length < listingLimit && listingSections.length) {
       const fromReply = replyMentionedCards(text, { sections: listingSections, extraEntities, limit: listingLimit });
-      if (fromReply.length) {
-        const seen = new Set(resolvedListings.map((c) => c.href));
-        for (const card of fromReply) {
+      const seen = new Set(resolvedListings.map((c) => c.href));
+      for (const card of fromReply) {
+        if (!seen.has(card.href) && resolvedListings.length < listingLimit) {
+          seen.add(card.href);
+          resolvedListings.push(card);
+        }
+      }
+      if (action === 'plan' && listingSections.length >= 2 && resolvedListings.length < listingLimit) {
+        const balanced = listingCards(effectiveQuery, { locale, sections: listingSections, extraEntities, profile, limit: listingLimit });
+        for (const card of balanced) {
           if (!seen.has(card.href) && resolvedListings.length < listingLimit) {
             seen.add(card.href);
             resolvedListings.push(card);
@@ -178,8 +188,6 @@ export async function POST(request) {
       listings:resolvedListings,
       ...(handoff?{handoff:true}:{}),plan:resolvedPlan});
   };
-  // Degraded turns: the keyword matcher decides.
-  const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon'};
   // Give live events, dynamic catalog & 7-day NWS forecast a brief pre-inference window (<= 1100 ms)
   // so DeepSeek V4.1 Flash sees real live dates, venues, prices, and forecast before answering.
   const preWait = Promise.all([dynamicEntities, liveEventEntities, forecastPromise])
@@ -198,13 +206,13 @@ export async function POST(request) {
     })
   ]).finally(() => clearTimeout(preTimer));
   const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:pre.extra,pagePath:body.pagePath||'',forecastPeriods:pre.forecast,savedPrefs:body.savedPrefs||null});
-  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,stops:cloud.stops,engine:'ok'});
+  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,sections:cloud.sections,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,stops:cloud.stops,engine:'ok'});
 
   // Disabled, denied or failed: graceful degradation, never a second engine.
-  // Still a 200 with a well-formed body: the widget renders this like any
-  // other answer instead of hitting an error path. A recognised request gets
-  // the catalogue sentence and listing links, not the "temporarily
-  // unavailable" line.
+  // Compute deterministic catalogueAnswer lazily only when the model did not answer.
+  const localAnswer = catalogueAnswer(modelMessages, locale);
+  const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(locale);
+  const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon'};
   return respond(degraded,{...fallback,engine:cloud.kind});
 }
 

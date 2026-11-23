@@ -16,5 +16,5 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   const { body, cacheControl } = await showcaseApiResult(buildHeroShowcase, request.url);
-  return NextResponse.json(body, { headers: { 'Cache-Control': cacheControl } });
+  return NextResponse.json(body, { headers: { 'Cache-Control': cacheControl, Vary: 'Host' } });
 }

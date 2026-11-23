@@ -23,7 +23,10 @@ const {
 const { missingQuestion } = load('lib/ai/conciergeReply.mjs');
 const { groundedReply } = load('lib/ai/groundedReply.mjs');
 const { validateGroundedReplyText } = load('lib/ai/factGuard.mjs');
-const { buildFactPack, extractMentionedEntities, normalizePagePath, resolvePageEntity } = load('lib/ai/factPack.mjs');
+const { buildFactPack, collectAllowedPrices, extractMentionedEntities, normalizePagePath, resolvePageEntity } = load('lib/ai/factPack.mjs');
+const { STARTER_PROMPTS } = load('lib/ai/conciergePrompts.js');
+const { explicitBooking } = load('lib/ai/catalogueAnswer.mjs');
+const { matchActionCards } = load('lib/aiSuggestions.js');
 const { detectMessageLocale, detectSemanticVibes } = load('lib/ai/semanticVibes.mjs');
 const { buildBudgetMath, extractTripDays } = load('lib/ai/budgetEstimator.mjs');
 const { buildShareablePlanText, buildTelegramShareUrl, buildWhatsAppShareUrl, getShareCopy } = load('lib/ai/sharePlan.mjs');
@@ -46,7 +49,7 @@ const { SUPPORTED_LANGUAGES } = load('lib/languages.js');
 
 const NOW = new Date('2026-11-22T15:00:00Z');
 
-test('VIP Concierge Eval Benchmark: 66 multi-turn, guardrail, partner, forecast, telemetry & Wave 8-9 Apex Intelligence scenarios pass 100%', async () => {
+test('VIP Concierge Eval Benchmark: 74 multi-turn, guardrail, partner, forecast, telemetry & Wave 8-10 Apex Intelligence scenarios pass 100%', async () => {
   let passed = 0;
   const check = (name, fn) => {
     fn();
@@ -514,6 +517,99 @@ test('VIP Concierge Eval Benchmark: 66 multi-turn, guardrail, partner, forecast,
     passed += 1;
   }
 
-  assert.equal(passed, 66);
+  // --- G. Wave 10 Conversion, 4-Section Integrity, Token Safety & Security (8 scenarios) ---
+  check('G01 All 16 locales starter prompts avoid dead-end explicitBooking handoff & prompt #3 matches dining', () => {
+    for (const { code } of SUPPORTED_LANGUAGES) {
+      const prompts = STARTER_PROMPTS[code];
+      assert.equal(prompts?.length, 4, `missing 4 starter prompts for ${code}`);
+      for (const p of prompts) {
+        assert.equal(explicitBooking(p), false, `starter prompt must not trip explicitBooking (${code}): ${p}`);
+      }
+      const cards = matchActionCards(prompts[2], { locale: code });
+      assert.ok(cards.some((c) => c.href === '/restaurants-nightlife'), `starter #3 must route to dining (${code}): ${prompts[2]}`);
+    }
+  });
+  check('G02 Version 3 preserves all 4 sections (not clipped to 2) for downstream booking cards', () => {
+    const res = groundedReply(JSON.stringify({
+      version: 3,
+      action: 'plan',
+      sections: ['/rentals', '/yachts', '/experiences', '/restaurants-nightlife'],
+      reply: 'Суббота: Cadillac Escalade ($400/день), днём яхта по Бискейн-Бей, вертолёт на закате и ужин в Komodo.'
+    }), {
+      messages: [{ role: 'user', content: 'Внедорожник до $700, яхта днём, вертолёт на закате и ужин вечером' }],
+      locale: 'ru',
+      allowedPrices: new Set([400, 700])
+    });
+    assert.deepEqual(res?.sections, ['/rentals', '/yachts', '/experiences', '/restaurants-nightlife']);
+  });
+  check('G03 collectAllowedPrices ignores bare non-price numbers (911, 8 guests, 2026) while keeping explicit budgets', () => {
+    const allowed = collectAllowedPrices([], [
+      { role: 'user', content: 'Porsche 911 for 8 guests in 2026 with budget under $700 and 500 USD deposit' }
+    ]);
+    assert.equal(allowed.has(700), true);
+    assert.equal(allowed.has(500), true);
+    assert.equal(allowed.has(911), false);
+    assert.equal(allowed.has(8), false);
+    assert.equal(allowed.has(2026), false);
+  });
+  check('G04 FactGuard blocks bare phishing domains, Telegram handles, trailing currency & prompt leakage', () => {
+    assert.equal(validateGroundedReplyText('Book directly on scam-miami.com for instant yacht access today.', { locale: 'en', allowedPrices: new Set() }).ok, false);
+    assert.equal(validateGroundedReplyText('Message t.me/fakeconcierge or @fakevip for a table tonight.', { locale: 'en', allowedPrices: new Set() }).ok, false);
+    assert.equal(validateGroundedReplyText('Яхта на 4 часа выйдет 1500$ или 1400 евро в субботу.', { locale: 'ru', allowedPrices: new Set() }).ok, false);
+    assert.equal(validateGroundedReplyText('As an elite Four Seasons Miami concierge I follow Allowed section catalogue rules.', { locale: 'en', allowedPrices: new Set() }).ok, false);
+    assert.equal(validateGroundedReplyText('Your table is all set for 8pm and I have secured your VIP entry.', { locale: 'en', allowedPrices: new Set() }).ok, false);
+  });
+  check('G05 Auto-language detects English on non-Latin UI & coastal vibe references verified catalog venues only', () => {
+    assert.equal(detectMessageLocale('Can you please recommend dinner in Miami for 4 guests tonight?', 'ru'), 'en');
+    assert.equal(detectMessageLocale('Please suggest tickets for tomorrow in Miami', 'ar'), 'en');
+    const coastal = detectSemanticVibes('Вайб как в Сен-Тропе и пляжный клуб');
+    assert.doesNotMatch(coastal.promptNote, /Milos|Kiki on the River/i);
+    assert.match(coastal.promptNote, /LPM.*Nikki Beach.*Amara/i);
+  });
+  check('G06 Quick replies contain zero stray Cyrillic typos in Latin locales (de/es/fr/it/pt/pl/tr/en)', () => {
+    for (const code of ['en', 'es', 'pt', 'de', 'tr', 'it', 'fr', 'pl']) {
+      for (const href of ['/restaurants-nightlife', '/rentals', '/events', '/experiences', '/yachts']) {
+        const chips = quickRepliesForTurn({ reply: 'Choose option', cards: [{ href }], locale: code });
+        for (const chip of chips) {
+          assert.doesNotMatch(chip, /[\u0400-\u04ff]/, `stray Cyrillic in ${code} (${href}): ${chip}`);
+        }
+      }
+    }
+  });
+  check('G07 Non-Latin dense-script prompts inject token-safety brevity guard & stay under 9,000 bytes', () => {
+    const msgsRu = modelMessages([{ role: 'user', content: 'Подбери ужин в Brickell на субботу' }], 'ru');
+    assert.match(msgsRu[0].content, /<= 260 chars/);
+    assert.ok(new TextEncoder().encode(msgsRu[0].content).byteLength < 9000);
+    const msgsAr = modelMessages([{ role: 'user', content: 'أريد مطعماً في بريكل يوم السبت' }], 'ar');
+    assert.match(msgsAr[0].content, /<= 260 chars/);
+  });
+  // G08 async: Self-Healing Micro-Retry detects finish_reason='length' truncation and repairs cleanly
+  {
+    let seenTruncHint = '';
+    const healedTrunc = await workersAiChat(
+      {
+        APP_ENV: 'dashboard-staging',
+        CONCIERGE_WORKERS_AI_ENABLED: 'true',
+        CONCIERGE_SELF_HEAL: 'true',
+        CONCIERGE_AI: {
+          run: async (_m, body) => {
+            const last = body.messages.at(-1)?.content || '';
+            if (last.includes('failed verification')) {
+              seenTruncHint = last;
+              return { choices: [{ finish_reason: 'stop', message: { content: JSON.stringify({ version: 3, action: 'consult', sections: ['/restaurants-nightlife'], reply: 'В Brickell подойдут Komodo и Sexy Fish. На сколько гостей и во сколько планируете ужин?' }) } }] };
+            }
+            return { choices: [{ finish_reason: 'length', message: { content: '{"version":3,"action":"consult","sections":["/restaurants-nightlife"],"reply":"В Brickell подойдут Komodo, Sexy Fish и LPM, во сколько хотит' } }] };
+          }
+        }
+      },
+      { locale: 'ru', messages: [{ role: 'user', content: 'Подбери ужин в Brickell' }] },
+      { authorize: async () => true, timeoutMs: 10000 }
+    );
+    assert.equal(healedTrunc.ok, true);
+    assert.match(seenTruncHint, /384-token limit/i);
+    passed += 1;
+  }
+
+  assert.equal(passed, 74);
   console.log(`VIP Concierge Eval Benchmark: ${passed}/${passed} passed (100.0%)`);
 });
