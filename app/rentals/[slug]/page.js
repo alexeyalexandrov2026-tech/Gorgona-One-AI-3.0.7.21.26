@@ -6,6 +6,7 @@ import { getWorldsCopy, displayValue } from '../../../lib/worldsCopy';
 import { fill } from '../../../lib/homeCopy';
 import { carThumb } from '../../../lib/homeData';
 import BookingForm from '../../components/BookingForm';
+import SaveButton from '../../components/SaveButton';
 import Gallery from '../../components/g1/Gallery';
 import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import SupplierVehicleDetails from '../../components/g1/SupplierVehicleDetails';
@@ -50,6 +51,7 @@ export default async function RentalDetailPage({ params }) {
         <div className="grid min-w-0 gap-5 lg:sticky lg:top-24">
           <p className={eyebrowClass}>{supplier?`${rental.supplier} · ${displayValue(rental.location,copy)}`:fill(copy.cars.ourFleet, { place: rental.location })}</p>
           <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{rental.title}</h1>
+          <SaveButton href={`/rentals/${rental.slug}`} kind="car" title={rental.title} subtitle={`${category} · ${displayValue(rental.location, copy)}`} image={carThumb(rental)} />
           <p lang={supplier?'en':undefined} className="text-[1.05rem] text-g1-soft">{getContentText(rentalDescriptions, locale, rental.id, rental.description)}</p>
           <Specs
             items={[
@@ -81,6 +83,7 @@ export default async function RentalDetailPage({ params }) {
                 title={car.title}
                 meta={`${copy.categories[car.category]||car.category} · ${displayValue(car.location,copy)}${car.supplier?` · ${car.supplier}`:''}`}
                 rate={`${t.rentals.daily}: ${displayValue(car.dailyPrice, copy)}`}
+                action={<SaveButton overlay href={`/rentals/${car.slug}`} kind="car" title={car.title} subtitle={`${copy.categories[car.category]||car.category} · ${displayValue(car.location,copy)}`} image={carThumb(car)} />}
               />
             ))}
           </div>
