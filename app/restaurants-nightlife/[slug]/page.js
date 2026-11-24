@@ -11,7 +11,7 @@ import DiningBooking from '../../components/dining/DiningBooking';
 import BookingButton from '../../components/dining/BookingButton';
 import {getDiningCopy,getDiningStyles,getDiningHandoffCopy} from '../../../lib/dining/copy.mjs';
 import {configuredManagerTelegram} from '../../../lib/managerContact.mjs';
-import {pageMetadata,breadcrumbJsonLd,venueJsonLd} from '../../../lib/seo.mjs';
+import {pageMetadata,breadcrumbJsonLd,venueJsonLd,venueSearchDescription} from '../../../lib/seo.mjs';
 import JsonLd from '../../components/JsonLd';
 
 export const dynamic = 'force-dynamic';
@@ -21,8 +21,12 @@ export async function generateMetadata({params}) {
  // A catalogue outage renders the page's own error; metadata just stays generic.
  const venue=await diningVenue(slug,process.env,fetch,{strict:true}).catch(()=>null);
  if(!venue)return {};
- const place=[venue.cuisine,venue.neighborhood].filter(Boolean).join(', ');
- return pageMetadata({title:`${venue.name}${venue.neighborhood?` in ${venue.neighborhood}`:''}, Miami`,description:venue.description||`${venue.name}${place?` (${place})`:''}: book directly with the venue.`,path:`/restaurants-nightlife/${venue.slug}`});
+ return pageMetadata({
+  title:`${venue.name}${venue.neighborhood?` in ${venue.neighborhood}`:''}, Miami`,
+  description:venueSearchDescription(venue),
+  path:`/restaurants-nightlife/${venue.slug}`,
+  image:venue.image||undefined
+ });
 }
 
 /** Price, MICHELIN and atmosphere, only where the catalogue has them. */

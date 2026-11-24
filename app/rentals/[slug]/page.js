@@ -25,8 +25,14 @@ export async function generateMetadata({params}) {
   if(!rental)return {};
   const url=`https://gorgona-one.com/rentals/${rental.slug}`;
   const search=rentalSearchText(rental);
-  return {title:search.title,description:search.description,
-    alternates:{canonical:url},openGraph:{title:rental.title,description:rental.description.slice(0,160),url,images:[rental.image]}};
+  const images=rental.image?[rental.image]:undefined;
+  return {
+    title:search.title,
+    description:search.description,
+    alternates:{canonical:url},
+    openGraph:{title:search.title,description:search.description,url,images},
+    twitter:{card:'summary_large_image',title:search.title,description:search.description,images}
+  };
 }
 
 export default async function RentalDetailPage({ params }) {

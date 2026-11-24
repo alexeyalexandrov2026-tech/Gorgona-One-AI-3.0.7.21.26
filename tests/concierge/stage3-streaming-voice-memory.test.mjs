@@ -13,6 +13,7 @@ import {
 import { formatGuestMemoryPromptLine } from '../../lib/server/guestMemory.mjs';
 import { resetWhisperRateLimitForTests, whisperHandlers } from '../../lib/server/whisperHandler.mjs';
 import { resetTtsRateLimitForTests, ttsHandlers } from '../../lib/server/ttsHandler.mjs';
+import { getTtsConfig, synthesizeSpeech } from '../../lib/ai/voice.js';
 import {
   getConciergeMetricsSnapshot,
   recordChatTurn,
@@ -155,6 +156,47 @@ test('Stage 3 Female Voice TTS (/api/tts) enforces female gender and supports Wo
   assert.equal(speakRes.headers.get('content-type'), 'audio/mpeg');
   assert.equal(ttsCalls[0].model, '@cf/deepgram/aura-2-en');
   assert.equal(ttsCalls[0].input.speaker, 'luna');
+});
+
+test('ElevenLabs TTS auto-activates from Cloudflare env secret with female Sarah multilingual v2 voice', async () => {
+  resetTtsRateLimitForTests();
+  const cfg = getTtsConfig({ ELEVENLABS_API_KEY: 'sk_test_demo_key' });
+  assert.equal(cfg.provider, 'elevenlabs');
+  assert.equal(cfg.voiceIdFemale, 'EXAVITQu4vr4xnSDxMaL');
+  assert.equal(cfg.modelId, 'eleven_multilingual_v2');
+  assert.equal(getTtsConfig({ ELEVENLABS_API_KEY: 'sk_test_demo_key', TTS_PROVIDER: 'off' }).provider, 'off');
+
+  const fetchCalls = [];
+  const origFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => {
+    fetchCalls.push({ url: String(url), init });
+    return new Response(new Uint8Array(600).fill(9), { status: 200, headers: { 'content-type': 'audio/mpeg' } });
+  };
+  try {
+    const handler = ttsHandlers(
+      { APP_ENV: 'production', ELEVENLABS_API_KEY: 'sk_test_demo_key' },
+      { clock: () => 1700000000000 }
+    );
+    const statusRes = await handler.status();
+    assert.deepEqual(await statusRes.json(), { available: true, voice: 'female', provider: 'elevenlabs' });
+
+    const speakRes = await handler.speak(new Request('https://gorgona-one.com/api/tts', {
+      method: 'POST',
+      headers: { origin: 'https://gorgona-one.com', 'content-type': 'application/json', 'cf-connecting-ip': '198.51.100.11' },
+      body: JSON.stringify({ text: 'Добро пожаловать в Miami Elio.', locale: 'ru' })
+    }));
+    assert.equal(speakRes.status, 200);
+    assert.equal(speakRes.headers.get('x-elio-tts-provider'), 'elevenlabs');
+    assert.equal(speakRes.headers.get('x-elio-voice'), 'female');
+    assert.equal(fetchCalls.length, 1);
+    assert.match(fetchCalls[0].url, /api\.elevenlabs\.io\/v1\/text-to-speech\/EXAVITQu4vr4xnSDxMaL\?output_format=mp3_44100_128/);
+    assert.equal(fetchCalls[0].init.headers['xi-api-key'], 'sk_test_demo_key');
+    const body = JSON.parse(fetchCalls[0].init.body);
+    assert.equal(body.model_id, 'eleven_multilingual_v2');
+    assert.equal(body.voice_settings.use_speaker_boost, true);
+  } finally {
+    globalThis.fetch = origFetch;
+  }
 });
 
 test('Stage 3 guest account memory injects into system prompt and telemetry scrubs PII for ELIO-1', () => {

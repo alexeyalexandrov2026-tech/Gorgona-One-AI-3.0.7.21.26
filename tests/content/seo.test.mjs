@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import {
   SITE_URL, DEFAULT_IMAGE, LEGAL_ROUTES, PRIVATE_ROUTES, SECTION_ROUTES, SEO_HEADINGS, SITEMAP_LASTMOD, SUPPORT_EMAIL,
   attractionJsonLd, breadcrumbJsonLd, carJsonLd, clip, dailyPriceNumber, eventJsonLd, experienceSearchText, organizationJsonLd, pageMetadata,
-  rentalSearchText, sectionJsonLd, seoHeading, serializeJsonLd, sitemapEntries, venueJsonLd, withBrand
+  rentalSearchText, sectionJsonLd, seoHeading, serializeJsonLd, sitemapEntries, venueJsonLd, venueSearchDescription, withBrand
 } from '../../lib/seo.mjs';
 import { HEADOUT_COLLECTIONS } from '../../lib/headoutCatalog.mjs';
 import { getRentals } from '../../lib/rentalsData.js';
@@ -304,4 +304,38 @@ test('Wave 11: sectionJsonLd, 16-language organization schema, venue priceRange/
   assert.match(llmsFull, /# Miami Elio — Full AI & LLM Reference/);
   assert.match(llmsFull, /Komodo/);
   assert.match(llmsFull, /Brickell/);
+});
+
+test('PR #141: favicon.ico, /partner noindex, /concierge 308, unique rental/venue SEO, ocean-gold /travel and clean brand footer', () => {
+  assert.ok(exists('public/favicon.ico'), 'public/favicon.ico must exist');
+  const ico = readFileSync(new URL('../../public/favicon.ico', import.meta.url));
+  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, 1, 0], 'valid single-icon ICO header');
+
+  assert.ok(PRIVATE_ROUTES.includes('/partner') && !LEGAL_ROUTES.includes('/partner'), '/partner is private');
+  assert.match(source('app/partner/layout.js'), /export const metadata = PRIVATE_METADATA/);
+  assert.match(source('app/concierge/page.js'), /permanentRedirect\('\/discovery'\)/);
+  assert.doesNotMatch(source('app/exclusive-destinations/page.js'), /concierge/i);
+  assert.doesNotMatch(source('app/privacy/layout.js'), /concierge/i);
+
+  const cars = getRentals();
+  const rentalTitles = cars.map((c) => rentalSearchText(c).title);
+  const rentalDescs = cars.map((c) => rentalSearchText(c).description);
+  assert.equal(new Set(rentalTitles).size, cars.length, 'every /rentals/[slug] page has a unique title');
+  assert.equal(new Set(rentalDescs).size, cars.length, 'every /rentals/[slug] page has a unique description');
+  assert.match(source('app/rentals/[slug]/page.js'), /twitter:\s*\{/);
+
+  const venues = getVenueAudit();
+  const venueDescs = venues.map((v) => venueSearchDescription(v));
+  assert.equal(new Set(venueDescs).size, venues.length, 'every venue detail page has a unique description');
+  assert.ok(venueDescs.every((d) => d.length >= 65 && d.length <= 160), 'venue descriptions stay within SEO bounds');
+  assert.match(source('app/restaurants-nightlife/[slug]/page.js'), /image:\s*venue\.image/);
+
+  const travel = source('app/travel/page.js');
+  assert.match(travel, /pageMetadata\(/);
+  assert.match(travel, /\/images\/experiences\/miami-coast\.webp/);
+  assert.doesNotMatch(travel, /images\.unsplash\.com|travel-violet|travel-lavender|travel-void|175,80,255/);
+
+  const i18n = source('lib/i18n.js');
+  assert.doesNotMatch(i18n, /affiliate-ready monetization/i);
+  assert.doesNotMatch(i18n, /concierge: 'كونسيرج'/);
 });
