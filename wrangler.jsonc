@@ -11,7 +11,8 @@
     "APP_ENV": "production",
     "CONCIERGE_WORKERS_AI_ENABLED": "true",
     "MY_MIAMI_ENABLED": "true",
-    "PLAN_REQUESTS_ENABLED": "true"
+    "PLAN_REQUESTS_ENABLED": "true",
+    "NEXT_PUBLIC_RENTALS_MEDIA_BASE_URL": "https://media.gorgona-one.com"
   },
   "assets": {
     "directory": ".open-next/assets",
