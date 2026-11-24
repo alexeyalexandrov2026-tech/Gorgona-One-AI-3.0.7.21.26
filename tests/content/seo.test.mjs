@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import {
   SITE_URL, DEFAULT_IMAGE, LEGAL_ROUTES, PRIVATE_ROUTES, SECTION_ROUTES, SEO_HEADINGS, SITEMAP_LASTMOD, SUPPORT_EMAIL,
   attractionJsonLd, breadcrumbJsonLd, carJsonLd, clip, dailyPriceNumber, eventJsonLd, experienceSearchText, organizationJsonLd, pageMetadata,
-  rentalSearchText, sectionJsonLd, seoHeading, serializeJsonLd, sitemapEntries, venueJsonLd, venueSearchDescription, withBrand
+  rentalSearchText, sectionJsonLd, seoHeading, serializeJsonLd, sitemapEntries, venueJsonLd, venueSearchDescription, websiteJsonLd, withBrand
 } from '../../lib/seo.mjs';
 import { HEADOUT_COLLECTIONS } from '../../lib/headoutCatalog.mjs';
 import { getRentals } from '../../lib/rentalsData.js';
@@ -338,4 +338,27 @@ test('PR #141: favicon.ico, /partner noindex, /concierge 308, unique rental/venu
   const i18n = source('lib/i18n.js');
   assert.doesNotMatch(i18n, /affiliate-ready monetization/i);
   assert.doesNotMatch(i18n, /concierge: 'كونسيرج'/);
+});
+
+test('PR #143: Header drops framer-motion, /events above-the-fold local hero, full OG on experiences & leagues, SearchAction & clean brand', () => {
+  assert.doesNotMatch(source('app/components/Header.jsx'), /framer-motion/);
+  assert.doesNotMatch(source('app/components/LanguageSwitcher.jsx'), /active\.flag|language\.flag/);
+
+  const events = source('app/events/page.js');
+  assert.match(events, /pageMetadata\(/);
+  assert.match(events, /\/images\/events\/concerts-pass\.jpg/);
+  assert.doesNotMatch(events, /images\.unsplash\.com|min-h-\[92svh\]|bg-travel-void/);
+
+  assert.match(source('app/experiences/page.js'), /pageMetadata\(/);
+  assert.match(source('app/experiences/[slug]/page.js'), /pageMetadata\(/);
+  assert.match(source('app/experiences/viator/[code]/page.js'), /pageMetadata\(/);
+  assert.match(source('app/events/league/[league]/page.js'), /sectionJsonLd\(/);
+
+  const site = websiteJsonLd();
+  assert.equal(site.potentialAction['@type'], 'SearchAction');
+  assert.match(site.potentialAction.target.urlTemplate, /\/discovery\?q=\{search_term_string\}/);
+  assert.equal(organizationJsonLd().address.addressLocality, 'Sunny Isles Beach');
+
+  assert.equal(exists('app/opengraph-image.alt.txt'), false, 'orphaned opengraph-image.alt.txt must be removed');
+  assert.doesNotMatch(source('public/sms-alerts.html'), /concierge/i);
 });

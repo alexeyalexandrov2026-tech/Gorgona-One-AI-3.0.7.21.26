@@ -1,6 +1,6 @@
 import {notFound} from 'next/navigation';
 import {getViatorExperience} from '../../../../lib/experienceCards.mjs';
-import {clip,breadcrumbJsonLd} from '../../../../lib/seo.mjs';
+import {clip,breadcrumbJsonLd,pageMetadata} from '../../../../lib/seo.mjs';
 import JsonLd from '../../../components/JsonLd';
 import ViatorCollection from '../../ViatorCollection';
 
@@ -10,11 +10,12 @@ export async function generateMetadata({params}){
  const {code}=await params;
  const item=getViatorExperience(code);
  if(!item)return {title:'Experiences | MIAMI ELIO'};
- return {
-  title:`${item.title} | MIAMI ELIO`,
+ return pageMetadata({
+  title:item.title,
   description:clip(`${item.title} and other Miami offers from Viator, through Miami Elio. Check dates, availability and prices on Viator before booking.`),
-  alternates:{canonical:`/experiences/viator/${item.slug}`}
- };
+  path:`/experiences/viator/${item.slug}`,
+  image:item.image||undefined
+ });
 }
 
 export default async function ViatorExperiencePage({params}){

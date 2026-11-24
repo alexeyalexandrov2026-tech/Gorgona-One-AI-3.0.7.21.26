@@ -4,7 +4,6 @@ import { useSavedText } from "./LocalizedText";
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { GetTheApp } from './GetTheApp';
 import { getTranslation } from '../../lib/i18n';
@@ -178,48 +177,43 @@ export function Header() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {mobileNavOpen && (
-          <motion.nav
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-g1-rule lg:hidden"
-          >
-            <div className="grid grid-cols-2 gap-1 py-3">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileNavOpen(false)}
-                  className="rounded-xl px-3 py-2.5 text-base text-g1-ink transition hover:bg-g1-card hover:text-g1-accent"
-                >
-                  {labelFor(item)}
-                </Link>
-              ))}
-            </div>
-            {!auth?.loading && (
-              <div className="flex flex-wrap items-center gap-3 border-t border-g1-rule px-3 py-3">
-                {auth?.session ? (
-                  <>
-                    <Link href={accountHref} onClick={() => setMobileNavOpen(false)} className="min-h-[44px] rounded-full border border-g1-rule px-4 py-2.5 text-sm font-medium text-g1-ink">
-                      {accountLabel}
-                    </Link>
-                    <button type="button" onClick={async () => { if (await auth.signOut()) setMobileNavOpen(false); }} className="min-h-[44px] rounded-full border border-g1-rule px-4 py-2.5 text-sm font-medium text-g1-ink sm:hidden">
-                      {t.auth.signOut}
-                    </button>
-                  </>
-                ) : (
-                  <Link href="/login" onClick={() => setMobileNavOpen(false)} className="inline-flex min-h-[44px] items-center rounded-full bg-g1-accent px-4 text-sm font-medium text-g1-on-accent sm:hidden">
-                    {t.auth.signInTab}
+      {mobileNavOpen && (
+        <nav
+          aria-label={msg("Menu")}
+          className="overflow-hidden border-t border-g1-rule transition-opacity duration-200 lg:hidden"
+        >
+          <div className="grid grid-cols-2 gap-1 py-3">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileNavOpen(false)}
+                className="rounded-xl px-3 py-2.5 text-base text-g1-ink transition hover:bg-g1-card hover:text-g1-accent"
+              >
+                {labelFor(item)}
+              </Link>
+            ))}
+          </div>
+          {!auth?.loading && (
+            <div className="flex flex-wrap items-center gap-3 border-t border-g1-rule px-3 py-3">
+              {auth?.session ? (
+                <>
+                  <Link href={accountHref} onClick={() => setMobileNavOpen(false)} className="min-h-[44px] rounded-full border border-g1-rule px-4 py-2.5 text-sm font-medium text-g1-ink">
+                    {accountLabel}
                   </Link>
-                )}
-              </div>
-            )}
-          </motion.nav>
-        )}
-      </AnimatePresence>
+                  <button type="button" onClick={async () => { if (await auth.signOut()) setMobileNavOpen(false); }} className="min-h-[44px] rounded-full border border-g1-rule px-4 py-2.5 text-sm font-medium text-g1-ink sm:hidden">
+                    {t.auth.signOut}
+                  </button>
+                </>
+              ) : (
+                <Link href="/login" onClick={() => setMobileNavOpen(false)} className="inline-flex min-h-[44px] items-center rounded-full bg-g1-accent px-4 text-sm font-medium text-g1-on-accent sm:hidden">
+                  {t.auth.signInTab}
+                </Link>
+              )}
+            </div>
+          )}
+        </nav>
+      )}
     </header>
   );
 }
