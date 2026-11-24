@@ -13,6 +13,7 @@ import {
 import { formatGuestMemoryPromptLine } from '../../lib/server/guestMemory.mjs';
 import { resetWhisperRateLimitForTests, whisperHandlers } from '../../lib/server/whisperHandler.mjs';
 import { resetTtsRateLimitForTests, ttsHandlers } from '../../lib/server/ttsHandler.mjs';
+import { resetTtsEdgeCacheForTests } from '../../lib/server/ttsEdgeCache.mjs';
 import { getTtsConfig, synthesizeSpeech } from '../../lib/ai/voice.js';
 import {
   getConciergeMetricsSnapshot,
@@ -30,7 +31,7 @@ const read = (rel) => fs.readFileSync(new URL('../../' + rel, import.meta.url), 
 test('Stage 3 copy covers all 16 locales without concierge wording', () => {
   for (const { code } of SUPPORTED_LANGUAGES) {
     const copy = getStage3Copy(code);
-    assert.ok(copy.stop && copy.listen && copy.stopAudio && copy.transcribing && copy.listeningLive, code);
+    assert.ok(copy.stop && copy.listen && copy.stopAudio && copy.transcribing && copy.listeningLive && copy.voiceModeOn && copy.voiceModeOff, code);
     assert.doesNotMatch(JSON.stringify(copy), /\bconcierge\b|консьерж/i, code);
   }
 });
@@ -158,8 +159,9 @@ test('Stage 3 Female Voice TTS (/api/tts) enforces female gender and supports Wo
   assert.equal(ttsCalls[0].input.speaker, 'luna');
 });
 
-test('ElevenLabs TTS auto-activates from Cloudflare env secret with female Sarah multilingual v2 voice', async () => {
+test('ElevenLabs TTS auto-activates from Cloudflare env secret with female Sarah multilingual v2 voice and 24h edge cache', async () => {
   resetTtsRateLimitForTests();
+  resetTtsEdgeCacheForTests();
   const cfg = getTtsConfig({ ELEVENLABS_API_KEY: 'sk_test_demo_key' });
   assert.equal(cfg.provider, 'elevenlabs');
   assert.equal(cfg.voiceIdFemale, 'EXAVITQu4vr4xnSDxMaL');
@@ -187,6 +189,7 @@ test('ElevenLabs TTS auto-activates from Cloudflare env secret with female Sarah
     }));
     assert.equal(speakRes.status, 200);
     assert.equal(speakRes.headers.get('x-elio-tts-provider'), 'elevenlabs');
+    assert.equal(speakRes.headers.get('x-elio-tts-cache'), 'MISS');
     assert.equal(speakRes.headers.get('x-elio-voice'), 'female');
     assert.equal(fetchCalls.length, 1);
     assert.match(fetchCalls[0].url, /api\.elevenlabs\.io\/v1\/text-to-speech\/EXAVITQu4vr4xnSDxMaL\?output_format=mp3_44100_128/);
@@ -194,6 +197,17 @@ test('ElevenLabs TTS auto-activates from Cloudflare env secret with female Sarah
     const body = JSON.parse(fetchCalls[0].init.body);
     assert.equal(body.model_id, 'eleven_multilingual_v2');
     assert.equal(body.voice_settings.use_speaker_boost, true);
+
+    // Second identical request is served from 24h edge cache with ZERO extra ElevenLabs calls!
+    const cachedRes = await handler.speak(new Request('https://gorgona-one.com/api/tts', {
+      method: 'POST',
+      headers: { origin: 'https://gorgona-one.com', 'content-type': 'application/json', 'cf-connecting-ip': '198.51.100.12' },
+      body: JSON.stringify({ text: 'Добро пожаловать в Miami Elio.', locale: 'ru' })
+    }));
+    assert.equal(cachedRes.status, 200);
+    assert.equal(cachedRes.headers.get('x-elio-tts-cache'), 'HIT');
+    assert.equal(cachedRes.headers.get('x-elio-tts-provider'), 'elevenlabs');
+    assert.equal(fetchCalls.length, 1, 'cached reply must not spend additional ElevenLabs credits');
   } finally {
     globalThis.fetch = origFetch;
   }

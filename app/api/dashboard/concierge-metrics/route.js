@@ -11,16 +11,19 @@ export async function GET(request) {
 
     let openReportsCount = null;
     let persisted7d = null;
+    let funnel7d = null;
     try {
-      const [rows, summary] = await Promise.all([
+      const [rows, summary, funnel] = await Promise.all([
         db.call(
           '/rest/v1/app_support_requests?select=id&kind=eq.ai_report&resolved_at=is.null&limit=200',
           { service: true }
         ).catch(() => null),
-        db.rpc('elio_metrics_summary_7d', {}).catch(() => null)
+        db.rpc('elio_metrics_summary_7d', {}).catch(() => null),
+        db.rpc('funnel_metrics_summary_7d', {}).catch(() => null)
       ]);
       if (Array.isArray(rows)) openReportsCount = rows.length;
       if (summary && typeof summary === 'object') persisted7d = summary;
+      if (funnel && typeof funnel === 'object') funnel7d = funnel;
     } catch {
       openReportsCount = null;
     }
@@ -28,7 +31,8 @@ export async function GET(request) {
     return json({
       metrics: getConciergeMetricsSnapshot(),
       openReportsCount,
-      ...(persisted7d ? { persisted7d } : {})
+      ...(persisted7d ? { persisted7d } : {}),
+      ...(funnel7d ? { funnel7d } : {})
     });
   } catch (error) {
     return failure(error);

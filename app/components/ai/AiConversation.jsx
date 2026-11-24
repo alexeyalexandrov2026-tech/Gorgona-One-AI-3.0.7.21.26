@@ -22,6 +22,7 @@ import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
 import { speechLocale } from '../../../lib/ai/locale';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 import { configuredManagerTelegram, configuredManagerWhatsApp } from '../../../lib/managerContact.mjs';
+import { trackEvent } from '../../../lib/analytics';
 
 // The floating manager buttons hide while the chat is open, so a booking or
 // payment answer carries the same live-manager chat links inside the reply.
@@ -95,7 +96,7 @@ function StopSquareIcon({ className }) {
   );
 }
 
-// Single shared opt-in female voice playback controller (never auto-plays).
+// Single shared opt-in female voice playback controller (off by default).
 let activeTtsCleanup = null;
 function stopActiveVoicePlayback() {
   try { activeTtsCleanup?.(); } catch {}
@@ -115,6 +116,77 @@ function pickFemaleBrowserVoice(langTag) {
   } catch {
     return null;
   }
+}
+
+async function playFemaleVoice({ text, locale, onStateChange }) {
+  const cleanText = String(text || '').trim().slice(0, 1200);
+  if (!cleanText) return;
+  stopActiveVoicePlayback();
+  onStateChange?.('loading');
+  trackEvent('voice_play', { provider: 'elevenlabs', locale });
+  const controller = new AbortController();
+  let audioEl = null;
+  let objectUrl = null;
+  let cancelled = false;
+  const cleanup = () => {
+    cancelled = true;
+    controller.abort();
+    if (audioEl) {
+      try { audioEl.pause(); audioEl.src = ''; } catch {}
+      audioEl = null;
+    }
+    if (objectUrl) {
+      try { URL.revokeObjectURL(objectUrl); } catch {}
+      objectUrl = null;
+    }
+    try { window.speechSynthesis?.cancel?.(); } catch {}
+    onStateChange?.('idle');
+  };
+  activeTtsCleanup = cleanup;
+
+  try {
+    const response = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: cleanText, locale }),
+      signal: controller.signal
+    });
+    if (cancelled) return;
+    const ct = (response.headers?.get?.('content-type') || '').toLowerCase();
+    if (response.ok && ct.includes('audio/')) {
+      const blob = await response.blob();
+      if (cancelled) return;
+      objectUrl = URL.createObjectURL(blob);
+      audioEl = new Audio(objectUrl);
+      audioEl.onended = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
+      audioEl.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
+      onStateChange?.('playing');
+      await audioEl.play();
+      return;
+    }
+  } catch {
+    if (cancelled) return;
+  }
+
+  try {
+    if (!cancelled && typeof window !== 'undefined' && window.speechSynthesis && typeof SpeechSynthesisUtterance !== 'undefined') {
+      const lang = speechLocale(locale);
+      const utter = new SpeechSynthesisUtterance(cleanText);
+      utter.lang = lang;
+      utter.rate = 0.98;
+      utter.pitch = 1.04;
+      const femaleVoice = pickFemaleBrowserVoice(lang);
+      if (femaleVoice) utter.voice = femaleVoice;
+      utter.onend = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; onStateChange?.('idle'); };
+      utter.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; onStateChange?.('idle'); };
+      onStateChange?.('playing');
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utter);
+      return;
+    }
+  } catch {}
+  if (activeTtsCleanup === cleanup) activeTtsCleanup = null;
+  onStateChange?.('idle');
 }
 
 function AnswerActions({ question, answer, locale, degraded = false }) {
@@ -184,72 +256,7 @@ function AnswerActions({ question, answer, locale, degraded = false }) {
       setTtsState('idle');
       return;
     }
-    stopActiveVoicePlayback();
-    setTtsState('loading');
-    const controller = new AbortController();
-    let audioEl = null;
-    let objectUrl = null;
-    let cancelled = false;
-    const cleanup = () => {
-      cancelled = true;
-      controller.abort();
-      if (audioEl) {
-        try { audioEl.pause(); audioEl.src = ''; } catch {}
-        audioEl = null;
-      }
-      if (objectUrl) {
-        try { URL.revokeObjectURL(objectUrl); } catch {}
-        objectUrl = null;
-      }
-      try { window.speechSynthesis?.cancel?.(); } catch {}
-      setTtsState('idle');
-    };
-    activeTtsCleanup = cleanup;
-
-    try {
-      const response = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: answer.slice(0, 1200), locale }),
-        signal: controller.signal
-      });
-      if (cancelled) return;
-      const ct = (response.headers?.get?.('content-type') || '').toLowerCase();
-      if (response.ok && ct.includes('audio/')) {
-        const blob = await response.blob();
-        if (cancelled) return;
-        objectUrl = URL.createObjectURL(blob);
-        audioEl = new Audio(objectUrl);
-        audioEl.onended = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
-        audioEl.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
-        setTtsState('playing');
-        await audioEl.play();
-        return;
-      }
-    } catch {
-      if (cancelled) return;
-    }
-
-    // Opt-in browser female voice fallback when server TTS provider is not active.
-    try {
-      if (!cancelled && typeof window !== 'undefined' && window.speechSynthesis && typeof SpeechSynthesisUtterance !== 'undefined') {
-        const lang = speechLocale(locale);
-        const utter = new SpeechSynthesisUtterance(answer.slice(0, 1200));
-        utter.lang = lang;
-        utter.rate = 0.98;
-        utter.pitch = 1.04;
-        const femaleVoice = pickFemaleBrowserVoice(lang);
-        if (femaleVoice) utter.voice = femaleVoice;
-        utter.onend = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; setTtsState('idle'); };
-        utter.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; setTtsState('idle'); };
-        setTtsState('playing');
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utter);
-        return;
-      }
-    } catch {}
-    if (activeTtsCleanup === cleanup) activeTtsCleanup = null;
-    setTtsState('idle');
+    await playFemaleVoice({ text: answer, locale, onStateChange: setTtsState });
   }
 
   return (
@@ -396,6 +403,9 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
   const [emailStatus, setEmailStatus] = useState('idle'); // idle | sending | sent | error | unavailable
+  // Opt-in voice reply mode (OFF by default to conserve ElevenLabs credits).
+  const [voiceMode, setVoiceMode] = useState(false);
+  const lastSpokenIndexRef = useRef(-1);
   const listRef = useRef(null);
   const lastAssistantRef = useRef(null);
   const inputRef = useRef(null);
@@ -442,10 +452,23 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   async function submit(rawText) {
     const content = String(rawText || '').trim();
     if (!content || isLoading) return;
+    stopActiveVoicePlayback();
     voice.stopListening();
     setInput('');
     await send(content);
   }
+
+  // When the guest explicitly enables Voice Replies mode, automatically speak
+  // each newly completed non-degraded assistant reply in female ElevenLabs voice.
+  useEffect(() => {
+    if (!voiceMode || !active || isLoading) return;
+    const idx = messages.length - 1;
+    const latest = messages[idx];
+    if (!latest || latest.role !== 'assistant' || latest.degraded || !latest.content?.trim()) return;
+    if (lastSpokenIndexRef.current === idx) return;
+    lastSpokenIndexRef.current = idx;
+    playFemaleVoice({ text: latest.content, locale: latest.replyLocale || locale });
+  }, [voiceMode, active, isLoading, messages, locale]);
 
   const profile = extractTripProfile(messages, new Date(), savedPrefs);
   const { chips: profileChips, resetLabel } = formatProfileChips(profile, locale);
@@ -806,12 +829,39 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         )}
       </div>
 
+      <div className="mt-2 flex items-center justify-end">
+        <button
+          type="button"
+          data-voice-mode-toggle="true"
+          disabled={!hydrated}
+          onClick={() => {
+            setVoiceMode((prev) => {
+              const next = !prev;
+              if (!next) stopActiveVoicePlayback();
+              else lastSpokenIndexRef.current = messages.length - 1;
+              return next;
+            });
+          }}
+          aria-label={voiceMode ? s3.voiceModeOn : s3.voiceModeOff}
+          title={voiceMode ? s3.voiceModeOn : s3.voiceModeOff}
+          aria-pressed={voiceMode}
+          className={`inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition ${
+            voiceMode
+              ? 'border-brand-gold bg-brand-gold/20 text-brand-gold'
+              : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:border-brand-gold/50 hover:text-zinc-100'
+          }`}
+        >
+          <SpeakerIcon className="h-3.5 w-3.5" />
+          <span>{voiceMode ? s3.voiceModeOn : s3.voiceModeOff}</span>
+        </button>
+      </div>
+
       <form
         onSubmit={(event) => {
           event.preventDefault();
           submit(input);
         }}
-        className="mt-3 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] p-1.5 pl-4"
+        className="mt-1.5 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] p-1.5 pl-4"
       >
         <input
           ref={inputRef}
