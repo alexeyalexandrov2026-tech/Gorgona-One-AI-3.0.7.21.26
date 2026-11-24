@@ -5,20 +5,15 @@ import { useLocale, useLocaleReady } from '../LocaleProvider';
 import { speechLocale } from '../../../lib/ai/locale';
 
 // ===========================================================================
-// Miami Elio — voice INPUT for the AI concierge.
+// Miami Elio — Voice 2.0 INPUT for ELIO+ Guide.
 //
-// Speech-to-text only. There is deliberately NO text-to-speech here: the
-// concierge is strictly text and UI. The hook previously exposed speak() /
-// stopSpeaking() / voice-gender selection built on window.speechSynthesis,
-// and every reply - including failure lines like "the concierge is
-// temporarily unavailable" - was read aloud in a synthetic voice. All of it
-// is removed rather than merely disabled, so no surface can reintroduce
-// audio by flipping a flag. (The unused Google Cloud TTS route at
-// /api/tts + lib/ai/voice.js has no caller and stays dormant.)
-//
-// Recognition language follows the global language switcher, so the mic
-// transcribes whatever the guest is browsing in - all three AI surfaces call
-// this one hook, so none of them can drift.
+// 1. Live browser SpeechRecognition with `interimResults = true` so the guest
+//    sees their words appear in real time before sending (zero blind sends).
+// 2. Automatic MediaRecorder -> POST /api/concierge/transcribe (Cloudflare
+//    Workers AI Whisper) fallback on iPhone Safari, Firefox, and in-app
+//    browsers that do not implement Web SpeechRecognition.
+// 3. Single shared active session across all surfaces (HomeHero + AiDock +
+//    Discovery Room) with granular error reporting.
 // ===========================================================================
 
 function detectStandalone() {
@@ -26,116 +21,268 @@ function detectStandalone() {
   return Boolean(window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone);
 }
 
-// The browser only ever runs one SpeechRecognition session at a time. This app
-// has two independent voice surfaces mounted together (the concierge dock and
-// the homepage AI sphere), so without a shared guard, starting one while the
-// other is listening would throw or silently kill the first session. Module
-// scope (not component state) is intentional: it is shared by every component
-// that imports this hook, across the whole page.
-let activeRecognition = null;
-function stopRecognition(recognition){try{recognition?.stop();}catch{/* Already closed or blocked: restore the text interface. */}}
+let activeSession = null;
+function stopSession(session) {
+  try {
+    session?.stop?.();
+  } catch {
+    /* Already closed or blocked: restore the text interface. */
+  }
+}
+
+function mapRecognitionError(code) {
+  if (code === 'not-allowed' || code === 'service-not-allowed') return 'permission';
+  if (code === 'no-speech') return 'no-speech';
+  return 'unavailable';
+}
 
 export function useVoice() {
   const locale = useLocale();
   const localeReady = useLocaleReady();
   const [isListening, setIsListening] = useState(false);
-  const [error,setError]=useState(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [interimText, setInterimText] = useState('');
+  const [error, setError] = useState(null);
   const [isStandalone, setIsStandalone] = useState(false);
-  // Feature-detection flags start false on every render pass, including the
-  // very first client render, so they always match the server-rendered HTML
-  // (which never has `window`) - then flip to their real value in an effect,
-  // strictly after hydration. Computing these as plain `typeof window !==
-  // 'undefined'` checks directly in the render body - the previous approach -
-  // is a classic hydration-mismatch trap, and this hook's consumers gate the
-  // mic button's very presence on it.
-  const [recognitionSupported, setRecognitionSupported] = useState(false);
-  const recognitionRef = useRef(null);
+  const [nativeSpeechSupported, setNativeSpeechSupported] = useState(false);
+  const [whisperFallbackSupported, setWhisperFallbackSupported] = useState(false);
+  const sessionRef = useRef(null);
 
-  // Read through a ref so startListening does not need `locale` in its
-  // dependency list - switching language mid-session must not tear down and
-  // recreate the callback under a live recognition session.
   const localeRef = useRef(locale);
   localeRef.current = locale;
 
   useEffect(() => {
-    setRecognitionSupported(Boolean(window.SpeechRecognition || window.webkitSpeechRecognition));
+    const hasNative = Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
+    const hasRecorder = !hasNative && Boolean(window.navigator?.mediaDevices?.getUserMedia && typeof window.MediaRecorder !== 'undefined');
+    setNativeSpeechSupported(hasNative);
+    setWhisperFallbackSupported(hasRecorder);
     setIsStandalone(detectStandalone());
   }, []);
 
-  const startListening = useCallback(
-    (onResult) => {
-      if (!recognitionSupported || !localeReady) return;
-      // Only one recognition session may run at a time across the whole page;
-      // stop whichever surface currently owns it before claiming it here.
-      const previous = activeRecognition;
-      activeRecognition = null;
-      recognitionRef.current = null;
-      stopRecognition(previous);
+  const recognitionSupported = nativeSpeechSupported || whisperFallbackSupported;
+
+  const startWhisperRecording = useCallback(
+    async (onResult) => {
       setError(null);
+      setInterimText('');
+      let stream;
+      try {
+        stream = await window.navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (err) {
+        setError(err?.name === 'NotAllowedError' ? 'permission' : 'unavailable');
+        setIsListening(false);
+        return;
+      }
+
+      const chunks = [];
+      let recorder;
+      try {
+        const mimeType = typeof window.MediaRecorder.isTypeSupported === 'function'
+          ? (['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find((m) => window.MediaRecorder.isTypeSupported(m)) || '')
+          : '';
+        recorder = mimeType ? new window.MediaRecorder(stream, { mimeType }) : new window.MediaRecorder(stream);
+      } catch {
+        stream.getTracks().forEach((t) => t.stop());
+        setError('unavailable');
+        setIsListening(false);
+        return;
+      }
+
+      const session = {
+        cancelled: false,
+        stop() {
+          if (recorder.state !== 'inactive') {
+            try { recorder.stop(); } catch {}
+          }
+          stream.getTracks().forEach((t) => t.stop());
+        },
+        cancel() {
+          this.cancelled = true;
+          this.stop();
+        }
+      };
+
+      recorder.ondataavailable = (ev) => {
+        if (ev.data && ev.data.size > 0) chunks.push(ev.data);
+      };
+      recorder.onerror = () => {
+        if (sessionRef.current !== session) return;
+        session.cancel();
+        if (activeSession === session) activeSession = null;
+        sessionRef.current = null;
+        setIsListening(false);
+        setIsTranscribing(false);
+        setError('unavailable');
+      };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        if (sessionRef.current !== session || session.cancelled) return;
+        if (activeSession === session) activeSession = null;
+        sessionRef.current = null;
+        setIsListening(false);
+        if (!chunks.length) {
+          setError('no-speech');
+          return;
+        }
+        setIsTranscribing(true);
+        try {
+          const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
+          const form = new FormData();
+          form.append('audio', blob, 'dictation.webm');
+          form.append('locale', localeRef.current || 'en');
+          const res = await fetch('/api/concierge/transcribe', {
+            method: 'POST',
+            body: form,
+            signal: AbortSignal.timeout(15000)
+          });
+          const data = await res.json().catch(() => null);
+          if (res.ok && typeof data?.text === 'string' && data.text.trim()) {
+            onResult?.(data.text.trim().slice(0, 4000));
+          } else if (res.ok && data?.empty) {
+            setError('no-speech');
+          } else {
+            setError('unavailable');
+          }
+        } catch {
+          setError('unavailable');
+        } finally {
+          setIsTranscribing(false);
+        }
+      };
+
+      sessionRef.current = session;
+      activeSession = session;
+      setIsListening(true);
+      try {
+        recorder.start();
+        // Auto-stop safety cap at 30 seconds so audio never exceeds 4MB limit.
+        setTimeout(() => {
+          if (sessionRef.current === session && recorder.state === 'recording') {
+            session.stop();
+          }
+        }, 30_000);
+      } catch {
+        session.cancel();
+        if (activeSession === session) activeSession = null;
+        sessionRef.current = null;
+        setIsListening(false);
+        setError('unavailable');
+      }
+    },
+    []
+  );
+
+  const startListening = useCallback(
+    (onResult, onInterim = null) => {
+      if (!recognitionSupported || !localeReady) return;
+      const previous = activeSession;
+      activeSession = null;
+      sessionRef.current = null;
+      stopSession(previous);
+      setError(null);
+      setInterimText('');
+
+      if (!nativeSpeechSupported && whisperFallbackSupported) {
+        void startWhisperRecording(onResult);
+        return;
+      }
 
       let recognition;
       try {
         const SpeechRecognitionImpl = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognitionImpl();
-        // Bound to the global language switcher, not hardcoded to en-US - that
-        // was why the mic only ever understood English. Read at start() time so
-        // the very next utterance uses the language showing in the UI.
         recognition.lang = speechLocale(localeRef.current);
-        recognition.interimResults = false;
+        recognition.interimResults = true;
         recognition.maxAlternatives = 1;
         recognition.onresult = (event) => {
-          if(recognitionRef.current!==recognition||activeRecognition!==recognition)return;
-          const text = event?.results?.[0]?.[0]?.transcript;
-          if(typeof text==='string'&&text.trim()&&text.length<=4000)onResult?.(text.trim());
-          else setError('unavailable');
+          if (sessionRef.current !== recognition || activeSession !== recognition) return;
+          const results = event?.results;
+          if (!results || !results.length) {
+            setError('unavailable');
+            return;
+          }
+          let finalTranscript = '';
+          let interimTranscript = '';
+          for (let i = 0; i < results.length; i += 1) {
+            const item = results[i];
+            const text = item?.[0]?.transcript;
+            if (typeof text !== 'string') continue;
+            // Synthetic test events omit isFinal; treat undefined or true as final.
+            if (item.isFinal === false) interimTranscript += text;
+            else finalTranscript += text;
+          }
+          const live = (finalTranscript + interimTranscript).trim();
+          if (interimTranscript.trim() && !finalTranscript.trim()) {
+            setInterimText(live.slice(0, 4000));
+            onInterim?.(live.slice(0, 4000));
+            return;
+          }
+          const cleanFinal = finalTranscript.trim();
+          if (cleanFinal && cleanFinal.length <= 4000) {
+            setInterimText('');
+            onInterim?.(cleanFinal);
+            onResult?.(cleanFinal);
+          } else {
+            setError('unavailable');
+          }
         };
         recognition.onend = () => {
-          if(recognitionRef.current!==recognition)return;
-          if (activeRecognition === recognition) activeRecognition = null;
+          if (sessionRef.current !== recognition) return;
+          if (activeSession === recognition) activeSession = null;
           setIsListening(false);
+          setInterimText('');
         };
         recognition.onerror = (event) => {
-          if(recognitionRef.current!==recognition)return;
-          // Covers permission denial, no-speech, network errors, an unsupported
-          // language - all simply return the UI to its resting state rather
-          // than throwing.
-          const owned=activeRecognition===recognition;
-          if (owned) activeRecognition = null;
-          if(owned&&event?.error!=='aborted')setError('unavailable');
+          if (sessionRef.current !== recognition) return;
+          const owned = activeSession === recognition;
+          if (owned) activeSession = null;
+          if (owned && event?.error !== 'aborted') setError(mapRecognitionError(event?.error));
           setIsListening(false);
+          setInterimText('');
         };
-        recognitionRef.current = recognition;
-        activeRecognition = recognition;
+        sessionRef.current = recognition;
+        activeSession = recognition;
         setIsListening(true);
         recognition.start();
       } catch {
-        if(activeRecognition===recognition)activeRecognition=null;
-        recognitionRef.current=null;
-        stopRecognition(recognition);
+        if (activeSession === recognition) activeSession = null;
+        sessionRef.current = null;
+        stopSession(recognition);
         setIsListening(false);
+        setInterimText('');
         setError('unavailable');
       }
     },
-    [recognitionSupported,localeReady]
+    [recognitionSupported, nativeSpeechSupported, whisperFallbackSupported, localeReady, startWhisperRecording]
   );
 
   const stopListening = useCallback(() => {
-    const recognition=recognitionRef.current;recognitionRef.current=null;
-    stopRecognition(recognition);
-    if (activeRecognition === recognition) activeRecognition = null;
+    const session = sessionRef.current;
+    // For Whisper MediaRecorder, stopping triggers upload & transcription (not cancel).
+    if (session && typeof session.cancel === 'function') {
+      session.stop();
+      setIsListening(false);
+      return;
+    }
+    sessionRef.current = null;
+    stopSession(session);
+    if (activeSession === session) activeSession = null;
     setError(null);
+    setInterimText('');
     setIsListening(false);
   }, []);
 
-  useEffect(()=>{if(!localeReady)stopListening();},[localeReady,stopListening]);
+  useEffect(() => {
+    if (!localeReady) stopListening();
+  }, [localeReady, stopListening]);
 
-  // Stop any recognition this hook instance owns if its component unmounts
-  // mid-session (e.g. the user navigates away from the page while listening).
   useEffect(
     () => () => {
-      const recognition=recognitionRef.current;recognitionRef.current=null;
-      stopRecognition(recognition);
-      if (activeRecognition === recognition) activeRecognition = null;
+      const session = sessionRef.current;
+      sessionRef.current = null;
+      if (session && typeof session.cancel === 'function') session.cancel();
+      else stopSession(session);
+      if (activeSession === session) activeSession = null;
     },
     []
   );
@@ -143,11 +290,13 @@ export function useVoice() {
   return {
     recognitionSupported: recognitionSupported && localeReady,
     isListening,
+    isTranscribing,
+    interimText,
+    usingWhisper: !nativeSpeechSupported && whisperFallbackSupported,
     error,
     startListening,
     stopListening,
     isStandalone,
-    // The BCP-47 tag actually in force, for diagnostics and tests.
     speechLang: speechLocale(locale)
   };
 }

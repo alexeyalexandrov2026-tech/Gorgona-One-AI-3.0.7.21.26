@@ -18,6 +18,8 @@ import { quickRepliesForTurn } from '../../../lib/ai/quickReplies.mjs';
 import { thinkingStatusForTurn } from '../../../lib/ai/thinkingStatus.mjs';
 import { buildShareablePlanText, buildTelegramShareUrl, buildWhatsAppShareUrl, getShareCopy } from '../../../lib/ai/sharePlan.mjs';
 import { buildManagerHandoffUrl, getPageContext, getStage2Copy } from '../../../lib/ai/stage2Copy.mjs';
+import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
+import { speechLocale } from '../../../lib/ai/locale';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 import { configuredManagerTelegram, configuredManagerWhatsApp } from '../../../lib/managerContact.mjs';
 
@@ -75,16 +77,62 @@ function ThumbDownIcon({ className }) {
   );
 }
 
-function AnswerActions({ question, answer, locale }) {
+function SpeakerIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+  );
+}
+
+function StopSquareIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+    </svg>
+  );
+}
+
+// Single shared opt-in female voice playback controller (never auto-plays).
+let activeTtsCleanup = null;
+function stopActiveVoicePlayback() {
+  try { activeTtsCleanup?.(); } catch {}
+  activeTtsCleanup = null;
+}
+
+const FEMALE_VOICE_HINTS = /female|woman|samantha|victoria|karen|moira|tessa|fiona|serena|siri|zira|jenny|aria|sara|sarah|luna|nova|milena|irina|yelena|elena|katya|paulina|monica|paula|amelie|audrey|thomas.*female|anna|petra|alice|federica|joana|luciana|zosia|yelda|carmit|laila|kyoko|o-ren|yuna|tingting|meijia|sinji|google\s+(?:us\s+english|uk\s+english\s+female|русский|español|français|deutsch|italiano)/i;
+
+function pickFemaleBrowserVoice(langTag) {
+  try {
+    const voices = window.speechSynthesis?.getVoices?.() || [];
+    if (!voices.length) return null;
+    const prefix = String(langTag || 'en').slice(0, 2).toLowerCase();
+    const matching = voices.filter((v) => String(v.lang || '').toLowerCase().startsWith(prefix));
+    const pool = matching.length ? matching : voices;
+    return pool.find((v) => FEMALE_VOICE_HINTS.test(`${v.name} ${v.voiceURI}`)) || pool[0] || null;
+  } catch {
+    return null;
+  }
+}
+
+function AnswerActions({ question, answer, locale, degraded = false }) {
   const msg = useSavedText();
   const shareCopy = getShareCopy(locale);
+  const s3 = getStage3Copy(locale);
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState('');
   const [state, setState] = useState('idle');
   const [copied, setCopied] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [ttsState, setTtsState] = useState('idle'); // idle | loading | playing
   const inFlight = useRef(false);
   const attempt = useRef(null);
+
+  useEffect(() => () => {
+    if (ttsState !== 'idle') stopActiveVoicePlayback();
+  }, [ttsState]);
 
   async function send(event) {
     event.preventDefault();
@@ -121,8 +169,87 @@ function AnswerActions({ question, answer, locale }) {
     if (liked) return;
     setLiked(true);
     try {
-      fetch('/api/chat?feedback=up', { method: 'GET', keepalive: true }).catch(() => {});
+      fetch('/api/concierge/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vote: 'up', locale, question: question.slice(0, 2000), answer: answer.slice(0, 4000) }),
+        keepalive: true
+      }).catch(() => {});
     } catch {}
+  }
+
+  async function handleListen() {
+    if (ttsState !== 'idle') {
+      stopActiveVoicePlayback();
+      setTtsState('idle');
+      return;
+    }
+    stopActiveVoicePlayback();
+    setTtsState('loading');
+    const controller = new AbortController();
+    let audioEl = null;
+    let objectUrl = null;
+    let cancelled = false;
+    const cleanup = () => {
+      cancelled = true;
+      controller.abort();
+      if (audioEl) {
+        try { audioEl.pause(); audioEl.src = ''; } catch {}
+        audioEl = null;
+      }
+      if (objectUrl) {
+        try { URL.revokeObjectURL(objectUrl); } catch {}
+        objectUrl = null;
+      }
+      try { window.speechSynthesis?.cancel?.(); } catch {}
+      setTtsState('idle');
+    };
+    activeTtsCleanup = cleanup;
+
+    try {
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: answer.slice(0, 1200), locale }),
+        signal: controller.signal
+      });
+      if (cancelled) return;
+      const ct = (response.headers?.get?.('content-type') || '').toLowerCase();
+      if (response.ok && ct.includes('audio/')) {
+        const blob = await response.blob();
+        if (cancelled) return;
+        objectUrl = URL.createObjectURL(blob);
+        audioEl = new Audio(objectUrl);
+        audioEl.onended = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
+        audioEl.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
+        setTtsState('playing');
+        await audioEl.play();
+        return;
+      }
+    } catch {
+      if (cancelled) return;
+    }
+
+    // Opt-in browser female voice fallback when server TTS provider is not active.
+    try {
+      if (!cancelled && typeof window !== 'undefined' && window.speechSynthesis && typeof SpeechSynthesisUtterance !== 'undefined') {
+        const lang = speechLocale(locale);
+        const utter = new SpeechSynthesisUtterance(answer.slice(0, 1200));
+        utter.lang = lang;
+        utter.rate = 0.98;
+        utter.pitch = 1.04;
+        const femaleVoice = pickFemaleBrowserVoice(lang);
+        if (femaleVoice) utter.voice = femaleVoice;
+        utter.onend = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; setTtsState('idle'); };
+        utter.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; setTtsState('idle'); };
+        setTtsState('playing');
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utter);
+        return;
+      }
+    } catch {}
+    if (activeTtsCleanup === cleanup) activeTtsCleanup = null;
+    setTtsState('idle');
   }
 
   return (
@@ -138,6 +265,24 @@ function AnswerActions({ question, answer, locale }) {
           <CopyIcon className="h-3.5 w-3.5" />
           <span>{copied ? shareCopy.copied : shareCopy.copy}</span>
         </button>
+        {!degraded && (
+          <button
+            type="button"
+            data-tts-listen="true"
+            onClick={handleListen}
+            aria-label={ttsState !== 'idle' ? s3.stopAudio : s3.listen}
+            title={ttsState !== 'idle' ? s3.stopAudio : s3.listen}
+            aria-pressed={ttsState !== 'idle'}
+            className={`inline-flex h-7 items-center gap-1 rounded-full px-2 text-[11px] transition ${
+              ttsState !== 'idle'
+                ? 'bg-brand-gold/20 text-brand-gold'
+                : 'text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-100'
+            }`}
+          >
+            {ttsState !== 'idle' ? <StopSquareIcon className="h-3 w-3" /> : <SpeakerIcon className="h-3.5 w-3.5" />}
+            <span>{ttsState === 'loading' ? s3.loadingAudio : ttsState === 'playing' ? s3.stopAudio : s3.listen}</span>
+          </button>
+        )}
         <button
           type="button"
           onClick={handleLike}
@@ -230,7 +375,7 @@ function Message({ role, content, question, locale, handoff = false, degraded = 
           </div>
         )}
         {!isUser && content.trim() && (
-          <AnswerActions key={JSON.stringify([question, content])} question={question} answer={content} locale={locale} />
+          <AnswerActions key={JSON.stringify([question, content])} question={question} answer={content} locale={locale} degraded={degraded} />
         )}
       </div>
     </div>
@@ -242,7 +387,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // in the layout), so this component is a VIEW of the conversation rather
   // than an owner of it - the homepage bar, the sphere dock and the Discovery
   // Room all render the same thread.
-  const { messages, cards, suggestions, listings, plan, savedPrefs, isLoading, hydrated, send, reset } = useConciergeChat();
+  const { messages, cards, suggestions, listings, plan, savedPrefs, streamingText, streamStatus, isLoading, hydrated, send, stop, reset } = useConciergeChat();
   const auth = useAuth();
   const pathname = usePathname() || '';
   const [input, setInput] = useState('');
@@ -255,7 +400,10 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   const lastAssistantRef = useRef(null);
   const inputRef = useRef(null);
   const voice = useVoice();
-  useEffect(()=>{if(!active||!messages.length)voice.stopListening();},[active,messages.length,voice.stopListening]);
+  useEffect(() => {
+    if (!active) stopActiveVoicePlayback();
+    if (!active || !messages.length) voice.stopListening();
+  }, [active, messages.length, voice.stopListening]);
   useEffect(() => {
     if (!isLoading) {
       setThinkingStage(0);
@@ -313,6 +461,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   const extraChips = activeSuggestions.filter((s) => !activeCards.some((c) => c.href === s.href));
   const shareCopy = getShareCopy(effectiveLocale);
   const s2 = getStage2Copy(effectiveLocale);
+  const s3 = getStage3Copy(effectiveLocale);
   const canSharePlan = !isLoading && lastMessage?.role === 'assistant' && !lastMessage.degraded && !lastMessage.handoff
     && (Boolean(activePlan) || activeListings.length > 0 || (lastMessage.content?.length || 0) >= 120);
   const shareText = canSharePlan
@@ -370,10 +519,26 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
       voice.stopListening();
       return;
     }
-    // Dictation is transcribed in the language selected in the global
-    // switcher - see useVoice.
-    voice.startListening((text) => submit(text));
+    // Live interim dictation streams directly into the text input so the guest
+    // sees and verifies their words before pressing Ask (no blind auto-send).
+    voice.startListening(
+      (finalText) => {
+        setInput(finalText);
+        inputRef.current?.focus();
+      },
+      (interim) => {
+        setInput(interim);
+      }
+    );
   }
+
+  const voiceErrorText = voice.error === 'permission'
+    ? s3.micPermission
+    : voice.error === 'no-speech'
+      ? s3.micNoSpeech
+      : voice.error
+        ? voiceInputUnavailable(locale)
+        : '';
 
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col" aria-busy={!hydrated||isLoading}>
@@ -486,24 +651,46 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
 
         {isLoading && (
           <div className="space-y-2.5">
-            <div className="flex justify-start" role="status" aria-live="polite" data-thinking-status="true">
-              <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5">
-                <span className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold" />
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:120ms]" />
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:240ms]" />
-                </span>
-                <span className="text-xs text-zinc-300">
-                  {thinkingStatusForTurn({
-                    message: [...messages].reverse().find((m) => m.role === 'user')?.content || '',
-                    cards,
-                    locale,
-                    stage: thinkingStage
-                  })}
-                </span>
+            {streamingText ? (
+              <div className="flex justify-start" data-streaming-reply="true">
+                <div className="max-w-[88%] whitespace-pre-wrap rounded-2xl border border-brand-gold/30 bg-white/[0.07] px-4 py-2.5 text-sm leading-relaxed text-zinc-100 [overflow-wrap:anywhere]">
+                  {formatAssistantDisplay(streamingText)}
+                  <span className="ml-1 inline-block h-3.5 w-1.5 animate-pulse align-middle bg-brand-gold" aria-hidden="true" />
+                </div>
               </div>
-            </div>
-            <AiActionCards cards={cards} onNavigate={onNavigate} profile={profile} />
+            ) : (
+              <div className="flex justify-start" role="status" aria-live="polite" data-thinking-status="true">
+                <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5">
+                  <span className="flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold" />
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:120ms]" />
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:240ms]" />
+                  </span>
+                  <span className="text-xs text-zinc-300">
+                    {streamStatus || thinkingStatusForTurn({
+                      message: [...messages].reverse().find((m) => m.role === 'user')?.content || '',
+                      cards,
+                      locale,
+                      stage: thinkingStage
+                    })}
+                  </span>
+                </div>
+              </div>
+            )}
+            {cards.length > 0 ? (
+              <AiActionCards cards={cards} onNavigate={onNavigate} profile={profile} />
+            ) : (
+              <div className="grid gap-2 pt-1" data-shimmer-cards="true" aria-hidden="true">
+                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 animate-pulse">
+                  <div className="h-14 w-18 shrink-0 rounded-xl bg-white/10" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-2.5 w-20 rounded bg-brand-gold/25" />
+                    <div className="h-3.5 w-40 rounded bg-white/15" />
+                    <div className="h-2.5 w-24 rounded bg-white/10" />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -630,40 +817,56 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
           ref={inputRef}
           aria-label={t.ai?.askPlaceholder || 'Ask ELIO anything…'}
           maxLength={4000}
-          disabled={!hydrated||isLoading}
+          disabled={!hydrated||isLoading||voice.isTranscribing}
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          placeholder={voice.isListening ? `${t.ai?.listening || 'Listening'}…` : (t.ai?.askPlaceholder || 'Ask ELIO anything…')}
+          placeholder={
+            voice.isTranscribing
+              ? s3.transcribing
+              : voice.isListening
+                ? s3.listeningLive
+                : (t.ai?.askPlaceholder || 'Ask ELIO anything…')
+          }
           className="min-w-0 flex-1 bg-transparent py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none"
         />
         {voice.recognitionSupported && (
           <button
             type="button"
-            disabled={!hydrated||isLoading}
+            disabled={!hydrated||isLoading||voice.isTranscribing}
             onClick={handleMicClick}
             aria-label={voice.isListening ? (t.ai?.stopListening || 'Stop listening') : (t.ai?.speakRequest || 'Speak your request')}
             aria-pressed={voice.isListening}
             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition ${
               voice.isListening
-                ? 'border-brand-gold bg-brand-gold text-black'
+                ? 'border-brand-gold bg-brand-gold text-black animate-pulse'
                 : 'border-white/10 text-zinc-300 hover:border-brand-gold hover:text-brand-gold'
             }`}
           >
             <MicIcon className="h-4 w-4" />
           </button>
         )}
-        {/* No speaker toggle: the concierge is text-only. The spoken-reply
-            button and the male/female voice picker that used to sit here are
-            gone along with the speechSynthesis code behind them. */}
-        <button
-          type="submit"
-          disabled={!hydrated||isLoading||!input.trim()}
-          className="shrink-0 rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold uppercase tracking-wide text-black transition hover:brightness-110"
-        >
-          {t.ai?.ask || <LocalizedText source={"Ask"} />}
-        </button>
+        {isLoading ? (
+          <button
+            type="button"
+            data-stop-stream="true"
+            onClick={stop}
+            aria-label={s3.stop}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-brand-gold/60 bg-brand-gold/15 px-3.5 py-2 text-xs font-semibold uppercase tracking-wide text-brand-gold transition hover:bg-brand-gold hover:text-black"
+          >
+            <StopSquareIcon className="h-3 w-3" />
+            <span>{s3.stop}</span>
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={!hydrated||!input.trim()||voice.isTranscribing}
+            className="shrink-0 rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold uppercase tracking-wide text-black transition hover:brightness-110"
+          >
+            {t.ai?.ask || <LocalizedText source={"Ask"} />}
+          </button>
+        )}
       </form>
-      {voice.error&&<p role="alert" className="mt-2 text-xs text-zinc-300">{voiceInputUnavailable(locale)}</p>}
+      {voiceErrorText && <p role="alert" className="mt-2 text-xs text-zinc-300">{voiceErrorText}</p>}
     </div>
   );
 }

@@ -130,10 +130,14 @@ export default function HomeHero({ copy, showcase = [] }) {
       voice.stopListening();
       return;
     }
-    voice.startListening((text) => {
-      setQuery(text);
-      if (ask(text)) setQuery('');
-    });
+    voice.startListening(
+      (text) => {
+        setQuery(text);
+      },
+      (interim) => {
+        setQuery(interim);
+      }
+    );
   }
 
   useEffect(() => {

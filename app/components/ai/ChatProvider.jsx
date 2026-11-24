@@ -4,49 +4,20 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { usePathname } from 'next/navigation';
 import { conversationNavigation } from '../../../lib/ai/conversation.mjs';
 import { chatSnapshot, isDegradedResponse } from '../../../lib/ai/session.mjs';
-import {chatPayload, sanitizeSavedPrefs} from '../../../lib/ai/chatRequest.mjs';
+import { chatPayload, sanitizeSavedPrefs } from '../../../lib/ai/chatRequest.mjs';
 import { extractDurablePrefs, extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { useLocale, useLocaleReady } from '../LocaleProvider';
 import { unavailableReply } from '../../../lib/ai/locale';
 import { CLIENT_TIMEOUT_MS } from '../../../lib/ai/chatDeadline.mjs';
-import {useHydratedValue} from '../useHydratedValue';
-
-// ===========================================================================
-// Miami Elio — the concierge conversation (one thread, every surface).
-//
-// Mounted once in the layout, so the homepage bar, the floating sphere dock
-// and the Discovery Room page are three VIEWS OF ONE CONVERSATION rather than
-// three chats that each forget what the others heard. Ask on the homepage,
-// open the sphere, continue on /discovery: same transcript, same backend
-// session, same cards.
-//
-// State that must stay consistent across the surfaces:
-//   messages    the transcript
-//   sessionId   an opaque handle echoed back to /api/chat when the server
-//               supplies one (the current Workers AI chain does not)
-//   cards       navigation frames for the newest reply
-//   isLoading   so every surface shows the same typing state
-//
-// Persisted to sessionStorage: a full page load (not client-side navigation)
-// keeps the thread, while a new tab starts clean.
-//
-// FAILURE POLICY: send() never throws and never logs. /api/chat always
-// answers 200 with a well-formed body, so a catch here means the network or
-// the server itself is gone - and even then the guest gets a concierge-voiced
-// line PLUS working navigation cards, because the card matcher runs
-// client-side from the very same module the server uses.
-// ===========================================================================
+import { useHydratedValue } from '../useHydratedValue';
+import { supabase } from '../../../lib/supabase';
 
 const ChatContext = createContext(null);
 
 const STORAGE_KEY = 'gorgona-concierge-thread';
 const PREFS_STORAGE_KEY = 'gorgona-concierge-vip-prefs';
 const MAX_MESSAGES = 40;
-// Above the server's own budget so the server's graceful answer wins the race
-// in the normal case; this only fires if the request never comes back at all.
 
-// Used before the provider mounts (or if a surface is ever rendered outside
-// it): inert, but shaped like the real thing so no consumer needs a guard.
 const NOOP = {
   messages: [],
   cards: [],
@@ -54,16 +25,52 @@ const NOOP = {
   listings: [],
   plan: null,
   savedPrefs: null,
+  streamingText: '',
+  streamStatus: '',
   isLoading: false,
   hydrated: false,
   send() {},
+  stop() {},
   reset() {}
 };
 
+async function readSseChatStream(response, { onStatus, onPreview, onDelta }) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let buffer = '';
+  let finalData = null;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let boundary = buffer.indexOf('\n\n');
+      while (boundary !== -1) {
+        const frame = buffer.slice(0, boundary);
+        buffer = buffer.slice(boundary + 2);
+        boundary = buffer.indexOf('\n\n');
+        let eventName = 'message';
+        const dataLines = [];
+        for (const line of frame.split(/\r?\n/)) {
+          if (line.startsWith('event:')) eventName = line.slice(6).trim();
+          else if (line.startsWith('data:')) dataLines.push(line.slice(5).trim());
+        }
+        if (!dataLines.length) continue;
+        let parsed = null;
+        try { parsed = JSON.parse(dataLines.join('\n')); } catch { continue; }
+        if (eventName === 'status' && typeof parsed?.label === 'string') onStatus?.(parsed.label);
+        else if (eventName === 'preview') onPreview?.(parsed);
+        else if (eventName === 'delta' && typeof parsed?.text === 'string') onDelta?.(parsed.text);
+        else if (eventName === 'done') finalData = parsed;
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  return finalData;
+}
+
 export function ChatProvider({ children }) {
-  // The active UI language. Sent with every turn so the model answers in it,
-  // and used for the offline fallback line - a guest browsing in Japanese
-  // must not be told in English that the concierge is unavailable.
   const locale = useLocale();
   const localeReady = useLocaleReady();
   const pathname = usePathname() || '';
@@ -73,25 +80,31 @@ export function ChatProvider({ children }) {
   const [listings, setListings] = useState([]);
   const [plan, setPlan] = useState(null);
   const [savedPrefs, setSavedPrefs] = useState(null);
+  const [streamingText, setStreamingText] = useState('');
+  const [streamStatus, setStreamStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [storageReady, setHydrated] = useState(false);
   const hydrated = storageReady && localeReady;
 
-  // Transport bookkeeping, not view state - a ref so updating it never
-  // re-renders three surfaces.
   const sessionIdRef = useRef(null);
-  // Guards against overlapping sends racing each other's results.
   const inFlightRef = useRef(false);
-  const operationRef = useRef(null), generationRef = useRef(0);
-  useEffect(()=>()=>{generationRef.current++;operationRef.current?.abort();},[]);
+  const operationRef = useRef(null);
+  const generationRef = useRef(0);
+  const streamingRef = useRef('');
+  const userStoppedRef = useRef(false);
 
-  // Restore the thread on mount.
+  useEffect(() => () => { generationRef.current++; operationRef.current?.abort(); }, []);
+
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
       if (raw) {
         const data = chatSnapshot(JSON.parse(raw));
-        setMessages(data.messages);setCards(data.cards);setSuggestions(data.suggestions);setListings(data.listings||[]);setPlan(data.plan||null);
+        setMessages(data.messages);
+        setCards(data.cards);
+        setSuggestions(data.suggestions);
+        setListings(data.listings || []);
+        setPlan(data.plan || null);
         sessionIdRef.current = data.sessionId;
       }
       const rawPrefs = localStorage.getItem(PREFS_STORAGE_KEY);
@@ -105,7 +118,6 @@ export function ChatProvider({ children }) {
     setHydrated(true);
   }, []);
 
-  // Persist whenever the thread changes (after hydration).
   useEffect(() => {
     if (!hydrated) return;
     try {
@@ -121,53 +133,98 @@ export function ChatProvider({ children }) {
         }
       }
     } catch {
-      /* storage full or blocked - non-fatal, the thread just won't survive a reload */
+      /* storage full or blocked - non-fatal */
     }
   }, [messages, cards, suggestions, listings, plan, hydrated, savedPrefs]);
 
+  const stop = useCallback(() => {
+    if (!inFlightRef.current) return;
+    userStoppedRef.current = true;
+    operationRef.current?.abort();
+  }, []);
+
   const send = useCallback(async (rawText) => {
     const content = String(rawText || '').trim();
-    if (!hydrated || !content || content.length>4000 || inFlightRef.current) return;
+    if (!hydrated || !content || content.length > 4000 || inFlightRef.current) return;
 
     inFlightRef.current = true;
+    userStoppedRef.current = false;
+    streamingRef.current = '';
+    setStreamingText('');
+    setStreamStatus('');
     const nextMessages = [...messages, { role: 'user', content }].slice(-MAX_MESSAGES);
     setMessages(nextMessages);
     setIsLoading(true);
-    // Links appear before the model answers, so a slow or hung request never
-    // leaves an empty dock. The same matcher runs if the network never returns.
-    const navigation=conversationNavigation(nextMessages,{locale});
+
+    const navigation = conversationNavigation(nextMessages, { locale });
     setCards(navigation.cards);
     setSuggestions(navigation.suggestions);
     setListings([]);
     setPlan(null);
 
     const controller = new AbortController();
-    const generation=++generationRef.current;operationRef.current=controller;
-    // Started just before the request leaves, so loading the local fallback
-    // does not eat into the time the server has to answer.
+    const generation = ++generationRef.current;
+    operationRef.current = controller;
     let timeout;
 
     let answer = '';
     let handoff = false;
-    // Offline unless the server says a real engine answered: like the Android
-    // app, a degraded turn is shown but never sent back as history.
     let degraded = true;
     let nextReplyLocale = null;
-    let nextCards=navigation.cards,nextSuggestions=navigation.suggestions,nextListings=[],nextPlan=null;
-    let prepared=null;
+    let nextCards = navigation.cards;
+    let nextSuggestions = navigation.suggestions;
+    let nextListings = [];
+    let nextPlan = null;
+    let prepared = null;
 
     try {
+      let authToken = null;
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        authToken = sessionData?.session?.access_token || null;
+      } catch {}
+
       timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json',...(globalThis.crypto?.randomUUID?{'Idempotency-Key':crypto.randomUUID()}:{}) },
-        body: JSON.stringify(chatPayload(nextMessages,{locale,sessionId:sessionIdRef.current,pagePath:pathname,savedPrefs})),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'text/event-stream, application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+          ...(globalThis.crypto?.randomUUID ? { 'Idempotency-Key': crypto.randomUUID() } : {})
+        },
+        body: JSON.stringify(chatPayload(nextMessages, { locale, sessionId: sessionIdRef.current, pagePath: pathname, savedPrefs })),
         signal: controller.signal
       });
 
-      // A non-JSON body (proxy error page, truncated response) resolves to
-      // null instead of throwing, so one code path covers every outcome.
-      const data = await response.json().catch(() => null);
+      const contentType = (response.headers?.get?.('content-type') || '').toLowerCase();
+      let data = null;
+      if (response.ok && contentType.includes('text/event-stream') && response.body) {
+        data = await readSseChatStream(response, {
+          onStatus: (label) => {
+            if (generation === generationRef.current) setStreamStatus(label);
+          },
+          onPreview: (preview) => {
+            if (generation !== generationRef.current) return;
+            const snap = chatSnapshot(preview);
+            if (snap.cards.length) {
+              nextCards = snap.cards;
+              setCards(snap.cards);
+            }
+            if (snap.suggestions.length) {
+              nextSuggestions = snap.suggestions;
+              setSuggestions(snap.suggestions);
+            }
+          },
+          onDelta: (chunk) => {
+            if (generation !== generationRef.current) return;
+            streamingRef.current += chunk;
+            setStreamingText(streamingRef.current);
+          }
+        });
+      } else {
+        data = await response.json().catch(() => null);
+      }
 
       if (response.ok && typeof data?.reply === 'string' && data.reply.trim()) {
         answer = data.reply.trim();
@@ -177,53 +234,72 @@ export function ChatProvider({ children }) {
           nextReplyLocale = data.replyLocale.trim();
         }
       }
-      // Conversation replies can explicitly omit navigation, even when the
-      // offline matcher recognized a place or section name in the question.
-      const safe=chatSnapshot(data);
-      const authoritative=response.ok&&data?.responsePolicy==='conversation-v1';
-      if (safe.cards.length||(authoritative&&Array.isArray(data.cards))) nextCards = safe.cards;
-      if (safe.suggestions.length||(authoritative&&Array.isArray(data.suggestions))) nextSuggestions = safe.suggestions;
+      const safe = chatSnapshot(data);
+      const authoritative = response.ok && data?.responsePolicy === 'conversation-v1';
+      if (safe.cards.length || (authoritative && Array.isArray(data.cards))) nextCards = safe.cards;
+      if (safe.suggestions.length || (authoritative && Array.isArray(data.suggestions))) nextSuggestions = safe.suggestions;
       if (response.ok && Array.isArray(data?.listings)) nextListings = safe.listings;
-      if (response.ok && data && Object.prototype.hasOwnProperty.call(data,'plan')) nextPlan = safe.plan;
-      if (generation===generationRef.current&&safe.sessionId)sessionIdRef.current=safe.sessionId;
+      if (response.ok && data && Object.prototype.hasOwnProperty.call(data, 'plan')) nextPlan = safe.plan;
+      if (generation === generationRef.current && safe.sessionId) sessionIdRef.current = safe.sessionId;
     } catch {
-      /* aborted, offline, or blocked - the locally matched cards stand */
+      /* aborted, offline, or blocked - local fallback or partial stopped text */
     } finally {
       clearTimeout(timeout);
-      if(generation!==generationRef.current){
-        inFlightRef.current=false;
+      if (generation !== generationRef.current) {
+        inFlightRef.current = false;
         return;
       }
-      if(!answer){
-        prepared=await import('../../../lib/ai/catalogueAnswer.mjs').then(async (mod)=>{
-          const answerSet=mod.catalogueAnswer(nextMessages,locale);
-          const [{buildPlan},{syncPlanCatalog}]=await Promise.all([
+      const wasStoppedByUser = userStoppedRef.current;
+      const partialText = streamingRef.current.trim();
+      setStreamingText('');
+      setStreamStatus('');
+      streamingRef.current = '';
+
+      if (wasStoppedByUser) {
+        operationRef.current = null;
+        if (partialText) {
+          setMessages((prev) => [...prev, {
+            role: 'assistant',
+            content: partialText,
+            ...(nextCards.length ? { cards: nextCards } : {}),
+            ...(nextSuggestions.length ? { suggestions: nextSuggestions } : {})
+          }].slice(-MAX_MESSAGES));
+        }
+        setIsLoading(false);
+        inFlightRef.current = false;
+        return;
+      }
+
+      if (!answer) {
+        prepared = await import('../../../lib/ai/catalogueAnswer.mjs').then(async (mod) => {
+          const answerSet = mod.catalogueAnswer(nextMessages, locale);
+          const [{ buildPlan }, { syncPlanCatalog }] = await Promise.all([
             import('../../../lib/ai/plan.mjs'),
             import('../../../lib/ai/syncPlanCatalog.mjs')
           ]);
-          return {...answerSet,plan:buildPlan(nextMessages,{catalog:syncPlanCatalog(),locale})};
-        }).catch(()=>null);
-        if(generation!==generationRef.current){
-          inFlightRef.current=false;
+          return { ...answerSet, plan: buildPlan(nextMessages, { catalog: syncPlanCatalog(), locale }) };
+        }).catch(() => null);
+        if (generation !== generationRef.current) {
+          inFlightRef.current = false;
           return;
         }
-        if(prepared?.listings?.length) nextListings = prepared.listings;
-        if(prepared?.plan) nextPlan = prepared.plan;
+        if (prepared?.listings?.length) nextListings = prepared.listings;
+        if (prepared?.plan) nextPlan = prepared.plan;
         answer = prepared?.matched ? prepared.reply : unavailableReply(locale);
         handoff = prepared?.handoff === true;
         degraded = true;
       }
-      operationRef.current=null;
-      setMessages(prev=>[...prev,{
-        role:'assistant',
-        content:answer,
-        ...(handoff?{handoff:true}:{}),
-        ...(degraded?{degraded:true}:{}),
-        ...(nextReplyLocale?{replyLocale:nextReplyLocale}:{}),
-        ...(nextCards.length?{cards:nextCards}:{}),
-        ...(nextSuggestions.length?{suggestions:nextSuggestions}:{}),
-        ...(nextListings.length?{listings:nextListings}:{}),
-        ...(nextPlan?{plan:nextPlan}:{})
+      operationRef.current = null;
+      setMessages((prev) => [...prev, {
+        role: 'assistant',
+        content: answer,
+        ...(handoff ? { handoff: true } : {}),
+        ...(degraded ? { degraded: true } : {}),
+        ...(nextReplyLocale ? { replyLocale: nextReplyLocale } : {}),
+        ...(nextCards.length ? { cards: nextCards } : {}),
+        ...(nextSuggestions.length ? { suggestions: nextSuggestions } : {}),
+        ...(nextListings.length ? { listings: nextListings } : {}),
+        ...(nextPlan ? { plan: nextPlan } : {})
       }].slice(-MAX_MESSAGES));
       setCards(nextCards);
       setSuggestions(nextSuggestions);
@@ -237,8 +313,14 @@ export function ChatProvider({ children }) {
   }, [messages, locale, hydrated, pathname, savedPrefs]);
 
   const reset = useCallback(() => {
-    generationRef.current++;operationRef.current?.abort();operationRef.current=null;
-    inFlightRef.current=false;setIsLoading(false);
+    generationRef.current++;
+    operationRef.current?.abort();
+    operationRef.current = null;
+    inFlightRef.current = false;
+    streamingRef.current = '';
+    setStreamingText('');
+    setStreamStatus('');
+    setIsLoading(false);
     setMessages([]);
     setCards([]);
     setSuggestions([]);
@@ -255,13 +337,13 @@ export function ChatProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ messages, cards, suggestions, listings, plan, savedPrefs, isLoading, hydrated, send, reset }),
-    [messages, cards, suggestions, listings, plan, savedPrefs, isLoading, hydrated, send, reset]
+    () => ({ messages, cards, suggestions, listings, plan, savedPrefs, streamingText, streamStatus, isLoading, hydrated, send, stop, reset }),
+    [messages, cards, suggestions, listings, plan, savedPrefs, streamingText, streamStatus, isLoading, hydrated, send, stop, reset]
   );
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 }
 
 export function useConciergeChat() {
-  return useHydratedValue(useContext(ChatContext) || NOOP,NOOP);
+  return useHydratedValue(useContext(ChatContext) || NOOP, NOOP);
 }
