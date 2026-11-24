@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Emit page metadata directly in <head> for every user agent (all metadata is
+  // synchronous/local). Prevents Next.js 15 streaming-metadata tags from being
+  // stranded inside <body> if a visitor clicks a header link right after load.
+  htmlLimitedBots: /.*/,
   async redirects() {
     return [
       { source: '/experiences/helicopter-tours-miami', destination: '/experiences#experience-viator-231628p7', permanent: true },
