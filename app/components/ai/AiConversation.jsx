@@ -829,12 +829,39 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         )}
       </div>
 
+      <div className="mt-2 flex items-center justify-end">
+        <button
+          type="button"
+          data-voice-mode-toggle="true"
+          disabled={!hydrated}
+          onClick={() => {
+            setVoiceMode((prev) => {
+              const next = !prev;
+              if (!next) stopActiveVoicePlayback();
+              else lastSpokenIndexRef.current = messages.length - 1;
+              return next;
+            });
+          }}
+          aria-label={voiceMode ? s3.voiceModeOn : s3.voiceModeOff}
+          title={voiceMode ? s3.voiceModeOn : s3.voiceModeOff}
+          aria-pressed={voiceMode}
+          className={`inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-medium transition ${
+            voiceMode
+              ? 'border-brand-gold bg-brand-gold/20 text-brand-gold'
+              : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:border-brand-gold/50 hover:text-zinc-100'
+          }`}
+        >
+          <SpeakerIcon className="h-3.5 w-3.5" />
+          <span>{voiceMode ? s3.voiceModeOn : s3.voiceModeOff}</span>
+        </button>
+      </div>
+
       <form
         onSubmit={(event) => {
           event.preventDefault();
           submit(input);
         }}
-        className="mt-3 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] p-1.5 pl-4"
+        className="mt-1.5 flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] p-1.5 pl-4"
       >
         <input
           ref={inputRef}
@@ -868,29 +895,6 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
             <MicIcon className="h-4 w-4" />
           </button>
         )}
-        <button
-          type="button"
-          data-voice-mode-toggle="true"
-          disabled={!hydrated}
-          onClick={() => {
-            setVoiceMode((prev) => {
-              const next = !prev;
-              if (!next) stopActiveVoicePlayback();
-              else lastSpokenIndexRef.current = messages.length - 1;
-              return next;
-            });
-          }}
-          aria-label={voiceMode ? s3.voiceModeOn : s3.voiceModeOff}
-          title={voiceMode ? s3.voiceModeOn : s3.voiceModeOff}
-          aria-pressed={voiceMode}
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition ${
-            voiceMode
-              ? 'border-brand-gold bg-brand-gold/20 text-brand-gold'
-              : 'border-white/10 text-zinc-400 hover:border-brand-gold/60 hover:text-zinc-100'
-          }`}
-        >
-          <SpeakerIcon className="h-4 w-4" />
-        </button>
         {isLoading ? (
           <button
             type="button"
