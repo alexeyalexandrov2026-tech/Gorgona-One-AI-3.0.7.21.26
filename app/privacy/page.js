@@ -31,9 +31,9 @@ export default function PrivacyPage() {
       <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium">
         <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{msg("Privacy")}</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">{t.legal.privacyTitle}</h1>
-        <p className="mt-2 text-sm text-zinc-500">{msg('Last updated: November 24, 2026')}</p>
+        <p className="mt-2 text-sm text-zinc-500">Last updated: November 24, 2026</p>
         <p className="mt-4 max-w-2xl text-zinc-400">
-          {msg('Miami Elio (gorgona-one.com and the Miami Elio Android app) is operated by AAA Logistics LLC dba Miami Elio, 250 174th St, Sunny Isles Beach, FL 33160-3323, USA. This policy explains what we collect, why, who processes it for us, how long we keep it and how you can delete it.')}
+          Miami Elio (gorgona-one.com and the Miami Elio Android app) is operated by AAA Logistics LLC dba Miami Elio, 250 174th St, Sunny Isles Beach, FL 33160-3323, USA. This policy explains what we collect, why, who processes it for us, how long we keep it and how you can delete it.
         </p>
         <p className="mt-4 max-w-2xl text-zinc-400">
           {msg('Questions about your data:')} <a href={`mailto:${CONTACT}`} className="underline">{CONTACT}</a>
@@ -98,10 +98,10 @@ export default function PrivacyPage() {
           <p>{supplement.usRightsBody}</p>
         </Section>
 
-        <Section title={msg('Text messages (SMS)')}>
-          <p>{msg('If you opt in to SMS from Miami Elio (AAA Logistics LLC dba Miami Elio) on https://gorgona-one.com/sms-alerts or another Miami Elio form, we collect your mobile number and your consent so we can send booking confirmations, reservation updates, and customer service replies from our toll-free number, (833) 946-8811. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, or HELP for help.')}</p>
-          <p>{msg('We do not share mobile information or SMS opt-in data with third parties or affiliates for marketing or promotional purposes. Mobile information is not sold. Our SMS delivery provider (Twilio) processes messages only to deliver this program.')}</p>
-          <p>{msg('You may withdraw consent at any time by replying STOP or by writing to miami-elio@gorgona-one.com.')}</p>
+        <Section title="Text messages (SMS)">
+          <p>If you opt in to SMS from Miami Elio (AAA Logistics LLC dba Miami Elio) on https://gorgona-one.com/sms-alerts or another Miami Elio form, we collect your mobile number and your consent so we can send booking confirmations, reservation updates, and customer service replies from our toll-free number, (833) 946-8811. Message frequency varies. Message and data rates may apply. Reply STOP to opt out, or HELP for help.</p>
+          <p>We do not share mobile information or SMS opt-in data with third parties or affiliates for marketing or promotional purposes. Mobile information is not sold. Our SMS delivery provider (Twilio) processes messages only to deliver this program.</p>
+          <p>You may withdraw consent at any time by replying STOP or by writing to miami-elio@gorgona-one.com.</p>
         </Section>
 
         <Section title={msg('Changes to this policy')}>
