@@ -6,7 +6,7 @@ import { pageMetadata, sectionJsonLd, withBrand } from '../../lib/seo.mjs';
 export const metadata = pageMetadata({
   title: 'Exclusive Luxury Destinations & VIP Travel',
   fullTitle: withBrand('Exclusive Luxury Destinations & VIP Travel'),
-  description: 'Explore curated luxury destinations, private getaways and bespoke itineraries from the Miami Elio concierge. Plan and book your next trip seamlessly.',
+  description: 'Explore curated luxury destinations, private getaways and bespoke itineraries with the Miami Elio ELIO+ Guide. Plan and book your next trip seamlessly.',
   path: '/exclusive-destinations',
   image: '/images/experiences/miami-coast.webp'
 });
