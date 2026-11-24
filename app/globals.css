@@ -46,13 +46,15 @@ body::before {
     #01212c;
 }
 
-/* Inside the Android app the app draws this sea itself, behind the page. */
-html[data-app="android"] body::before {
+/* Inside the Android/iOS native apps, the app draws this sea itself, behind the page. */
+html[data-app="android"] body::before,
+html[data-app="ios"] body::before {
   display: none;
 }
 
-/* Links to the app on Google Play mean nothing inside the app itself. */
-html[data-app="android"] [data-app-link] {
+/* Links to the app on Google Play mean nothing inside the native app itself. */
+html[data-app="android"] [data-app-link],
+html[data-app="ios"] [data-app-link] {
   display: none !important;
 }
 

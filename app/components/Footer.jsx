@@ -5,6 +5,7 @@ import { LocalizedText } from "./LocalizedText";
 import Link from 'next/link';
 import { useLocale } from './LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
+import { getNavExtraCopy } from '../../lib/navExtraCopy.mjs';
 import { GetTheApp } from './GetTheApp';
 import { configuredManagerTelegram, configuredManagerWhatsApp } from '../../lib/managerContact.mjs';
 const managerTelegram = configuredManagerTelegram();
@@ -15,8 +16,10 @@ const sections = [
   { key: 'villas', href: '/vacation-rentals', fallback: 'Villas & Stays' },
   { key: 'yachts', href: '/yachts', fallback: 'Yacht Rentals' },
   { key: 'cars', href: '/rentals', fallback: 'Car Rentals' },
+  { extraKey: 'dining', href: '/restaurants-nightlife', fallback: 'Dining' },
   { key: 'events', href: '/events', fallback: 'Events & Entertainment' },
-  { key: 'privateJets', href: '/private-jets', fallback: 'Private Jets' }
+  { key: 'privateJets', href: '/private-jets', fallback: 'Private Jets' },
+  { extraKey: 'tripRoom', href: '/trip', fallback: 'Trip Room' }
 ];
 
 const company = [
@@ -35,6 +38,7 @@ const legal = [
 export function Footer() {
   const locale = useLocale();
   const t = getTranslation(locale);
+  const extraNav = getNavExtraCopy(locale);
 
   return (
     <footer className="mt-24 border-t border-g1-rule pb-10 pt-16 font-g1sans text-sm text-g1-soft">
@@ -71,7 +75,7 @@ export function Footer() {
             {sections.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="transition hover:text-g1-ink">
-                  {t.nav?.[({ shopping: 'stores' })[item.key] || item.key] || t.discovery?.[item.key] || item.fallback}
+                  {(item.extraKey && extraNav[item.extraKey]) || t.nav?.[({ shopping: 'stores' })[item.key] || item.key] || t.discovery?.[item.key] || item.fallback}
                 </Link>
               </li>
             ))}
@@ -106,7 +110,7 @@ export function Footer() {
       </div>
 
       <div className="mt-14 flex flex-col gap-3 border-t border-g1-rule pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p>{t.footer?.copyright || <LocalizedText source={"© 2026 MIAMI ELIO. Premium deals, verified offers, and affiliate-ready monetization."} />}</p>
+        <p>{t.footer.copyright}</p>
         <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em]">{t.footer?.tagline || <LocalizedText source={"A unified luxury ecosystem"} />}</p>
       </div>
     </footer>
