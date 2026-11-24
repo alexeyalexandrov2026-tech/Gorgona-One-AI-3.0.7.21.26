@@ -6,6 +6,7 @@ import { getWorldsCopy, displayValue } from '../../lib/worldsCopy';
 import { fill } from '../../lib/homeCopy';
 import { carThumb } from '../../lib/homeData';
 import { WorldHero, ListingCard, Steps, chipClass, btn } from '../components/g1/ui';
+import UsTrustStrip from '../components/g1/UsTrustStrip';
 import SaveButton from '../components/SaveButton';
 import { getSunsetCopy } from '../../lib/sunsetCopy.mjs';
 import { rentalPage, rentalBrands } from '../../lib/sunsetFleet.mjs';
@@ -78,6 +79,7 @@ export default async function RentalsPage({ searchParams }) {
       />
 
       <section className="pb-10" aria-label={t.rentals.fleet}>
+        <UsTrustStrip locale={locale} mode="cars" />
         {/* Search & price sort bar (pure SSR form, zero client JS) */}
         <form
           method="GET"
