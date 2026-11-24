@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.miamielio.app",
+      "sha256_cert_fingerprints": [
+        "34:88:EF:D0:71:89:78:89:10:60:7D:2F:97:9F:80:56:7C:41:DF:EC:4C:0D:DF:71:8B:B1:72:A9:0A:1E:08:21",
+        "C5:CB:AC:85:37:4A:2A:92:24:C5:F1:D8:7A:61:9C:85:E3:D6:DA:74:07:80:1B:29:12:B6:0A:08:11:76:C7:D7"
+      ]
+    }
+  }
+]
