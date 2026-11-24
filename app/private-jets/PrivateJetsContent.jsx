@@ -14,6 +14,7 @@ import {
 import { isReceipt, submissionKey } from '../../lib/bookingSubmission.mjs';
 import { getConsentCopy } from '../../lib/legal/consentCopy.mjs';
 import { TERMS_VERSION } from '../../lib/legal/termsContent.mjs';
+import { seoHeading } from '../../lib/seo.mjs';
 import { supabase } from '../../lib/supabase';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -130,7 +131,7 @@ export default function PrivateJetsContent() {
             {ui.eyebrow}
           </p>
           <h1 className="mt-2.5 font-g1display text-[clamp(2.2rem,4.4vw,3.85rem)] font-medium leading-[1.02] tracking-[-0.015em] text-g1-ink [text-wrap:balance]">
-            {ui.headline}
+            {seoHeading(locale,'privateJets',ui.headline)}
           </h1>
           <p className="mt-4 max-w-[38ch] text-[1.05rem] leading-relaxed text-g1-soft">
             {ui.lede}
