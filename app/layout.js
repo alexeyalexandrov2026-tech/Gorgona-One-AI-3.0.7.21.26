@@ -10,7 +10,6 @@ import { AuthProvider } from './components/AuthProvider';
 import { FavoritesProvider } from './components/FavoritesProvider';
 import { ThemeProvider } from './components/ThemeProvider';    
 import { AIProvider } from './components/ai/AIProvider';      
-import DiscoveryDock from './components/ai/DiscoveryDock';    
 import { AiDockProvider } from './components/ai/AiDockProvider';
 import { ChatProvider } from './components/ai/ChatProvider';
 import { AiSphere } from './components/ai/AiSphere';         
@@ -82,7 +81,6 @@ export default function RootLayout({ children }) {
                       <Header />
                       {children}
                       <Footer />
-                      <DiscoveryDock />
                       <AiSphere />
                       <ManagerTelegramButton />
                       <ManagerWhatsAppButton />

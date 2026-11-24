@@ -129,11 +129,11 @@
 /* The sphere moves to bottom-8 right-8 at the sm breakpoint. */
 @media (min-width: 640px) { .aidock { right: 32px; bottom: 108px; } }
 
-/* Live manager on Telegram: a round chip in the AI pill's surface, stacked
-   above the pill (pill: bottom 96px, ~42px tall). Rendered only when a
-   Telegram username is configured (lib/managerContact.mjs). */
+/* Live manager on Telegram: a round chip stacked neatly above AiSphere
+   (bottom-6/bottom-8, 60px). Rendered only when a Telegram username is
+   configured (lib/managerContact.mjs). */
 .aitg {
-  position: fixed; right: 20px; bottom: 150px; z-index: 55;
+  position: fixed; right: 20px; bottom: 96px; z-index: 45;
   display: inline-flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; border-radius: 999px;
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -151,12 +151,12 @@
 .aitg:focus-visible { outline: 2px solid #c6a05e; outline-offset: 3px; }
 .aitg.is-hidden { opacity: 0; pointer-events: none; visibility: hidden; }
 .aitg__icon { width: 20px; height: 20px; }
-@media (min-width: 640px) { .aitg { right: 32px; bottom: 162px; } }
+@media (min-width: 640px) { .aitg { right: 32px; bottom: 108px; } }
 @media (prefers-reduced-motion: reduce) { .aitg { transition: none; } }
 
 /* Live manager on WhatsApp (chat-only): sits above .aitg when configured. */
 .aiwa {
-  position: fixed; right: 20px; bottom: 204px; z-index: 55;
+  position: fixed; right: 20px; bottom: 150px; z-index: 45;
   display: inline-flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; border-radius: 999px;
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -174,7 +174,7 @@
 .aiwa:focus-visible { outline: 2px solid #c6a05e; outline-offset: 3px; }
 .aiwa.is-hidden { opacity: 0; pointer-events: none; visibility: hidden; }
 .aiwa__icon { width: 20px; height: 20px; }
-@media (min-width: 640px) { .aiwa { right: 32px; bottom: 216px; } }
+@media (min-width: 640px) { .aiwa { right: 32px; bottom: 162px; } }
 @media (prefers-reduced-motion: reduce) { .aiwa { transition: none; } }
 
 .aidock__orb {
@@ -204,4 +204,53 @@
 @media (max-width: 639px) {
   html[data-install-prompt="open"] .aidock,
   html[data-install-prompt="open"] [data-floating-launcher] { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* While the homepage hero ELIO+ Guide bar is visible on screen, step the
+   floating corner launchers aside so they never cover the Ask button or chips. */
+html[data-hero-bar-visible="true"] [data-floating-launcher] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: none !important;
+}
+
+/* Refined dark-gold scrollbars for the ELIO+ Guide dialog and horizontal rails.
+   Keep standard scrollbar-width scoped to engines without ::-webkit-scrollbar
+   so Chrome 121+ on Windows does not fall back to native arrow scrollbars. */
+@supports not selector(::-webkit-scrollbar) {
+  .elio-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.32) transparent;
+  }
+  .elio-rail-scroll {
+    scrollbar-width: none;
+  }
+}
+.elio-scroll::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.elio-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.elio-scroll::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3);
+  border-radius: 999px;
+}
+.elio-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.55);
+}
+.elio-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.elio-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.elio-rail-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }

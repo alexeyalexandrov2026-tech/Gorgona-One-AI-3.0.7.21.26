@@ -136,6 +136,26 @@ export default function HomeHero({ copy, showcase = [] }) {
     });
   }
 
+  useEffect(() => {
+    const el = glassRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return undefined;
+    const rect = el.getBoundingClientRect();
+    const initiallyVisible = rect.bottom > 0 && rect.top < window.innerHeight;
+    document.documentElement.dataset.heroBarVisible = initiallyVisible ? 'true' : 'false';
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.some((entry) => entry.isIntersecting);
+        document.documentElement.dataset.heroBarVisible = visible ? 'true' : 'false';
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      delete document.documentElement.dataset.heroBarVisible;
+    };
+  }, []);
+
   const picks = [
     ['yachts', 'yacht', copy.worldItems.yachts[0], copy.chips[0]],
     ['villas', 'villa', copy.picks.villas, copy.chips[3]],

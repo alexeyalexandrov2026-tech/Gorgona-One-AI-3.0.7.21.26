@@ -579,10 +579,10 @@ test('VIP Concierge Eval Benchmark: 82 multi-turn, guardrail, partner, forecast,
   });
   check('G07 Non-Latin dense-script prompts inject token-safety brevity guard & stay under 9,000 bytes', () => {
     const msgsRu = modelMessages([{ role: 'user', content: 'Подбери ужин в Brickell на субботу' }], 'ru');
-    assert.match(msgsRu[0].content, /<= 260 chars/);
+    assert.match(msgsRu[0].content, /<= 520 chars/);
     assert.ok(new TextEncoder().encode(msgsRu[0].content).byteLength < 9000);
     const msgsAr = modelMessages([{ role: 'user', content: 'أريد مطعماً في بريكل يوم السبت' }], 'ar');
-    assert.match(msgsAr[0].content, /<= 260 chars/);
+    assert.match(msgsAr[0].content, /<= 520 chars/);
   });
   // G08 async: Self-Healing Micro-Retry detects finish_reason='length' truncation and repairs cleanly
   {
@@ -607,7 +607,7 @@ test('VIP Concierge Eval Benchmark: 82 multi-turn, guardrail, partner, forecast,
       { authorize: async () => true, timeoutMs: 10000 }
     );
     assert.equal(healedTrunc.ok, true);
-    assert.match(seenTruncHint, /384-token limit/i);
+    assert.match(seenTruncHint, /640-token limit/i);
     passed += 1;
   }
 

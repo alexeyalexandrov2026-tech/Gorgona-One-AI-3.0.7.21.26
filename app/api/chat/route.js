@@ -15,6 +15,7 @@ import { resolvePageEntity } from '../../../lib/ai/factPack.mjs';
 import { getMiamiForecast, peekMiamiForecast, shouldFetchForecast } from '../../../lib/ai/miamiForecast.mjs';
 import { recordChatTurn, recordReferralClick } from '../../../lib/server/conciergeTelemetry.mjs';
 import { SERVER_BUDGET_MS } from '../../../lib/ai/chatDeadline.mjs';
+import { detectMessageLocale } from '../../../lib/ai/semanticVibes.mjs';
 
 // ===========================================================================
 // Concierge chat adapter.
@@ -49,23 +50,25 @@ const DECIDERS = new Set(['model', 'lexicon', 'fact']);
 // (disabled, unavailable, usage_denied, timeout, cancelled, invalid_input, invalid_reply).
 const ENGINE_STATES = new Set(['ok', 'disabled', 'unavailable', 'usage_denied', 'timeout', 'cancelled', 'invalid_input', 'invalid_reply']);
 
-function reply(text, { messages = [], latestUserMessage = '', source = null, locale = 'en', error = false, navigation = null, responsePolicy = null, plan = null, listings = [], handoff = false, action = null, decidedBy = 'lexicon', engine = null, started = null } = {}) {
+function reply(text, { messages = [], latestUserMessage = '', source = null, locale = 'en', replyLocale = null, error = false, navigation = null, responsePolicy = null, plan = null, listings = [], handoff = false, action = null, decidedBy = 'lexicon', engine = null, started = null } = {}) {
   const decider = DECIDERS.has(decidedBy) ? decidedBy : 'lexicon';
   const rows = Array.isArray(listings) ? listings.slice(0, 4) : [];
   const referrals = [...new Set(rows.map((r) => r?.booking?.platform).filter(Boolean))];
   const elapsedMs = Number.isFinite(started) ? Date.now() - started : null;
-  recordChatTurn({ decidedBy: decider, action, locale, referrals, handoff: Boolean(handoff), error: Boolean(error), ms: elapsedMs });
+  const effectiveLocale = replyLocale || locale;
+  recordChatTurn({ decidedBy: decider, action, locale: effectiveLocale, referrals, handoff: Boolean(handoff), error: Boolean(error), ms: elapsedMs });
   // One structured line per turn, metadata only: never the guest's words or the reply.
   // engine says why a model did not answer; ms is the whole server turn.
-  console.info(JSON.stringify({ event: 'concierge.chat', decidedBy: decider, source, action, listings: rows.length, ...(referrals.length ? { referrals } : {}), handoff: Boolean(handoff), error: Boolean(error), locale,
+  console.info(JSON.stringify({ event: 'concierge.chat', decidedBy: decider, source, action, listings: rows.length, ...(referrals.length ? { referrals } : {}), handoff: Boolean(handoff), error: Boolean(error), locale: effectiveLocale,
     ...(ENGINE_STATES.has(engine) ? { engine } : {}), ...(elapsedMs !== null ? { ms: elapsedMs } : {}) }));
   return NextResponse.json({
     reply: text,
+    ...(replyLocale && replyLocale !== locale ? { replyLocale } : {}),
     // Navigation is computed locally from keywords, so the guest still gets
     // somewhere to go even when no model answered. The guest's own words
     // lead; the reply only reinforces - and on the degraded path it is a
     // canned line, so it is excluded entirely.
-    ...(navigation||conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale})),
+    ...(navigation||conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale:effectiveLocale})),
     listings: rows,
     decidedBy: decider,
     ...(action ? { action } : {}),
@@ -100,16 +103,17 @@ export async function POST(request) {
   // The language showing in the global switcher. Workers AI is told to
   // answer in it, and the fallback speaks it too.
   const locale = normalizeLocale(body?.locale);
+  const detectedLocale = detectMessageLocale(latestUserMessage, locale);
 
-  const fact=await answerConciergeFact(latestUserMessage,locale,request.signal);
-  if(fact&&!fact.remainingMessage)return reply(fact.reply,{source:fact.source,error:fact.error,locale,
+  const fact=await answerConciergeFact(latestUserMessage,detectedLocale,request.signal);
+  if(fact&&!fact.remainingMessage)return reply(fact.reply,{source:fact.source,error:fact.error,locale,replyLocale:detectedLocale,
     navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY,action:'fact',decidedBy:'fact',started});
 
   const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
   const profile = extractTripProfile(modelMessages, new Date(), body.savedPrefs || null);
-  const plan = conversationPlan(modelMessages, { locale });
+  const plan = conversationPlan(modelMessages, { locale: detectedLocale });
   const dynamicEntities = getDynamicEntities(process.env);
-  const localNav = conversationNavigation(modelMessages, { locale });
+  const localNav = conversationNavigation(modelMessages, { locale: detectedLocale });
   const localQuery = localNav.query || latestUserMessage;
   const localSections = [
     ...(localNav.cards || []).map((c) => c.href),
@@ -131,9 +135,10 @@ export async function POST(request) {
   const bookingText=[...modelMessages].reverse().find(m=>m.role==='user')?.content||'';
   const bookingTurn=explicitBooking(bookingText);
   const respond=async(text,options={})=>{
+    const replyLocale = options.replyLocale || detectedLocale;
     const handoff=bookingTurn||options.handoff===true;
     let answer=fact?fact.reply+'\n\n'+text:text;
-    const disclaimer=bookingDisclaimer(locale);
+    const disclaimer=bookingDisclaimer(replyLocale);
     if(handoff&&!answer.includes(disclaimer))answer=disclaimer+'\n\n'+answer;
     // Listing rows follow the final decision: preserve all up to 4 model sections
     // (navigation.cards caps visible nav buttons at 2, while booking cards cover all chosen sections).
@@ -146,7 +151,7 @@ export async function POST(request) {
     const [dyn, initialLiveEvents, resolvedPlan] = await Promise.all([dynamicEntities, liveEventEntities, plan]);
     const liveEvents = !allowLiveUpstream || initialLiveEvents.length || !sections.includes('/events')
       ? initialLiveEvents
-      : await getLiveEventEntities(query, { profile, locale, env: process.env });
+      : await getLiveEventEntities(query, { profile, locale: replyLocale, env: process.env });
     const extraEntities = liveEvents.length ? [...dyn, ...liveEvents] : dyn;
     const viewedEntity = body.pagePath ? resolvePageEntity(body.pagePath, extraEntities) : null;
     const effectiveQuery = viewedEntity && viewedEntity.type !== 'Section' && sections.includes(viewedEntity.section)
@@ -163,8 +168,8 @@ export async function POST(request) {
     const listingSections = partnerSections.length ? partnerSections : sections;
     const listingLimit = partnerSections.length || sections.length >= 2 ? 4 : 3;
     let resolvedListings = handoff
-      ? namedVenueCards(bookingText, { locale, extraEntities, profile })
-      : gatedListings(effectiveQuery, { locale, action, sections: listingSections, extraEntities, profile, stops: options.stops, limit: listingLimit });
+      ? namedVenueCards(bookingText, { locale: replyLocale, extraEntities, profile })
+      : gatedListings(effectiveQuery, { locale: replyLocale, action, sections: listingSections, extraEntities, profile, stops: options.stops, limit: listingLimit });
     if (!handoff && decidedBy === 'model' && ['consult', 'recommend', 'plan', 'ideas'].includes(action) && listingSections.length) {
       const cardKey = (c) => (c.label === 'Flight' || c.label === 'Yacht') && c.booking?.href ? c.booking.href : c.href;
       const fromReply = replyMentionedCards(text, { sections: listingSections, extraEntities, limit: listingLimit });
@@ -183,7 +188,7 @@ export async function POST(request) {
       }
       if (action === 'plan' && listingSections.length >= 2 && resolvedListings.length < listingLimit) {
         const seen = new Set(resolvedListings.map(cardKey));
-        const balanced = listingCards(effectiveQuery, { locale, sections: listingSections, extraEntities, profile, limit: listingLimit });
+        const balanced = listingCards(effectiveQuery, { locale: replyLocale, sections: listingSections, extraEntities, profile, limit: listingLimit });
         for (const card of balanced) {
           const key = cardKey(card);
           if (!seen.has(key) && resolvedListings.length < listingLimit) {
@@ -193,7 +198,7 @@ export async function POST(request) {
         }
       }
     }
-    return reply(answer,{messages:modelMessages,locale,...options,action,decidedBy,started,
+    return reply(answer,{messages:modelMessages,locale,replyLocale,...options,action,decidedBy,started,
       listings:resolvedListings,
       ...(handoff?{handoff:true}:{}),plan:resolvedPlan});
   };
@@ -208,20 +213,20 @@ export async function POST(request) {
       preTimer = setTimeout(() => resolve({
         extra: [
           ...peekDynamicEntities(process.env),
-          ...(wantsEvents ? peekLiveEventEntities(localQuery, { profile, locale }) : [])
+          ...(wantsEvents ? peekLiveEventEntities(localQuery, { profile, locale: detectedLocale }) : [])
         ],
         forecast: wantsForecast ? peekMiamiForecast() : []
       }), 1100);
     })
   ]).finally(() => clearTimeout(preTimer));
   const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:pre.extra,pagePath:body.pagePath||'',forecastPeriods:pre.forecast,savedPrefs:body.savedPrefs||null});
-  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,sections:cloud.sections,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,stops:cloud.stops,engine:'ok'});
+  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,sections:cloud.sections,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,stops:cloud.stops,replyLocale:cloud.replyLocale,engine:'ok'});
 
   // Disabled, denied or failed: graceful degradation, never a second engine.
   // Compute deterministic catalogueAnswer lazily only when the model did not answer.
-  const localAnswer = catalogueAnswer(modelMessages, locale);
-  const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(locale);
-  const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon'};
+  const localAnswer = catalogueAnswer(modelMessages, detectedLocale);
+  const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(detectedLocale);
+  const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon',replyLocale:detectedLocale};
   return respond(degraded,{...fallback,engine:cloud.kind});
 }
 
@@ -229,6 +234,7 @@ const TRACKED_REFERRAL_PLATFORMS = new Set([
   'ticketnetwork', 'viator', 'headout', 'ovago', 'yatr', 'stay22', 'privatejetfinder',
   'opentable', 'resy', 'sevenrooms', 'tock', 'discotech', 'tablelistpro', 'dice', 'eatwith', 'venue', 'maps'
 ]);
+const TRACKED_FEEDBACK = new Set(['up', 'down']);
 
 function isSameOriginReferralRequest(request) {
   const secFetch = request?.headers?.get('sec-fetch-site');
@@ -244,7 +250,7 @@ function isSameOriginReferralRequest(request) {
   return true;
 }
 
-// Public health check + zero-PII same-origin partner referral click attribution beacon.
+// Public health check + zero-PII same-origin partner referral & feedback beacon.
 export async function GET(request) {
   try {
     const url = request?.url ? new URL(request.url, 'https://gorgona-one.com') : null;
@@ -252,6 +258,10 @@ export async function GET(request) {
     if (platform && TRACKED_REFERRAL_PLATFORMS.has(platform) && isSameOriginReferralRequest(request)) {
       recordReferralClick(platform);
       console.info(JSON.stringify({ event: 'concierge.referral_click', platform }));
+    }
+    const feedback = url?.searchParams?.get('feedback');
+    if (feedback && TRACKED_FEEDBACK.has(feedback) && isSameOriginReferralRequest(request)) {
+      console.info(JSON.stringify({ event: 'concierge.feedback', vote: feedback }));
     }
   } catch {}
   return NextResponse.json({ ok: true });

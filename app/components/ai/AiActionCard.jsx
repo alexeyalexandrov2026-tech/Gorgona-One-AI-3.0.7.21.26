@@ -126,18 +126,21 @@ function VenueActions({ card, copy, onNavigate }) {
 }
 
 /** Catalogue rows: photo, stored price, title, and the listing page. */
-export function AiListingCards({ listings, onNavigate, className = '' }) {
+export function AiListingCards({ listings, onNavigate, className = '', rail = false }) {
   const copy = getDiningHandoffCopy(useLocale());
   if (!listings?.length) return null;
+  const horizontal = rail && listings.length > 1;
   return (
-    <div className={`grid gap-2.5 pt-1 ${className}`}>
-      {listings.map((card) => (
-        <div key={card.booking?.href || card.href} className="grid gap-1.5">
-          <ListingLink card={card} onNavigate={onNavigate} />
-          <VenueActions card={card} copy={copy} onNavigate={onNavigate} />
-        </div>
-      ))}
-      {listings.some((card) => card.booking && !PARTNER_PLATFORMS[card.booking.platform]) ? <p className="px-1 text-[0.7rem] leading-snug text-zinc-400">{copy.chatNote}</p> : null}
+    <div className={horizontal ? `min-w-0 pt-1 ${className}` : `grid min-w-0 gap-2.5 pt-1 ${className}`}>
+      <div className={horizontal ? 'elio-rail-scroll flex min-w-0 snap-x snap-mandatory gap-2.5 overflow-x-auto pb-1' : 'grid gap-2.5'}>
+        {listings.map((card) => (
+          <div key={card.booking?.href || card.href} className={horizontal ? 'grid w-[84%] shrink-0 snap-start gap-1.5 sm:w-[88%]' : 'grid gap-1.5'}>
+            <ListingLink card={card} onNavigate={onNavigate} />
+            <VenueActions card={card} copy={copy} onNavigate={onNavigate} />
+          </div>
+        ))}
+      </div>
+      {listings.some((card) => card.booking && !PARTNER_PLATFORMS[card.booking.platform]) ? <p className="mt-1 px-1 text-[0.7rem] leading-snug text-zinc-400">{copy.chatNote}</p> : null}
     </div>
   );
 }
