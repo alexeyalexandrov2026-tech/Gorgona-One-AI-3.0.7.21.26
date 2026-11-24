@@ -663,7 +663,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
               />
               {isAssistant && (
                 <>
-                  {turnPlan ? <AiPlan plan={turnPlan} onNavigate={onNavigate} profile={profile} /> : null}
+                  {turnPlan ? <AiPlan plan={turnPlan} onNavigate={onNavigate} onQuickPrompt={submit} profile={profile} /> : null}
                   <AiListingCards listings={turnNonPlanListings} onNavigate={onNavigate} profile={profile} rail={variant === 'dock'} />
                   <AiActionCards cards={turnNonPlanCards} onNavigate={onNavigate} profile={profile} />
                 </>

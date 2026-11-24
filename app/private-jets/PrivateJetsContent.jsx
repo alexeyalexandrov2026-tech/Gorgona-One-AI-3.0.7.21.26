@@ -19,7 +19,9 @@ export default function PrivateJetsContent(){
   <section aria-labelledby="private-jet-search" className="border-t border-g1-rule pt-8">
    <h2 id="private-jet-search" className="font-g1display text-3xl sm:text-4xl">{copy.search}</h2>
    <p className="mb-6 mt-3 max-w-[70ch] text-sm leading-relaxed text-g1-soft">{copy.language}</p>
-   <iframe title={copy.search+' · PrivateJetFinder'} srcDoc={PRIVATE_JET_WIDGET_DOCUMENT} referrerPolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" className="block h-[780px] w-full rounded-2xl border border-g1-rule bg-white [color-scheme:light] sm:h-[630px] lg:h-[560px]"/>
+   <div className="overflow-hidden rounded-[28px] border border-[#d4af37]/25 bg-[linear-gradient(180deg,rgba(1,33,44,0.88),rgba(1,16,24,0.94))] p-2.5 shadow-[0_24px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-3.5">
+    <iframe title={copy.search+' · PrivateJetFinder'} srcDoc={PRIVATE_JET_WIDGET_DOCUMENT} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation" className="block h-[780px] w-full rounded-[20px] border border-white/10 bg-white [color-scheme:light] sm:h-[630px] lg:h-[560px]"/>
+   </div>
   </section>
   <aside className="mt-7 border-t border-g1-rule pt-6 text-sm leading-relaxed text-g1-soft">
    <p>{copy.disclosure}</p>

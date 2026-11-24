@@ -74,7 +74,9 @@ export default function YachtContent() {
         </div>
       </section>
 
-      <YatrCatalog copy={copy} />
+      <div className="rounded-[30px] border border-[#d4af37]/25 bg-[linear-gradient(180deg,rgba(1,33,44,0.84),rgba(1,16,24,0.92))] p-3 shadow-[0_24px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-5">
+        <YatrCatalog copy={copy} />
+      </div>
       <ViatorYachts />
     </main>
   );
