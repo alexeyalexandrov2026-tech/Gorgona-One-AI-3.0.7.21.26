@@ -133,10 +133,11 @@
    (bottom-6/bottom-8, 60px). Rendered only when a Telegram username is
    configured (lib/managerContact.mjs). */
 .aitg {
-  position: fixed; right: 20px; bottom: 96px; z-index: 45;
+  position: fixed; right: 20px; bottom: 96px; z-index: 50;
   display: inline-flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; border-radius: 999px;
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  will-change: transform;
   transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
 }
 .aitg[data-ai-theme="dark"] {
@@ -156,10 +157,11 @@
 
 /* Live manager on WhatsApp (chat-only): sits above .aitg when configured. */
 .aiwa {
-  position: fixed; right: 20px; bottom: 150px; z-index: 45;
+  position: fixed; right: 20px; bottom: 150px; z-index: 50;
   display: inline-flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; border-radius: 999px;
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  will-change: transform;
   transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
 }
 .aiwa[data-ai-theme="dark"] {
@@ -204,15 +206,6 @@
 @media (max-width: 639px) {
   html[data-install-prompt="open"] .aidock,
   html[data-install-prompt="open"] [data-floating-launcher] { opacity: 0; visibility: hidden; pointer-events: none; }
-}
-
-/* While the homepage hero ELIO+ Guide bar is visible on screen, step the
-   floating corner launchers aside so they never cover the Ask button or chips. */
-html[data-hero-bar-visible="true"] [data-floating-launcher] {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  transition: none !important;
 }
 
 /* Refined dark-gold scrollbars for the ELIO+ Guide dialog and horizontal rails.

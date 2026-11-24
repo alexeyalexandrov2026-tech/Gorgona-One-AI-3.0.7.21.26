@@ -7,9 +7,11 @@ import { useAskConcierge } from './shared';
 import { useConciergeChat } from '../ai/ChatProvider';
 import { useVoice } from '../ai/useVoice';
 import { voiceInputUnavailable } from '../../../lib/ai/voiceInputCopy.mjs';
+import { pickFreshHomeChips } from '../../../lib/homePromptPool.mjs';
 import { AiSphereArtwork } from '../ai/AiSphere';
 import HomeSectionRail from './HomeSectionRail';
 import HeroShowcase from './HeroShowcase';
+import { useAutoDriftRail } from './useAutoDriftRail';
 import Icon from '../g1/icons';
 
 const ICONS = {
@@ -43,9 +45,13 @@ export default function HomeHero({ copy, showcase = [] }) {
   const [promptIndex, setPromptIndex] = useState(0);
   const [typed, setTyped] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [compactViewport, setCompactViewport] = useState(false);
   const [showcaseHold, setShowcaseHold] = useState(true);
   const [horizon, setHorizon] = useState(false);
   const [clock, setClock] = useState('');
+  const [suggChips, setSuggChips] = useState(() => (copy.chips || []).slice(0, 4));
+  const [suggSwapping, setSuggSwapping] = useState(false);
+  const suggInteractingRef = useRef(false);
   const introRef = useRef(null);
   const glassRef = useRef(null);
   const prompts = copy.prompts || [];
@@ -54,11 +60,46 @@ export default function HomeHero({ copy, showcase = [] }) {
 
   useEffect(() => {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const apply = () => setReduceMotion(motion.matches);
+    const compact = window.matchMedia('(max-width: 600px)');
+    const apply = () => {
+      setReduceMotion(motion.matches);
+      setCompactViewport(compact.matches);
+    };
     apply();
     motion.addEventListener('change', apply);
-    return () => motion.removeEventListener('change', apply);
+    compact.addEventListener('change', apply);
+    return () => {
+      motion.removeEventListener('change', apply);
+      compact.removeEventListener('change', apply);
+    };
   }, []);
+
+  // Generate fresh, varied Miami suggestions on every visit and gently rotate
+  // them over time (8 rolling chips on mobile, 4 crisp single-row chips on desktop).
+  useEffect(() => {
+    const targetCount = compactViewport ? 8 : 4;
+    setSuggChips(pickFreshHomeChips(locale, targetCount));
+
+    const refreshMs = compactViewport ? 28000 : 14000;
+    let swapTimer = 0;
+    const interval = window.setInterval(() => {
+      if (document.hidden || suggInteractingRef.current || reduceMotion) return;
+      if (compactViewport) {
+        setSuggChips((prev) => pickFreshHomeChips(locale, targetCount, { exclude: prev.slice(0, 4) }));
+        return;
+      }
+      setSuggSwapping(true);
+      swapTimer = window.setTimeout(() => {
+        setSuggChips((prev) => pickFreshHomeChips(locale, targetCount, { exclude: prev }));
+        setSuggSwapping(false);
+      }, 240);
+    }, refreshMs);
+
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(swapTimer);
+    };
+  }, [locale, compactViewport, reduceMotion]);
 
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -140,25 +181,17 @@ export default function HomeHero({ copy, showcase = [] }) {
     );
   }
 
-  useEffect(() => {
-    const el = glassRef.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return undefined;
-    const rect = el.getBoundingClientRect();
-    const initiallyVisible = rect.bottom > 0 && rect.top < window.innerHeight;
-    document.documentElement.dataset.heroBarVisible = initiallyVisible ? 'true' : 'false';
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.some((entry) => entry.isIntersecting);
-        document.documentElement.dataset.heroBarVisible = visible ? 'true' : 'false';
-      },
-      { threshold: 0.15 }
-    );
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-      delete document.documentElement.dataset.heroBarVisible;
-    };
-  }, []);
+  const suggRail = useAutoDriftRail({
+    speedPxPerSec: 26,
+    enabled: true,
+    depsKey: `${locale}:${compactViewport ? 'm' : 'd'}:${suggChips.join('|')}`
+  });
+
+  const picksRail = useAutoDriftRail({
+    speedPxPerSec: 22,
+    enabled: true,
+    depsKey: `${locale}:picks`
+  });
 
   const picks = [
     ['yachts', 'yacht', copy.worldItems.yachts[0], copy.chips[0]],
@@ -204,13 +237,46 @@ export default function HomeHero({ copy, showcase = [] }) {
         </div>
         <HeroShowcase items={showcase} copy={copy} hold={showcaseHold} />
         <div className="g1-hero-dock">
-          <div className="g1-hero-sugg" aria-label={copy.chipsLabel}>
-            {copy.chips.map((chip, index) => (
-              <button key={chip} type="button" disabled={busy} style={{ '--k': index }} onClick={() => ask(chip)}>
-                <LineIcon name="spark" className="h-3.5 w-3.5" />
-                {chip}
-              </button>
-            ))}
+          <div
+            ref={suggRail.railRef}
+            className={`g1-hero-sugg${suggRail.looping ? ' is-looping' : ''}${suggSwapping ? ' is-swapping' : ''}`}
+            aria-label={copy.chipsLabel}
+            {...suggRail.railHandlers}
+            onPointerEnter={(event) => {
+              suggInteractingRef.current = true;
+              suggRail.railHandlers.onPointerEnter(event);
+            }}
+            onPointerLeave={(event) => {
+              suggInteractingRef.current = false;
+              suggRail.railHandlers.onPointerLeave(event);
+            }}
+            onFocusCapture={(event) => {
+              suggInteractingRef.current = true;
+              suggRail.railHandlers.onFocusCapture(event);
+            }}
+            onBlurCapture={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) suggInteractingRef.current = false;
+              suggRail.railHandlers.onBlurCapture(event);
+            }}
+          >
+            <div ref={suggRail.primaryRef} className="g1-rail-set">
+              {suggChips.map((chip, index) => (
+                <button key={chip} type="button" disabled={busy} style={{ '--k': index }} onClick={() => ask(chip)}>
+                  <LineIcon name="spark" className="h-3.5 w-3.5" />
+                  {chip}
+                </button>
+              ))}
+            </div>
+            {suggRail.looping && (
+              <div ref={suggRail.cloneRef} className="g1-rail-set" aria-hidden="true">
+                {suggChips.map((chip, index) => (
+                  <button key={`${chip}-loop`} type="button" tabIndex={-1} disabled={busy} style={{ '--k': index }} onClick={() => ask(chip)}>
+                    <LineIcon name="spark" className="h-3.5 w-3.5" />
+                    {chip}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <form id="g1-hero-glass" ref={glassRef} role="search" onSubmit={submit} className="g1-hero-glass">
             <div className="g1-hero-head">
@@ -257,13 +323,29 @@ export default function HomeHero({ copy, showcase = [] }) {
                 {copy.searchGo} <Icon name="arrow" className="g1-flip h-4 w-4" />
               </button>
             </div>
-            <div className="g1-hero-picks">
-              {picks.map(([id, icon, label, prompt]) => (
-                <button key={id} type="button" disabled={busy} onClick={() => ask(prompt)}>
-                  <LineIcon name={icon} />
-                  {label}
-                </button>
-              ))}
+            <div
+              ref={picksRail.railRef}
+              className={`g1-hero-picks${picksRail.looping ? ' is-looping' : ''}`}
+              {...picksRail.railHandlers}
+            >
+              <div ref={picksRail.primaryRef} className="g1-rail-set">
+                {picks.map(([id, icon, label, prompt]) => (
+                  <button key={id} type="button" disabled={busy} onClick={() => ask(prompt)}>
+                    <LineIcon name={icon} />
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {picksRail.looping && (
+                <div ref={picksRail.cloneRef} className="g1-rail-set" aria-hidden="true">
+                  {picks.map(([id, icon, label, prompt]) => (
+                    <button key={`${id}-loop`} type="button" tabIndex={-1} disabled={busy} onClick={() => ask(prompt)}>
+                      <LineIcon name={icon} />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             {voice.error && <p role="alert" className="g1-hero-voice">{voiceInputUnavailable(locale)}</p>}
           </form>
