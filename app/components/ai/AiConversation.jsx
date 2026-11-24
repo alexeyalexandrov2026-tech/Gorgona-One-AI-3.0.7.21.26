@@ -4,8 +4,10 @@ import { LocalizedText, useSavedText } from "../LocalizedText";
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useVoice } from './useVoice';
 import { useConciergeChat } from './ChatProvider';
+import { useAuth } from '../AuthProvider';
 import { AiActionCards, AiListingCards, AiPlan } from './AiActionCard';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
@@ -15,6 +17,7 @@ import { formatProfileChips } from '../../../lib/ai/profileChips.mjs';
 import { quickRepliesForTurn } from '../../../lib/ai/quickReplies.mjs';
 import { thinkingStatusForTurn } from '../../../lib/ai/thinkingStatus.mjs';
 import { buildShareablePlanText, buildTelegramShareUrl, buildWhatsAppShareUrl, getShareCopy } from '../../../lib/ai/sharePlan.mjs';
+import { buildManagerHandoffUrl, getPageContext, getStage2Copy } from '../../../lib/ai/stage2Copy.mjs';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 import { configuredManagerTelegram, configuredManagerWhatsApp } from '../../../lib/managerContact.mjs';
 
@@ -191,10 +194,12 @@ function AnswerActions({ question, answer, locale }) {
   );
 }
 
-function Message({ role, content, question, locale, handoff = false, degraded = false }) {
+function Message({ role, content, question, locale, handoff = false, degraded = false, smartTelegramHref = null, smartWhatsAppHref = null }) {
   const isUser = role === 'user';
   const t = getTranslation(locale);
   const displayed = isUser ? content : formatAssistantDisplay(content);
+  const tgUrl = smartTelegramHref || managerHref;
+  const waUrl = smartWhatsAppHref || managerWhatsAppHref;
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
@@ -208,16 +213,16 @@ function Message({ role, content, question, locale, handoff = false, degraded = 
           </span>
         )}
         {displayed}
-        {!isUser && handoff && (managerHref || managerWhatsAppHref) && (
+        {!isUser && handoff && (tgUrl || waUrl) && (
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
-            {managerHref && (
-              <a href={managerHref} target="_blank" rel="noopener noreferrer"
+            {tgUrl && (
+              <a href={tgUrl} target="_blank" rel="noopener noreferrer"
                 className="inline-flex min-h-9 items-center text-xs text-brand-gold underline">
                 {t.ai?.liveManager}
               </a>
             )}
-            {managerWhatsAppHref && (
-              <a href={managerWhatsAppHref} target="_blank" rel="noopener noreferrer"
+            {waUrl && (
+              <a href={waUrl} target="_blank" rel="noopener noreferrer"
                 className="inline-flex min-h-9 items-center text-xs text-brand-gold underline">
                 {t.ai?.liveManagerWhatsApp}
               </a>
@@ -238,9 +243,14 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // than an owner of it - the homepage bar, the sphere dock and the Discovery
   // Room all render the same thread.
   const { messages, cards, suggestions, listings, plan, savedPrefs, isLoading, hydrated, send, reset } = useConciergeChat();
+  const auth = useAuth();
+  const pathname = usePathname() || '';
   const [input, setInput] = useState('');
   const [thinkingStage, setThinkingStage] = useState(0);
   const [copiedPlan, setCopiedPlan] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailInput, setEmailInput] = useState('');
+  const [emailStatus, setEmailStatus] = useState('idle'); // idle | sending | sent | error | unavailable
   const listRef = useRef(null);
   const lastAssistantRef = useRef(null);
   const inputRef = useRef(null);
@@ -254,11 +264,17 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
     const timer = setTimeout(() => setThinkingStage(1), 1400);
     return () => clearTimeout(timer);
   }, [isLoading]);
+  useEffect(() => {
+    if (emailOpen && auth?.session?.email && !emailInput) {
+      setEmailInput(auth.session.email);
+    }
+  }, [emailOpen, auth?.session?.email]);
   // Every visible string follows the global switcher, so the surface a guest
   // is reading and the language the concierge answers in never disagree.
   const locale = useLocale();
   const t = getTranslation(locale);
-  const starters = STARTER_PROMPTS[locale] || STARTER_PROMPTS.en;
+  const pageContext = getPageContext(pathname, locale);
+  const starters = pageContext?.prompts?.length ? pageContext.prompts : (STARTER_PROMPTS[locale] || STARTER_PROMPTS.en);
 
   useEffect(() => {
     const list = listRef.current;
@@ -296,6 +312,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // crowding the transcript.
   const extraChips = activeSuggestions.filter((s) => !activeCards.some((c) => c.href === s.href));
   const shareCopy = getShareCopy(effectiveLocale);
+  const s2 = getStage2Copy(effectiveLocale);
   const canSharePlan = !isLoading && lastMessage?.role === 'assistant' && !lastMessage.degraded && !lastMessage.handoff
     && (Boolean(activePlan) || activeListings.length > 0 || (lastMessage.content?.length || 0) >= 120);
   const shareText = canSharePlan
@@ -308,10 +325,45 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         listings: activeListings,
         locale: effectiveLocale,
         handoff: lastMessage.handoff === true,
-        degraded: lastMessage.degraded === true
+        degraded: lastMessage.degraded === true,
+        profile
       })
     : [];
   const lastAssistantIndex = [...messages].map((m) => m.role).lastIndexOf('assistant');
+  const smartTelegramHref = managerHref
+    ? buildManagerHandoffUrl({ baseHref: managerHref, profile, pageContext, messages, listings: activeListings, plan: activePlan, locale: effectiveLocale })
+    : null;
+  const smartWhatsAppHref = managerWhatsAppHref
+    ? buildManagerHandoffUrl({ baseHref: managerWhatsAppHref, profile, pageContext, messages, listings: activeListings, plan: activePlan, locale: effectiveLocale })
+    : null;
+
+  async function handleEmailPlan(event) {
+    event.preventDefault();
+    if (emailStatus === 'sending' || !shareText) return;
+    const cleanEmail = emailInput.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(cleanEmail)) {
+      setEmailStatus('invalid');
+      return;
+    }
+    setEmailStatus('sending');
+    try {
+      const response = await fetch('/api/concierge/email-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, planText: shareText, locale: effectiveLocale })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.ok && data?.sent === true) {
+        setEmailStatus('sent');
+      } else if (response.status === 503) {
+        setEmailStatus('unavailable');
+      } else {
+        setEmailStatus('error');
+      }
+    } catch {
+      setEmailStatus('error');
+    }
+  }
 
   function handleMicClick() {
     if (voice.isListening) {
@@ -325,6 +377,23 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
 
   return (
     <div className="flex h-full min-h-0 min-w-0 flex-col" aria-busy={!hydrated||isLoading}>
+      {pageContext && (
+        <div
+          data-page-context="true"
+          className="mb-1.5 flex items-center gap-2.5 rounded-xl border border-brand-gold/25 bg-brand-gold/[0.08] px-2.5 py-2"
+        >
+          {pageContext.image ? (
+            <img src={pageContext.image} alt="" className="h-8 w-10 shrink-0 rounded-lg object-cover" />
+          ) : null}
+          <div className="min-w-0 flex-1">
+            <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-brand-gold/85">{s2.viewing}</p>
+            <p className="truncate text-xs font-semibold text-white">{pageContext.title}</p>
+            {pageContext.subtitle ? (
+              <p className="truncate text-[11px] text-zinc-300/80">{pageContext.subtitle}</p>
+            ) : null}
+          </div>
+        </div>
+      )}
       {profileChips.length > 0 && (
         <div
           data-profile-bar="true"
@@ -401,11 +470,13 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
                 degraded={message.degraded === true}
                 question={messages[index - 1]?.role === 'user' ? messages[index - 1].content : ''}
                 locale={msgLocale}
+                smartTelegramHref={smartTelegramHref}
+                smartWhatsAppHref={smartWhatsAppHref}
               />
               {isAssistant && (
                 <>
-                  {turnPlan ? <AiPlan plan={turnPlan} onNavigate={onNavigate} /> : null}
-                  <AiListingCards listings={turnNonPlanListings} onNavigate={onNavigate} rail={variant === 'dock'} />
+                  {turnPlan ? <AiPlan plan={turnPlan} onNavigate={onNavigate} profile={profile} /> : null}
+                  <AiListingCards listings={turnNonPlanListings} onNavigate={onNavigate} profile={profile} rail={variant === 'dock'} />
                   <AiActionCards cards={turnNonPlanCards} onNavigate={onNavigate} profile={profile} />
                 </>
               )}
@@ -436,38 +507,80 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
           </div>
         )}
 
-        {/* One-tap Copy / WhatsApp share for curated VIP itineraries & recommendations. */}
+        {/* One-tap Copy / WhatsApp / Telegram / Email share for curated VIP itineraries & recommendations. */}
         {canSharePlan && (
-          <div className="flex flex-wrap items-center gap-2 pt-1" data-share-plan="true">
-            <button
-              type="button"
-              onClick={() => {
-                try {
-                  navigator.clipboard?.writeText(shareText);
-                  setCopiedPlan(true);
-                  setTimeout(() => setCopiedPlan(false), 2000);
-                } catch {}
-              }}
-              className="rounded-full border border-white/15 bg-white/[0.03] px-3 py-1 text-[11px] text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
-            >
-              {copiedPlan ? shareCopy.copied : shareCopy.copy}
-            </button>
-            <a
-              href={buildWhatsAppShareUrl(shareText)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/20"
-            >
-              {shareCopy.whatsapp}
-            </a>
-            <a
-              href={buildTelegramShareUrl(shareText)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1 text-[11px] text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/20"
-            >
-              {shareCopy.telegram}
-            </a>
+          <div className="space-y-2 pt-1" data-share-plan="true">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    navigator.clipboard?.writeText(shareText);
+                    setCopiedPlan(true);
+                    setTimeout(() => setCopiedPlan(false), 2000);
+                  } catch {}
+                }}
+                className="rounded-full border border-white/15 bg-white/[0.03] px-3 py-1 text-[11px] text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
+              >
+                {copiedPlan ? shareCopy.copied : shareCopy.copy}
+              </button>
+              <a
+                href={buildWhatsAppShareUrl(shareText)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/20"
+              >
+                {shareCopy.whatsapp}
+              </a>
+              <a
+                href={buildTelegramShareUrl(shareText)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1 text-[11px] text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/20"
+              >
+                {shareCopy.telegram}
+              </a>
+              <button
+                type="button"
+                data-email-itinerary-toggle="true"
+                onClick={() => {
+                  setEmailOpen((v) => !v);
+                  if (emailStatus === 'sent' || emailStatus === 'error' || emailStatus === 'invalid') setEmailStatus('idle');
+                }}
+                className="rounded-full border border-brand-gold/35 bg-brand-gold/10 px-3 py-1 text-[11px] text-brand-gold transition hover:border-brand-gold hover:bg-brand-gold/20"
+              >
+                {s2.emailItinerary}
+              </button>
+            </div>
+            {emailOpen && (
+              emailStatus === 'sent' ? (
+                <p role="status" className="text-xs text-emerald-300">{s2.emailSent}</p>
+              ) : (
+                <form onSubmit={handleEmailPlan} className="flex flex-wrap items-center gap-1.5 rounded-xl border border-white/15 bg-black/40 p-2">
+                  <input
+                    type="email"
+                    required
+                    maxLength={254}
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    placeholder={s2.emailPlaceholder}
+                    aria-label={s2.emailPlaceholder}
+                    disabled={emailStatus === 'sending'}
+                    className="min-w-[140px] flex-1 bg-transparent px-2 py-1 text-xs text-white placeholder:text-zinc-500 focus:outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={emailStatus === 'sending'}
+                    className="rounded-full bg-brand-gold px-3 py-1 text-[11px] font-semibold text-black transition hover:brightness-110 disabled:opacity-60"
+                  >
+                    {emailStatus === 'sending' ? s2.sending : s2.sendEmail}
+                  </button>
+                  {emailStatus === 'invalid' && <p role="alert" className="w-full text-[11px] text-rose-300">{s2.emailInvalid}</p>}
+                  {emailStatus === 'unavailable' && <p role="alert" className="w-full text-[11px] text-amber-300">{s2.emailUnavailable}</p>}
+                  {emailStatus === 'error' && <p role="alert" className="w-full text-[11px] text-rose-300">{s2.errorFailed}</p>}
+                </form>
+              )
+            )}
           </div>
         )}
 

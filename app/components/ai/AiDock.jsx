@@ -5,20 +5,26 @@ import { useSavedText } from "../LocalizedText";
 
 import { useEffect,useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAiDock } from './AiDockProvider';
 import { AiConversation } from './AiConversation';
+import { useConciergeChat } from './ChatProvider';
 import { useBodyScrollLock } from '../useBodyScrollLock';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
 import {useAI} from './AIProvider';
 import {useDialogFocus} from './useDialogFocus';
 import { configuredManagerTelegram } from '../../../lib/managerContact.mjs';
+import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
+import { buildManagerHandoffUrl, getPageContext } from '../../../lib/ai/stage2Copy.mjs';
 
 const managerTelegramHref = configuredManagerTelegram();
 
 export function AiDock() {
   const msg = useSavedText();
   const { isOpen, close } = useAiDock();
+  const { messages, listings, plan, savedPrefs } = useConciergeChat();
+  const pathname = usePathname() || '';
   const {closeRoom}=useAI(),panel=useRef(null);
   useDialogFocus(isOpen,panel);
   useEffect(()=>{if(isOpen)closeRoom();},[isOpen,closeRoom]);
@@ -26,6 +32,17 @@ export function AiDock() {
   // it was already localized, so an English header was the odd one out.
   const locale = useLocale();
   const t = getTranslation(locale);
+  const smartTelegramHref = managerTelegramHref
+    ? buildManagerHandoffUrl({
+        baseHref: managerTelegramHref,
+        profile: extractTripProfile(messages, new Date(), savedPrefs),
+        pageContext: getPageContext(pathname, locale),
+        messages,
+        listings,
+        plan,
+        locale
+      })
+    : null;
 
   // Prevents the mobile scroll-jump this dialog's own text input used to
   // trigger - see useBodyScrollLock for the root cause.
@@ -73,9 +90,9 @@ export function AiDock() {
             <p className="truncate text-sm font-semibold tracking-wide text-white">{msg("ELIO+ Guide")}</p>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
-            {managerTelegramHref && (
+            {smartTelegramHref && (
               <a
-                href={managerTelegramHref}
+                href={smartTelegramHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t.ai?.liveManager || 'Message a live manager on Telegram'}
