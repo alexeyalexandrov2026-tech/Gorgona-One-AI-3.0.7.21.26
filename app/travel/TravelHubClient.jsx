@@ -37,7 +37,14 @@ function ArrowIcon({ className }) {
   );
 }
 
-export default function TravelHubClient() {
+const DEFAULT_COMPANION_LINKS = [
+  { href: '/exclusive-destinations', key: 'linkExclusive' },
+  { href: '/restaurants-nightlife', key: 'linkDining' },
+  { href: '/yachts', key: 'linkYachts' },
+  { href: '/rentals', key: 'linkCars' }
+];
+
+export default function TravelHubClient({ companionLinks = DEFAULT_COMPANION_LINKS }) {
   const locale = useLocale();
   const copy = getTravelHubCopy(locale);
   const [activeTab, setActiveTab] = useState('all'); // all | flights | hotels | villas
@@ -332,18 +339,13 @@ export default function TravelHubClient() {
           {copy.moreHeading}
         </p>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            ['/exclusive-destinations', copy.linkExclusive],
-            ['/restaurants-nightlife', copy.linkDining],
-            ['/yachts', copy.linkYachts],
-            ['/rentals', copy.linkCars]
-          ].map(([href, label]) => (
+          {companionLinks.map(({ href, key }) => (
             <Link
               key={href}
               href={href}
               className="group flex items-center justify-between rounded-2xl border border-white/12 bg-white/[0.04] px-5 py-4 text-sm font-medium text-white transition hover:border-[#d4af37]/60 hover:bg-[#d4af37]/10 hover:text-[#f0d37a]"
             >
-              <span>{label}</span>
+              <span>{copy[key]}</span>
               <ArrowIcon className="h-4 w-4 text-white/60 transition-transform group-hover:translate-x-1 group-hover:text-[#f0d37a]" />
             </Link>
           ))}

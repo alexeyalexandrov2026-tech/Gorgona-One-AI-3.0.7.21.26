@@ -10,11 +10,18 @@ export const metadata = pageMetadata({
   image: '/images/travel/hero-miami-dusk.webp'
 });
 
+const COMPANION_LINKS = [
+  { href: '/exclusive-destinations', key: 'linkExclusive' },
+  { href: '/restaurants-nightlife', key: 'linkDining' },
+  { href: '/yachts', key: 'linkYachts' },
+  { href: '/rentals', key: 'linkCars' }
+];
+
 export default function TravelLandingPage() {
   return (
     <>
       <JsonLd data={sectionJsonLd({ name: 'Travel, Flights, Hotels & Villas', description: metadata.description, path: '/travel' })} />
-      <TravelHubClient />
+      <TravelHubClient companionLinks={COMPANION_LINKS} />
     </>
   );
 }
