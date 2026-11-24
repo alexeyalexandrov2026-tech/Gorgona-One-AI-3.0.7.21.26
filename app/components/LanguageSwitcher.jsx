@@ -66,7 +66,11 @@ export function LanguageSwitcher() {
         aria-label={msg('Language: {language}', { language: active.nativeLabel })}
         className="flex min-h-[40px] items-center gap-2 rounded-full border border-g1-rule bg-g1-card px-3 text-sm text-g1-ink outline-none transition hover:border-g1-ink focus-visible:ring-2 focus-visible:ring-g1-accent"
       >
-        <span aria-hidden="true">{active.flag}</span>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 shrink-0 text-g1-soft">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3.6 9h16.8M3.6 15h16.8M12 3a13.5 13.5 0 0 1 0 18M12 3a13.5 13.5 0 0 0 0 18" />
+        </svg>
+        <span aria-hidden="true" className="font-g1mono text-[11px] font-semibold uppercase tracking-[0.14em] text-g1-ink sm:hidden">{active.code.toUpperCase()}</span>
         <span className="hidden sm:inline">{active.nativeLabel}</span>
         <span aria-hidden="true" className="text-xs text-g1-soft">▾</span>
       </button>
@@ -89,7 +93,7 @@ export function LanguageSwitcher() {
                 language.code === locale ? 'bg-g1-accent-wash text-g1-accent' : 'text-g1-ink hover:bg-g1-paper hover:text-g1-accent'
               }`}
             >
-              <span aria-hidden="true" className="text-base">{language.flag}</span>
+              <span aria-hidden="true" className="inline-flex h-6 w-8 shrink-0 items-center justify-center rounded-md border border-g1-rule font-g1mono text-[10px] font-semibold uppercase tracking-[0.12em]">{language.code.toUpperCase()}</span>
               <span className="flex flex-col">
                 <span className="font-medium">{language.nativeLabel}</span>
                 <span className="text-xs text-g1-soft">{language.label}</span>

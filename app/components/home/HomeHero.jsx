@@ -73,7 +73,7 @@ export default function HomeHero({ copy, showcase = [] }) {
     const done = window.setTimeout(() => {
       setHorizon(false);
       setShowcaseHold(false);
-    }, 3400);
+    }, 1800);
     return () => window.clearTimeout(done);
   }, []);
 

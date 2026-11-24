@@ -1,6 +1,6 @@
 import {notFound} from 'next/navigation';
 import {getHeadoutCollection} from '../../../lib/headoutCatalog.mjs';
-import {clip,experienceSearchText,breadcrumbJsonLd,attractionJsonLd} from '../../../lib/seo.mjs';
+import {clip,experienceSearchText,breadcrumbJsonLd,attractionJsonLd,pageMetadata} from '../../../lib/seo.mjs';
 import JsonLd from '../../components/JsonLd';
 import HeadoutCollection from '../HeadoutCollection';
 
@@ -15,10 +15,13 @@ export async function generateMetadata({params}) {
   if (!item) return {title: 'Experiences | MIAMI ELIO'};
 
   const search = experienceSearchText(item);
-  return {
-    title: search.title,
-    description: DESCRIPTION_OVERRIDES[item.slug] ? clip(DESCRIPTION_OVERRIDES[item.slug]) : search.description
-  };
+  return pageMetadata({
+    title: item.title,
+    fullTitle: search.title,
+    description: DESCRIPTION_OVERRIDES[item.slug] ? clip(DESCRIPTION_OVERRIDES[item.slug]) : search.description,
+    path: `/experiences/${item.slug}`,
+    image: item.image || undefined
+  });
 }
 
 export default async function ExperiencePage({params}){const {slug}=await params;const item=getHeadoutCollection(slug);if(!item)notFound();return <><JsonLd data={[breadcrumbJsonLd([{name:'Experiences',path:'/experiences'},{name:item.title,path:`/experiences/${item.slug}`}]),attractionJsonLd(item)]}/><HeadoutCollection item={item}/></>;}

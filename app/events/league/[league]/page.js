@@ -5,7 +5,8 @@ import { Logo } from '../../../components/Logo';
 import { EventGrid } from '../../EventGrid';
 import { EventPagination } from '../../EventPagination';
 import { getServerTranslations } from '../../../../lib/serverLocale';
-import { pageMetadata } from '../../../../lib/seo.mjs';
+import { pageMetadata, sectionJsonLd } from '../../../../lib/seo.mjs';
+import JsonLd from '../../../components/JsonLd';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,11 @@ export default async function LeaguePage({ params, searchParams }) {
 
   return (
     <main className="flex-1 py-10">
+      <JsonLd data={sectionJsonLd({
+        name: `${league.name} Tickets in Miami`,
+        description: `${league.name} ${league.sport ? league.sport.toLowerCase() + ' ' : ''}games and tickets in Miami.`,
+        path: `/events/league/${league.slug}`
+      })} />
       <div className="market-shell mb-8 rounded-[2rem] p-8">
         <div className="flex items-center gap-4">
           <Logo slug={league.slug} alt={league.name} className="h-14 w-14 rounded-2xl bg-white/5 object-contain p-2" />
