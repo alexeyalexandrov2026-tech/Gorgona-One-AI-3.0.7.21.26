@@ -17,6 +17,7 @@ import {useDialogFocus} from './useDialogFocus';
 import { configuredManagerTelegram } from '../../../lib/managerContact.mjs';
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { buildManagerHandoffUrl, getPageContext } from '../../../lib/ai/stage2Copy.mjs';
+import { trackEvent } from '../../../lib/analytics';
 
 const managerTelegramHref = configuredManagerTelegram();
 
@@ -27,7 +28,12 @@ export function AiDock() {
   const pathname = usePathname() || '';
   const {closeRoom}=useAI(),panel=useRef(null);
   useDialogFocus(isOpen,panel);
-  useEffect(()=>{if(isOpen)closeRoom();},[isOpen,closeRoom]);
+  useEffect(()=>{
+    if(isOpen){
+      closeRoom();
+      trackEvent('elio_open', { pagePath: pathname || '/' });
+    }
+  },[isOpen,closeRoom,pathname]);
   // The dock chrome follows the global switcher too - the transcript inside
   // it was already localized, so an English header was the odd one out.
   const locale = useLocale();
