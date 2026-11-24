@@ -332,7 +332,7 @@ test('PR #141: favicon.ico, /partner noindex, /concierge 308, unique rental/venu
 
   const travel = source('app/travel/page.js');
   assert.match(travel, /pageMetadata\(/);
-  assert.match(travel, /\/images\/experiences\/miami-coast\.webp/);
+  assert.match(travel, /\/images\/travel\/hero-miami-dusk\.webp/);
   assert.doesNotMatch(travel, /images\.unsplash\.com|travel-violet|travel-lavender|travel-void|175,80,255/);
 
   const i18n = source('lib/i18n.js');

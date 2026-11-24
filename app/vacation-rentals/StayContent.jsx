@@ -28,7 +28,9 @@ export default function StayContent() {
 
       <section className="border-t border-g1-rule py-[clamp(36px,5vw,72px)]" aria-label={stay22.title}>
         <SectionHead title={stay22.title} sub={stay22.description} />
-        <Stay22Browse labels={stay22} />
+        <div className="rounded-[30px] border border-[#d4af37]/25 bg-[linear-gradient(180deg,rgba(1,33,44,0.84),rgba(1,16,24,0.92))] p-3 shadow-[0_24px_70px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:p-5">
+          <Stay22Browse labels={stay22} />
+        </div>
         <p className="mt-3 max-w-[75ch] text-[0.8rem] leading-relaxed text-g1-soft">{stay22.disclosure}</p>
       </section>
 

@@ -10,6 +10,7 @@ import { getDiningHandoffCopy } from '../../../lib/dining/copy.mjs';
 import { PROVIDERS } from '../../../lib/dining/gateway.mjs';
 import { buildStay22ReferralUrl } from '../../../lib/ai/tripProfile.mjs';
 import { enrichPartnerBookingUrl, getStage2Copy } from '../../../lib/ai/stage2Copy.mjs';
+import { buildDayTimeline, buildPlanIcs, getTimelineCopy } from '../../../lib/ai/dayTimeline.mjs';
 import { isReceipt, submissionKey } from '../../../lib/bookingSubmission.mjs';
 import { isPlanReceipt } from '../../../lib/planRules.mjs';
 import { getConsentCopy } from '../../../lib/legal/consentCopy.mjs';
@@ -328,12 +329,14 @@ export function AiListingCards({ listings, onNavigate, profile = null, className
   );
 }
 
-/** A multi-item plan with selectable candidates + direct POST /api/plan bridge to Live Trip Room. */
-export function AiPlan({ plan, onNavigate, profile = null }) {
+/** A multi-item plan with interactive Miami Day Timeline (.ics + Rain Plan B) + POST /api/plan bridge to Live Trip Room. */
+export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null }) {
   const locale = useLocale();
   const auth = useAuth();
   const copy = getDiningHandoffCopy(locale);
   const s2 = getStage2Copy(locale);
+  const tlCopy = getTimelineCopy(locale);
+  const timelineStops = buildDayTimeline(plan, profile, locale);
   const [selectedBySection, setSelectedBySection] = useState(() => {
     const init = {};
     for (const section of plan?.sections || []) {
@@ -442,8 +445,64 @@ export function AiPlan({ plan, onNavigate, profile = null }) {
     }
   }
 
+  function handleDownloadIcs() {
+    try {
+      const ics = buildPlanIcs(plan, profile, locale);
+      if (!ics) return;
+      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'miami-elio-itinerary.ics';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch {}
+  }
+
   return (
     <div className="grid gap-4 pt-1" data-ai-plan="true">
+      {timelineStops.length > 0 && (
+        <div data-miami-timeline="true" className="rounded-2xl border border-brand-gold/25 bg-black/35 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-brand-gold">{tlCopy.heading}</p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                data-export-ics="true"
+                onClick={handleDownloadIcs}
+                className="rounded-full border border-brand-gold/40 bg-brand-gold/10 px-2.5 py-0.5 text-[10px] font-semibold text-brand-gold transition hover:bg-brand-gold hover:text-black"
+              >
+                {tlCopy.exportIcs}
+              </button>
+              {typeof onQuickPrompt === 'function' && (
+                <button
+                  type="button"
+                  data-rain-plan-b="true"
+                  onClick={() => onQuickPrompt(tlCopy.rainPrompt)}
+                  className="rounded-full border border-white/15 bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-medium text-zinc-200 transition hover:border-brand-gold/60 hover:text-brand-gold"
+                >
+                  {tlCopy.rainPlanB}
+                </button>
+              )}
+            </div>
+          </div>
+          <ol className="mt-2.5 space-y-2 border-l border-brand-gold/30 pl-3">
+            {timelineStops.map((stop) => (
+              <li key={stop.id} className="text-xs">
+                {stop.driveHint && (
+                  <p className="mb-1 text-[10px] text-zinc-400">{stop.driveHint}</p>
+                )}
+                <div className="flex items-baseline gap-2">
+                  <span className="font-mono text-[11px] font-semibold text-brand-gold">{stop.time}</span>
+                  <span className="truncate font-medium text-white">{stop.title}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
       {plan.sections.map((section) => (
         <div key={section.href}>
           <p className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-brand-gold/80">{section.label}</p>

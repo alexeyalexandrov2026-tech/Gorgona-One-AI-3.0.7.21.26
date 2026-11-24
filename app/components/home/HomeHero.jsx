@@ -186,11 +186,11 @@ export default function HomeHero({ copy, showcase = [] }) {
       <div className={`g1-home-web-hero g1-stage${horizon ? ' is-horizon' : ''}`}>
         <img
           className="g1-stage__bg"
-          src="/images/home/hero-tower.jpg"
+          src="/images/home/hero-tower.webp"
           alt=""
           aria-hidden="true"
-          width="1600"
-          height="2400"
+          width="1400"
+          height="2100"
           fetchPriority="high"
         />
         <h1 className="sr-only">{copy.titleA}{copy.titleEm}{copy.titleB}</h1>
