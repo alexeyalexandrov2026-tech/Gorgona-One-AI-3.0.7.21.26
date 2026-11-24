@@ -10,6 +10,7 @@ import {PROVIDERS} from '../../../lib/dining/gateway.mjs';
 import {COLLECTIONS,VIBES,MICHELIN_LEVELS} from '../../../lib/dining/editorial.mjs';
 import {readDiningParams,filterVenues,diningHref,hasActiveFilters,PRICE_LEVELS} from '../../../lib/dining/filters.mjs';
 import { VenueCard } from '../VenueCard';
+import UsTrustStrip from './UsTrustStrip';
 import { chipClass, eyebrowClass, sectionY } from './ui';
 
 // The dining and nightlife guide. Collections (?collection=) and filters narrow one
@@ -54,6 +55,8 @@ export default async function VenueDirectory({ basePath, searchParams, t, eyebro
        </div>
        {heroVenue&&<DiningPhoto venue={heroVenue} locale={locale} hero priority/>}
       </header>
+
+      <UsTrustStrip locale={locale} mode="dining" />
 
       <nav aria-label={handoff.collections} className="mb-6 grid gap-3">
         <p className={eyebrowClass}>{handoff.collections}</p>

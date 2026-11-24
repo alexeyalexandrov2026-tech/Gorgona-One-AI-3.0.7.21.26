@@ -8,6 +8,7 @@ import { carThumb } from '../../../lib/homeData';
 import BookingForm from '../../components/BookingForm';
 import SaveButton from '../../components/SaveButton';
 import AskButton from '../../components/g1/AskButton';
+import UsTrustStrip from '../../components/g1/UsTrustStrip';
 import Gallery from '../../components/g1/Gallery';
 import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import SupplierVehicleDetails from '../../components/g1/SupplierVehicleDetails';
@@ -77,6 +78,7 @@ export default async function RentalDetailPage({ params }) {
           />
           {supplier && <p className="rounded-xl border border-g1-rule p-4 text-sm leading-relaxed text-g1-soft">{supplierCopy.notice}</p>}
           <BookingForm rentalSlug={rental.slug} rentalTitle={supplier?`${rental.title} · ${rental.supplier}`:rental.title} pickupLocation={supplier?rental.location:undefined} kind="car" />
+          <UsTrustStrip locale={locale} mode="cars" compact />
           {rental.partner&&<PartnerSpecs specs={rental.specs}/>}
         </div>
       </div>
