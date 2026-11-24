@@ -152,6 +152,7 @@ export function ChatProvider({ children }) {
     // Offline unless the server says a real engine answered: like the Android
     // app, a degraded turn is shown but never sent back as history.
     let degraded = true;
+    let nextReplyLocale = null;
     let nextCards=navigation.cards,nextSuggestions=navigation.suggestions,nextListings=[],nextPlan=null;
     let prepared=null;
 
@@ -172,6 +173,9 @@ export function ChatProvider({ children }) {
         answer = data.reply.trim();
         handoff = data.handoff === true;
         degraded = isDegradedResponse(response.ok, data);
+        if (typeof data.replyLocale === 'string' && data.replyLocale.trim()) {
+          nextReplyLocale = data.replyLocale.trim();
+        }
       }
       // Conversation replies can explicitly omit navigation, even when the
       // offline matcher recognized a place or section name in the question.
@@ -210,7 +214,17 @@ export function ChatProvider({ children }) {
         degraded = true;
       }
       operationRef.current=null;
-      setMessages(prev=>[...prev,{role:'assistant',content:answer,...(handoff?{handoff:true}:{}),...(degraded?{degraded:true}:{})}].slice(-MAX_MESSAGES));
+      setMessages(prev=>[...prev,{
+        role:'assistant',
+        content:answer,
+        ...(handoff?{handoff:true}:{}),
+        ...(degraded?{degraded:true}:{}),
+        ...(nextReplyLocale?{replyLocale:nextReplyLocale}:{}),
+        ...(nextCards.length?{cards:nextCards}:{}),
+        ...(nextSuggestions.length?{suggestions:nextSuggestions}:{}),
+        ...(nextListings.length?{listings:nextListings}:{}),
+        ...(nextPlan?{plan:nextPlan}:{})
+      }].slice(-MAX_MESSAGES));
       setCards(nextCards);
       setSuggestions(nextSuggestions);
       setListings(nextListings);

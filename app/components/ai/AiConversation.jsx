@@ -37,11 +37,49 @@ function MicIcon({ className }) {
   );
 }
 
-function AnswerReport({ question, answer, locale }) {
+function formatAssistantDisplay(raw) {
+  const text = String(raw || '').trim();
+  if (!text || text.includes('\n') || text.length < 220) return text;
+  // Break long single-block answers into two breathable paragraphs at a natural sentence boundary.
+  const sentences = text.match(/[^.!?。！？]+[.!?。！？]+(?:\s+|$)|[^.!?。！？]+$/g);
+  if (!sentences || sentences.length < 3) return text;
+  const splitAt = Math.ceil(sentences.length / 2);
+  return `${sentences.slice(0, splitAt).join('').trim()}\n\n${sentences.slice(splitAt).join('').trim()}`;
+}
+
+function CopyIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <rect x="9" y="9" width="13" height="13" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+function ThumbUpIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M7 10v12M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" />
+    </svg>
+  );
+}
+
+function ThumbDownIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M17 14V2M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z" />
+    </svg>
+  );
+}
+
+function AnswerActions({ question, answer, locale }) {
   const msg = useSavedText();
+  const shareCopy = getShareCopy(locale);
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState('');
   const [state, setState] = useState('idle');
+  const [copied, setCopied] = useState(false);
+  const [liked, setLiked] = useState(false);
   const inFlight = useRef(false);
   const attempt = useRef(null);
 
@@ -68,40 +106,100 @@ function AnswerReport({ question, answer, locale }) {
     }
   }
 
-  if (state === 'received') {
-    return <p role="status" className="text-xs text-zinc-300">{msg('Thank you. The report was sent to our team.')}</p>;
+  function handleCopy() {
+    try {
+      navigator.clipboard?.writeText(answer);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {}
   }
-  if (!open) {
-    return <button type="button" className="min-h-11 text-start text-xs text-zinc-300 underline" onClick={() => setOpen(true)}>{msg('Report this answer')}</button>;
+
+  function handleLike() {
+    if (liked) return;
+    setLiked(true);
+    try {
+      fetch('/api/chat?feedback=up', { method: 'GET', keepalive: true }).catch(() => {});
+    } catch {}
   }
+
   return (
-    <form onSubmit={send} className="grid gap-2 text-xs">
-      <label className="grid gap-1">
-        <span>{msg('What is wrong with this answer? (optional)')}</span>
-        <textarea value={note} onChange={event => setNote(event.target.value)} maxLength={1000}
-          disabled={state === 'sending'} className="rounded-lg border border-white/20 bg-black/20 p-2" />
-      </label>
-      {state === 'failed' && <p role="alert">{msg('Could not send the request. Try again.')}</p>}
-      <div className="flex flex-wrap gap-3">
-        <button type="submit" disabled={state === 'sending'} className="min-h-11 text-brand-gold underline">
-          {state === 'sending' ? msg('Loading...') : msg('Send report')}
+    <div className="mt-2 border-t border-white/[0.08] pt-1.5">
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={handleCopy}
+          aria-label={copied ? shareCopy.copied : shareCopy.copy}
+          title={copied ? shareCopy.copied : shareCopy.copy}
+          className="inline-flex h-7 items-center gap-1 rounded-full px-2 text-[11px] text-zinc-400 transition hover:bg-white/[0.06] hover:text-zinc-100"
+        >
+          <CopyIcon className="h-3.5 w-3.5" />
+          <span>{copied ? shareCopy.copied : shareCopy.copy}</span>
         </button>
-        <button type="button" disabled={state === 'sending'} className="min-h-11 underline" onClick={() => setOpen(false)}>
-          {msg('Cancel')}
+        <button
+          type="button"
+          onClick={handleLike}
+          aria-label="👍"
+          aria-pressed={liked}
+          className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
+            liked ? 'bg-brand-gold/20 text-brand-gold' : 'text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-100'
+          }`}
+        >
+          <ThumbUpIcon className="h-3.5 w-3.5" />
         </button>
+        {state !== 'received' && (
+          <button
+            type="button"
+            aria-label={msg('Report this answer')}
+            title={msg('Report this answer')}
+            aria-expanded={open}
+            onClick={() => {
+              setOpen((value) => !value);
+              try {
+                if (!open) fetch('/api/chat?feedback=down', { method: 'GET', keepalive: true }).catch(() => {});
+              } catch {}
+            }}
+            className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
+              open ? 'bg-white/10 text-brand-gold' : 'text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-100'
+            }`}
+          >
+            <ThumbDownIcon className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
-    </form>
+      {state === 'received' && (
+        <p role="status" className="mt-1.5 text-xs text-zinc-300">{msg('Thank you. The report was sent to our team.')}</p>
+      )}
+      {open && state !== 'received' && (
+        <form onSubmit={send} className="mt-2 grid gap-2 text-xs">
+          <label className="grid gap-1">
+            <span className="text-zinc-300">{msg('What is wrong with this answer? (optional)')}</span>
+            <textarea value={note} onChange={event => setNote(event.target.value)} maxLength={1000}
+              disabled={state === 'sending'} className="rounded-lg border border-white/20 bg-black/30 p-2 text-zinc-100" />
+          </label>
+          {state === 'failed' && <p role="alert" className="text-rose-300">{msg('Could not send the request. Try again.')}</p>}
+          <div className="flex flex-wrap gap-3">
+            <button type="submit" disabled={state === 'sending'} className="min-h-9 rounded-full bg-brand-gold px-3.5 text-xs font-semibold text-black">
+              {state === 'sending' ? msg('Loading...') : msg('Send report')}
+            </button>
+            <button type="button" disabled={state === 'sending'} className="min-h-9 px-2 text-zinc-300 underline" onClick={() => setOpen(false)}>
+              {msg('Cancel')}
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 }
 
 function Message({ role, content, question, locale, handoff = false, degraded = false }) {
   const isUser = role === 'user';
   const t = getTranslation(locale);
+  const displayed = isUser ? content : formatAssistantDisplay(content);
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed [overflow-wrap:anywhere] ${
-          isUser ? 'bg-brand-gold text-black' : 'border border-white/10 bg-white/5 text-zinc-200'
+        className={`max-w-[88%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed [overflow-wrap:anywhere] ${
+          isUser ? 'bg-brand-gold text-black font-medium' : 'border border-white/12 bg-white/[0.06] text-zinc-100'
         }`}
       >
         {!isUser && degraded && (
@@ -109,27 +207,25 @@ function Message({ role, content, question, locale, handoff = false, degraded = 
             {t.ai?.offlineAnswer}
           </span>
         )}
-        {content}
+        {displayed}
         {!isUser && handoff && (managerHref || managerWhatsAppHref) && (
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
             {managerHref && (
               <a href={managerHref} target="_blank" rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center text-xs text-brand-gold underline">
+                className="inline-flex min-h-9 items-center text-xs text-brand-gold underline">
                 {t.ai?.liveManager}
               </a>
             )}
             {managerWhatsAppHref && (
               <a href={managerWhatsAppHref} target="_blank" rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center text-xs text-brand-gold underline">
+                className="inline-flex min-h-9 items-center text-xs text-brand-gold underline">
                 {t.ai?.liveManagerWhatsApp}
               </a>
             )}
           </div>
         )}
         {!isUser && content.trim() && (
-          <div className="mt-1">
-            <AnswerReport key={JSON.stringify([question, content])} question={question} answer={content} locale={locale} />
-          </div>
+          <AnswerActions key={JSON.stringify([question, content])} question={question} answer={content} locale={locale} />
         )}
       </div>
     </div>
@@ -146,6 +242,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   const [thinkingStage, setThinkingStage] = useState(0);
   const [copiedPlan, setCopiedPlan] = useState(false);
   const listRef = useRef(null);
+  const lastAssistantRef = useRef(null);
   const inputRef = useRef(null);
   const voice = useVoice();
   useEffect(()=>{if(!active||!messages.length)voice.stopListening();},[active,messages.length,voice.stopListening]);
@@ -164,8 +261,16 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   const starters = STARTER_PROMPTS[locale] || STARTER_PROMPTS.en;
 
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, isLoading, cards, listings, plan]);
+    const list = listRef.current;
+    if (!list) return;
+    const latest = messages.at(-1);
+    if (!isLoading && latest?.role === 'assistant' && lastAssistantRef.current) {
+      const targetTop = Math.max(0, lastAssistantRef.current.offsetTop - 8);
+      list.scrollTo({ top: targetTop, behavior: 'smooth' });
+      return;
+    }
+    list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
+  }, [messages.length, isLoading]);
 
   // send() never throws and never logs - an offline AI backend is an expected
   // state, and the guest still gets a concierge line plus working navigation
@@ -178,36 +283,35 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
     await send(content);
   }
 
-  // Chips cover any additional section beyond the two rendered as full cards,
-  // so a third relevant match is still one tap away without a third frame
-  // crowding the transcript.
-  const extraChips = suggestions.filter((s) => !cards.some((c) => c.href === s.href));
   const profile = extractTripProfile(messages, new Date(), savedPrefs);
   const { chips: profileChips, resetLabel } = formatProfileChips(profile, locale);
   const lastMessage = messages.at(-1);
-  const shareCopy = getShareCopy(locale);
+  const effectiveLocale = lastMessage?.role === 'assistant' && lastMessage.replyLocale ? lastMessage.replyLocale : locale;
+  const activeCards = lastMessage?.role === 'assistant' && Array.isArray(lastMessage.cards) ? lastMessage.cards : cards;
+  const activeListings = lastMessage?.role === 'assistant' && Array.isArray(lastMessage.listings) ? lastMessage.listings : listings;
+  const activePlan = lastMessage?.role === 'assistant' && lastMessage.plan !== undefined ? lastMessage.plan : plan;
+  const activeSuggestions = lastMessage?.role === 'assistant' && Array.isArray(lastMessage.suggestions) ? lastMessage.suggestions : suggestions;
+  // Chips cover any additional section beyond the two rendered as full cards,
+  // so a third relevant match is still one tap away without a third frame
+  // crowding the transcript.
+  const extraChips = activeSuggestions.filter((s) => !activeCards.some((c) => c.href === s.href));
+  const shareCopy = getShareCopy(effectiveLocale);
   const canSharePlan = !isLoading && lastMessage?.role === 'assistant' && !lastMessage.degraded && !lastMessage.handoff
-    && (Boolean(plan) || listings.length > 0 || (lastMessage.content?.length || 0) >= 120);
+    && (Boolean(activePlan) || activeListings.length > 0 || (lastMessage.content?.length || 0) >= 120);
   const shareText = canSharePlan
-    ? buildShareablePlanText({ reply: lastMessage.content, plan, listings, locale })
+    ? buildShareablePlanText({ reply: lastMessage.content, plan: activePlan, listings: activeListings, locale: effectiveLocale })
     : '';
   const quickReplies = !isLoading && lastMessage?.role === 'assistant'
     ? quickRepliesForTurn({
         reply: lastMessage.content,
-        cards,
-        listings,
-        locale,
+        cards: activeCards,
+        listings: activeListings,
+        locale: effectiveLocale,
         handoff: lastMessage.handoff === true,
         degraded: lastMessage.degraded === true
       })
     : [];
-  const planHrefs = new Set((plan?.sections || []).map((s) => s.href));
-  const nonPlanListings = plan
-    ? listings.filter((l) => ![...planHrefs].some((root) => l.href === root || l.href.startsWith(root + '/')))
-    : listings;
-  const nonPlanCards = plan
-    ? cards.filter((c) => !planHrefs.has(c.href))
-    : cards;
+  const lastAssistantIndex = [...messages].map((m) => m.role).lastIndexOf('assistant');
 
   function handleMicClick() {
     if (voice.isListening) {
@@ -253,7 +357,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
           </button>
         </div>
       )}
-      <div ref={listRef} className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-1 py-2">
+      <div ref={listRef} className="elio-scroll relative min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto overflow-x-hidden overscroll-contain px-1 py-2">
         {messages.length === 0 && (
           <div className="space-y-3">
             <p className="text-sm text-zinc-400">{t.ai?.conciergeIntro || DEFAULT_INTRO}</p>
@@ -273,35 +377,64 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
           </div>
         )}
 
-        {messages.map((message, index) => (
-          <Message key={index} role={message.role} content={message.content} handoff={message.handoff === true} degraded={message.degraded === true}
-            question={messages[index - 1]?.role === 'user' ? messages[index - 1].content : ''} locale={locale} />
-        ))}
+        {messages.map((message, index) => {
+          const isAssistant = message.role === 'assistant';
+          const isLatestAssistant = isAssistant && index === lastAssistantIndex;
+          const hasStoredAttachments = Boolean(message.cards?.length || message.listings?.length || message.plan);
+          const turnPlan = isAssistant ? (message.plan || (!hasStoredAttachments && isLatestAssistant ? plan : null)) : null;
+          const turnListings = isAssistant ? (message.listings?.length ? message.listings : (!hasStoredAttachments && isLatestAssistant ? listings : [])) : [];
+          const turnCards = isAssistant ? (message.cards?.length ? message.cards : (!hasStoredAttachments && isLatestAssistant ? cards : [])) : [];
+          const turnPlanHrefs = new Set((turnPlan?.sections || []).map((s) => s.href));
+          const turnNonPlanListings = turnPlan
+            ? turnListings.filter((l) => ![...turnPlanHrefs].some((root) => l.href === root || l.href.startsWith(root + '/')))
+            : turnListings;
+          const turnNonPlanCards = turnPlan
+            ? turnCards.filter((c) => !turnPlanHrefs.has(c.href))
+            : turnCards;
+          const msgLocale = isAssistant && message.replyLocale ? message.replyLocale : locale;
+          return (
+            <div key={index} ref={isLatestAssistant ? lastAssistantRef : undefined} className="space-y-2.5">
+              <Message
+                role={message.role}
+                content={message.content}
+                handoff={message.handoff === true}
+                degraded={message.degraded === true}
+                question={messages[index - 1]?.role === 'user' ? messages[index - 1].content : ''}
+                locale={msgLocale}
+              />
+              {isAssistant && (
+                <>
+                  {turnPlan ? <AiPlan plan={turnPlan} onNavigate={onNavigate} /> : null}
+                  <AiListingCards listings={turnNonPlanListings} onNavigate={onNavigate} rail={variant === 'dock'} />
+                  <AiActionCards cards={turnNonPlanCards} onNavigate={onNavigate} profile={profile} />
+                </>
+              )}
+            </div>
+          );
+        })}
 
         {isLoading && (
-          <div className="flex justify-start" role="status" aria-live="polite" data-thinking-status="true">
-            <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5">
-              <span className="flex items-center gap-1">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold" />
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:120ms]" />
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:240ms]" />
-              </span>
-              <span className="text-xs text-zinc-300">
-                {thinkingStatusForTurn({
-                  message: [...messages].reverse().find((m) => m.role === 'user')?.content || '',
-                  cards,
-                  locale,
-                  stage: thinkingStage
-                })}
-              </span>
+          <div className="space-y-2.5">
+            <div className="flex justify-start" role="status" aria-live="polite" data-thinking-status="true">
+              <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5">
+                <span className="flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold" />
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:120ms]" />
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-gold [animation-delay:240ms]" />
+                </span>
+                <span className="text-xs text-zinc-300">
+                  {thinkingStatusForTurn({
+                    message: [...messages].reverse().find((m) => m.role === 'user')?.content || '',
+                    cards,
+                    locale,
+                    stage: thinkingStage
+                  })}
+                </span>
+              </div>
             </div>
+            <AiActionCards cards={cards} onNavigate={onNavigate} profile={profile} />
           </div>
         )}
-
-        {/* Rich frames for the strongest intents... */}
-        {plan ? <AiPlan plan={plan} onNavigate={onNavigate} /> : null}
-        <AiListingCards listings={nonPlanListings} onNavigate={onNavigate} />
-        <AiActionCards cards={nonPlanCards} onNavigate={onNavigate} profile={profile} />
 
         {/* One-tap Copy / WhatsApp share for curated VIP itineraries & recommendations. */}
         {canSharePlan && (
@@ -357,7 +490,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         )}
 
         {/* ...and compact chips for any further section they did not cover. */}
-        {!plan && extraChips.length > 0 && (
+        {!isLoading && !activePlan && extraChips.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
             {extraChips.map((s) => (
               <Link

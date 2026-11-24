@@ -46,10 +46,10 @@ test('every site language labels the button', () => {
   }
 });
 
-test('the chip reuses the AI pill surface and sits above it', () => {
+test('the chip reuses the dark-gold surface and sits cleanly above AiSphere', () => {
   const css = fs.readFileSync(new URL('../../app/ai-overlays.css', import.meta.url), 'utf8');
   const rule = css.slice(css.indexOf('.aitg {'), css.indexOf('}', css.indexOf('.aitg {')));
-  assert.match(rule, /bottom: 150px/);
+  assert.match(rule, /bottom: 96px/);
   assert.match(css, /\.aitg\[data-ai-theme="dark"\] \{\s*background: rgba\(26, 22, 15, 0\.7\); border: 1px solid rgba\(216, 180, 120, 0\.4\)/);
   assert.match(css, /\.aitg\.is-hidden \{ opacity: 0; pointer-events: none; visibility: hidden; \}/);
 });
