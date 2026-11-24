@@ -7,12 +7,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { GetTheApp } from './GetTheApp';
 import { getTranslation } from '../../lib/i18n';
+import { getNavExtraCopy } from '../../lib/navExtraCopy.mjs';
 import { useLocale } from './LocaleProvider';
 import { useAuth } from './AuthProvider';
 
 // Unified MIAMI ELIO ecosystem navigation. `key` maps to an existing
-// translation in lib/i18n when available; `label` is the fallback for the
-// new luxury sections that are not yet translated.
+// translation in lib/i18n when available; `extraKey` maps to lib/navExtraCopy.mjs.
 const navItems = [
   { key: 'home', href: '/', label: 'Home' },
   { key: 'travel', href: '/travel', label: 'Travel' },
@@ -20,8 +20,10 @@ const navItems = [
   { key: 'villas', href: '/vacation-rentals', label: 'Villas' },
   { key: 'yachts', href: '/yachts', label: 'Yachts' },
   { key: 'cars', href: '/rentals', label: 'Cars' },
+  { extraKey: 'dining', href: '/restaurants-nightlife', label: 'Dining' },
   { key: 'events', href: '/events', label: 'Events' },
-  { key: 'privateJets', href: '/private-jets', label: 'Private Jets' }
+  { key: 'privateJets', href: '/private-jets', label: 'Private Jets' },
+  { extraKey: 'tripRoom', href: '/trip', label: 'Trip Room' }
 ];
 
 export function Header() {
@@ -55,7 +57,8 @@ export function Header() {
     else router.push('/');
   }
 
-  const labelFor = (item) => (item.key && t.nav[item.key]) || item.label;
+  const extraNav = getNavExtraCopy(locale);
+  const labelFor = (item) => (item.extraKey && extraNav[item.extraKey]) || (item.key && t.nav[item.key]) || item.label;
   const isActive = (href) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
   // Roles come from the protected profile loaded by AuthProvider.
   const accountHref = auth?.session?.role === 'admin' ? '/admin' : auth?.session?.role === 'partner' ? '/partner' : '/profile';

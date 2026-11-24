@@ -16,7 +16,8 @@ import { AiSphere } from './components/ai/AiSphere';
 import ManagerTelegramButton from './components/ai/ManagerTelegramButton';
 import ManagerWhatsAppButton from './components/ai/ManagerWhatsAppButton';
 import { AiDock } from './components/ai/AiDock';             
-import { InstallPrompt } from './components/InstallPrompt';   
+import { InstallPrompt } from './components/InstallPrompt';
+import { ServiceWorkerRegister } from './components/ServiceWorkerRegister';
 import { DEFAULT_IMAGE } from '../lib/seo.mjs';
 
 const baseUrl = 'https://gorgona-one.com';
@@ -94,6 +95,7 @@ export default function RootLayout({ children }) {
             </FavoritesProvider>
           </AuthProvider>
         </LocaleProvider>
+        <ServiceWorkerRegister />
         <AnalyticsBeacon token={process.env.NEXT_PUBLIC_CLOUDFLARE_WEB_ANALYTICS_TOKEN} />
       </body>
     </html>

@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from 'react';
 import { useSavedText } from "./LocalizedText";
 import { GOOGLE_PLAY_URL } from "../../lib/appLinks";
 
@@ -28,10 +29,23 @@ function GooglePlayMark({ className = "h-5 w-5" }) {
 }
 
 // Official-style dark Google Play store badge in the header and footer.
-// Hidden inside the Android app itself (CSS keyed on data-app-link).
+// Hidden inside the Android/iOS native apps (CSS keyed on data-app-link) and
+// suppressed in the top header on iPhone/iPad Safari so US iOS visitors do not
+// see an Android-only store CTA in the primary bar.
 export function GetTheApp({ variant = 'header' }) {
   const msg = useSavedText();
   const label = msg("Get the Miami Elio app on Google Play");
+  const [hideOnIos, setHideOnIos] = useState(false);
+
+  useEffect(() => {
+    if (variant !== 'header' || typeof window === 'undefined') return;
+    const ua = window.navigator?.userAgent || '';
+    if (/iphone|ipad|ipod/i.test(ua) && !window.MSStream) {
+      setHideOnIos(true);
+    }
+  }, [variant]);
+
+  if (variant === 'header' && hideOnIos) return null;
 
   if (variant === 'footer') {
     return (

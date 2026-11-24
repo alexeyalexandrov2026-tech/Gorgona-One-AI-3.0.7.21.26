@@ -14,7 +14,7 @@ const sections = [
   ['Private Jets', '/private-jets'],
   ['Experiences', '/experiences'],
   ['Dining & Nightlife', '/restaurants-nightlife'],
-  ['AI Concierge', '/discovery'],
+  ['ELIO+ Guide', '/discovery'],
 ];
 
 test('homepage cards navigate to each section', async ({ page }) => {
