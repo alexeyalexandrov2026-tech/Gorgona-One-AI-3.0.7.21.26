@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { normalizeLocale, unavailableReply } from '../../../lib/ai/locale';
-import {readChatRequest,validateChatTransport,ChatInputError} from '../../../lib/ai/chatRequest.mjs';
-import {conversationNavigation} from '../../../lib/ai/conversation.mjs';
-import {askWorkersBrain} from '../../../lib/ai/workersBrain.mjs';
-import {answerConciergeFact} from '../../../lib/ai/conciergeFacts.mjs';
-import {CONVERSATION_POLICY} from '../../../lib/ai/conciergeReply.mjs';
+import { readChatRequest, validateChatTransport, ChatInputError } from '../../../lib/ai/chatRequest.mjs';
+import { conversationNavigation } from '../../../lib/ai/conversation.mjs';
+import { askWorkersBrain } from '../../../lib/ai/workersBrain.mjs';
+import { answerConciergeFact } from '../../../lib/ai/conciergeFacts.mjs';
+import { CONVERSATION_POLICY } from '../../../lib/ai/conciergeReply.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 import { catalogueAnswer, explicitBooking, bookingDisclaimer } from '../../../lib/ai/catalogueAnswer.mjs';
 import { gatedListings, listingCards, namedVenueCards, replyMentionedCards } from '../../../lib/ai/listingCards.mjs';
@@ -13,106 +13,142 @@ import { getLiveEventEntities, peekLiveEventEntities } from '../../../lib/server
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { resolvePageEntity } from '../../../lib/ai/factPack.mjs';
 import { getMiamiForecast, peekMiamiForecast, shouldFetchForecast } from '../../../lib/ai/miamiForecast.mjs';
-import { recordChatTurn, recordReferralClick } from '../../../lib/server/conciergeTelemetry.mjs';
+import { persistTelemetryEvent, recordChatTurn, recordFeedbackVote, recordReferralClick } from '../../../lib/server/conciergeTelemetry.mjs';
 import { SERVER_BUDGET_MS } from '../../../lib/ai/chatDeadline.mjs';
 import { detectMessageLocale } from '../../../lib/ai/semanticVibes.mjs';
+import { chatCacheKey, isCacheableChatTurn, readCachedChatReply, writeCachedChatReply } from '../../../lib/server/chatEdgeCache.mjs';
+import { formatGuestMemoryPromptLine, loadGuestAccountMemory } from '../../../lib/server/guestMemory.mjs';
+import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
 
 // ===========================================================================
-// Concierge chat adapter.
+// Concierge chat adapter (JSON + optional SSE streaming via Accept header).
 //
 // One explicit chain, in order:
-//
 //   1. deterministic facts: greetings, Miami time and NWS weather
-//      (lib/ai/conciergeFacts.mjs)
-//   2. native Workers AI, opt-in with durable usage limits
-//      (lib/ai/workersBrain.mjs)
-//   3. the deterministic authored fallback: the catalogue sentence and the
-//      links the keywords found, or the localized unavailable line
-//      (lib/ai/catalogueAnswer.mjs)
+//   2. Cloudflare Edge Cache for popular non-personalized first-turn queries
+//   3. native Workers AI, opt-in with durable usage limits & account memory
+//   4. deterministic authored fallback (lib/ai/catalogueAnswer.mjs)
 //
-// There is no other engine: a disabled, denied or failed Workers AI call goes
-// straight to step 3 and never starts a second model.
-//
-// The contract this route returns NEVER changes shape and the status is
-// ALWAYS 200 for a well-formed request, whatever happens upstream. A degraded
-// answer is explicitly labelled error:true/configured:false, with locally
-// computed navigation buttons still available. Invalid requests return 400/413.
+// JSON clients (Android app, automated tests) receive the exact unchanged
+// JSON contract (`200 OK`). Web clients sending `Accept: text/event-stream`
+// receive live progress statuses, instant card previews, smooth delta text
+// streaming, and the final validated `done` envelope.
 // ===========================================================================
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// Who chose the final answer: the validated model output, the keyword
-// matcher that replaced it, or a deterministic fact (greeting, time, weather).
 const DECIDERS = new Set(['model', 'lexicon', 'fact']);
+const ENGINE_STATES = new Set(['ok', 'disabled', 'unavailable', 'usage_denied', 'timeout', 'cancelled', 'invalid_input', 'invalid_reply', 'cache']);
 
-// What happened to the model call: 'ok', or why it gave no answer
-// (disabled, unavailable, usage_denied, timeout, cancelled, invalid_input, invalid_reply).
-const ENGINE_STATES = new Set(['ok', 'disabled', 'unavailable', 'usage_denied', 'timeout', 'cancelled', 'invalid_input', 'invalid_reply']);
+function fireAndForget(promise) {
+  if (!promise) return;
+  try {
+    Promise.resolve(promise).catch(() => {});
+  } catch {}
+}
 
-function reply(text, { messages = [], latestUserMessage = '', source = null, locale = 'en', replyLocale = null, error = false, navigation = null, responsePolicy = null, plan = null, listings = [], handoff = false, action = null, decidedBy = 'lexicon', engine = null, started = null } = {}) {
+function buildReplyPayload(text, {
+  messages = [],
+  latestUserMessage = '',
+  source = null,
+  locale = 'en',
+  replyLocale = null,
+  error = false,
+  navigation = null,
+  responsePolicy = null,
+  plan = null,
+  listings = [],
+  handoff = false,
+  action = null,
+  decidedBy = 'lexicon',
+  engine = null,
+  cached = false,
+  started = null
+} = {}) {
   const decider = DECIDERS.has(decidedBy) ? decidedBy : 'lexicon';
   const rows = Array.isArray(listings) ? listings.slice(0, 4) : [];
   const referrals = [...new Set(rows.map((r) => r?.booking?.platform).filter(Boolean))];
   const elapsedMs = Number.isFinite(started) ? Date.now() - started : null;
   const effectiveLocale = replyLocale || locale;
-  recordChatTurn({ decidedBy: decider, action, locale: effectiveLocale, referrals, handoff: Boolean(handoff), error: Boolean(error), ms: elapsedMs });
-  // One structured line per turn, metadata only: never the guest's words or the reply.
-  // engine says why a model did not answer; ms is the whole server turn.
-  console.info(JSON.stringify({ event: 'concierge.chat', decidedBy: decider, source, action, listings: rows.length, ...(referrals.length ? { referrals } : {}), handoff: Boolean(handoff), error: Boolean(error), locale: effectiveLocale,
-    ...(ENGINE_STATES.has(engine) ? { engine } : {}), ...(elapsedMs !== null ? { ms: elapsedMs } : {}) }));
-  return NextResponse.json({
+  recordChatTurn({ decidedBy: decider, action, locale: effectiveLocale, referrals, handoff: Boolean(handoff), error: Boolean(error), cached: Boolean(cached), ms: elapsedMs });
+  fireAndForget(persistTelemetryEvent({
+    eventType: cached ? 'cache_hit' : 'turn',
+    locale: effectiveLocale,
+    decidedBy: decider,
+    action,
+    latencyMs: elapsedMs,
+    handoff: Boolean(handoff),
+    error: Boolean(error),
+    cached: Boolean(cached)
+  }, process.env));
+  console.info(JSON.stringify({
+    event: 'concierge.chat',
+    decidedBy: decider,
+    source,
+    action,
+    listings: rows.length,
+    ...(referrals.length ? { referrals } : {}),
+    handoff: Boolean(handoff),
+    error: Boolean(error),
+    ...(cached ? { cached: true } : {}),
+    locale: effectiveLocale,
+    ...(ENGINE_STATES.has(engine) ? { engine } : {}),
+    ...(elapsedMs !== null ? { ms: elapsedMs } : {})
+  }));
+  return {
     reply: text,
     ...(replyLocale && replyLocale !== locale ? { replyLocale } : {}),
-    // Navigation is computed locally from keywords, so the guest still gets
-    // somewhere to go even when no model answered. The guest's own words
-    // lead; the reply only reinforces - and on the degraded path it is a
-    // canned line, so it is excluded entirely.
-    ...(navigation||conversationNavigation(messages.length?messages:[{role:'user',content:latestUserMessage}],{reply:error?'':text,locale:effectiveLocale})),
+    ...(navigation || conversationNavigation(messages.length ? messages : [{ role: 'user', content: latestUserMessage }], { reply: error ? '' : text, locale: effectiveLocale })),
     listings: rows,
     decidedBy: decider,
     ...(action ? { action } : {}),
-    ...(responsePolicy?{responsePolicy}:{}),
+    ...(responsePolicy ? { responsePolicy } : {}),
     ...(plan ? { plan } : {}),
     configured: !error,
     ...(source ? { source } : {}),
-    // A booking or payment request: the client offers the live manager.
+    ...(cached ? { cached: true } : {}),
     ...(handoff ? { handoff: true } : {}),
     ...(error ? { error: true } : {})
-  });
+  };
 }
 
-// --- Route handlers --------------------------------------------------------
-
-export async function POST(request) {
-  const started = Date.now();
-  let body;
-  try {
-    validateChatTransport(request);
-    body = await readChatRequest(request);
-  } catch(error) {
-    return NextResponse.json({ error: error instanceof ChatInputError?error.message:'Invalid chat request.' }, { status: error instanceof ChatInputError?error.status:400 });
+function splitStreamChunks(text) {
+  const raw = String(text || '');
+  if (!raw) return [];
+  const tokens = raw.match(/\S+\s*/g) || [raw];
+  const chunks = [];
+  const groupSize = tokens.length > 40 ? 4 : 2;
+  for (let i = 0; i < tokens.length; i += groupSize) {
+    chunks.push(tokens.slice(i, i + groupSize).join(''));
   }
+  return chunks;
+}
 
+async function computeChatPayload(request, body, started, emit = null) {
   const messages = Array.isArray(body?.messages) ? body.messages.slice(-12) : [];
-  if (!messages.length) {
-    return NextResponse.json({ error: 'No message provided.' }, { status: 400 });
-  }
-
   const latestUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
-  // The language showing in the global switcher. Workers AI is told to
-  // answer in it, and the fallback speaks it too.
   const locale = normalizeLocale(body?.locale);
   const detectedLocale = detectMessageLocale(latestUserMessage, locale);
+  const s3 = getStage3Copy(detectedLocale);
 
-  const fact=await answerConciergeFact(latestUserMessage,detectedLocale,request.signal);
-  if(fact&&!fact.remainingMessage)return reply(fact.reply,{source:fact.source,error:fact.error,locale,replyLocale:detectedLocale,
-    navigation:{cards:[],suggestions:[]},responsePolicy:CONVERSATION_POLICY,action:'fact',decidedBy:'fact',started});
+  const fact = await answerConciergeFact(latestUserMessage, detectedLocale, request.signal);
+  if (fact && !fact.remainingMessage) {
+    return buildReplyPayload(fact.reply, {
+      source: fact.source,
+      error: fact.error,
+      locale,
+      replyLocale: detectedLocale,
+      navigation: { cards: [], suggestions: [] },
+      responsePolicy: CONVERSATION_POLICY,
+      action: 'fact',
+      decidedBy: 'fact',
+      started
+    });
+  }
 
-  const modelMessages=fact?[...messages.slice(0,-1),{role:'user',content:fact.remainingMessage}]:messages;
+  const modelMessages = fact ? [...messages.slice(0, -1), { role: 'user', content: fact.remainingMessage }] : messages;
   const profile = extractTripProfile(modelMessages, new Date(), body.savedPrefs || null);
-  const plan = conversationPlan(modelMessages, { locale: detectedLocale });
-  const dynamicEntities = getDynamicEntities(process.env);
   const localNav = conversationNavigation(modelMessages, { locale: detectedLocale });
   const localQuery = localNav.query || latestUserMessage;
   const localSections = [
@@ -122,32 +158,74 @@ export async function POST(request) {
   const clientIp = request?.headers?.get('cf-connecting-ip');
   const allowLiveUpstream = !globalThis.caches?.default || Boolean(clientIp && /^[a-f0-9:.]{3,64}$/i.test(clientIp));
   const wantsEvents = allowLiveUpstream && localSections.includes('/events');
+  const wantsForecast = allowLiveUpstream && shouldFetchForecast(latestUserMessage, profile, localSections);
+  const bookingText = [...modelMessages].reverse().find((m) => m.role === 'user')?.content || '';
+  const bookingTurn = explicitBooking(bookingText);
+  const hasAuth = Boolean(request?.headers?.get('authorization'));
+
+  if (emit) {
+    emit('status', { stage: 'context', label: wantsForecast ? s3.statusWeather : s3.statusCatalog });
+    if (localNav.cards?.length || localNav.suggestions?.length) {
+      emit('preview', { cards: localNav.cards || [], suggestions: localNav.suggestions || [] });
+    }
+  }
+
+  // Stage 3 Edge Cache check for popular non-personalized first-turn queries (<150ms).
+  const canCache = isCacheableChatTurn({
+    messages: modelMessages,
+    savedPrefs: body.savedPrefs || null,
+    pagePath: body.pagePath || '',
+    hasAuth,
+    wantsForecast,
+    wantsEvents,
+    bookingTurn
+  });
+  const cacheKey = canCache ? await chatCacheKey(detectedLocale, latestUserMessage) : null;
+  if (cacheKey) {
+    const cachedHit = await readCachedChatReply(cacheKey);
+    if (cachedHit) {
+      return buildReplyPayload(cachedHit.reply, {
+        messages: modelMessages,
+        locale,
+        replyLocale: cachedHit.replyLocale || detectedLocale,
+        navigation: { cards: cachedHit.cards || [], suggestions: cachedHit.suggestions || [] },
+        listings: cachedHit.listings || [],
+        plan: cachedHit.plan || null,
+        responsePolicy: cachedHit.responsePolicy || CONVERSATION_POLICY,
+        action: cachedHit.action || 'recommend',
+        decidedBy: 'model',
+        source: 'edge-cache',
+        engine: 'cache',
+        cached: true,
+        started
+      });
+    }
+  }
+
+  const plan = conversationPlan(modelMessages, { locale: detectedLocale });
+  const dynamicEntities = getDynamicEntities(process.env);
   const liveEventEntities = wantsEvents
     ? getLiveEventEntities(localQuery, { profile, locale, env: process.env })
     : Promise.resolve([]);
-  const wantsForecast = allowLiveUpstream && shouldFetchForecast(latestUserMessage, profile, localSections);
   const forecastPromise = wantsForecast
     ? getMiamiForecast({ env: process.env, signal: request.signal })
     : Promise.resolve([]);
-  // Booking and payment requests are a handoff whichever engine answers: the
-  // disclaimer is guaranteed here, in code. The only rows attached are the
-  // restaurants or clubs the guest named, each with its own booking page.
-  const bookingText=[...modelMessages].reverse().find(m=>m.role==='user')?.content||'';
-  const bookingTurn=explicitBooking(bookingText);
-  const respond=async(text,options={})=>{
+  const guestMemoryPromise = hasAuth
+    ? loadGuestAccountMemory(request, process.env)
+    : Promise.resolve(null);
+
+  const respond = async (text, options = {}) => {
     const replyLocale = options.replyLocale || detectedLocale;
-    const handoff=bookingTurn||options.handoff===true;
-    let answer=fact?fact.reply+'\n\n'+text:text;
-    const disclaimer=bookingDisclaimer(replyLocale);
-    if(handoff&&!answer.includes(disclaimer))answer=disclaimer+'\n\n'+answer;
-    // Listing rows follow the final decision: preserve all up to 4 model sections
-    // (navigation.cards caps visible nav buttons at 2, while booking cards cover all chosen sections).
-    const action=handoff?'handoff':options.action;
-    const sections=Array.isArray(options.sections)&&options.sections.length
+    const handoff = bookingTurn || options.handoff === true;
+    let answer = fact ? fact.reply + '\n\n' + text : text;
+    const disclaimer = bookingDisclaimer(replyLocale);
+    if (handoff && !answer.includes(disclaimer)) answer = disclaimer + '\n\n' + answer;
+    const action = handoff ? 'handoff' : options.action;
+    const sections = Array.isArray(options.sections) && options.sections.length
       ? options.sections
-      : (options.navigation?.cards||[]).map(card=>card.href);
-    const query=options.navigation?.query||localNav.query||latestUserMessage;
-    const decidedBy=handoff&&!options.handoff?'lexicon':options.decidedBy;
+      : (options.navigation?.cards || []).map((card) => card.href);
+    const query = options.navigation?.query || localNav.query || latestUserMessage;
+    const decidedBy = handoff && !options.handoff ? 'lexicon' : options.decidedBy;
     const [dyn, initialLiveEvents, resolvedPlan] = await Promise.all([dynamicEntities, liveEventEntities, plan]);
     const liveEvents = !allowLiveUpstream || initialLiveEvents.length || !sections.includes('/events')
       ? initialLiveEvents
@@ -158,9 +236,6 @@ export async function POST(request) {
       && !query.toLowerCase().includes(viewedEntity.title.toLowerCase())
       ? `${query} ${viewedEntity.title}`
       : query;
-    // When a multi-section VIP plan is active, surface balanced partner cards
-    // (yachts, helicopters/experiences, live events) for any requested sections
-    // not already shown inside AiPlan.
     const planHrefs = new Set((resolvedPlan?.sections || []).map((s) => s.href));
     const partnerSections = resolvedPlan
       ? [...new Set([...sections, ...localSections])].filter((href) => !planHrefs.has(href))
@@ -174,7 +249,6 @@ export async function POST(request) {
       const cardKey = (c) => (c.label === 'Flight' || c.label === 'Yacht') && c.booking?.href ? c.booking.href : c.href;
       const fromReply = replyMentionedCards(text, { sections: listingSections, extraEntities, limit: listingLimit });
       if (fromReply.length) {
-        // Put entities the model explicitly recommended FIRST so cards always match the reply.
         const merged = [];
         const seen = new Set();
         for (const card of [...fromReply, ...resolvedListings]) {
@@ -198,14 +272,27 @@ export async function POST(request) {
         }
       }
     }
-    return reply(answer,{messages:modelMessages,locale,replyLocale,...options,action,decidedBy,started,
-      listings:resolvedListings,
-      ...(handoff?{handoff:true}:{}),plan:resolvedPlan});
+    const payload = buildReplyPayload(answer, {
+      messages: modelMessages,
+      locale,
+      replyLocale,
+      ...options,
+      action,
+      decidedBy,
+      started,
+      listings: resolvedListings,
+      ...(handoff ? { handoff: true } : {}),
+      plan: resolvedPlan
+    });
+    if (cacheKey && !payload.error && !payload.handoff && payload.decidedBy === 'model') {
+      fireAndForget(writeCachedChatReply(cacheKey, payload));
+    }
+    return payload;
   };
-  // Give live events, dynamic catalog & 7-day NWS forecast a brief pre-inference window (<= 1100 ms)
-  // so DeepSeek V4.1 Flash sees real live dates, venues, prices, and forecast before answering.
-  const preWait = Promise.all([dynamicEntities, liveEventEntities, forecastPromise])
-    .then(([dyn, live, forecast]) => ({ extra: [...dyn, ...live], forecast }));
+
+  // Pre-inference window (<= 1100 ms) for live catalog, events, NOAA forecast & guest account memory.
+  const preWait = Promise.all([dynamicEntities, liveEventEntities, forecastPromise, guestMemoryPromise])
+    .then(([dyn, live, forecast, memory]) => ({ extra: [...dyn, ...live], forecast, memory }));
   let preTimer;
   const pre = await Promise.race([
     preWait,
@@ -215,19 +302,127 @@ export async function POST(request) {
           ...peekDynamicEntities(process.env),
           ...(wantsEvents ? peekLiveEventEntities(localQuery, { profile, locale: detectedLocale }) : [])
         ],
-        forecast: wantsForecast ? peekMiamiForecast() : []
+        forecast: wantsForecast ? peekMiamiForecast() : [],
+        memory: null
       }), 1100);
     })
   ]).finally(() => clearTimeout(preTimer));
-  const cloud=await askWorkersBrain({messages,locale,signal:request.signal,request},{messagesForInference:modelMessages,timeoutMs:SERVER_BUDGET_MS-(Date.now()-started),extraEntities:pre.extra,pagePath:body.pagePath||'',forecastPeriods:pre.forecast,savedPrefs:body.savedPrefs||null});
-  if(cloud.ok)return respond(cloud.reply,{source:'workers-ai',navigation:cloud.navigation,sections:cloud.sections,responsePolicy:cloud.responsePolicy,handoff:cloud.handoff,action:cloud.action,decidedBy:cloud.decidedBy,stops:cloud.stops,replyLocale:cloud.replyLocale,engine:'ok'});
 
-  // Disabled, denied or failed: graceful degradation, never a second engine.
-  // Compute deterministic catalogueAnswer lazily only when the model did not answer.
+  if (emit) {
+    emit('status', { stage: 'model', label: s3.statusModel });
+  }
+
+  const guestMemoryLine = formatGuestMemoryPromptLine(pre.memory);
+  const cloud = await askWorkersBrain(
+    { messages, locale, signal: request.signal, request },
+    {
+      messagesForInference: modelMessages,
+      timeoutMs: SERVER_BUDGET_MS - (Date.now() - started),
+      extraEntities: pre.extra,
+      pagePath: body.pagePath || '',
+      forecastPeriods: pre.forecast,
+      savedPrefs: body.savedPrefs || null,
+      guestMemoryLine
+    }
+  );
+  if (cloud.ok) {
+    return respond(cloud.reply, {
+      source: 'workers-ai',
+      navigation: cloud.navigation,
+      sections: cloud.sections,
+      responsePolicy: cloud.responsePolicy,
+      handoff: cloud.handoff,
+      action: cloud.action,
+      decidedBy: cloud.decidedBy,
+      stops: cloud.stops,
+      replyLocale: cloud.replyLocale,
+      engine: 'ok'
+    });
+  }
+
   const localAnswer = catalogueAnswer(modelMessages, detectedLocale);
   const degraded = localAnswer.matched ? localAnswer.reply : unavailableReply(detectedLocale);
-  const fallback={source:'navigation',error:true,navigation:localAnswer.navigation,action:localAnswer.action,decidedBy:'lexicon',replyLocale:detectedLocale};
-  return respond(degraded,{...fallback,engine:cloud.kind});
+  const fallback = {
+    source: 'navigation',
+    error: true,
+    navigation: localAnswer.navigation,
+    action: localAnswer.action,
+    decidedBy: 'lexicon',
+    replyLocale: detectedLocale
+  };
+  return respond(degraded, { ...fallback, engine: cloud.kind });
+}
+
+// --- Route handlers --------------------------------------------------------
+
+export async function POST(request) {
+  const started = Date.now();
+  let body;
+  try {
+    validateChatTransport(request);
+    body = await readChatRequest(request);
+  } catch (error) {
+    return NextResponse.json(
+      { error: error instanceof ChatInputError ? error.message : 'Invalid chat request.' },
+      { status: error instanceof ChatInputError ? error.status : 400 }
+    );
+  }
+
+  const messages = Array.isArray(body?.messages) ? body.messages.slice(-12) : [];
+  if (!messages.length) {
+    return NextResponse.json({ error: 'No message provided.' }, { status: 400 });
+  }
+
+  const wantsStream = (request.headers.get('accept') || '').toLowerCase().includes('text/event-stream');
+  if (!wantsStream) {
+    const payload = await computeChatPayload(request, body, started);
+    return NextResponse.json(payload);
+  }
+
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      let closed = false;
+      const emit = (eventName, data) => {
+        if (closed || request.signal?.aborted) return;
+        try {
+          controller.enqueue(encoder.encode(`event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`));
+        } catch {
+          closed = true;
+        }
+      };
+      try {
+        const payload = await computeChatPayload(request, body, started, emit);
+        if (!closed && !request.signal?.aborted) {
+          const chunks = splitStreamChunks(payload.reply);
+          for (const chunk of chunks) {
+            emit('delta', { text: chunk });
+            if (chunks.length > 1) {
+              await new Promise((r) => setTimeout(r, 12));
+            }
+          }
+          emit('done', payload);
+        }
+      } catch {
+        emit('error', { error: true });
+      } finally {
+        if (!closed) {
+          closed = true;
+          try { controller.close(); } catch {}
+        }
+      }
+    }
+  });
+
+  return new Response(stream, {
+    status: 200,
+    headers: {
+      'content-type': 'text/event-stream; charset=utf-8',
+      'cache-control': 'no-store, no-transform',
+      connection: 'keep-alive',
+      'x-accel-buffering': 'no'
+    }
+  });
 }
 
 const TRACKED_REFERRAL_PLATFORMS = new Set([
@@ -257,10 +452,13 @@ export async function GET(request) {
     const platform = url?.searchParams?.get('referral');
     if (platform && TRACKED_REFERRAL_PLATFORMS.has(platform) && isSameOriginReferralRequest(request)) {
       recordReferralClick(platform);
+      fireAndForget(persistTelemetryEvent({ eventType: 'referral_click', platform }, process.env));
       console.info(JSON.stringify({ event: 'concierge.referral_click', platform }));
     }
     const feedback = url?.searchParams?.get('feedback');
     if (feedback && TRACKED_FEEDBACK.has(feedback) && isSameOriginReferralRequest(request)) {
+      recordFeedbackVote(feedback);
+      fireAndForget(persistTelemetryEvent({ eventType: 'feedback', vote: feedback }, process.env));
       console.info(JSON.stringify({ event: 'concierge.feedback', vote: feedback }));
     }
   } catch {}

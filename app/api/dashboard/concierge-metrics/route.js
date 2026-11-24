@@ -10,19 +10,25 @@ export async function GET(request) {
     if (actor.role !== 'admin') throw new RequestError(403, 'Access denied');
 
     let openReportsCount = null;
+    let persisted7d = null;
     try {
-      const rows = await db.call(
-        '/rest/v1/app_support_requests?select=id&kind=eq.ai_report&resolved_at=is.null&limit=200',
-        { service: true }
-      );
+      const [rows, summary] = await Promise.all([
+        db.call(
+          '/rest/v1/app_support_requests?select=id&kind=eq.ai_report&resolved_at=is.null&limit=200',
+          { service: true }
+        ).catch(() => null),
+        db.rpc('elio_metrics_summary_7d', {}).catch(() => null)
+      ]);
       if (Array.isArray(rows)) openReportsCount = rows.length;
+      if (summary && typeof summary === 'object') persisted7d = summary;
     } catch {
       openReportsCount = null;
     }
 
     return json({
       metrics: getConciergeMetricsSnapshot(),
-      openReportsCount
+      openReportsCount,
+      ...(persisted7d ? { persisted7d } : {})
     });
   } catch (error) {
     return failure(error);
