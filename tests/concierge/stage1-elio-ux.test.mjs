@@ -14,10 +14,10 @@ test('Stage 1 ELIO UX: single floating AI launcher, no overlap on open dock or h
   assert.match(sphere, /isOpen \? ['"]pointer-events-none scale-90 opacity-0['"]/, 'AiSphere hides while AiDock is open');
 
   const hero = read('app/components/home/HomeHero.jsx');
-  assert.match(hero, /heroBarVisible/, 'HomeHero tracks hero bar visibility so corner launchers step aside');
+  assert.doesNotMatch(hero, /heroBarVisible/, 'HomeHero must never toggle floating sphere/Telegram visibility while scrolling');
 
   const overlays = read('app/ai-overlays.css');
-  assert.match(overlays, /html\[data-hero-bar-visible="true"\] \[data-floating-launcher\]/);
+  assert.doesNotMatch(overlays, /html\[data-hero-bar-visible="true"\]/, 'floating Telegram and ELIO sphere must stay visible at every scroll position');
   assert.match(overlays, /\.elio-scroll/);
 
   const globals = read('app/globals.css');
