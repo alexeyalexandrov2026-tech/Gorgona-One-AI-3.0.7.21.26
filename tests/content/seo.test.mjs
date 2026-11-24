@@ -360,5 +360,9 @@ test('PR #143: Header drops framer-motion, /events above-the-fold local hero, fu
   assert.equal(organizationJsonLd().address.addressLocality, 'Sunny Isles Beach');
 
   assert.equal(exists('app/opengraph-image.alt.txt'), false, 'orphaned opengraph-image.alt.txt must be removed');
-  assert.doesNotMatch(source('public/sms-alerts.html'), /concierge/i);
+  assert.doesNotMatch(source('app/sms-alerts/page.js'), /concierge/i);
+  assert.doesNotMatch(source('app/sms-alerts/SmsOptInForm.jsx'), /concierge/i);
+  assert.doesNotMatch(source('app/privacy/page.js'), /concierge/i);
+  assert.match(source('app/sms-alerts/SmsOptInForm.jsx'), /checked=\{consent\}/);
+  assert.match(source('app/privacy/page.js'), /We do not share mobile information or SMS opt-in data with third parties or affiliates for marketing or promotional purposes/);
 });
