@@ -16,6 +16,7 @@ import { isPlanReceipt } from '../../../lib/planRules.mjs';
 import { getConsentCopy } from '../../../lib/legal/consentCopy.mjs';
 import { TERMS_VERSION } from '../../../lib/legal/termsContent.mjs';
 import { supabase } from '../../../lib/supabase';
+import { isMiamiElioApp } from '../AnalyticsBeacon';
 
 const PARTNER_PLATFORMS = Object.freeze({
   ticketnetwork: 'TicketNetwork',
@@ -142,6 +143,7 @@ function VenueActions({ card, copy, onNavigate, profile = null }) {
   const label = card.booking.kind === 'maps' ? copy.openMaps : platform ? copy.bookOn.replace('{platform}', platform) : copy.bookOnSite;
   const href = enrichPartnerBookingUrl(card.booking, profile) || card.booking.href;
   const trackReferralClick = () => {
+    if (isMiamiElioApp(navigator.userAgent, document.documentElement.dataset.app)) return;
     try {
       fetch(`/api/chat?referral=${encodeURIComponent(bookingPlatform)}`, { method: 'GET', keepalive: true }).catch(() => {});
     } catch {}

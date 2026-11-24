@@ -22,8 +22,10 @@ export function middleware(request) {
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  response.headers.set('X-Permitted-Cross-Domain-Policies', 'none');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), geolocation=(), payment=(self "https://yatr.co"), microphone=(self)');
+  response.headers.set('Permissions-Policy', 'camera=(), geolocation=(), payment=(self "https://yatr.co" "https://checkout.stripe.com"), microphone=(self)');
   response.headers.set('Content-Security-Policy', CONTENT_SECURITY_POLICY);
 
   const pathname = request.nextUrl?.pathname || '';

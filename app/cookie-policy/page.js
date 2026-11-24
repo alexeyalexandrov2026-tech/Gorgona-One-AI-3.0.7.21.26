@@ -3,16 +3,20 @@ import { useSavedText } from "../components/LocalizedText";
 
 import { useLocale } from '../components/LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
+import { getPrivacySupplementCopy } from '../../lib/legal/privacySupplementCopy.mjs';
 
 export default function CookiePolicyPage() {
   const msg = useSavedText();
-  const t = getTranslation(useLocale());
+  const locale = useLocale();
+  const t = getTranslation(locale);
+  const supplement = getPrivacySupplementCopy(locale);
   return (
     <main className="min-w-0 flex-1 py-10 [overflow-wrap:anywhere]">
       <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium">
         <p className="text-sm uppercase tracking-[0.3em] text-brand-gold">{msg("Cookie Policy")}</p>
         <h1 className="mt-2 text-3xl font-semibold text-white">{t.legal.cookiesTitle}</h1>
         <p className="mt-4 max-w-3xl text-zinc-400">{msg('We use cookies only to remember your language and keep you signed in.')}</p>
+        <p className="mt-4 max-w-3xl text-zinc-400">{supplement.cookiesBody}</p>
       </div>
     </main>
   );

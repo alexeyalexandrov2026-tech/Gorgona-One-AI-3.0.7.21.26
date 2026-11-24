@@ -21,6 +21,7 @@ import { buildManagerHandoffUrl, getPageContext, getStage2Copy } from '../../../
 import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
 import { speechLocale } from '../../../lib/ai/locale';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
+import { isMiamiElioApp } from '../AnalyticsBeacon';
 import { configuredManagerTelegram, configuredManagerWhatsApp } from '../../../lib/managerContact.mjs';
 import { trackEvent } from '../../../lib/analytics';
 
@@ -240,6 +241,7 @@ function AnswerActions({ question, answer, locale, degraded = false }) {
   function handleLike() {
     if (liked) return;
     setLiked(true);
+    if (isMiamiElioApp(navigator.userAgent, document.documentElement.dataset.app)) return;
     try {
       fetch('/api/concierge/feedback', {
         method: 'POST',
@@ -309,6 +311,7 @@ function AnswerActions({ question, answer, locale, degraded = false }) {
             aria-expanded={open}
             onClick={() => {
               setOpen((value) => !value);
+              if (isMiamiElioApp(navigator.userAgent, document.documentElement.dataset.app)) return;
               try {
                 if (!open) fetch('/api/chat?feedback=down', { method: 'GET', keepalive: true }).catch(() => {});
               } catch {}

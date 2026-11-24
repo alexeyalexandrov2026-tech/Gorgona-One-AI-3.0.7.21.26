@@ -3,6 +3,7 @@ import { useSavedText } from "../components/LocalizedText";
 
 import { useLocale } from '../components/LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
+import { getPrivacySupplementCopy } from '../../lib/legal/privacySupplementCopy.mjs';
 import Link from 'next/link';
 
 const CONTACT = 'support@gorgona-one.com';
@@ -22,7 +23,9 @@ function List({ children }) {
 
 export default function PrivacyPage() {
   const msg = useSavedText();
-  const t = getTranslation(useLocale());
+  const locale = useLocale();
+  const t = getTranslation(locale);
+  const supplement = getPrivacySupplementCopy(locale);
   return (
     <main className="min-w-0 flex-1 py-10 [overflow-wrap:anywhere]">
       <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium">
@@ -83,6 +86,16 @@ export default function PrivacyPage() {
 
         <Section title={msg('Cookies')}>
           <p>{msg('We use cookies only to remember your language and keep you signed in.')}</p>
+          <p>{supplement.cookiesBody}</p>
+        </Section>
+
+        <Section title={supplement.processorsTitle}>
+          <p className="text-xs uppercase tracking-[0.18em] text-brand-gold/90">{supplement.updated}</p>
+          <p>{supplement.processorsBody}</p>
+        </Section>
+
+        <Section title={supplement.usRightsTitle}>
+          <p>{supplement.usRightsBody}</p>
         </Section>
 
         <Section title={msg('Changes to this policy')}>
