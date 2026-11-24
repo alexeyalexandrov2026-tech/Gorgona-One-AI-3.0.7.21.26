@@ -64,24 +64,27 @@ function buildReplyPayload(text, {
   decidedBy = 'lexicon',
   engine = null,
   cached = false,
-  started = null
+  started = null,
+  skipTelemetry = false
 } = {}) {
   const decider = DECIDERS.has(decidedBy) ? decidedBy : 'lexicon';
   const rows = Array.isArray(listings) ? listings.slice(0, 4) : [];
   const referrals = [...new Set(rows.map((r) => r?.booking?.platform).filter(Boolean))];
   const elapsedMs = Number.isFinite(started) ? Date.now() - started : null;
   const effectiveLocale = replyLocale || locale;
-  recordChatTurn({ decidedBy: decider, action, locale: effectiveLocale, referrals, handoff: Boolean(handoff), error: Boolean(error), cached: Boolean(cached), ms: elapsedMs });
-  fireAndForget(persistTelemetryEvent({
-    eventType: cached ? 'cache_hit' : 'turn',
-    locale: effectiveLocale,
-    decidedBy: decider,
-    action,
-    latencyMs: elapsedMs,
-    handoff: Boolean(handoff),
-    error: Boolean(error),
-    cached: Boolean(cached)
-  }, process.env));
+  if (!skipTelemetry) {
+    recordChatTurn({ decidedBy: decider, action, locale: effectiveLocale, referrals, handoff: Boolean(handoff), error: Boolean(error), cached: Boolean(cached), ms: elapsedMs });
+    fireAndForget(persistTelemetryEvent({
+      eventType: cached ? 'cache_hit' : 'turn',
+      locale: effectiveLocale,
+      decidedBy: decider,
+      action,
+      latencyMs: elapsedMs,
+      handoff: Boolean(handoff),
+      error: Boolean(error),
+      cached: Boolean(cached)
+    }, process.env));
+  }
   console.info(JSON.stringify({
     event: 'concierge.chat',
     decidedBy: decider,
@@ -126,6 +129,7 @@ function splitStreamChunks(text) {
 }
 
 async function computeChatPayload(request, body, started, emit = null) {
+  const skipTelemetry = /\bMiamiElioApp\//.test(request?.headers?.get('user-agent') || '');
   const messages = Array.isArray(body?.messages) ? body.messages.slice(-12) : [];
   const latestUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || '';
   const locale = normalizeLocale(body?.locale);
@@ -143,7 +147,8 @@ async function computeChatPayload(request, body, started, emit = null) {
       responsePolicy: CONVERSATION_POLICY,
       action: 'fact',
       decidedBy: 'fact',
-      started
+      started,
+      skipTelemetry
     });
   }
 
@@ -197,7 +202,8 @@ async function computeChatPayload(request, body, started, emit = null) {
         source: 'edge-cache',
         engine: 'cache',
         cached: true,
-        started
+        started,
+        skipTelemetry
       });
     }
   }
@@ -280,6 +286,7 @@ async function computeChatPayload(request, body, started, emit = null) {
       action,
       decidedBy,
       started,
+      skipTelemetry,
       listings: resolvedListings,
       ...(handoff ? { handoff: true } : {}),
       plan: resolvedPlan
@@ -433,7 +440,7 @@ const TRACKED_FEEDBACK = new Set(['up', 'down']);
 
 function isSameOriginReferralRequest(request) {
   const secFetch = request?.headers?.get('sec-fetch-site');
-  if (secFetch && !['same-origin', 'same-site', 'none'].includes(secFetch)) return false;
+  if (secFetch && secFetch !== 'same-origin') return false;
   const origin = request?.headers?.get('origin');
   if (origin && request?.url) {
     try {
@@ -445,9 +452,11 @@ function isSameOriginReferralRequest(request) {
   return true;
 }
 
-// Public health check + zero-PII same-origin partner referral & feedback beacon.
+// Public health check + zero-PII same-origin partner referral & feedback beacon (web only).
 export async function GET(request) {
   try {
+    const ua = request?.headers?.get('user-agent') || '';
+    if (/\bMiamiElioApp\//.test(ua)) return NextResponse.json({ ok: true });
     const url = request?.url ? new URL(request.url, 'https://gorgona-one.com') : null;
     const platform = url?.searchParams?.get('referral');
     if (platform && TRACKED_REFERRAL_PLATFORMS.has(platform) && isSameOriginReferralRequest(request)) {

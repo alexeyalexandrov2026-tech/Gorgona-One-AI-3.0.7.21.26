@@ -8,7 +8,7 @@ import { trackEvent } from '../../lib/analytics';
 // so neither the beacon nor first-party tracking ever runs inside its WebView
 // (User-Agent "MiamiElioApp/…" or data-app="android").
 export function isMiamiElioApp(userAgent = '', appMarker = '') {
-  return /\bMiamiElioApp\//.test(userAgent) || appMarker === 'android';
+  return /\bMiamiElioApp\//.test(userAgent) || appMarker === 'android' || appMarker === 'ios';
 }
 
 const LANDING_SESSION_KEY = 'me_landing_tracked';
@@ -16,9 +16,11 @@ const LANDING_SESSION_KEY = 'me_landing_tracked';
 export function AnalyticsBeacon({ token }) {
   useEffect(() => {
     if (isMiamiElioApp(navigator.userAgent, document.documentElement.dataset.app)) return undefined;
+    // Honor browser Global Privacy Control (US CCPA/CPRA opt-out of ad sharing & marketing cookies).
+    const gpcOptOut = Boolean(navigator.globalPrivacyControl);
 
-    // 1. Optional Cloudflare Web Analytics beacon (web only).
-    if (token && !document.querySelector('script[data-cf-beacon]')) {
+    // 1. Optional Cloudflare Web Analytics beacon (web only, skipped under GPC opt-out).
+    if (!gpcOptOut && token && !document.querySelector('script[data-cf-beacon]')) {
       const script = document.createElement('script');
       script.defer = true;
       script.src = 'https://static.cloudflareinsights.com/beacon.min.js';
@@ -26,27 +28,29 @@ export function AnalyticsBeacon({ token }) {
       document.body.appendChild(script);
     }
 
-    // 2. First-party UTM / fbclid / gclid / referrer capture (30-day cookie).
-    try {
-      const fresh = parseAttributionFromUrl(window.location.href, document.referrer || '');
-      const existing = readAttributionCookie(document.cookie || '');
-      // Prefer fresh campaign/ad click attribution over older referral; otherwise keep existing.
-      const shouldWrite = Boolean(
-        fresh && (!existing || fresh.clickIdType || fresh.utmSource)
-      );
-      if (shouldWrite) {
-        document.cookie = serializeAttributionCookie(fresh, { secure: window.location.protocol === 'https:' });
+    // 2. First-party UTM / fbclid / gclid / referrer capture (30-day cookie, skipped under GPC).
+    if (!gpcOptOut) {
+      try {
+        const fresh = parseAttributionFromUrl(window.location.href, document.referrer || '');
+        const existing = readAttributionCookie(document.cookie || '');
+        // Prefer fresh campaign/ad click attribution over older referral; otherwise keep existing.
+        const shouldWrite = Boolean(
+          fresh && (!existing || fresh.clickIdType || fresh.utmSource)
+        );
+        if (shouldWrite) {
+          document.cookie = serializeAttributionCookie(fresh, { secure: window.location.protocol === 'https:' });
+        }
+        const activeAttr = shouldWrite ? fresh : existing;
+        if (activeAttr && !window.sessionStorage?.getItem(LANDING_SESSION_KEY)) {
+          window.sessionStorage?.setItem(LANDING_SESSION_KEY, '1');
+          trackEvent('page_landing', {
+            pagePath: window.location.pathname,
+            attribution: activeAttr
+          });
+        }
+      } catch {
+        /* ignore restricted storage environments */
       }
-      const activeAttr = shouldWrite ? fresh : existing;
-      if (activeAttr && !window.sessionStorage?.getItem(LANDING_SESSION_KEY)) {
-        window.sessionStorage?.setItem(LANDING_SESSION_KEY, '1');
-        trackEvent('page_landing', {
-          pagePath: window.location.pathname,
-          attribution: activeAttr
-        });
-      }
-    } catch {
-      /* ignore restricted storage environments */
     }
 
     // 3. Global passive outbound partner & messenger click tracker (covers every

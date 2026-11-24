@@ -11,7 +11,7 @@ const recentByIp = new Map();
 function sameOrigin(request, env) {
   const origin = request.headers.get('origin');
   const fetchSite = request.headers.get('sec-fetch-site');
-  if (fetchSite && !['same-origin', 'same-site', 'none'].includes(fetchSite)) return false;
+  if (fetchSite && !['same-origin', 'none'].includes(fetchSite)) return false;
   if (!origin) return env.APP_ENV !== 'production';
   try {
     const parsed = new URL(origin);
@@ -26,13 +26,25 @@ export async function POST(request) {
   try {
     const env = process.env;
     if (!sameOrigin(request, env)) throw new RequestError(403, 'Forbidden');
-    const ip = request.headers.get('cf-connecting-ip') || 'local';
-    const key = await digest(ip);
+
+    // Never persist telemetry/training data from the native Android app (Google Play Data safety).
+    const ua = request.headers.get('user-agent') || '';
+    if (/\bMiamiElioApp\//.test(ua)) return json({ ok: true, skipped: 'app' });
+
+    const rawIp = request.headers.get('cf-connecting-ip');
+    const validIp = Boolean(rawIp && /^[a-f0-9:.]{3,64}$/i.test(rawIp));
+    if (!validIp && env.APP_ENV === 'production') throw new RequestError(503, 'Service unavailable');
+    const key = await digest(validIp ? rawIp : 'local');
     const cutoff = Date.now() - WINDOW_MS;
     const list = (recentByIp.get(key) || []).filter((t) => t > cutoff);
     if (list.length >= MAX_PER_WINDOW) throw new RequestError(429, 'Too many requests');
     list.push(Date.now());
     recentByIp.set(key, list);
+    if (recentByIp.size > 500) {
+      for (const [k, v] of recentByIp.entries()) {
+        if (!v.some((ts) => ts > cutoff)) recentByIp.delete(k);
+      }
+    }
 
     const body = await readBody(request, 12288);
     const vote = body?.vote === 'up' ? 'up' : body?.vote === 'down' ? 'down' : null;
