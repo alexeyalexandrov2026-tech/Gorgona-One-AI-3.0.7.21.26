@@ -197,8 +197,10 @@ test('ElevenLabs TTS auto-activates from Cloudflare env secret with female Sarah
     const body = JSON.parse(fetchCalls[0].init.body);
     assert.equal(body.model_id, 'eleven_multilingual_v2');
     assert.equal(body.voice_settings.use_speaker_boost, true);
-    assert.ok(body.voice_settings.stability <= 0.4, 'expressive human prosody needs lower stability');
-    assert.ok(body.voice_settings.style >= 0.4, 'expressive human intonation needs style >= 0.4');
+    assert.ok(body.voice_settings.stability >= 0.4 && body.voice_settings.stability <= 0.55, 'balanced stability preserves warm prosody with crisp diction');
+    assert.ok(body.voice_settings.style >= 0.2 && body.voice_settings.style <= 0.35, 'moderate style avoids slurred syllables on numerals');
+    assert.ok(body.voice_settings.speed >= 0.9 && body.voice_settings.speed <= 1.0, 'calm host pacing avoids clipped consonants');
+    assert.doesNotMatch(fetchCalls[0].url, /optimize_streaming_latency=[2-4]/, 'aggressive streaming latency degrades numeral pronunciation');
 
     // Speech text preprocessor inserts natural sentence breaks on bullet/newline lists
     const spoken = cleanSpeechText('Привет! 🌴\n• Komodo — Brickell\n• Carbone — South Beach\nhttps://gorgona-one.com');
