@@ -3,12 +3,15 @@ import { LocalizedText } from "../LocalizedText";
 
 import { useSavedText } from "../LocalizedText";
 
-import { useEffect,useRef } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAiDock } from './AiDockProvider';
-import { AiConversation } from './AiConversation';
 import { useConciergeChat } from './ChatProvider';
+
+const AiConversation = lazy(() =>
+  import('./AiConversation').then((m) => ({ default: m.AiConversation }))
+);
 import { useBodyScrollLock } from '../useBodyScrollLock';
 import { useLocale } from '../LocaleProvider';
 import { getTranslation } from '../../../lib/i18n';
@@ -27,9 +30,11 @@ export function AiDock() {
   const { messages, listings, plan, savedPrefs } = useConciergeChat();
   const pathname = usePathname() || '';
   const {closeRoom}=useAI(),panel=useRef(null);
+  const [hasOpened, setHasOpened] = useState(false);
   useDialogFocus(isOpen,panel);
   useEffect(()=>{
     if(isOpen){
+      setHasOpened(true);
       closeRoom();
       trackEvent('elio_open', { pagePath: pathname || '/' });
     }
@@ -131,8 +136,13 @@ export function AiDock() {
         <div className="min-h-0 flex-1">
           {/* Following a card navigates the page underneath, so the dock gets
               out of the way. The thread lives in ChatProvider and is waiting
-              when the guest reopens it. */}
-          <AiConversation variant="dock" active={isOpen} onNavigate={close} />
+              when the guest reopens it. Lazy-mounted on first open to keep the
+              initial JS bundle light on every route. */}
+          {hasOpened ? (
+            <Suspense fallback={null}>
+              <AiConversation variant="dock" active={isOpen} onNavigate={close} />
+            </Suspense>
+          ) : null}
         </div>
       </aside>
     </>

@@ -27,7 +27,13 @@ test('the homepage has no promo-code copy in any core language', () => {
 
 test('every car has its small homepage cover', () => {
   assert.ok(FLEET.length > 0 && HERO_CAR);
-  for (const car of FLEET) assert.ok(existsSync(publicFile(carThumb(car))), `missing ${carThumb(car)}`);
+  const localRentalsPresent = existsSync(publicFile('/images/rentals'));
+  for (const car of FLEET) {
+    const thumb = carThumb(car);
+    assert.match(thumb, /^\/images\/rentals\/.+(?:-s\.jpg|\.webp)$/, `invalid thumb ${thumb}`);
+    if (localRentalsPresent) assert.ok(existsSync(publicFile(thumb)), `missing ${thumb}`);
+  }
+  assert.ok(existsSync(publicFile('/images/home/worlds/cars-urus.jpg')), 'missing homepage cars world thumbnail');
 });
 
 test('season dates are well formed, sourced and translated', () => {

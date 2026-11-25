@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Default fleet image delivery to our Cloudflare R2 CDN in Next.js server &
+  // client builds (public/images/rentals/ has been offloaded to R2). Unit tests
+  // that run under node:test without Next.js keep process.env unset by default.
+  env: {
+    NEXT_PUBLIC_RENTALS_MEDIA_BASE_URL:
+      process.env.NEXT_PUBLIC_RENTALS_MEDIA_BASE_URL || 'https://media.gorgona-one.com'
+  },
   // Emit page metadata directly in <head> for every user agent (all metadata is
   // synchronous/local). Prevents Next.js 15 streaming-metadata tags from being
   // stranded inside <body> if a visitor clicks a header link right after load.

@@ -66,6 +66,10 @@ export default function RootLayout({ children }) {
   return (
     // Dark palette until every page is on the new design system.
     <html lang="en" data-theme="dark" className="scroll-smooth">
+      <head>
+        <link rel="preconnect" href="https://media.gorgona-one.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://media.gorgona-one.com" />
+      </head>
       <body className="min-h-screen font-sans text-zinc-100 antialiased">
         <LocaleProvider>
           <AuthProvider>

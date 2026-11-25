@@ -59,19 +59,27 @@ function walk(dir) {
 
 function uploadObject(key, filePath, contentType) {
   return new Promise((resolve, reject) => {
-    const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-    const child = spawn(
-      cmd,
-      [
-        'wrangler', 'r2', 'object', 'put',
-        `${bucket}/${key}`,
-        '--file', filePath,
-        '--content-type', contentType,
-        '--cache-control', 'public, max-age=31536000, immutable',
-        '--remote'
-      ],
-      { stdio: ['ignore', 'pipe', 'pipe'] }
-    );
+    const wranglerBin = path.join(REPO, 'node_modules', 'wrangler', 'bin', 'wrangler.js');
+    const useDirect = fs.existsSync(wranglerBin);
+    const cmd = useDirect ? process.execPath : (process.platform === 'win32' ? 'npx.cmd' : 'npx');
+    const cmdArgs = useDirect
+      ? [
+          wranglerBin, 'r2', 'object', 'put',
+          `${bucket}/${key}`,
+          '--file', filePath,
+          '--content-type', contentType,
+          '--cache-control', 'public, max-age=31536000, immutable',
+          '--remote'
+        ]
+      : [
+          'wrangler', 'r2', 'object', 'put',
+          `${bucket}/${key}`,
+          '--file', filePath,
+          '--content-type', contentType,
+          '--cache-control', 'public, max-age=31536000, immutable',
+          '--remote'
+        ];
+    const child = spawn(cmd, cmdArgs, { stdio: ['ignore', 'pipe', 'pipe'] });
     let stderr = '';
     child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
     child.on('error', reject);
