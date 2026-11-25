@@ -33,7 +33,7 @@ export default function PrivacyPage() {
         <h1 className="mt-2 text-3xl font-semibold text-white">{t.legal.privacyTitle}</h1>
         <p className="mt-2 text-sm text-zinc-500">{msg('Last updated: November 14, 2026')}</p>
         <p className="mt-4 max-w-2xl text-zinc-400">
-          {msg('Miami Elio (gorgona-one.com and the Miami Elio Android app) is operated by ALEXEY AAA LOGISTICS LLC, doing business as Gorgona One AI, 250 174th St, Sunny Isles Beach, FL 33160-3323, USA. This policy explains what we collect, why, who processes it for us, how long we keep it and how you can delete it.')}
+          {msg('Miami Elio (gorgona-one.com and the Miami Elio Android app) is operated by MIAMI ELIO (Gorgona One AI), Miami, Florida, USA. Registered legal entity details and mailing address are available upon written request at support@gorgona-one.com. This policy explains what we collect, why, who processes it for us, how long we keep it and how you can delete it.')}
         </p>
         <p className="mt-4 max-w-2xl text-zinc-400">
           {msg('Questions about your data:')} <a href={`mailto:${CONTACT}`} className="underline">{CONTACT}</a>

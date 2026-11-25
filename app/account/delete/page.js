@@ -63,7 +63,7 @@ export default function AccountDeletionPage() {
     <main className="flex-1 py-12">
       <div className="mx-auto grid max-w-xl gap-5 rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-8">
         <h1 className="text-2xl font-semibold">{msg('Request account deletion')}</h1>
-        <p className="text-zinc-300">{msg('Miami Elio, the website gorgona-one.com and the Miami Elio Android app, is operated by ALEXEY AAA LOGISTICS LLC, doing business as Gorgona One AI.')}</p>
+        <p className="text-zinc-300">{msg('Miami Elio, the website gorgona-one.com and the Miami Elio Android app, is operated by MIAMI ELIO (Gorgona One AI), Miami, Florida, USA.')}</p>
         <p className="text-zinc-300">{msg('Deleting your account removes your profile and saved favorites. We may keep records for legal reasons.')}</p>
         <section className="grid gap-2">
           <h2 className="text-lg font-semibold">{msg('How to request deletion')}</h2>
