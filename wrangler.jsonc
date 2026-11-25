@@ -10,6 +10,7 @@
   "ai": { "binding": "CONCIERGE_AI" },
   "vars": {
     "APP_ENV": "production",
+    "PAYPAL_ENV": "live",
     "CONCIERGE_WORKERS_AI_ENABLED": "true",
     "MY_MIAMI_ENABLED": "true",
     "PLAN_REQUESTS_ENABLED": "true",
