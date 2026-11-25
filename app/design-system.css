@@ -474,7 +474,7 @@ html[data-app="android"] .g1-home-app-hero { display: block; }
 
 /* Variant 3 — Tesla / Big Tech corporate display typography (Inter Bold/SemiBold,
    strictly upright, tight tracking -0.038em). Preserves the Miami Elio wordmark
-   in header/footer and leaves /yachts and /travel untouched via data-preserve-typography. */
+   in header/footer and leaves /yachts untouched via data-preserve-typography. */
 header:not([data-preserve-typography="true"]) ~ main .font-g1display,
 header:not([data-preserve-typography="true"]) ~ main .g1-display,
 header:not([data-preserve-typography="true"]) ~ main .font-serif {
@@ -485,8 +485,10 @@ header:not([data-preserve-typography="true"]) ~ main .font-serif {
 }
 header:not([data-preserve-typography="true"]) ~ main h1.font-g1display,
 header:not([data-preserve-typography="true"]) ~ main h1.g1-display,
+header:not([data-preserve-typography="true"]) ~ main h1.font-serif,
 header:not([data-preserve-typography="true"]) ~ main h2.font-g1display,
-header:not([data-preserve-typography="true"]) ~ main h2.g1-display {
+header:not([data-preserve-typography="true"]) ~ main h2.g1-display,
+header:not([data-preserve-typography="true"]) ~ main h2.font-serif {
   line-height: 1.03;
 }
 header:not([data-preserve-typography="true"]) ~ main h3.font-g1display {
