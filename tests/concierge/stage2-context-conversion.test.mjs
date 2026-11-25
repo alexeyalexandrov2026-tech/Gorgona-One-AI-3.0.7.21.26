@@ -86,11 +86,28 @@ test('Stage 2 quickRepliesForTurn skips already-captured TripProfile dimensions'
 });
 
 test('Stage 2 smart handoff pre-fills Telegram/WhatsApp with TripProfile, page context and picks', () => {
-  const plain = buildManagerHandoffUrl({ baseHref: 'https://t.me/Avo_ale', locale: 'en' });
-  assert.equal(plain, 'https://t.me/Avo_ale');
+  const plain = buildManagerHandoffUrl({ baseHref: 'https://t.me/MIAMI_ELIO', locale: 'en' });
+  assert.equal(plain, 'https://t.me/MIAMI_ELIO');
+
+  const plainWa = buildManagerHandoffUrl({
+    baseHref: 'https://wa.me/message/VO7GCPZCDKRZO1',
+    textBaseHref: 'https://wa.me/17864928880',
+    locale: 'en'
+  });
+  assert.equal(plainWa, 'https://wa.me/message/VO7GCPZCDKRZO1');
+
+  const enrichedWa = buildManagerHandoffUrl({
+    baseHref: 'https://wa.me/message/VO7GCPZCDKRZO1',
+    textBaseHref: 'https://wa.me/17864928880',
+    locale: 'en',
+    pageContext: { title: 'Lamborghini Urus SE' }
+  });
+  const parsedWa = new URL(enrichedWa);
+  assert.equal(parsedWa.origin + parsedWa.pathname, 'https://wa.me/17864928880');
+  assert.match(parsedWa.searchParams.get('text') || '', /Lamborghini Urus SE/);
 
   const enriched = buildManagerHandoffUrl({
-    baseHref: 'https://t.me/Avo_ale',
+    baseHref: 'https://t.me/MIAMI_ELIO',
     locale: 'ru',
     pageContext: { title: 'Lamborghini Urus SE' },
     profile: { guests: 4, neighborhood: 'Brickell', maxDailyBudget: 1500, dateRange: { from: '2026-12-05', to: '2026-12-08' } },
@@ -98,7 +115,7 @@ test('Stage 2 smart handoff pre-fills Telegram/WhatsApp with TripProfile, page c
     messages: [{ role: 'user', content: 'Нужен Urus на 3 дня и ужин в Brickell' }]
   });
   const parsed = new URL(enriched);
-  assert.equal(parsed.origin + parsed.pathname, 'https://t.me/Avo_ale');
+  assert.equal(parsed.origin + parsed.pathname, 'https://t.me/MIAMI_ELIO');
   const text = parsed.searchParams.get('text') || '';
   assert.match(text, /Lamborghini Urus SE/);
   assert.match(text, /2026-12-05/);

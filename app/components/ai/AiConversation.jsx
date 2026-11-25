@@ -22,13 +22,14 @@ import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
 import { speechLocale } from '../../../lib/ai/locale';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
 import { isMiamiElioApp } from '../AnalyticsBeacon';
-import { configuredManagerTelegram, configuredManagerWhatsApp } from '../../../lib/managerContact.mjs';
+import { configuredManagerTelegram, configuredManagerWhatsApp, configuredManagerWhatsAppHandoff } from '../../../lib/managerContact.mjs';
 import { trackEvent } from '../../../lib/analytics';
 
 // The floating manager buttons hide while the chat is open, so a booking or
 // payment answer carries the same live-manager chat links inside the reply.
 const managerHref = configuredManagerTelegram();
 const managerWhatsAppHref = configuredManagerWhatsApp();
+const managerWhatsAppHandoffHref = configuredManagerWhatsAppHandoff();
 
 // i18n carries per-locale AI copy; this is the English original, used when a
 // locale has not translated the key yet.
@@ -509,7 +510,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
     ? buildManagerHandoffUrl({ baseHref: managerHref, profile, pageContext, messages, listings: activeListings, plan: activePlan, locale: effectiveLocale })
     : null;
   const smartWhatsAppHref = managerWhatsAppHref
-    ? buildManagerHandoffUrl({ baseHref: managerWhatsAppHref, profile, pageContext, messages, listings: activeListings, plan: activePlan, locale: effectiveLocale })
+    ? buildManagerHandoffUrl({ baseHref: managerWhatsAppHref, textBaseHref: managerWhatsAppHandoffHref, profile, pageContext, messages, listings: activeListings, plan: activePlan, locale: effectiveLocale })
     : null;
 
   async function handleEmailPlan(event) {

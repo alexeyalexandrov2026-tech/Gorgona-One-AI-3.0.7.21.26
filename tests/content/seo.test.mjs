@@ -95,8 +95,10 @@ test('the organization describes the business and lists only contact details tha
   assert.match(org.description, /16-language ELIO\+ Guide/);
   assert.doesNotMatch(org.description, /real estate|retail/i);
   assert.equal(org.contactPoint.email, SUPPORT_EMAIL);
+  assert.equal(org.contactPoint.telephone, '+1-786-492-8880');
+  assert.equal(org.telephone, '+1-786-492-8880');
+  assert.deepEqual(org.sameAs, ['https://t.me/MIAMI_ELIO', 'https://wa.me/message/VO7GCPZCDKRZO1']);
   assert.match(source('app/privacy/page.js'), new RegExp(`CONTACT = '${SUPPORT_EMAIL}'`), 'the privacy page names the same address');
-  assert.ok(!('sameAs' in org), 'no social profile or store listing is published yet');
 });
 
 test('titles and descriptions on the section pages use the approved search wording', () => {
