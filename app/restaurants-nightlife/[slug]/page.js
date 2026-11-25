@@ -10,7 +10,7 @@ import {Crumbs,Specs,eyebrowClass,btn} from '../../components/g1/ui';
 import DiningBooking from '../../components/dining/DiningBooking';
 import BookingButton from '../../components/dining/BookingButton';
 import {getDiningCopy,getDiningStyles,getDiningHandoffCopy} from '../../../lib/dining/copy.mjs';
-import {configuredManagerTelegram} from '../../../lib/managerContact.mjs';
+import {configuredManagerTelegram,configuredManagerWhatsApp} from '../../../lib/managerContact.mjs';
 import {pageMetadata,breadcrumbJsonLd,venueJsonLd,venueSearchDescription} from '../../../lib/seo.mjs';
 import JsonLd from '../../components/JsonLd';
 
@@ -46,6 +46,7 @@ export default async function VenueDetailPage({params}) {
  const dining=getDiningCopy(locale),styles=getDiningStyles(locale),handoff=getDiningHandoffCopy(locale);
  const kind=venue.category==='restaurant'?t.restaurantsNightlife.restaurants:t.restaurantsNightlife.nightlife;
  const telegram=configuredManagerTelegram();
+ const whatsapp=configuredManagerWhatsApp();
  const requestsEnabled=process.env.DINING_REQUESTS_ENABLED==='true'&&process.env.DINING_SCHEMA_ENABLED==='true';
  return <main className="flex-1 font-g1sans text-g1-ink">
   <JsonLd data={[breadcrumbJsonLd([{name:t.restaurantsNightlife.pill,path:'/restaurants-nightlife'},{name:venue.name,path:`/restaurants-nightlife/${venue.slug}`}]),venueJsonLd(venue)]}/>
@@ -67,6 +68,7 @@ export default async function VenueDetailPage({params}) {
     <BookingButton venue={venue} copy={handoff}/>
     <div className="flex flex-wrap gap-2 border-t border-g1-rule pt-5">
      {telegram&&<a href={telegram} target="_blank" rel="noopener noreferrer" className={`${btn.base} ${btn.ghost} ${btn.sm}`}>{handoff.askTelegram}<span aria-hidden="true">↗</span><span className="sr-only">({handoff.newTab})</span></a>}
+     {whatsapp&&<a href={whatsapp} target="_blank" rel="noopener noreferrer" className={`${btn.base} ${btn.ghost} ${btn.sm}`}>{t.ai?.liveManagerWhatsApp}<span aria-hidden="true">↗</span><span className="sr-only">({handoff.newTab})</span></a>}
      <AskButton variant="ghost" className={btn.sm} prompt={fill(handoff.askPrompt,{name:venue.name})}>{handoff.askAi}</AskButton>
     </div>
     {requestsEnabled&&<DiningBooking venue={{slug:venue.slug,name:venue.name,category:venue.category,features:venue.features}}/>}

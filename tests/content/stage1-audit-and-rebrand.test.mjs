@@ -74,18 +74,19 @@ test('Stage 1 Rentals brand filter, search and price sort work across the full 2
   assert.notEqual(asc.cars[0].slug, desc.cars[0].slug);
 });
 
-test('Stage 1 Chat-Only WhatsApp support & Yachts ELIO+ Shield (compliant, zero free-insurance wording)', () => {
-  assert.equal(MANAGER_WHATSAPP, '');
+test('Stage 1 Branded WhatsApp Business, Miami Phone & Yachts ELIO+ Shield (compliant, zero free-insurance wording)', () => {
+  assert.equal(MANAGER_WHATSAPP, 'https://wa.me/message/VO7GCPZCDKRZO1');
   assert.equal(managerWhatsAppUrl(''), null);
-  assert.equal(managerWhatsAppUrl('+1 (305) 555-0199'), 'https://wa.me/13055550199');
-  assert.equal(managerWhatsAppUrl('https://wa.me/13055550199'), 'https://wa.me/13055550199');
+  assert.equal(managerWhatsAppUrl('+1 (786) 492-8880'), 'https://wa.me/17864928880');
+  assert.equal(managerWhatsAppUrl('https://wa.me/17864928880'), 'https://wa.me/17864928880');
+  assert.equal(managerWhatsAppUrl('https://wa.me/message/VO7GCPZCDKRZO1'), 'https://wa.me/message/VO7GCPZCDKRZO1');
   for (const bad of ['abc', '0123456', 'http://wa.me/13055550199', 'https://evil.test/13055550199', 'javascript:alert(1)']) {
     assert.equal(managerWhatsAppUrl(bad), null, bad);
   }
   const saved = process.env.NEXT_PUBLIC_MANAGER_WHATSAPP;
   try {
     delete process.env.NEXT_PUBLIC_MANAGER_WHATSAPP;
-    assert.equal(configuredManagerWhatsApp(), null);
+    assert.equal(configuredManagerWhatsApp(), 'https://wa.me/message/VO7GCPZCDKRZO1');
     process.env.NEXT_PUBLIC_MANAGER_WHATSAPP = '+13055550199';
     assert.equal(configuredManagerWhatsApp(), 'https://wa.me/13055550199');
   } finally {
@@ -101,5 +102,5 @@ test('Stage 1 Chat-Only WhatsApp support & Yachts ELIO+ Shield (compliant, zero 
   assert.match(yatrCopy, /ELIO\+ Shield & Care 24\/7/);
   assert.doesNotMatch(yatrCopy, /free insurance/i);
   const footer = read('app/components/Footer.jsx');
-  assert.doesNotMatch(footer, /href="tel:/i);
+  assert.match(footer, /configuredManagerPhone/);
 });

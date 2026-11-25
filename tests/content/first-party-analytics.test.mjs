@@ -56,12 +56,12 @@ test('outbound partner classifier maps all Miami Elio monetization partners & me
     provider: 'stay22',
     targetHost: 'stay22.com'
   });
-  assert.deepEqual(classifyOutboundPartner('https://t.me/Avo_ale?text=Hi'), {
+  assert.deepEqual(classifyOutboundPartner('https://t.me/MIAMI_ELIO?text=Hi'), {
     eventName: 'telegram_click',
     provider: 'telegram',
     targetHost: 't.me'
   });
-  assert.deepEqual(classifyOutboundPartner('https://wa.me/13055550100'), {
+  assert.deepEqual(classifyOutboundPartner('https://wa.me/message/VO7GCPZCDKRZO1'), {
     eventName: 'whatsapp_click',
     provider: 'whatsapp',
     targetHost: 'wa.me'

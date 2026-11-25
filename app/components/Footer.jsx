@@ -7,9 +7,10 @@ import { useLocale } from './LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
 import { getNavExtraCopy } from '../../lib/navExtraCopy.mjs';
 import { GetTheApp } from './GetTheApp';
-import { configuredManagerTelegram, configuredManagerWhatsApp } from '../../lib/managerContact.mjs';
+import { configuredManagerTelegram, configuredManagerWhatsApp, configuredManagerPhone } from '../../lib/managerContact.mjs';
 const managerTelegram = configuredManagerTelegram();
 const managerWhatsApp = configuredManagerWhatsApp();
+const managerPhone = configuredManagerPhone();
 const sections = [
   { key: 'travel', href: '/travel', fallback: 'Travel' },
   { key: 'experiences', href: '/experiences', fallback: 'Experiences' },
@@ -63,6 +64,11 @@ export function Footer() {
             {managerWhatsApp && (
               <a href={managerWhatsApp} target="_blank" rel="noopener noreferrer" className="underline decoration-g1-rule underline-offset-4 transition hover:text-g1-accent">
                 {t.ai?.liveManagerWhatsApp}
+              </a>
+            )}
+            {managerPhone && (
+              <a href={managerPhone.href} className="underline decoration-g1-rule underline-offset-4 transition hover:text-g1-accent">
+                {managerPhone.display}
               </a>
             )}
           </div>
