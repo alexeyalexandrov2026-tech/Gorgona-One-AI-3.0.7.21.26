@@ -368,9 +368,10 @@
 .g1-home-section--feature .g1-home-section__label {
   justify-content: flex-start;
   gap: 14px;
-  font-family: var(--font-g1-display), var(--font-serif), Georgia, serif;
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(1.6rem, 3.6vw, 2.6rem);
-  font-weight: 500;
+  font-weight: 700;
+  letter-spacing: -0.035em;
   line-height: 1.05;
 }
 .g1-home-section--feature .g1-home-section__label svg { width: 0.8em; height: 0.8em; flex: none; }
@@ -432,7 +433,7 @@ html[data-app="android"] .g1-home-app-hero { display: block; }
   border-radius: 50%; background: var(--g1-paper); border: 4px solid var(--cc);
   transition: background-color 0.2s, scale 0.25s var(--g1-ease);
 }
-.g1-stop .nm { font: 500 1.05rem/1.12 var(--font-g1-display), Georgia, serif; text-wrap: balance; }
+.g1-stop .nm { font: 600 1.02rem/1.15 var(--font-inter), ui-sans-serif, system-ui, sans-serif; letter-spacing: -0.02em; text-wrap: balance; }
 .g1-stop .cd { font: 500 0.66rem/1 var(--font-g1-mono), monospace; letter-spacing: 0.1em; color: var(--g1-ink-soft); }
 .g1-stop:hover .nm, .g1-stop:focus-visible .nm, .g1-stop[aria-pressed="true"] .nm { color: var(--g1-accent); }
 .g1-stop:hover .dot, .g1-stop:focus-visible .dot, .g1-stop[aria-pressed="true"] .dot { background: var(--cc); scale: 1.15; }
@@ -450,9 +451,8 @@ html[data-app="android"] .g1-home-app-hero { display: block; }
   transition: padding 0.35s var(--g1-ease), color 0.2s;
 }
 .g1-dir-thumb { display: none; }
-.g1-dir-name { font: 500 clamp(1.9rem, 2.6vw + 1rem, 3.6rem)/1 var(--font-g1-display), Georgia, serif; letter-spacing: -0.015em; }
+.g1-dir-name { font: 700 clamp(1.9rem, 2.6vw + 1rem, 3.4rem)/1.04 var(--font-inter), ui-sans-serif, system-ui, sans-serif; letter-spacing: -0.036em; }
 .g1-dir-row:hover, .g1-dir-row:focus-visible { padding-inline-start: 18px; color: var(--g1-accent); }
-.g1-dir-row:hover .g1-dir-name { font-style: italic; }
 @media (max-width: 760px) {
   .g1-dir-row { grid-template-columns: 56px minmax(0, 1fr); gap: 4px 14px; }
   .g1-dir-thumb { display: block; grid-row: span 2; width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
@@ -470,8 +470,29 @@ html[data-app="android"] .g1-home-app-hero { display: block; }
 .g1-bubble.them { background: var(--g1-band-card); border-end-start-radius: 6px; }
 
 [dir="rtl"] .g1-flip { transform: scaleX(-1); }
-.g1-display em { font-style: italic; color: var(--g1-accent); }
-:root[lang="he"] .g1-display em { font-style: normal; }
+.g1-display em { font-style: normal; color: var(--g1-accent); }
+
+/* Variant 3 — Tesla / Big Tech corporate display typography (Inter Bold/SemiBold,
+   strictly upright, tight tracking -0.038em). Preserves the Miami Elio wordmark
+   in header/footer and leaves /yachts and /travel untouched via data-preserve-typography. */
+header:not([data-preserve-typography="true"]) ~ main .font-g1display,
+header:not([data-preserve-typography="true"]) ~ main .g1-display,
+header:not([data-preserve-typography="true"]) ~ main .font-serif {
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: -0.038em;
+}
+header:not([data-preserve-typography="true"]) ~ main h1.font-g1display,
+header:not([data-preserve-typography="true"]) ~ main h1.g1-display,
+header:not([data-preserve-typography="true"]) ~ main h2.font-g1display,
+header:not([data-preserve-typography="true"]) ~ main h2.g1-display {
+  line-height: 1.03;
+}
+header:not([data-preserve-typography="true"]) ~ main h3.font-g1display {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .g1-motion { transition: none !important; animation: none !important; }

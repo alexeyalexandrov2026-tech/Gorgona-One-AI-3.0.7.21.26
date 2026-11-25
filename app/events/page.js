@@ -67,7 +67,7 @@ export default async function EventsMarketplacePage() {
 
         <div className="mx-auto w-full max-w-7xl px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-32 lg:px-8">
           <p className="lux-eyebrow">{t.events.marketplaceTitle}</p>
-          <h1 className="mt-4 font-serif text-5xl italic leading-[0.95] text-white sm:text-6xl lg:text-7xl"><LocalizedText source="Experience the{break}{highlight}" values={{ break: <>{' '}<br /></>, highlight: <span className="text-brand-gold"><LocalizedText source="extraordinary." /></span> }} />
+          <h1 className="mt-4 font-sans text-5xl font-bold not-italic leading-[1.02] tracking-[-0.038em] text-white sm:text-6xl lg:text-7xl"><LocalizedText source="Experience the{break}{highlight}" values={{ break: <>{' '}<br /></>, highlight: <span className="text-brand-gold"><LocalizedText source="extraordinary." /></span> }} />
           </h1>
           <p className="lux-lede mt-5 text-base sm:text-lg">
             {t.events.marketplaceSubtitle || <LocalizedText source={"Curated VIP access to the world's most exclusive sports and concert events."} />}

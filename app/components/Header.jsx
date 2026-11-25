@@ -67,6 +67,7 @@ export function Header() {
   return (
     <header
       dir="ltr"
+      data-preserve-typography={pathname?.startsWith('/yachts') || pathname?.startsWith('/travel') ? 'true' : undefined}
       // Dashboard pages have a light surface; keep their sticky navigation readable.
       // The yacht catalogue scrolls white supplier content under the bar, so
       // once scrolled it stays opaque there.
