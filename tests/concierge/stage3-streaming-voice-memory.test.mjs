@@ -12,7 +12,7 @@ import {
 } from '../../lib/server/chatEdgeCache.mjs';
 import { formatGuestMemoryPromptLine } from '../../lib/server/guestMemory.mjs';
 import { resetWhisperRateLimitForTests, whisperHandlers } from '../../lib/server/whisperHandler.mjs';
-import { resetTtsRateLimitForTests, ttsHandlers } from '../../lib/server/ttsHandler.mjs';
+import { cleanSpeechText, resetTtsRateLimitForTests, ttsHandlers } from '../../lib/server/ttsHandler.mjs';
 import { resetTtsEdgeCacheForTests } from '../../lib/server/ttsEdgeCache.mjs';
 import { getTtsConfig, synthesizeSpeech } from '../../lib/ai/voice.js';
 import {
@@ -197,6 +197,22 @@ test('ElevenLabs TTS auto-activates from Cloudflare env secret with female Sarah
     const body = JSON.parse(fetchCalls[0].init.body);
     assert.equal(body.model_id, 'eleven_multilingual_v2');
     assert.equal(body.voice_settings.use_speaker_boost, true);
+    assert.ok(body.voice_settings.stability <= 0.4, 'expressive human prosody needs lower stability');
+    assert.ok(body.voice_settings.style >= 0.4, 'expressive human intonation needs style >= 0.4');
+
+    // Speech text preprocessor inserts natural sentence breaks on bullet/newline lists
+    const spoken = cleanSpeechText('Привет! 🌴\n• Komodo — Brickell\n• Carbone — South Beach\nhttps://gorgona-one.com');
+    assert.equal(spoken, 'Привет! Komodo — Brickell. Carbone — South Beach.');
+
+    // Client player unlocks iOS Safari audio synchronously BEFORE await fetch('/api/tts')
+    const convo = read('app/components/ai/AiConversation.jsx');
+    assert.match(convo, /function unlockSafariAudio\(/);
+    assert.match(convo, /SILENT_WAV_DATA_URI/);
+    assert.match(convo, /decodeAudioData/);
+    assert.ok(
+      convo.indexOf('unlockSafariAudio()') < convo.indexOf("fetch('/api/tts'"),
+      'Safari audio unlock must execute synchronously before awaiting /api/tts'
+    );
 
     // Second identical request is served from 24h edge cache with ZERO extra ElevenLabs calls!
     const cachedRes = await handler.speak(new Request('https://gorgona-one.com/api/tts', {
