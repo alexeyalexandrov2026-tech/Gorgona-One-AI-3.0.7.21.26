@@ -8,6 +8,11 @@ import Icon from '../../components/g1/icons';
 import { getCheckoutCopy } from '../../../lib/legal/checkoutCopy.mjs';
 import { getBookingOsCopy } from '../../../lib/legal/bookingOsCopy.mjs';
 import { getBookingStepBCopy } from '../../../lib/legal/bookingStepBCopy.mjs';
+import {
+  DISPLAY_CURRENCIES,
+  formatDisplayCurrency,
+  getCorporateCheckoutCopy
+} from '../../../lib/legal/corporateCheckout.mjs';
 import { generateQrMatrix, buildReservationIcs } from '../../../lib/legal/passArtifacts.mjs';
 import { formatUsdCents } from '../../../lib/legal/termsContent.mjs';
 
@@ -76,6 +81,12 @@ export default function PayCheckoutClient({ token }) {
   const copy = getCheckoutCopy(locale);
   const osCopy = getBookingOsCopy(locale);
   const stepBCopy = getBookingStepBCopy(locale);
+  const corpCopy = getCorporateCheckoutCopy(locale);
+  const [displayCurrency, setDisplayCurrency] = useState('USD');
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [companyName, setCompanyName] = useState('');
+  const [companyTaxId, setCompanyTaxId] = useState('');
+  const [companyAddress, setCompanyAddress] = useState('');
   const [payload, setPayload] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -393,14 +404,78 @@ export default function PayCheckoutClient({ token }) {
               {copy.referenceLabel}: {quote.referenceCode}
             </p>
           </div>
-          <div className="grid text-start sm:text-end">
+          <div className="grid justify-items-start gap-1.5 text-start sm:justify-items-end sm:text-end">
             <span className="font-g1mono text-[0.68rem] uppercase tracking-[0.16em] text-g1-soft">{copy.totalLabel}</span>
             <span className="font-g1display text-3xl font-medium text-g1-ink sm:text-4xl">
               {formatUsdCents(quote.amountCents)}
             </span>
+            {displayCurrency !== 'USD' && (
+              <span data-fx-converted="true" className="font-g1mono text-sm font-medium text-g1-accent">
+                {formatDisplayCurrency(quote.amountCents, displayCurrency)}
+              </span>
+            )}
+            <div data-currency-switcher="true" className="mt-1 flex flex-wrap items-center gap-1 print:hidden">
+              {DISPLAY_CURRENCIES.map((curr) => (
+                <button
+                  key={curr.code}
+                  type="button"
+                  onClick={() => setDisplayCurrency(curr.code)}
+                  className={`rounded-full border px-2.5 py-0.5 font-g1mono text-[0.62rem] uppercase tracking-[0.12em] transition ${
+                    displayCurrency === curr.code
+                      ? 'border-g1-ink bg-g1-ink text-g1-paper'
+                      : 'border-g1-rule bg-g1-paper/60 text-g1-soft hover:text-g1-ink'
+                  }`}
+                >
+                  {curr.code}
+                </button>
+              ))}
+            </div>
+            {displayCurrency !== 'USD' && (
+              <span className="text-[0.68rem] text-g1-soft">{corpCopy.usdSettlementNote}</span>
+            )}
           </div>
         </div>
       </header>
+
+      {/* Live European Reservation Order Timeline */}
+      {!isInactive && (
+        <section
+          data-order-timeline="true"
+          aria-label={corpCopy.timelineTitle}
+          className="mt-6 grid gap-3 rounded-[22px] border border-g1-rule bg-g1-card px-5 py-4"
+        >
+          <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.18em] text-g1-soft">
+            {corpCopy.timelineTitle}
+          </p>
+          <ol className="grid grid-cols-2 gap-2.5 sm:grid-cols-5">
+            {[
+              { id: 'quote', label: corpCopy.stepQuote, done: true },
+              { id: 'esign', label: corpCopy.stepEsign, done: Boolean(quote.esignSignedAt) },
+              { id: 'pay', label: corpCopy.stepPayment, done: isPaid || Number(quote.paidSharesCount || 0) > 0 },
+              { id: 'kyc', label: corpCopy.stepKyc, done: quote.kycStatus === 'verified' },
+              { id: 'flight', label: corpCopy.stepDispatch, done: Boolean(quote.flightNumber || quote.deliveryLocation) }
+            ].map((step, idx) => (
+              <li
+                key={step.id}
+                className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs ${
+                  step.done
+                    ? 'border-g1-accent/45 bg-g1-accent-wash text-g1-ink'
+                    : 'border-g1-rule bg-g1-paper/60 text-g1-soft'
+                }`}
+              >
+                <span
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-g1mono text-[0.62rem] font-semibold ${
+                    step.done ? 'bg-g1-ink text-g1-paper' : 'border border-g1-rule text-g1-soft'
+                  }`}
+                >
+                  {step.done ? '✓' : idx + 1}
+                </span>
+                <span className="truncate font-medium">{step.label}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       {cancelledBanner && !isPaid && !isInactive && (
         <div role="status" className="mt-6 rounded-2xl border border-g1-rule bg-g1-card px-5 py-4 text-sm text-g1-ink">
@@ -1106,6 +1181,76 @@ export default function PayCheckoutClient({ token }) {
                   )}
                 </div>
               </form>
+            </section>
+          )}
+
+          {/* Business / Corporate / Family Office VAT Invoice (Print / PDF) */}
+          {!isInactive && (
+            <section
+              data-corporate-invoice="true"
+              className="grid gap-4 rounded-[24px] border border-g1-rule bg-g1-card p-6 sm:p-7"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="grid gap-1">
+                  <p className="font-g1mono text-[0.68rem] uppercase tracking-[0.2em] text-g1-accent">
+                    {corpCopy.invoiceStamp}
+                  </p>
+                  <h2 className="font-g1display text-xl font-medium text-g1-ink">
+                    {corpCopy.invoiceTitle}
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setInvoiceOpen((prev) => !prev)}
+                  className={`${btn.base} ${btn.ghost} ${btn.sm} border border-g1-ink/30 print:hidden`}
+                >
+                  {corpCopy.invoiceToggle}
+                </button>
+              </div>
+              <p className="text-xs leading-relaxed text-g1-soft">{corpCopy.invoiceSubtitle}</p>
+              {(invoiceOpen || companyName || companyTaxId) && (
+                <div className="grid gap-3 border-t border-g1-rule pt-4 sm:grid-cols-2">
+                  <label className="grid gap-1 text-xs font-medium text-g1-soft">
+                    {corpCopy.companyNameLabel}
+                    <input
+                      type="text"
+                      maxLength={140}
+                      value={companyName}
+                      onChange={(event) => setCompanyName(event.target.value)}
+                      className={inputClass}
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-g1-soft">
+                    {corpCopy.taxIdLabel}
+                    <input
+                      type="text"
+                      maxLength={64}
+                      value={companyTaxId}
+                      onChange={(event) => setCompanyTaxId(event.target.value)}
+                      className={inputClass}
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs font-medium text-g1-soft sm:col-span-2">
+                    {corpCopy.billingAddressLabel}
+                    <input
+                      type="text"
+                      maxLength={220}
+                      value={companyAddress}
+                      onChange={(event) => setCompanyAddress(event.target.value)}
+                      className={inputClass}
+                    />
+                  </label>
+                  <div className="sm:col-span-2 print:hidden">
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className={`${btn.base} ${btn.ink} ${btn.sm}`}
+                    >
+                      {corpCopy.printInvoiceButton}
+                    </button>
+                  </div>
+                </div>
+              )}
             </section>
           )}
         </div>
