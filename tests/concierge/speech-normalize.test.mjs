@@ -1,8 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { normalizeSpeechText } from '../../lib/ai/speechNormalize.mjs';
+import { ruNumberWords, ruOrdinalGenitive, ruTimeWords, ruYearGenitive } from '../../lib/ai/ruNumbers.mjs';
 
-test('Russian speech normalizer expands weekdays, months, units, prices, weather, and abbreviations with zero false positives', () => {
+test('Russian numeral engine produces crisp declined Russian words', () => {
+  assert.equal(ruNumberWords(78), 'семьдесят восемь');
+  assert.equal(ruNumberWords(78, { gramCase: 'gen' }), 'семидесяти восьми');
+  assert.equal(ruNumberWords(4, { gramCase: 'gen' }), 'четырёх');
+  assert.equal(ruNumberWords(15, { gender: 'fem', gramCase: 'gen' }), 'пятнадцати');
+  assert.equal(ruNumberWords(1300), 'тысяча триста');
+  assert.equal(ruNumberWords(1300, { gramCase: 'gen' }), 'тысячи трёхсот');
+  assert.equal(ruNumberWords(8000), 'восемь тысяч');
+  assert.equal(ruNumberWords(1, { gender: 'fem', gramCase: 'acc' }), 'одну');
+  assert.equal(ruOrdinalGenitive(27), 'двадцать седьмого');
+  assert.equal(ruYearGenitive(2026), 'две тысячи двадцать шестого');
+  assert.equal(ruTimeWords(20, 30), 'двадцать часов тридцать минут');
+  assert.equal(ruTimeWords(19, 0), 'девятнадцать часов');
+});
+
+test('Russian speech normalizer spells out numbers with grammatical case and expands all abbreviations cleanly', () => {
   const sample =
     'В чт., 27 нояб., в Майами 26°C (78°F), ветер 10 mph. ' +
     'Подача Lamborghini Urus (ок. 15 мин.) на 4 чел., от $1,300/день, работаем 24/7. ' +
@@ -10,48 +26,50 @@ test('Russian speech normalizer expands weekdays, months, units, prices, weather
     'График пн–пт, служба ELIO+ Guide. Что ещё подсказать?';
 
   const out = normalizeSpeechText(sample, 'ru');
-  assert.match(out, /В четверг, 27 ноября/);
-  assert.match(out, /26 градусов/);
-  assert.match(out, /78 градусов по Фаренгейту/);
-  assert.match(out, /10 миль в час/);
-  assert.match(out, /около 15 минут/);
-  assert.match(out, /4 человека/);
-  assert.match(out, /1300 долларов в день/);
+  assert.match(out, /В четверг, двадцать седьмого ноября/);
+  assert.match(out, /двадцать шесть градусов/);
+  assert.match(out, /семьдесят восемь градусов по Фаренгейту/);
+  assert.match(out, /десять миль в час/);
+  assert.match(out, /около пятнадцати минут/);
+  assert.match(out, /на четыре человека/);
+  assert.match(out, /от тысячи трёхсот долларов в день/);
   assert.match(out, /круглосуточно/);
   assert.match(out, /в субботу и воскресенье/);
-  assert.match(out, /70 футов/);
-  assert.match(out, /1 час 34 минуты/);
+  assert.match(out, /семьдесят футов/);
+  assert.match(out, /один час тридцать четыре минуты/);
   assert.match(out, /ультра-люкс/);
-  assert.match(out, /5 звёзд/);
+  assert.match(out, /пять звёзд/);
   assert.match(out, /и так далее\. График/);
   assert.match(out, /понедельник–пятница/);
   assert.match(out, /Элио Плюс Гайд/);
-  // Must NEVER corrupt real Russian words starting with day letters ("Что", "почта", "среда/среди")
   assert.match(out, /Что ещё подсказать\?/);
-  assert.doesNotMatch(out, /чт\.|нояб?\.|мин\.|чел\.|т\.д\.|\$/);
+  // Zero bare digits or raw abbreviations remain in spoken Russian output
+  assert.doesNotMatch(out, /\d|чт\.|нояб?\.|мин\.|чел\.|т\.д\.|\$/);
 });
 
-test('Russian speech normalizer handles Intl.DateTimeFormat outputs, declensions, AM/PM, and paired C/F weather', () => {
-  // Exact Intl.DateTimeFormat('ru') schedule format from conciergeEvents.mjs
+test('Russian speech normalizer handles Intl schedules, genitive guests, paired C/F weather, phones, and model codes', () => {
   const evt = normalizeSpeechText('чт, 27 нояб. · 19:30 · Kaseya Center', 'ru');
-  assert.equal(evt, 'четверг, 27 ноября, 19:30, Kaseya Center');
+  assert.equal(evt, 'четверг, двадцать седьмого ноября, девятнадцать часов тридцать минут, Kaseya Center');
 
   const range = normalizeSpeechText('Работаем с пн. по пт., в ср. и пт. подача за 1 мин. для 4 чел. До сб.', 'ru');
   assert.match(range, /с понедельника по пятницу/);
   assert.match(range, /в среду и пятницу/);
-  assert.match(range, /за 1 минуту/);
-  assert.match(range, /для 4 человек/);
+  assert.match(range, /за одну минуту/);
+  assert.match(range, /для четырёх человек/);
   assert.match(range, /До субботы\./);
 
-  const weather = normalizeSpeechText('Сейчас 26 °C / 78 °F, вылет в 8:30 PM из а/п Майами, в т.ч. трансфер. Тел. +1 786-492-8880. Heat vs. Celtics.', 'ru');
-  assert.match(weather, /26 градусов по Цельсию, или 78 по Фаренгейту/);
-  assert.match(weather, /20:30/);
+  const weather = normalizeSpeechText('Сейчас 26 °C / 78 °F, вылет в 8:30 PM из а/п Майами, в т.ч. трансфер на G63. Тел. +1 786-492-8880. Heat vs. Celtics.', 'ru');
+  assert.match(weather, /двадцать шесть градусов по Цельсию, или семьдесят восемь градусов по Фаренгейту/);
+  assert.match(weather, /двадцать часов тридцать минут/);
   assert.match(weather, /из аэропорта Майами/);
-  assert.match(weather, /в том числе трансфер/);
+  assert.match(weather, /в том числе трансфер на G63/);
   assert.match(weather, /Телефон \+1 786-492-8880/);
   assert.match(weather, /Heat против Celtics/);
 
-  assert.match(normalizeSpeechText('В пт. 27 дек. 2026 г., 2 чел., $8,000', 'ru'), /В пятницу 27 декабря 2026 года, 2 человека, 8000 долларов/);
+  assert.match(
+    normalizeSpeechText('В пт. 27 дек. 2026 г., 2 чел., $8,000', 'ru'),
+    /В пятницу двадцать седьмого декабря две тысячи двадцать шестого года, два человека, восемь тысяч долларов/
+  );
   assert.equal(normalizeSpeechText('Ок. Понял, что вы хотите.', 'ru'), 'Ок. Понял, что вы хотите.');
 });
 
