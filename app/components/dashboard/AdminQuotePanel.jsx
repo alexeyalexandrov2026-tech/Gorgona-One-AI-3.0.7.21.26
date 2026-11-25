@@ -5,6 +5,7 @@ import { useSavedText } from '../LocalizedText';
 import { submissionKey } from '../../../lib/bookingSubmission.mjs';
 import { getCheckoutCopy } from '../../../lib/legal/checkoutCopy.mjs';
 import { getBookingOsCopy } from '../../../lib/legal/bookingOsCopy.mjs';
+import { getBookingStepBCopy } from '../../../lib/legal/bookingStepBCopy.mjs';
 import { formatUsdCents } from '../../../lib/legal/termsContent.mjs';
 
 const buttonClass =
@@ -19,6 +20,7 @@ export default function AdminQuotePanel({ userId, locale, request, api }) {
   const msg = useSavedText();
   const copy = getCheckoutCopy(locale);
   const osCopy = getBookingOsCopy(locale);
+  const stepBCopy = getBookingStepBCopy(locale);
   const [quotes, setQuotes] = useState([]);
   const [providers, setProviders] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,6 +39,7 @@ export default function AdminQuotePanel({ userId, locale, request, api }) {
   const [depositUsd, setDepositUsd] = useState('');
   const [priceLockUsd, setPriceLockUsd] = useState('');
   const [weatherShieldEnabled, setWeatherShieldEnabled] = useState(true);
+  const [kycRequired, setKycRequired] = useState(false);
   const [lineItems, setLineItems] = useState([]);
 
   const attempt = useRef(null);
@@ -104,6 +107,7 @@ export default function AdminQuotePanel({ userId, locale, request, api }) {
       depositCents,
       priceLockCents,
       weatherShieldEnabled,
+      kycRequired,
       lineItems: cleanedLineItems
     };
 
@@ -295,6 +299,15 @@ export default function AdminQuotePanel({ userId, locale, request, api }) {
             />
             <span>{osCopy.adminWeatherShield}</span>
           </label>
+          <label className="flex items-center gap-2 self-end pb-2 text-xs font-medium text-villa-graphite sm:col-span-2">
+            <input
+              type="checkbox"
+              checked={kycRequired}
+              onChange={(event) => setKycRequired(event.target.checked)}
+              className="h-4 w-4 accent-villa-obsidian"
+            />
+            <span>{stepBCopy.adminKycRequired}</span>
+          </label>
           <div className="grid gap-2 sm:col-span-2">
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs font-medium text-villa-graphite">{osCopy.adminLineItems}</span>
@@ -399,6 +412,16 @@ export default function AdminQuotePanel({ userId, locale, request, api }) {
                   {Number(quote.priceLockCents || 0) > 0 && (
                     <span className="rounded border border-villa-obsidian/25 bg-white px-2 py-0.5">
                       {osCopy.adminLockBadge}: {quote.priceLockStatus}
+                    </span>
+                  )}
+                  {quote.kycStatus && quote.kycStatus !== 'none' && (
+                    <span className="rounded border border-villa-obsidian/25 bg-white px-2 py-0.5">
+                      {quote.kycStatus === 'verified' ? stepBCopy.adminKycVerified : stepBCopy.adminKycPending}
+                    </span>
+                  )}
+                  {quote.flightNumber && (
+                    <span className="rounded border border-villa-obsidian/25 bg-white px-2 py-0.5">
+                      {stepBCopy.adminFlightBadge}: {quote.flightNumber}
                     </span>
                   )}
                 </div>

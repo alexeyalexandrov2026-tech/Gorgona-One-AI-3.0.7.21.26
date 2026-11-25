@@ -7,6 +7,8 @@ import { btn, eyebrowClass } from '../../components/g1/ui';
 import Icon from '../../components/g1/icons';
 import { getCheckoutCopy } from '../../../lib/legal/checkoutCopy.mjs';
 import { getBookingOsCopy } from '../../../lib/legal/bookingOsCopy.mjs';
+import { getBookingStepBCopy } from '../../../lib/legal/bookingStepBCopy.mjs';
+import { generateQrMatrix, buildReservationIcs } from '../../../lib/legal/passArtifacts.mjs';
 import { formatUsdCents } from '../../../lib/legal/termsContent.mjs';
 
 const inputClass =
@@ -38,10 +40,42 @@ function statusMeta(status, copy) {
   }
 }
 
+const AIRPORT_OPTIONS = [
+  'MIA — Miami International Airport',
+  'OPF — Opa-Locka Private FBO',
+  'FLL — Fort Lauderdale Airport',
+  'Miami Beach Marina',
+  'Hotel / Private Villa'
+];
+
+function PassQrSvg({ value, label }) {
+  const { size, grid } = generateQrMatrix(value);
+  const quiet = 2;
+  const total = size + quiet * 2;
+  const cells = [];
+  for (let r = 0; r < size; r += 1) {
+    for (let c = 0; c < size; c += 1) {
+      if (grid[r][c]) cells.push(`M${c + quiet},${r + quiet}h1v1h-1z`);
+    }
+  }
+  return (
+    <svg
+      viewBox={`0 0 ${total} ${total}`}
+      role="img"
+      aria-label={label}
+      className="h-28 w-28 shrink-0 rounded-xl bg-white p-1.5 shadow-sm"
+    >
+      <rect width={total} height={total} fill="#ffffff" />
+      <path d={cells.join('')} fill="#111111" />
+    </svg>
+  );
+}
+
 export default function PayCheckoutClient({ token }) {
   const locale = useLocale();
   const copy = getCheckoutCopy(locale);
   const osCopy = getBookingOsCopy(locale);
+  const stepBCopy = getBookingStepBCopy(locale);
   const [payload, setPayload] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -59,6 +93,13 @@ export default function PayCheckoutClient({ token }) {
   const [activeShareToken, setActiveShareToken] = useState('');
   const [payerName, setPayerName] = useState('');
   const [copiedShareToken, setCopiedShareToken] = useState('');
+  const [startingKyc, setStartingKyc] = useState(false);
+  const [flightNumber, setFlightNumber] = useState('');
+  const [arrivalAirport, setArrivalAirport] = useState('MIA — Miami International Airport');
+  const [arrivalTime, setArrivalTime] = useState('');
+  const [deliveryLocation, setDeliveryLocation] = useState('');
+  const [savingLogistics, setSavingLogistics] = useState(false);
+  const [logisticsSaved, setLogisticsSaved] = useState(false);
   const paypalCapturedRef = useRef(false);
 
   const loadQuote = useCallback(async (extraSearch = '') => {
@@ -78,6 +119,10 @@ export default function PayCheckoutClient({ token }) {
       if (data?.quote?.clientName) {
         setFullName((prev) => prev || data.quote.clientName);
       }
+      if (data?.quote?.flightNumber) setFlightNumber((prev) => prev || data.quote.flightNumber);
+      if (data?.quote?.arrivalAirport) setArrivalAirport(data.quote.arrivalAirport);
+      if (data?.quote?.arrivalTime) setArrivalTime((prev) => prev || data.quote.arrivalTime);
+      if (data?.quote?.deliveryLocation) setDeliveryLocation((prev) => prev || data.quote.deliveryLocation);
       return data;
     } catch {
       setNotFound(true);
@@ -100,6 +145,7 @@ export default function PayCheckoutClient({ token }) {
     const paypalOrderId = params.get('token');
     const kindParam = params.get('kind') || '';
     const shareParam = params.get('share') || '';
+    const kycSessionId = params.get('kyc_session_id') || '';
     if (shareParam) setActiveShareToken(shareParam);
     if (params.get('cancelled') === '1') setCancelledBanner(true);
 
@@ -110,6 +156,7 @@ export default function PayCheckoutClient({ token }) {
       if (kindParam) extraParams.set('kind', kindParam);
       if (shareParam) extraParams.set('share', shareParam);
     }
+    if (kycSessionId) extraParams.set('kyc_session_id', kycSessionId);
     const extra = extraParams.toString() ? `?${extraParams.toString()}` : '';
 
     loadQuote(extra).then(async (loaded) => {
@@ -224,6 +271,73 @@ export default function PayCheckoutClient({ token }) {
     }
   }
 
+  async function handleStartKyc() {
+    if (startingKyc) return;
+    setStartingKyc(true);
+    setPaymentError('');
+    try {
+      const response = await fetch(`/api/pay/${encodeURIComponent(token)}/kyc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}'
+      });
+      const data = await response.json().catch(() => ({}));
+      if (data?.alreadyVerified) {
+        await loadQuote('');
+        setStartingKyc(false);
+        return;
+      }
+      if (!response.ok || !data?.verificationUrl) {
+        setPaymentError(copy.paymentError);
+        setStartingKyc(false);
+        return;
+      }
+      window.location.assign(data.verificationUrl);
+    } catch {
+      setPaymentError(copy.paymentError);
+      setStartingKyc(false);
+    }
+  }
+
+  async function handleSaveLogistics(event) {
+    event.preventDefault();
+    if (savingLogistics) return;
+    setSavingLogistics(true);
+    setLogisticsSaved(false);
+    try {
+      const response = await fetch(`/api/pay/${encodeURIComponent(token)}/logistics`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          flightNumber: flightNumber.trim(),
+          arrivalAirport: arrivalAirport.trim(),
+          arrivalTime: arrivalTime.trim(),
+          deliveryLocation: deliveryLocation.trim()
+        })
+      });
+      if (response.ok) {
+        setLogisticsSaved(true);
+        await loadQuote('');
+      }
+    } finally {
+      setSavingLogistics(false);
+    }
+  }
+
+  function handleDownloadCalendar(quoteObj) {
+    const passUrl = `${window.location.origin}/pay/${encodeURIComponent(token)}`;
+    const ics = buildReservationIcs(quoteObj, passUrl);
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${(quoteObj.referenceCode || 'miami-elio-pass').toLowerCase()}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   if (loading && !payload) {
     return (
       <main className="mx-auto min-w-0 w-full max-w-4xl flex-1 py-12 font-g1sans text-g1-ink">
@@ -322,13 +436,49 @@ export default function PayCheckoutClient({ token }) {
               </h2>
               <p className="max-w-[60ch] text-sm leading-relaxed text-g1-soft">{copy.passSubtitle}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => window.print()}
-              className={`${btn.base} ${btn.ghost} ${btn.sm} print:hidden`}
-            >
-              {copy.printPassButton}
-            </button>
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="grid justify-items-center gap-1.5">
+                <PassQrSvg
+                  value={`https://gorgona-one.com/pay/${token}`}
+                  label={stepBCopy.passQrLabel}
+                />
+                <span className="font-g1mono text-[0.6rem] uppercase tracking-[0.12em] text-g1-soft">
+                  {quote.referenceCode}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 print:hidden">
+                <button
+                  type="button"
+                  data-download-ics="true"
+                  onClick={() => handleDownloadCalendar(quote)}
+                  className={`${btn.base} ${btn.ink} ${btn.sm}`}
+                >
+                  {stepBCopy.passCalendarButton}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className={`${btn.base} ${btn.ghost} ${btn.sm} border border-g1-ink/30`}
+                >
+                  {copy.printPassButton}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {quote.kycStatus === 'verified' && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-g1-accent/40 bg-g1-accent-wash px-3 py-1 font-g1mono text-[0.66rem] uppercase tracking-[0.12em] text-g1-ink">
+                <Icon name="check" className="h-3 w-3" />
+                {stepBCopy.passKycStamp}
+              </span>
+            )}
+            {quote.flightNumber && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-g1-rule bg-g1-paper px-3 py-1 font-g1mono text-[0.66rem] uppercase tracking-[0.12em] text-g1-ink">
+                {stepBCopy.passFlightStamp}: {quote.flightNumber}
+                {quote.arrivalAirport ? ` · ${quote.arrivalAirport}` : ''}
+              </span>
+            )}
           </div>
 
           <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -829,6 +979,133 @@ export default function PayCheckoutClient({ token }) {
                   </button>
                 </div>
               )}
+            </section>
+          )}
+
+          {/* Express 30-Sec Online KYC (Stripe Identity — ID / Driver's License + Selfie) */}
+          {!isInactive && (quote.kycRequired || quote.kycStatus !== 'none' || isSigned || isPaid) && (
+            <section
+              data-kyc-card="true"
+              className="grid gap-4 rounded-[24px] border border-g1-rule bg-g1-card p-6 sm:p-7"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="grid gap-1">
+                  <p className="font-g1mono text-[0.7rem] uppercase tracking-[0.2em] text-g1-accent">
+                    {stepBCopy.kycEyebrow}
+                  </p>
+                  <h2 className="font-g1display text-2xl font-medium text-g1-ink">
+                    {stepBCopy.kycTitle}
+                  </h2>
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-g1-accent/40 bg-g1-accent-wash px-3 py-1 font-g1mono text-[0.68rem] uppercase tracking-[0.14em] text-g1-ink">
+                  {quote.kycStatus === 'verified' && <Icon name="check" className="h-3 w-3" />}
+                  {quote.kycStatus === 'verified'
+                    ? stepBCopy.kycVerified
+                    : quote.kycStatus === 'requires_input'
+                      ? stepBCopy.kycRetry
+                      : stepBCopy.kycPending}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-g1-soft">{stepBCopy.kycBody}</p>
+              {quote.kycStatus !== 'verified' && providers.stripe && (
+                <div>
+                  <button
+                    type="button"
+                    disabled={startingKyc}
+                    onClick={handleStartKyc}
+                    className={`${btn.base} ${btn.ink} w-full sm:w-auto disabled:opacity-60`}
+                  >
+                    {startingKyc ? stepBCopy.kycStarting : stepBCopy.kycButton}
+                  </button>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Flight-Synced Airport / FBO / Marina Delivery */}
+          {!isInactive && (
+            <section
+              data-flight-sync-card="true"
+              className="grid gap-4 rounded-[24px] border border-g1-rule bg-g1-card p-6 sm:p-7"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="grid gap-1">
+                  <p className="font-g1mono text-[0.7rem] uppercase tracking-[0.2em] text-g1-accent">
+                    {stepBCopy.flightEyebrow}
+                  </p>
+                  <h2 className="font-g1display text-2xl font-medium text-g1-ink">
+                    {stepBCopy.flightTitle}
+                  </h2>
+                </div>
+                {quote.flightNumber && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-g1-accent/40 bg-g1-accent-wash px-3 py-1 font-g1mono text-[0.68rem] uppercase tracking-[0.14em] text-g1-ink">
+                    <Icon name="check" className="h-3 w-3" />
+                    {stepBCopy.flightAutoSyncBadge}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm leading-relaxed text-g1-soft">{stepBCopy.flightBody}</p>
+              <form onSubmit={handleSaveLogistics} className="grid gap-3.5 sm:grid-cols-2">
+                <label className="grid gap-1.5 text-xs font-medium text-g1-soft">
+                  {stepBCopy.flightNumberLabel}
+                  <input
+                    type="text"
+                    maxLength={32}
+                    placeholder={stepBCopy.flightNumberPlaceholder}
+                    value={flightNumber}
+                    onChange={(event) => setFlightNumber(event.target.value)}
+                    className={inputClass}
+                  />
+                </label>
+                <label className="grid gap-1.5 text-xs font-medium text-g1-soft">
+                  {stepBCopy.airportLabel}
+                  <select
+                    value={arrivalAirport}
+                    onChange={(event) => setArrivalAirport(event.target.value)}
+                    className={inputClass}
+                  >
+                    {AIRPORT_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-1.5 text-xs font-medium text-g1-soft">
+                  {stepBCopy.arrivalTimeLabel}
+                  <input
+                    type="text"
+                    maxLength={64}
+                    placeholder={stepBCopy.arrivalTimeLabel}
+                    value={arrivalTime}
+                    onChange={(event) => setArrivalTime(event.target.value)}
+                    className={inputClass}
+                  />
+                </label>
+                <label className="grid gap-1.5 text-xs font-medium text-g1-soft">
+                  {stepBCopy.deliveryLabel}
+                  <input
+                    type="text"
+                    maxLength={240}
+                    placeholder={stepBCopy.deliveryPlaceholder}
+                    value={deliveryLocation}
+                    onChange={(event) => setDeliveryLocation(event.target.value)}
+                    className={inputClass}
+                  />
+                </label>
+                <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
+                  <button
+                    type="submit"
+                    disabled={savingLogistics}
+                    className={`${btn.base} ${btn.ink} ${btn.sm} disabled:opacity-60`}
+                  >
+                    {savingLogistics ? stepBCopy.flightSaving : stepBCopy.flightSaveButton}
+                  </button>
+                  {logisticsSaved && (
+                    <span role="status" className="text-xs font-medium text-g1-accent">
+                      {stepBCopy.flightSaved}
+                    </span>
+                  )}
+                </div>
+              </form>
             </section>
           )}
         </div>
