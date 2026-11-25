@@ -24,5 +24,6 @@ test('Variant 3 Corporate Inter Typography: zero italic display headings on /eve
   assert.match(ds, /letter-spacing:\s*-0\.038em/);
 
   const header = read('app/components/Header.jsx');
-  assert.match(header, /data-preserve-typography=\{pathname\?\.startsWith\('\/yachts'\)\s*\|\|\s*pathname\?\.startsWith\('\/travel'\)/);
+  assert.match(header, /data-preserve-typography=\{pathname\?\.startsWith\('\/yachts'\)\s*\?\s*'true'\s*:\s*undefined\}/);
+  assert.doesNotMatch(header, /data-preserve-typography=\{[^}]*\/travel/);
 });
