@@ -43,27 +43,31 @@ test('Russian speech normalizer handles Intl.DateTimeFormat outputs, declensions
   assert.match(range, /для 4 человек/);
   assert.match(range, /До субботы\./);
 
-  const weather = normalizeSpeechText('Сейчас 26 °C / 78 °F, вылет в 8:30 PM из а/п Майами, в т.ч. трансфер.', 'ru');
+  const weather = normalizeSpeechText('Сейчас 26 °C / 78 °F, вылет в 8:30 PM из а/п Майами, в т.ч. трансфер. Тел. +1 786-492-8880. Heat vs. Celtics.', 'ru');
   assert.match(weather, /26 градусов по Цельсию, или 78 по Фаренгейту/);
   assert.match(weather, /20:30/);
-  assert.match(weather, /аэропорт Майами/);
+  assert.match(weather, /из аэропорта Майами/);
   assert.match(weather, /в том числе трансфер/);
+  assert.match(weather, /Телефон \+1 786-492-8880/);
+  assert.match(weather, /Heat против Celtics/);
 
   assert.match(normalizeSpeechText('В пт. 27 дек. 2026 г., 2 чел., $8,000', 'ru'), /В пятницу 27 декабря 2026 года, 2 человека, 8000 долларов/);
   assert.equal(normalizeSpeechText('Ок. Понял, что вы хотите.', 'ru'), 'Ок. Понял, что вы хотите.');
 });
 
-test('English speech normalizer expands Thu., Nov., mins, pax, prices, weather, and flight times', () => {
-  const sample = 'On Thu., Nov. 27, 78°F, 15 mins to Brickell for 6 pax. Urus $1,300/day, jet 1h 34m, $$$$ dining, 5★ hotel, 24/7 ELIO+ support, e.g. Komodo & Carbone, etc. Next step?';
+test('English speech normalizer expands Thu., Nov., mins., ft., sq. ft., pax, prices, weather, and protects St. Regis', () => {
+  const sample = 'On Thu., Nov. 27, 78°F, 15 mins. to Brickell for 6 pax. Urus $1,300/day, 70 ft. yacht, 1,200 sq. ft. villa on Collins Ave. & 44th St., St. Regis 5★ hotel, 1h 34m jet, $$$$ dining, 24/7 ELIO+ support, e.g. Komodo & Carbone, etc. Next step?';
   const out = normalizeSpeechText(sample, 'en');
   assert.match(out, /On Thursday, November 27/);
   assert.match(out, /78 degrees Fahrenheit/);
-  assert.match(out, /15 minutes/);
+  assert.match(out, /15 minutes to Brickell/);
   assert.match(out, /6 guests/);
   assert.match(out, /1,300 dollars per day/);
-  assert.match(out, /1 hour 34 minutes/);
+  assert.match(out, /70 feet yacht/);
+  assert.match(out, /1,200 square feet villa on Collins Avenue and 44th Street/);
+  assert.match(out, /St\. Regis 5-star hotel/);
+  assert.match(out, /1 hour 34 minutes jet/);
   assert.match(out, /ultra-luxury/);
-  assert.match(out, /5 stars/);
   assert.match(out, /twenty-four seven Elio Plus/);
   assert.match(out, /for example Komodo and Carbone/);
   assert.match(out, /and so on\. Next step\?/);
