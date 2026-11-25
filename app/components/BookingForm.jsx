@@ -13,6 +13,7 @@ import { getConsentCopy } from '../../lib/legal/consentCopy.mjs';
 import { TERMS_VERSION } from '../../lib/legal/termsContent.mjs';
 import { btn } from './g1/ui';
 import Icon from './g1/icons';
+import PaymentTrustStrip from './PaymentTrustStrip';
 
 const inputClass =
   'min-h-[46px] w-full min-w-0 rounded-xl border border-g1-rule bg-g1-paper px-3.5 text-[1rem] text-g1-ink outline-none transition placeholder:text-g1-soft focus:border-g1-accent';
@@ -239,6 +240,7 @@ function BookingWorkspace({rentalSlug,rentalTitle,kind,pickupLocation}) {
       <button type="submit" disabled={status === 'sending'} className={`${btn.base} ${btn.primary} w-full disabled:opacity-60`}>
         {status === 'sending' ? copy.sending : copy.submit}
       </button>
+      <PaymentTrustStrip variant="booking" locale={locale} />
       <p className="text-[0.82rem] leading-normal text-g1-soft">{copy.note}</p>
     </form>
   );

@@ -7,6 +7,7 @@ import { useLocale } from './LocaleProvider';
 import { getTranslation } from '../../lib/i18n';
 import { getNavExtraCopy } from '../../lib/navExtraCopy.mjs';
 import { GetTheApp } from './GetTheApp';
+import PaymentTrustStrip from './PaymentTrustStrip';
 import { configuredManagerTelegram, configuredManagerWhatsApp, configuredManagerPhone } from '../../lib/managerContact.mjs';
 const managerTelegram = configuredManagerTelegram();
 const managerWhatsApp = configuredManagerWhatsApp();
@@ -42,7 +43,7 @@ export function Footer() {
   const extraNav = getNavExtraCopy(locale);
 
   return (
-    <footer className="mt-24 border-t border-g1-rule pb-10 pt-16 font-g1sans text-sm text-g1-soft">
+    <footer className="mt-24 border-t border-g1-rule pb-24 pt-16 font-g1sans text-sm text-g1-soft sm:pb-10">
       <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <div className="flex items-baseline gap-2">
@@ -115,7 +116,9 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="mt-14 flex flex-col gap-3 border-t border-g1-rule pt-6 sm:flex-row sm:items-center sm:justify-between">
+      <PaymentTrustStrip variant="footer" locale={locale} />
+
+      <div className="mt-6 flex flex-col gap-3 border-t border-g1-rule pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p>{t.footer.copyright}</p>
         <p className="font-g1mono text-[0.65rem] uppercase tracking-[0.28em]">{t.footer?.tagline || <LocalizedText source={"A unified luxury ecosystem"} />}</p>
       </div>

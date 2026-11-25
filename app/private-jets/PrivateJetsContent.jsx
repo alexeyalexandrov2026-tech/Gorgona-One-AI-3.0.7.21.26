@@ -16,6 +16,7 @@ import { getConsentCopy } from '../../lib/legal/consentCopy.mjs';
 import { TERMS_VERSION } from '../../lib/legal/termsContent.mjs';
 import { seoHeading } from '../../lib/seo.mjs';
 import { supabase } from '../../lib/supabase';
+import PaymentTrustStrip from '../components/PaymentTrustStrip';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -357,6 +358,7 @@ export default function PrivateJetsContent() {
                   </a>
                 </p>
               </div>
+              <PaymentTrustStrip variant="booking" locale={locale} className="mt-1" />
             </>
           )}
         </form>
