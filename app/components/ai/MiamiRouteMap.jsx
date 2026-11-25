@@ -281,14 +281,27 @@ export function MiamiRouteMap({ messages = [], plan = null, listings = [], local
 
           {/* Subtle Neighborhood Watermarks */}
           <g fill="#6ba0b0" fontFamily="monospace" fontSize="9" letterSpacing="1.6" opacity="0.7">
-            <text x="86" y="102">OPF FBO</text>
-            <text x="64" y="315">MIA INTL</text>
-            <text x="200" y="275">WYNWOOD</text>
-            <text x="218" y="378">BRICKELL</text>
-            <text x="336" y="210" fill="#89c4d6" opacity="0.6">BISCAYNE BAY</text>
-            <text x="394" y="310">MIAMI BEACH</text>
-            <text x="348" y="366" fontSize="7.5">STAR ISLAND</text>
-            <text x="334" y="492">KEY BISCAYNE</text>
+            {[
+              { x: 86, y: 102, text: 'OPF FBO' },
+              { x: 64, y: 315, text: 'MIA INTL' },
+              { x: 200, y: 275, text: 'WYNWOOD' },
+              { x: 218, y: 378, text: 'BRICKELL' },
+              { x: 336, y: 210, text: 'BISCAYNE BAY', fill: '#89c4d6', opacity: 0.6 },
+              { x: 394, y: 310, text: 'MIAMI BEACH' },
+              { x: 348, y: 366, text: 'STAR ISLAND', fontSize: 7.5 },
+              { x: 334, y: 492, text: 'KEY BISCAYNE' }
+            ].map((wm) => (
+              <text
+                key={wm.text}
+                x={wm.x}
+                y={wm.y}
+                fill={wm.fill}
+                opacity={wm.opacity}
+                fontSize={wm.fontSize}
+              >
+                {wm.text}
+              </text>
+            ))}
           </g>
 
           {/* Glowing Golden Day Route Curve */}
