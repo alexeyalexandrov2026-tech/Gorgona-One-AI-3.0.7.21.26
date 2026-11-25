@@ -97,7 +97,7 @@ try{
   await editor.locator('input[type=email]').fill('private-partner@example.com');await editor.locator('input[type=tel]').fill('+13055550123');
   const saved=await action(partner,copy.saveDraft),id=saved.id;created.push({id,kind,title});
   await partner.reload();await partner.getByRole('button',{name:new RegExp(title)}).click();
-  const photo=fs.readFileSync(path.resolve(({car:'public/images/rentals/mercedes-gls-white/cover.jpg',yacht:'public/images/home/worlds/yacht-princess.jpg',stay:'public/images/home/worlds/stay-miami-beach.jpg'})[kind]));
+  const photo=fs.readFileSync(path.resolve(({car:'public/images/home/worlds/cars-urus.jpg',yacht:'public/images/home/worlds/yacht-princess.jpg',stay:'public/images/home/worlds/stay-miami-beach.jpg'})[kind]));
   const uploads=partner.waitForResponse(r=>r.url().includes('/api/dashboard/listings/media?listing=')&&r.request().method()==='POST');
   await partner.locator('input[type=file]').setInputFiles([{name:'cover.jpg',mimeType:'image/jpeg',buffer:photo},{name:'interior.jpg',mimeType:'image/jpeg',buffer:photo}]);
   expect((await uploads).status()).toBe(201);

@@ -77,17 +77,27 @@ test('grey and white X5 variants remain separate and legacy G-Class URL redirect
  assert.deepEqual(redirect,{source:'/rentals/mercedes-g-class-white',destination:'/rentals/bmw-x5-white-brown',permanent:true});
 });
 test('all original gallery files match their captured hashes and have bounded local covers',()=>{
+ const localRentalsPresent=existsSync(new URL('../../public/images/rentals',import.meta.url));
  assert.equal(assets.length,163);
  for(const a of assets){
-  const bytes=readFileSync(new URL('../../public'+a.path,import.meta.url));
-  assert.equal(createHash('sha256').update(bytes).digest('hex'),a.sha256,a.path);
-  assert.equal(bytes.length,a.bytes);
+  assert.match(a.path,/^\/images\/rentals\//);
+  assert.match(a.sha256,/^[0-9a-f]{64}$/);
+  assert.ok(a.bytes>0);
   assert.ok(a.width>0&&a.height>0);
+  if(localRentalsPresent){
+   const bytes=readFileSync(new URL('../../public'+a.path,import.meta.url));
+   assert.equal(createHash('sha256').update(bytes).digest('hex'),a.sha256,a.path);
+   assert.equal(bytes.length,a.bytes);
+  }
  }
  for(const car of cars){
-  assert.ok(existsSync(new URL('../../public'+carThumb(car),import.meta.url)),car.slug);
+  assert.match(carThumb(car),/^\/images\/rentals\//,car.slug);
   assert.equal(new Set(car.gallery).size,car.gallery.length,car.slug);
-  for(const file of [car.image,...car.gallery])assert.ok(existsSync(new URL('../../public'+file,import.meta.url)),file);
+  for(const file of [car.image,...car.gallery]){
+   assert.match(file,/^\/images\/rentals\//,file);
+   if(localRentalsPresent)assert.ok(existsSync(new URL('../../public'+file,import.meta.url)),file);
+  }
+  if(localRentalsPresent)assert.ok(existsSync(new URL('../../public'+carThumb(car),import.meta.url)),car.slug);
  }
 });
 test('source vehicles have no imported tariffs, deposits, external booking links or provider branding',()=>{

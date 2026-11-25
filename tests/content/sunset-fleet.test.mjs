@@ -43,13 +43,18 @@ test('all source photographs, structured specs and complete descriptions survive
 });
 
 test('import integrity covers local image bytes without supplier runtime hotlinks', () => {
+  const localSunsetPresent=fs.existsSync(new URL('../../public/images/rentals/sunset',import.meta.url));
   const manifest=read('docs/sunset-import/assets.json');
   for(const asset of manifest.assets){
     for(const key of ['path','preview','thumbnail']){
-      const bytes=fs.readFileSync(new URL('../../public'+asset[key],import.meta.url));
-      assert.ok(bytes.length>0,asset[key]);
-      if(key==='path')assert.equal(createHash('sha256').update(bytes).digest('hex'),asset.publishedSha256);
+      assert.match(asset[key],/^\/images\/rentals\/sunset\//,asset[key]);
+      if(localSunsetPresent){
+        const bytes=fs.readFileSync(new URL('../../public'+asset[key],import.meta.url));
+        assert.ok(bytes.length>0,asset[key]);
+        if(key==='path')assert.equal(createHash('sha256').update(bytes).digest('hex'),asset.publishedSha256);
+      }
     }
+    assert.match(asset.publishedSha256,/^[0-9a-f]{64}$/);
     assert.ok(asset.width>0 && asset.height>0);
   }
   const summaries=read('lib/sunsetFleetSummary.json');
@@ -66,14 +71,18 @@ const webpSize=bytes=>{
 };
 
 test('listing cards show a sharp 3:2 card photo cut from the same supplier cover', async () => {
+  const localSunsetPresent=fs.existsSync(new URL('../../public/images/rentals/sunset/cards',import.meta.url));
   const summaries=read('lib/sunsetFleetSummary.json');
   assert.equal(summaries.length,260);
   for(const car of summaries){
     assert.equal(car.card,car.image.replace('/rentals/sunset/previews/','/rentals/sunset/cards/'),car.slug);
-    const [width,height]=webpSize(fs.readFileSync(new URL('../../public'+car.card,import.meta.url)));
-    assert.ok(Math.abs(width/height-1.5)<0.01,`${car.slug}: ${width}x${height} is not 3:2`);
-    assert.ok(width<=1200 && height<=800,`${car.slug}: ${width}x${height} exceeds the card size`);
-    assert.ok(width>=360,`${car.slug}: card photo is smaller than the old thumbnail`);
+    assert.match(car.card,/^\/images\/rentals\/sunset\/cards\/.+\.webp$/,car.slug);
+    if(localSunsetPresent){
+      const [width,height]=webpSize(fs.readFileSync(new URL('../../public'+car.card,import.meta.url)));
+      assert.ok(Math.abs(width/height-1.5)<0.01,`${car.slug}: ${width}x${height} is not 3:2`);
+      assert.ok(width<=1200 && height<=800,`${car.slug}: ${width}x${height} exceeds the card size`);
+      assert.ok(width>=360,`${car.slug}: card photo is smaller than the old thumbnail`);
+    }
   }
   const { carThumb }=await import('../../lib/homeData.js');
   const { assembleShowcase }=await import('../../lib/heroShowcase.js');

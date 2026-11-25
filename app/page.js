@@ -3,7 +3,7 @@ import JsonLd from './components/JsonLd';
 import { buildHeroShowcase } from '../lib/heroShowcaseData.js';
 import { DEFAULT_IMAGE, organizationJsonLd, websiteJsonLd } from '../lib/seo.mjs';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 const shareTitle = 'Miami Elio: Yachts, Villas, Exotic Cars, Events & ELIO+ Guide';
 const shareDescription = 'Yachts, villas, cars, tickets and ELIO+ Guide in Miami.';
