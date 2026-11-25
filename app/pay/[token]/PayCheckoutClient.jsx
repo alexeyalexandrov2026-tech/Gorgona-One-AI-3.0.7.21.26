@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useLocale } from '../../components/LocaleProvider';
 import { btn, eyebrowClass } from '../../components/g1/ui';
 import Icon from '../../components/g1/icons';
+import PaymentTrustStrip from '../../components/PaymentTrustStrip';
 import { getCheckoutCopy } from '../../../lib/legal/checkoutCopy.mjs';
 import { getBookingOsCopy } from '../../../lib/legal/bookingOsCopy.mjs';
 import { getBookingStepBCopy } from '../../../lib/legal/bookingStepBCopy.mjs';
@@ -436,6 +437,11 @@ export default function PayCheckoutClient({ token }) {
           </div>
         </div>
       </header>
+
+      {/* Verified Checkout Header Payment & Security Trust Strip (Official Brand Colors) */}
+      {!isInactive && (
+        <PaymentTrustStrip variant="checkout" locale={locale} className="mt-6" />
+      )}
 
       {/* Live European Reservation Order Timeline */}
       {!isInactive && (

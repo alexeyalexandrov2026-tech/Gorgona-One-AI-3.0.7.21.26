@@ -6,6 +6,7 @@ import { useLocale } from '../components/LocaleProvider';
 import { useSavedText } from '../components/LocalizedText';
 import LiveTripRoom from '../components/dashboard/LiveTripRoom';
 import MyMiami from '../components/MyMiami';
+import PaymentTrustStrip from '../components/PaymentTrustStrip';
 import { getTripRoomCopy } from '../../lib/tripRoomCopy.mjs';
 
 export default function TripRoomPage() {
@@ -56,6 +57,7 @@ export default function TripRoomPage() {
                 {copy.browseCars}
               </Link>
             </div>
+            <PaymentTrustStrip variant="booking" locale={locale} className="mt-2 max-w-2xl" />
           </div>
         </div>
       </main>
