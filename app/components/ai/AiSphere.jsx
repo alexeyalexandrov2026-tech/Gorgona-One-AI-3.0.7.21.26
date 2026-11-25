@@ -22,7 +22,7 @@ export function AiSphereArtwork() {
 function AiSphereBase({ size = 60, label = 'Open ELIO+ Guide', className = '' }) {
   const { toggle, isOpen } = useAiDock();
   const pathname = usePathname() || '';
-  const isFullGuideRoute = pathname === '/discovery' || pathname === '/concierge';
+  const isFullGuideRoute = pathname === '/discovery' || pathname === '/concierge' || pathname.startsWith('/pay/');
 
   return (
     <button

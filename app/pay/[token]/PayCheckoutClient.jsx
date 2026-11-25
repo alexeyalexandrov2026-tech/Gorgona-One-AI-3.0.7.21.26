@@ -6,6 +6,7 @@ import { useLocale } from '../../components/LocaleProvider';
 import { btn, eyebrowClass } from '../../components/g1/ui';
 import Icon from '../../components/g1/icons';
 import { getCheckoutCopy } from '../../../lib/legal/checkoutCopy.mjs';
+import { getBookingOsCopy } from '../../../lib/legal/bookingOsCopy.mjs';
 import { formatUsdCents } from '../../../lib/legal/termsContent.mjs';
 
 const inputClass =
@@ -40,6 +41,7 @@ function statusMeta(status, copy) {
 export default function PayCheckoutClient({ token }) {
   const locale = useLocale();
   const copy = getCheckoutCopy(locale);
+  const osCopy = getBookingOsCopy(locale);
   const [payload, setPayload] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -54,6 +56,9 @@ export default function PayCheckoutClient({ token }) {
   const [payingProvider, setPayingProvider] = useState('');
   const [capturingPayPal, setCapturingPayPal] = useState(false);
   const [paymentError, setPaymentError] = useState('');
+  const [activeShareToken, setActiveShareToken] = useState('');
+  const [payerName, setPayerName] = useState('');
+  const [copiedShareToken, setCopiedShareToken] = useState('');
   const paypalCapturedRef = useRef(false);
 
   const loadQuote = useCallback(async (extraSearch = '') => {
@@ -93,11 +98,19 @@ export default function PayCheckoutClient({ token }) {
     const provider = params.get('provider');
     const sessionId = params.get('session_id');
     const paypalOrderId = params.get('token');
+    const kindParam = params.get('kind') || '';
+    const shareParam = params.get('share') || '';
+    if (shareParam) setActiveShareToken(shareParam);
     if (params.get('cancelled') === '1') setCancelledBanner(true);
 
-    const extra = provider === 'stripe' && sessionId
-      ? `?provider=stripe&session_id=${encodeURIComponent(sessionId)}`
-      : '';
+    const extraParams = new URLSearchParams();
+    if (provider === 'stripe' && sessionId) {
+      extraParams.set('provider', 'stripe');
+      extraParams.set('session_id', sessionId);
+      if (kindParam) extraParams.set('kind', kindParam);
+      if (shareParam) extraParams.set('share', shareParam);
+    }
+    const extra = extraParams.toString() ? `?${extraParams.toString()}` : '';
 
     loadQuote(extra).then(async (loaded) => {
       if (
@@ -113,12 +126,15 @@ export default function PayCheckoutClient({ token }) {
           const capRes = await fetch(`/api/pay/${encodeURIComponent(token)}/paypal-capture`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderId: paypalOrderId })
+            body: JSON.stringify({ orderId: paypalOrderId, shareToken: shareParam || undefined })
           });
           if (!capRes.ok) {
             setPaymentError(copy.paymentError);
           } else {
-            window.history.replaceState({}, '', `/pay/${encodeURIComponent(token)}`);
+            const cleanUrl = shareParam
+              ? `/pay/${encodeURIComponent(token)}?share=${encodeURIComponent(shareParam)}`
+              : `/pay/${encodeURIComponent(token)}`;
+            window.history.replaceState({}, '', cleanUrl);
             await loadQuote('');
           }
         } catch {
@@ -127,7 +143,10 @@ export default function PayCheckoutClient({ token }) {
           setCapturingPayPal(false);
         }
       } else if (provider === 'stripe' && sessionId) {
-        window.history.replaceState({}, '', `/pay/${encodeURIComponent(token)}`);
+        const cleanUrl = shareParam
+          ? `/pay/${encodeURIComponent(token)}?share=${encodeURIComponent(shareParam)}`
+          : `/pay/${encodeURIComponent(token)}`;
+        window.history.replaceState({}, '', cleanUrl);
       }
     });
   }, [token, loadQuote, copy.paymentError]);
@@ -163,15 +182,23 @@ export default function PayCheckoutClient({ token }) {
     }
   }
 
-  async function handleStartPayment(provider) {
+  async function handleStartPayment(provider, options = {}) {
+    const checkoutKind = options.checkoutKind || 'main';
+    const shareToken = options.shareToken || '';
+    const actionKey = `${provider}:${checkoutKind}:${shareToken}`;
     if (payingProvider || capturingPayPal) return;
     setPaymentError('');
-    setPayingProvider(provider);
+    setPayingProvider(actionKey);
     try {
       const response = await fetch(`/api/pay/${encodeURIComponent(token)}/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider })
+        body: JSON.stringify({
+          provider,
+          checkoutKind,
+          shareToken: shareToken || undefined,
+          payerName: payerName.trim() || undefined
+        })
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data?.checkoutUrl) {
@@ -183,6 +210,17 @@ export default function PayCheckoutClient({ token }) {
     } catch {
       setPaymentError(copy.paymentError);
       setPayingProvider('');
+    }
+  }
+
+  async function handleCopyShareLink(shareToken) {
+    const url = `${window.location.origin}/pay/${encodeURIComponent(token)}?share=${encodeURIComponent(shareToken)}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedShareToken(shareToken);
+      setTimeout(() => setCopiedShareToken((prev) => (prev === shareToken ? '' : prev)), 2500);
+    } catch {
+      window.prompt(osCopy.splitCopyLink, url);
     }
   }
 
@@ -382,6 +420,42 @@ export default function PayCheckoutClient({ token }) {
                 </div>
               )}
             </dl>
+
+            {/* All-In Transparent Line-Item Breakdown */}
+            {((Array.isArray(quote.lineItems) && quote.lineItems.length > 0) || Number(quote.depositCents || 0) > 0) && (
+              <div data-allin-breakdown="true" className="grid gap-3 rounded-2xl border border-g1-rule bg-g1-paper p-4 sm:p-5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-g1mono text-[0.72rem] uppercase tracking-[0.16em] text-g1-ink">
+                    {osCopy.breakdownTitle}
+                  </h3>
+                  <span className="rounded-full border border-g1-accent/40 bg-g1-accent-wash px-2.5 py-0.5 font-g1mono text-[0.64rem] uppercase tracking-[0.12em] text-g1-ink">
+                    {osCopy.breakdownBadge}
+                  </span>
+                </div>
+                {Array.isArray(quote.lineItems) && quote.lineItems.length > 0 && (
+                  <ul className="grid gap-2 border-t border-g1-rule/70 pt-3 text-sm">
+                    {quote.lineItems.map((item, idx) => (
+                      <li key={`${item.label}-${idx}`} className="flex items-baseline justify-between gap-3">
+                        <span className="text-g1-soft">{item.label}</span>
+                        <span className="shrink-0 font-g1mono text-g1-ink">{formatUsdCents(item.amountCents)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <div className="flex items-baseline justify-between gap-3 border-t border-g1-rule pt-3 text-sm font-medium text-g1-ink">
+                  <span>{osCopy.breakdownTotalDue}</span>
+                  <span className="font-g1mono text-base">{formatUsdCents(quote.amountCents)}</span>
+                </div>
+                {Number(quote.depositCents || 0) > 0 && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-dashed border-g1-rule bg-g1-card px-3.5 py-2.5 text-xs">
+                    <span className="text-g1-soft">{osCopy.breakdownDepositSeparate}</span>
+                    <span className="font-g1mono font-medium text-g1-ink">
+                      {formatUsdCents(quote.depositCents)} · {osCopy.depositZeroCharge}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </section>
 
           {/* STEP 01: ESIGN Electronic Agreement */}
@@ -485,7 +559,7 @@ export default function PayCheckoutClient({ token }) {
             ) : null}
           </section>
 
-          {/* STEP 02: Verified Payment (Strictly locked until ESIGN signed) */}
+          {/* STEP 02: Verified Payment & Group Split-Pay Hub (Strictly locked until ESIGN signed) */}
           {!isPaid && !isInactive && (
             <section
               aria-labelledby="payment-step-heading"
@@ -493,12 +567,132 @@ export default function PayCheckoutClient({ token }) {
             >
               <div className="grid gap-1.5">
                 <p className="font-g1mono text-[0.72rem] uppercase tracking-[0.2em] text-g1-accent">
-                  {copy.step2Eyebrow}
+                  {Number(quote.splitWays || 1) > 1 ? osCopy.splitEyebrow : copy.step2Eyebrow}
                 </p>
                 <h2 id="payment-step-heading" className="font-g1display text-2xl font-medium text-g1-ink">
-                  {copy.step2Title}
+                  {Number(quote.splitWays || 1) > 1 ? osCopy.splitTitle : copy.step2Title}
                 </h2>
               </div>
+
+              {/* Group Split-Pay Progress Bar & Individual Share Links */}
+              {Number(quote.splitWays || 1) > 1 && Array.isArray(quote.shares) && quote.shares.length > 0 && (
+                <div data-split-pay-hub="true" className="grid gap-4 rounded-2xl border border-g1-rule bg-g1-paper p-4 sm:p-5">
+                  <div className="grid gap-2">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
+                      <span className="font-medium text-g1-ink">
+                        {osCopy.splitProgress}: {quote.paidSharesCount || 0} / {quote.splitWays}
+                      </span>
+                      <span className="font-g1mono text-xs text-g1-soft">
+                        {formatUsdCents(quote.paidAmountCents || 0)} / {formatUsdCents(quote.amountCents)}
+                      </span>
+                    </div>
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-g1-rule/70">
+                      <div
+                        className="h-full rounded-full bg-g1-accent transition-all duration-500"
+                        style={{
+                          width: `${Math.min(100, Math.round(((quote.paidAmountCents || 0) / Math.max(1, quote.amountCents)) * 100))}%`
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs leading-relaxed text-g1-soft">{osCopy.splitAutoUnlock}</p>
+                  </div>
+
+                  {activeShareToken && (
+                    <p role="status" className="rounded-xl border border-g1-accent/40 bg-g1-accent-wash px-3.5 py-2 text-xs font-medium text-g1-ink">
+                      {osCopy.splitActiveHint}
+                    </p>
+                  )}
+
+                  {isSigned && (
+                    <input
+                      type="text"
+                      maxLength={120}
+                      value={payerName}
+                      onChange={(event) => setPayerName(event.target.value)}
+                      placeholder={osCopy.splitPayerName}
+                      className={inputClass}
+                    />
+                  )}
+
+                  <ul className="grid gap-3">
+                    {quote.shares.map((share) => {
+                      const isSharePaid = share.status === 'paid';
+                      const isHighlighted = activeShareToken && activeShareToken === share.shareToken;
+                      return (
+                        <li
+                          key={share.id || share.shareToken}
+                          data-share-index={share.shareIndex}
+                          className={`grid gap-3 rounded-2xl border p-4 ${
+                            isHighlighted
+                              ? 'border-g1-accent bg-g1-accent-wash/40'
+                              : isSharePaid
+                                ? 'border-g1-rule bg-g1-card/70'
+                                : 'border-g1-rule bg-g1-card'
+                          }`}
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="grid gap-0.5">
+                              <span className="text-sm font-medium text-g1-ink">
+                                {osCopy.splitGuestLabel} #{share.shareIndex}
+                                {share.payerName ? ` · ${share.payerName}` : ''}
+                              </span>
+                              <span className="font-g1mono text-sm font-medium text-g1-ink">
+                                {formatUsdCents(share.amountCents)}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span
+                                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-g1mono text-[0.65rem] uppercase tracking-[0.12em] ${
+                                  isSharePaid
+                                    ? 'border-g1-ink bg-g1-ink text-g1-paper'
+                                    : 'border-g1-rule bg-g1-paper text-g1-soft'
+                                }`}
+                              >
+                                {isSharePaid && <Icon name="check" className="h-3 w-3" />}
+                                {isSharePaid ? osCopy.splitPaid : osCopy.splitOpen}
+                              </span>
+                              {!isSharePaid && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyShareLink(share.shareToken)}
+                                  className={`${btn.base} ${btn.ghost} ${btn.sm} border border-g1-ink/30 bg-g1-paper/80 hover:border-g1-ink/60`}
+                                >
+                                  {copiedShareToken === share.shareToken ? osCopy.splitCopied : osCopy.splitCopyLink}
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {!isSharePaid && isSigned && anyGatewayReady && (
+                            <div className="grid gap-2 sm:grid-cols-2">
+                              {providers.stripe && (
+                                <button
+                                  type="button"
+                                  disabled={Boolean(payingProvider)}
+                                  onClick={() => handleStartPayment('stripe', { checkoutKind: 'share', shareToken: share.shareToken })}
+                                  className={`${btn.base} ${btn.ink} ${btn.sm} w-full disabled:opacity-60`}
+                                >
+                                  {payingProvider === `stripe:share:${share.shareToken}` ? copy.redirectingPayment : osCopy.splitPayStripe}
+                                </button>
+                              )}
+                              {providers.paypal && (
+                                <button
+                                  type="button"
+                                  disabled={Boolean(payingProvider)}
+                                  onClick={() => handleStartPayment('paypal', { checkoutKind: 'share', shareToken: share.shareToken })}
+                                  className={`${btn.base} ${btn.ghost} ${btn.sm} w-full border border-g1-ink/30 bg-g1-paper/80 hover:border-g1-ink/60 disabled:opacity-60`}
+                                >
+                                  {payingProvider === `paypal:share:${share.shareToken}` ? copy.redirectingPayment : osCopy.splitPayPayPal}
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
 
               {!isSigned ? (
                 <p className="rounded-2xl border border-dashed border-g1-rule bg-g1-paper px-4 py-3.5 text-sm text-g1-soft">
@@ -524,28 +718,70 @@ export default function PayCheckoutClient({ token }) {
                     )}
                   </div>
                 </div>
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {providers.stripe && (
+              ) : (Number(quote.splitWays || 1) <= 1 || Number(quote.paidSharesCount || 0) === 0) ? (
+                <div className="grid gap-3">
+                  {Number(quote.splitWays || 1) > 1 && (
+                    <p className="text-xs font-medium text-g1-soft">{osCopy.splitOrPayFull}</p>
+                  )}
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {providers.stripe && (
+                      <button
+                        type="button"
+                        disabled={Boolean(payingProvider)}
+                        onClick={() => handleStartPayment('stripe', { checkoutKind: 'main' })}
+                        className={`${btn.base} ${btn.ink} w-full disabled:opacity-60`}
+                      >
+                        {payingProvider === 'stripe:main:' ? copy.redirectingPayment : copy.payCardButton}
+                      </button>
+                    )}
+                    {providers.paypal && (
+                      <button
+                        type="button"
+                        disabled={Boolean(payingProvider)}
+                        onClick={() => handleStartPayment('paypal', { checkoutKind: 'main' })}
+                        className={`${btn.base} ${btn.ghost} w-full disabled:opacity-60`}
+                      >
+                        {payingProvider === 'paypal:main:' ? copy.redirectingPayment : copy.payPayPalButton}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : null}
+
+              {/* 24-Hour Price Lock refundable hold */}
+              {Number(quote.priceLockCents || 0) > 0 && (
+                <div data-price-lock-card="true" className="grid gap-3 rounded-2xl border border-g1-rule bg-g1-paper p-4 sm:p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="grid gap-0.5">
+                      <p className="font-g1mono text-[0.68rem] uppercase tracking-[0.18em] text-g1-accent">
+                        {osCopy.lockEyebrow}
+                      </p>
+                      <h3 className="text-base font-medium text-g1-ink">{osCopy.lockTitle}</h3>
+                    </div>
+                    <span className="font-g1mono text-sm font-medium text-g1-ink">
+                      {formatUsdCents(quote.priceLockCents)}
+                    </span>
+                  </div>
+                  <p className="text-xs leading-relaxed text-g1-soft">{osCopy.lockBody}</p>
+                  {quote.priceLockStatus === 'locked' ? (
+                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-g1-accent/40 bg-g1-accent-wash px-3.5 py-2 text-xs font-medium text-g1-ink">
+                      <span>{osCopy.lockActive}</span>
+                      {quote.priceLockUntil && (
+                        <span className="font-g1mono">{formatMiamiDateTime(quote.priceLockUntil, locale)}</span>
+                      )}
+                    </div>
+                  ) : quote.priceLockStatus === 'released' ? (
+                    <p className="font-g1mono text-xs uppercase text-g1-soft">{osCopy.lockReleased}</p>
+                  ) : isSigned && providers.stripe ? (
                     <button
                       type="button"
                       disabled={Boolean(payingProvider)}
-                      onClick={() => handleStartPayment('stripe')}
-                      className={`${btn.base} ${btn.ink} w-full disabled:opacity-60`}
+                      onClick={() => handleStartPayment('stripe', { checkoutKind: 'price_lock' })}
+                      className={`${btn.base} ${btn.ghost} ${btn.sm} w-full border border-g1-ink/35 bg-g1-card hover:border-g1-ink/65 sm:w-auto disabled:opacity-60`}
                     >
-                      {payingProvider === 'stripe' ? copy.redirectingPayment : copy.payCardButton}
+                      {payingProvider === 'stripe:price_lock:' ? copy.redirectingPayment : `${osCopy.lockButton} · ${formatUsdCents(quote.priceLockCents)}`}
                     </button>
-                  )}
-                  {providers.paypal && (
-                    <button
-                      type="button"
-                      disabled={Boolean(payingProvider)}
-                      onClick={() => handleStartPayment('paypal')}
-                      className={`${btn.base} ${btn.ghost} w-full disabled:opacity-60`}
-                    >
-                      {payingProvider === 'paypal' ? copy.redirectingPayment : copy.payPayPalButton}
-                    </button>
-                  )}
+                  ) : null}
                 </div>
               )}
 
@@ -553,6 +789,45 @@ export default function PayCheckoutClient({ token }) {
                 <p role="alert" className="rounded-xl border border-g1-accent bg-g1-accent-wash px-3.5 py-2.5 text-sm text-g1-ink">
                   {paymentError}
                 </p>
+              )}
+            </section>
+          )}
+
+          {/* Separate Refundable Security Deposit Pre-Auth (Hold Only — $0 Charged Upfront) */}
+          {Number(quote.depositCents || 0) > 0 && !isInactive && (
+            <section
+              data-deposit-preauth-card="true"
+              className="grid gap-4 rounded-[24px] border border-g1-rule bg-g1-card p-6 sm:p-7"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="grid gap-1">
+                  <p className="font-g1mono text-[0.7rem] uppercase tracking-[0.2em] text-g1-accent">
+                    {osCopy.depositEyebrow}
+                  </p>
+                  <h2 className="font-g1display text-2xl font-medium text-g1-ink">
+                    {osCopy.depositTitle} · {formatUsdCents(quote.depositCents)}
+                  </h2>
+                </div>
+                <span className="rounded-full border border-g1-accent/40 bg-g1-accent-wash px-3 py-1 font-g1mono text-[0.68rem] uppercase tracking-[0.14em] text-g1-ink">
+                  {quote.depositStatus === 'held'
+                    ? osCopy.depositHeld
+                    : quote.depositStatus === 'released'
+                      ? osCopy.depositReleased
+                      : osCopy.depositZeroCharge}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-g1-soft">{osCopy.depositBody}</p>
+              {quote.depositStatus === 'pending' && (isSigned || isPaid) && providers.stripe && (
+                <div>
+                  <button
+                    type="button"
+                    disabled={Boolean(payingProvider)}
+                    onClick={() => handleStartPayment('stripe', { checkoutKind: 'deposit' })}
+                    className={`${btn.base} ${btn.ghost} w-full border border-g1-ink/35 bg-g1-paper/80 hover:border-g1-ink/65 sm:w-auto disabled:opacity-60`}
+                  >
+                    {payingProvider === 'stripe:deposit:' ? copy.redirectingPayment : `${osCopy.depositHoldButton} · ${formatUsdCents(quote.depositCents)}`}
+                  </button>
+                </div>
               )}
             </section>
           )}
@@ -585,6 +860,22 @@ export default function PayCheckoutClient({ token }) {
               {copy.shieldLegalNote}
             </p>
           </section>
+
+          {quote.weatherShieldEnabled !== false && (
+            <section data-weather-shield="true" className="grid gap-3 rounded-[24px] border border-g1-accent/35 bg-g1-card p-6">
+              <p className="font-g1mono text-[0.68rem] uppercase tracking-[0.22em] text-g1-accent">
+                {osCopy.weatherEyebrow}
+              </p>
+              <h2 className="font-g1display text-xl font-medium leading-tight text-g1-ink">
+                {osCopy.weatherTitle}
+              </h2>
+              <p className="text-sm leading-relaxed text-g1-soft">{osCopy.weatherBody}</p>
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-g1-accent/40 bg-g1-accent-wash px-3 py-1 font-g1mono text-[0.66rem] uppercase tracking-[0.14em] text-g1-ink">
+                <Icon name="check" className="h-3 w-3" />
+                {osCopy.weatherActive}
+              </span>
+            </section>
+          )}
 
           <section className="grid gap-3 rounded-[24px] border border-g1-rule bg-g1-paper p-6">
             <p className="text-sm font-medium text-g1-ink">{copy.chatTitle}</p>
