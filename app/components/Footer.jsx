@@ -43,7 +43,7 @@ export function Footer() {
   const extraNav = getNavExtraCopy(locale);
 
   return (
-    <footer className="mt-24 border-t border-g1-rule pb-10 pt-16 font-g1sans text-sm text-g1-soft">
+    <footer className="mt-24 border-t border-g1-rule pb-24 pt-16 font-g1sans text-sm text-g1-soft sm:pb-10">
       <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <div className="flex items-baseline gap-2">
