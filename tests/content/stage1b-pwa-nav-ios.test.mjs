@@ -28,10 +28,10 @@ test('ServiceWorkerRegister is mounted in RootLayout and guards against native a
   assert.ok(layout.includes('<ServiceWorkerRegister />'));
 });
 
-test('GetTheApp suppresses header Google Play badge on iOS Safari and globals.css supports data-app="ios"', () => {
+test('GetTheApp renders Google Play badge on all web browsers while globals.css hides data-app-link inside native iOS/Android apps', () => {
   const getTheApp = fs.readFileSync(path.join(ROOT, 'app', 'components', 'GetTheApp.jsx'), 'utf8');
-  assert.ok(getTheApp.includes('iphone|ipad|ipod'));
-  assert.ok(getTheApp.includes('hideOnIos'));
+  assert.ok(getTheApp.includes('data-app-link'));
+  assert.equal(getTheApp.includes('hideOnIos'), false);
   const globalsCss = fs.readFileSync(path.join(ROOT, 'app', 'globals.css'), 'utf8');
   assert.ok(globalsCss.includes('html[data-app="ios"] body::before'));
   assert.ok(globalsCss.includes('html[data-app="ios"] [data-app-link]'));

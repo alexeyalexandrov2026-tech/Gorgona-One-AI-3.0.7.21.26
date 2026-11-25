@@ -105,7 +105,53 @@ function stopActiveVoicePlayback() {
   activeTtsCleanup = null;
 }
 
-const FEMALE_VOICE_HINTS = /female|woman|samantha|victoria|karen|moira|tessa|fiona|serena|siri|zira|jenny|aria|sara|sarah|luna|nova|milena|irina|yelena|elena|katya|paulina|monica|paula|amelie|audrey|thomas.*female|anna|petra|alice|federica|joana|luciana|zosia|yelda|carmit|laila|kyoko|o-ren|yuna|tingting|meijia|sinji|google\s+(?:us\s+english|uk\s+english\s+female|русский|español|français|deutsch|italiano)/i;
+// Valid 44-byte silent WAV data URI used to synchronously unlock the shared
+// HTMLAudioElement inside an iOS Safari tap gesture BEFORE awaiting /api/tts.
+const SILENT_WAV_DATA_URI =
+  'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+const MAX_CLIENT_TTS_CLIPS = 15;
+const ttsClientCache = new Map(); // `${locale}|${cleanText}` -> ArrayBuffer
+let sharedAudioEl = null;
+let sharedAudioCtx = null;
+
+function unlockSafariAudio() {
+  if (typeof window === 'undefined') return;
+  try {
+    if (navigator?.audioSession && 'type' in navigator.audioSession) {
+      navigator.audioSession.type = 'playback';
+    }
+  } catch {}
+  try {
+    if (!sharedAudioEl) {
+      sharedAudioEl = new Audio();
+      sharedAudioEl.playsInline = true;
+      sharedAudioEl.preload = 'auto';
+    }
+    sharedAudioEl.muted = false;
+    sharedAudioEl.volume = 1;
+    sharedAudioEl.src = SILENT_WAV_DATA_URI;
+    const p = sharedAudioEl.play();
+    if (p && typeof p.catch === 'function') p.catch(() => {});
+  } catch {}
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+        sharedAudioCtx = new AudioCtx();
+      }
+      if (sharedAudioCtx.state === 'suspended') {
+        sharedAudioCtx.resume().catch(() => {});
+      }
+      const buf = sharedAudioCtx.createBuffer(1, 1, 22050);
+      const src = sharedAudioCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(sharedAudioCtx.destination);
+      src.start(0);
+    }
+  } catch {}
+}
+
+const FEMALE_VOICE_HINTS = /enhanced|premium|natural|neural|samantha|victoria|karen|moira|tessa|fiona|serena|siri|zira|jenny|aria|sara|sarah|luna|nova|milena|irina|yelena|elena|katya|paulina|monica|paula|amelie|audrey|anna|petra|alice|federica|joana|luciana|zosia|yelda|carmit|laila|kyoko|o-ren|yuna|tingting|meijia|sinji|google\s+(?:us\s+english|uk\s+english\s+female|русский|español|français|deutsch|italiano)/i;
 
 function pickFemaleBrowserVoice(langTag) {
   try {
@@ -114,7 +160,12 @@ function pickFemaleBrowserVoice(langTag) {
     const prefix = String(langTag || 'en').slice(0, 2).toLowerCase();
     const matching = voices.filter((v) => String(v.lang || '').toLowerCase().startsWith(prefix));
     const pool = matching.length ? matching : voices;
-    return pool.find((v) => FEMALE_VOICE_HINTS.test(`${v.name} ${v.voiceURI}`)) || pool[0] || null;
+    return (
+      pool.find((v) => /enhanced|premium|neural|natural/i.test(`${v.name} ${v.voiceURI}`)) ||
+      pool.find((v) => FEMALE_VOICE_HINTS.test(`${v.name} ${v.voiceURI}`)) ||
+      pool[0] ||
+      null
+    );
   } catch {
     return null;
   }
@@ -124,18 +175,31 @@ async function playFemaleVoice({ text, locale, onStateChange }) {
   const cleanText = String(text || '').trim().slice(0, 1200);
   if (!cleanText) return;
   stopActiveVoicePlayback();
+  // Synchronously unlock iOS Safari audio BEFORE any async fetch so WebKit
+  // never rejects ElevenLabs playback with NotAllowedError and falls back to
+  // the robotic built-in speechSynthesis voice.
+  unlockSafariAudio();
   onStateChange?.('loading');
   trackEvent('voice_play', { provider: 'elevenlabs', locale });
   const controller = new AbortController();
-  let audioEl = null;
   let objectUrl = null;
+  let activeBufferSource = null;
   let cancelled = false;
   const cleanup = () => {
     cancelled = true;
     controller.abort();
-    if (audioEl) {
-      try { audioEl.pause(); audioEl.src = ''; } catch {}
-      audioEl = null;
+    if (sharedAudioEl) {
+      try {
+        sharedAudioEl.onended = null;
+        sharedAudioEl.onerror = null;
+        sharedAudioEl.pause();
+        sharedAudioEl.removeAttribute('src');
+        sharedAudioEl.load();
+      } catch {}
+    }
+    if (activeBufferSource) {
+      try { activeBufferSource.onended = null; activeBufferSource.stop(); } catch {}
+      activeBufferSource = null;
     }
     if (objectUrl) {
       try { URL.revokeObjectURL(objectUrl); } catch {}
@@ -146,28 +210,86 @@ async function playFemaleVoice({ text, locale, onStateChange }) {
   };
   activeTtsCleanup = cleanup;
 
-  try {
-    const response = await fetch('/api/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: cleanText, locale }),
-      signal: controller.signal
-    });
-    if (cancelled) return;
-    const ct = (response.headers?.get?.('content-type') || '').toLowerCase();
-    if (response.ok && ct.includes('audio/')) {
-      const blob = await response.blob();
+  const cacheKey = `${locale}|${cleanText}`;
+  let audioBuffer = ttsClientCache.get(cacheKey) || null;
+  let mimeType = 'audio/mpeg';
+
+  if (!audioBuffer) {
+    try {
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
+        body: JSON.stringify({ text: cleanText, locale }),
+        signal: controller.signal
+      });
       if (cancelled) return;
-      objectUrl = URL.createObjectURL(blob);
-      audioEl = new Audio(objectUrl);
-      audioEl.onended = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
-      audioEl.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
-      onStateChange?.('playing');
-      await audioEl.play();
-      return;
+      const ct = (response.headers?.get?.('content-type') || '').toLowerCase();
+      if (response.ok && ct.includes('audio/')) {
+        mimeType = ct.split(';')[0] || 'audio/mpeg';
+        const raw = await response.arrayBuffer();
+        if (cancelled) return;
+        if (raw && raw.byteLength > 256) {
+          audioBuffer = raw;
+          ttsClientCache.set(cacheKey, raw);
+          if (ttsClientCache.size > MAX_CLIENT_TTS_CLIPS) {
+            const oldest = ttsClientCache.keys().next().value;
+            if (oldest) ttsClientCache.delete(oldest);
+          }
+        }
+      }
+    } catch {
+      if (cancelled) return;
     }
-  } catch {
-    if (cancelled) return;
+  }
+
+  // Play neural human ElevenLabs audio via unlocked HTMLAudioElement first,
+  // with unlocked Web Audio API (AudioContext) as seamless backup. Once server
+  // audio is received, NEVER fall back to robotic browser speechSynthesis.
+  if (audioBuffer && !cancelled) {
+    try {
+      const blob = new Blob([audioBuffer], { type: mimeType });
+      objectUrl = URL.createObjectURL(blob);
+      const el = sharedAudioEl || new Audio();
+      sharedAudioEl = el;
+      el.playsInline = true;
+      el.muted = false;
+      el.volume = 1;
+      el.src = objectUrl;
+      el.onended = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
+      el.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
+      el.load();
+      onStateChange?.('playing');
+      await el.play();
+      return;
+    } catch {
+      if (cancelled) return;
+    }
+
+    try {
+      if (sharedAudioCtx) {
+        if (sharedAudioCtx.state === 'suspended') await sharedAudioCtx.resume();
+        const decoded = await sharedAudioCtx.decodeAudioData(audioBuffer.slice(0));
+        if (cancelled) return;
+        const src = sharedAudioCtx.createBufferSource();
+        src.buffer = decoded;
+        src.connect(sharedAudioCtx.destination);
+        activeBufferSource = src;
+        src.onended = () => {
+          if (activeBufferSource === src) activeBufferSource = null;
+          if (activeTtsCleanup === cleanup) activeTtsCleanup = null;
+          cleanup();
+        };
+        onStateChange?.('playing');
+        src.start(0);
+        return;
+      }
+    } catch {
+      if (cancelled) return;
+    }
+
+    if (activeTtsCleanup === cleanup) activeTtsCleanup = null;
+    cleanup();
+    return;
   }
 
   try {
@@ -176,7 +298,7 @@ async function playFemaleVoice({ text, locale, onStateChange }) {
       const utter = new SpeechSynthesisUtterance(cleanText);
       utter.lang = lang;
       utter.rate = 0.98;
-      utter.pitch = 1.04;
+      utter.pitch = 1.02;
       const femaleVoice = pickFemaleBrowserVoice(lang);
       if (femaleVoice) utter.voice = femaleVoice;
       utter.onend = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; onStateChange?.('idle'); };
