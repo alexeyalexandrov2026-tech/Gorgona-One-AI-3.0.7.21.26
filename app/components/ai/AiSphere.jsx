@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAiDock } from './AiDockProvider';
 
 export function AiSphereArtwork() {
@@ -20,6 +21,8 @@ export function AiSphereArtwork() {
 // what keeps the sphere smooth site-wide instead of dragging FPS down.
 function AiSphereBase({ size = 60, label = 'Open ELIO+ Guide', className = '' }) {
   const { toggle, isOpen } = useAiDock();
+  const pathname = usePathname() || '';
+  if (pathname === '/discovery' || pathname === '/concierge') return null;
 
   return (
     <button

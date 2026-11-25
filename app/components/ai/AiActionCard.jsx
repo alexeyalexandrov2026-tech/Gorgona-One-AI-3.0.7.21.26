@@ -11,6 +11,8 @@ import { PROVIDERS } from '../../../lib/dining/gateway.mjs';
 import { buildStay22ReferralUrl } from '../../../lib/ai/tripProfile.mjs';
 import { enrichPartnerBookingUrl, getStage2Copy } from '../../../lib/ai/stage2Copy.mjs';
 import { buildDayTimeline, buildPlanIcs, getTimelineCopy } from '../../../lib/ai/dayTimeline.mjs';
+import { buildPackagePlanNote, computePackageSummary, formatUsd, getPackageCopy } from '../../../lib/ai/packageCalculator.mjs';
+import { extractTripDays } from '../../../lib/ai/budgetEstimator.mjs';
 import { isReceipt, submissionKey } from '../../../lib/bookingSubmission.mjs';
 import { isPlanReceipt } from '../../../lib/planRules.mjs';
 import { getConsentCopy } from '../../../lib/legal/consentCopy.mjs';
@@ -99,7 +101,7 @@ function ListingLink({ card, onNavigate, selected = false }) {
   const name = card.title || card.label;
   const favKind = favoriteKindForCard(card);
   return (
-    <div className={`flex items-center gap-2 rounded-2xl border p-3 transition ${
+    <div className={`flex min-w-0 items-center gap-2 rounded-2xl border p-3 transition ${
       selected
         ? 'border-brand-gold/75 bg-gradient-to-br from-brand-gold/[0.16] to-white/[0.04]'
         : 'border-brand-gold/25 bg-gradient-to-br from-brand-gold/[0.09] to-white/[0.02] hover:border-brand-gold/60'
@@ -338,7 +340,15 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
   const copy = getDiningHandoffCopy(locale);
   const s2 = getStage2Copy(locale);
   const tlCopy = getTimelineCopy(locale);
+  const pkgCopy = getPackageCopy(locale);
   const timelineStops = buildDayTimeline(plan, profile, locale);
+  const initialDays = extractTripDays('', profile) || 2;
+  const initialSplit = Number.isInteger(profile?.guests) && profile.guests >= 1
+    ? Math.min(12, profile.guests)
+    : (Number.isInteger(plan?.guests) && plan.guests >= 1 ? Math.min(12, plan.guests) : 2);
+  const [pkgDays, setPkgDays] = useState(initialDays);
+  const [splitWays, setSplitWays] = useState(initialSplit);
+  const [requestSplitPay, setRequestSplitPay] = useState(initialSplit >= 2);
   const [selectedBySection, setSelectedBySection] = useState(() => {
     const init = {};
     for (const section of plan?.sections || []) {
@@ -351,7 +361,7 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
   const [status, setStatus] = useState('idle'); // idle | sending | sent
   const [error, setError] = useState('');
   const [receipt, setReceipt] = useState(null);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', start: '', end: '', guests: 2, time: '20:00', note: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', start: '', end: '', guests: initialSplit, time: '20:00', note: '' });
   const attempt = useRef(null);
 
   useEffect(() => {
@@ -366,19 +376,22 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
   useEffect(() => {
     if (!openForm) return;
     const defaultStart = profile?.dateRange?.from || isoDayOffset(3);
+    const startMs = Date.parse(`${defaultStart}T12:00:00Z`);
+    const computedEnd = Number.isFinite(startMs)
+      ? new Date(startMs + Math.max(1, pkgDays - 1) * 86_400_000).toISOString().slice(0, 10)
+      : isoDayOffset(3 + Math.max(1, pkgDays - 1));
     const defaultEnd = (profile?.dateRange?.to && profile.dateRange.to >= defaultStart)
       ? profile.dateRange.to
-      : isoDayOffset(6);
-    const defaultGuests = Number.isInteger(profile?.guests) ? profile.guests : (Number.isInteger(plan?.guests) ? plan.guests : 2);
+      : computedEnd;
     setForm((prev) => ({
       ...prev,
       start: prev.start || defaultStart,
       end: prev.end || defaultEnd,
-      guests: prev.guests || defaultGuests,
+      guests: splitWays || prev.guests || 2,
       name: prev.name || auth?.session?.name || '',
       email: prev.email || auth?.session?.email || ''
     }));
-  }, [openForm, profile?.dateRange?.from, profile?.dateRange?.to, profile?.guests, plan?.guests, auth?.session?.name, auth?.session?.email]);
+  }, [openForm, profile?.dateRange?.from, profile?.dateRange?.to, pkgDays, splitWays, auth?.session?.name, auth?.session?.email]);
 
   if (!plan?.sections?.length) return null;
 
@@ -386,8 +399,11 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
   for (const section of plan.sections) {
     const chosenKey = selectedBySection[section.href];
     const match = (section.candidates || []).find((c) => `${c.kind}:${c.slug}` === chosenKey);
-    if (match?.kind && match?.slug) selectedItems.push({ kind: match.kind, slug: match.slug, title: match.title });
+    if (match?.kind && match?.slug) {
+      selectedItems.push({ kind: match.kind, slug: match.slug, title: match.title, price: match.price });
+    }
   }
+  const pkgSummary = computePackageSummary(selectedItems, { days: pkgDays, splitWays });
   const hasDining = selectedItems.some((item) => item.kind === 'dining' || item.kind === 'nightlife');
   const canSubmitPlan = plan.requestable !== false && selectedItems.length > 0;
 
@@ -424,7 +440,7 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
         end: form.end,
         guests: Math.max(1, Math.min(99, Number(form.guests) || 2)),
         ...(hasDining ? { time: form.time || '20:00' } : {}),
-        note: form.note.trim(),
+        note: buildPackagePlanNote(pkgSummary, { userNote: form.note, requestSplitPay }),
         items: selectedItems.map(({ kind, slug }) => ({ kind, slug }))
       };
       attempt.current = submissionKey(attempt.current, JSON.stringify([payload, userId]));
@@ -464,9 +480,9 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
   }
 
   return (
-    <div className="grid gap-4 pt-1" data-ai-plan="true">
+    <div className="grid min-w-0 gap-4 pt-1" data-ai-plan="true">
       {timelineStops.length > 0 && (
-        <div data-miami-timeline="true" className="rounded-2xl border border-brand-gold/25 bg-black/35 p-3">
+        <div data-miami-timeline="true" className="min-w-0 rounded-2xl border border-brand-gold/25 bg-black/35 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-brand-gold">{tlCopy.heading}</p>
             <div className="flex flex-wrap items-center gap-1.5">
@@ -506,14 +522,14 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
         </div>
       )}
       {plan.sections.map((section) => (
-        <div key={section.href}>
+        <div key={section.href} className="min-w-0">
           <p className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-brand-gold/80">{section.label}</p>
-          <div className="mt-2 grid gap-2">
+          <div className="mt-2 grid min-w-0 gap-2">
             {section.candidates.slice(0, 2).map((card) => {
               const key = `${card.kind}:${card.slug}`;
               const isSelected = selectedBySection[section.href] === key;
               return (
-                <div key={card.booking?.href || card.href} className="grid gap-1.5">
+                <div key={card.booking?.href || card.href} className="grid min-w-0 gap-1.5">
                   <ListingLink card={card} onNavigate={onNavigate} selected={isSelected && canSubmitPlan} />
                   <div className="flex flex-wrap items-center gap-2 px-1">
                     {plan.requestable !== false && card.kind && card.slug && (
@@ -541,8 +557,97 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
         </div>
       ))}
 
+      {pkgSummary.itemCount > 0 && status !== 'sent' && (
+        <div
+          data-package-estimator="true"
+          className="min-w-0 overflow-hidden rounded-2xl border border-brand-gold/30 bg-gradient-to-br from-brand-gold/[0.11] via-black/45 to-white/[0.03] p-3 text-xs sm:p-3.5"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-gold">{pkgCopy.heading}</p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <div className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/45 px-2 py-0.5 text-[11px] text-zinc-200">
+                <span className="text-zinc-400">{pkgCopy.daysLabel}</span>
+                <button
+                  type="button"
+                  data-pkg-days-dec="true"
+                  onClick={() => setPkgDays((d) => Math.max(1, d - 1))}
+                  className="px-1 text-brand-gold hover:text-white"
+                  aria-label="-"
+                >−</button>
+                <span data-pkg-days-val="true" className="min-w-[16px] text-center font-semibold text-white">{pkgDays}</span>
+                <button
+                  type="button"
+                  data-pkg-days-inc="true"
+                  onClick={() => setPkgDays((d) => Math.min(14, d + 1))}
+                  className="px-1 text-brand-gold hover:text-white"
+                  aria-label="+"
+                >+</button>
+              </div>
+              <div className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/45 px-2 py-0.5 text-[11px] text-zinc-200">
+                <span className="text-zinc-400">{pkgCopy.splitLabel}</span>
+                <button
+                  type="button"
+                  data-pkg-split-dec="true"
+                  onClick={() => setSplitWays((s) => { const n = Math.max(1, s - 1); if (n < 2) setRequestSplitPay(false); return n; })}
+                  className="px-1 text-brand-gold hover:text-white"
+                  aria-label="-"
+                >−</button>
+                <span data-pkg-split-val="true" className="min-w-[16px] text-center font-semibold text-white">{splitWays}</span>
+                <button
+                  type="button"
+                  data-pkg-split-inc="true"
+                  onClick={() => setSplitWays((s) => { const n = Math.min(12, s + 1); if (n >= 2) setRequestSplitPay(true); return n; })}
+                  className="px-1 text-brand-gold hover:text-white"
+                  aria-label="+"
+                >+</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-2.5 grid min-w-0 gap-1.5 border-t border-white/10 pt-2.5">
+            {pkgSummary.verifiedCarTotal > 0 && (
+              <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+                <span className="text-zinc-300">{`${pkgCopy.verifiedCars} (${pkgSummary.days} ${pkgCopy.daysLabel.toLowerCase()})`}</span>
+                <span data-pkg-verified-total="true" className="shrink-0 font-semibold text-white">{formatUsd(pkgSummary.verifiedCarTotal)}</span>
+              </div>
+            )}
+            {pkgSummary.perPersonVerified && splitWays >= 2 && (
+              <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+                <span className="text-brand-gold/90">{pkgCopy.perPerson} (×{splitWays})</span>
+                <span data-pkg-per-person="true" className="shrink-0 font-semibold text-brand-gold">
+                  {formatUsd(pkgSummary.perPersonVerified)} / {pkgCopy.guestsUnit}
+                </span>
+              </div>
+            )}
+            {pkgSummary.partnerQuotedCount > 0 && (
+              <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 text-[11px]">
+                <span className="text-zinc-400">{pkgCopy.partnerItems} ({pkgSummary.partnerQuotedCount})</span>
+                <span className="shrink-0 rounded-full border border-white/15 bg-white/[0.05] px-2 py-0.5 text-[10px] text-zinc-200">
+                  {pkgCopy.partnerQuoteTag}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {splitWays >= 2 && (
+            <label className="mt-2.5 flex cursor-pointer items-start gap-2 text-[11px] leading-snug text-zinc-200">
+              <input
+                type="checkbox"
+                checked={requestSplitPay}
+                onChange={(e) => setRequestSplitPay(e.target.checked)}
+                className="mt-0.5 shrink-0 accent-brand-gold"
+              />
+              <span>{pkgCopy.splitToggle.replace('{n}', String(splitWays))}</span>
+            </label>
+          )}
+          {pkgSummary.hasSecurityDepositNote && (
+            <p className="mt-2 text-[10px] leading-relaxed text-zinc-400">{pkgCopy.depositNote}</p>
+          )}
+        </div>
+      )}
+
       {status === 'sent' && receipt ? (
-        <div role="status" className="rounded-2xl border border-emerald-400/40 bg-emerald-500/12 p-3.5 text-xs text-emerald-100">
+        <div role="status" className="min-w-0 rounded-2xl border border-emerald-400/40 bg-emerald-500/12 p-3.5 text-xs text-emerald-100">
           <p className="font-semibold text-emerald-200">{s2.planSentTitle}</p>
           <p className="mt-1 text-emerald-100/85">{s2.planSentBody.replace('{n}', String(receipt.bookingIds.length))}</p>
           <Link
@@ -554,15 +659,15 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
           </Link>
         </div>
       ) : canSubmitPlan ? (
-        <div>
+        <div className="min-w-0">
           {!openForm ? (
             <button
               type="button"
               data-plan-submit-open="true"
               onClick={() => setOpenForm(true)}
-              className="w-full rounded-full bg-brand-gold px-4 py-2.5 text-xs font-semibold text-black shadow-[0_8px_24px_rgba(212,175,55,0.28)] transition hover:brightness-110"
+              className="w-full whitespace-normal rounded-full bg-brand-gold px-4 py-2.5 text-center text-xs font-semibold leading-snug text-black shadow-[0_8px_24px_rgba(212,175,55,0.28)] transition hover:brightness-110"
             >
-              {s2.sendPlanCount.replace('{n}', String(selectedItems.length))}
+              {pkgCopy.submitPackage.replace('{n}', String(selectedItems.length))}
             </button>
           ) : (
             <form onSubmit={handlePlanSubmit} className="grid gap-2.5 rounded-2xl border border-brand-gold/35 bg-black/50 p-3.5 text-xs">
