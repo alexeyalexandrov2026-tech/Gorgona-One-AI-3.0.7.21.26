@@ -19,6 +19,7 @@ import { detectMessageLocale } from '../../../lib/ai/semanticVibes.mjs';
 import { chatCacheKey, isCacheableChatTurn, readCachedChatReply, writeCachedChatReply } from '../../../lib/server/chatEdgeCache.mjs';
 import { formatGuestMemoryPromptLine, loadGuestAccountMemory } from '../../../lib/server/guestMemory.mjs';
 import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
+import { semanticRerankWithEmbeddings } from '../../../lib/ai/semanticSearch.mjs';
 
 // ===========================================================================
 // Concierge chat adapter (JSON + optional SSE streaming via Accept header).
@@ -276,6 +277,17 @@ async function computeChatPayload(request, body, started, emit = null) {
             resolvedListings.push(card);
           }
         }
+      }
+      if (resolvedListings.length >= 2 && allowLiveUpstream) {
+        try {
+          let cfEnv = process.env;
+          try {
+            const { getCloudflareContext } = await import('@opennextjs/cloudflare');
+            const ctxEnv = getCloudflareContext()?.env;
+            if (ctxEnv) cfEnv = { ...process.env, ...ctxEnv };
+          } catch {}
+          resolvedListings = await semanticRerankWithEmbeddings(latestUserMessage, resolvedListings, cfEnv);
+        } catch {}
       }
     }
     const payload = buildReplyPayload(answer, {

@@ -99,7 +99,7 @@ export function Header() {
             </button>
           )}
           <Link href="/" aria-label={msg("Miami Elio, home")} className="group flex shrink-0 items-baseline gap-2">
-            <span className="hidden font-g1mono text-[0.72rem] uppercase tracking-[0.3em] text-g1-accent min-[360px]:inline">Miami</span>
+            <span className={`hidden font-g1mono text-[0.72rem] uppercase tracking-[0.3em] text-g1-accent ${pathname !== '/' && canGoBack ? 'min-[430px]:inline' : 'min-[360px]:inline'}`}>Miami</span>
             <span className="font-g1display text-2xl font-medium tracking-tight text-g1-ink sm:text-3xl">Elio</span>
           </Link>
         </div>

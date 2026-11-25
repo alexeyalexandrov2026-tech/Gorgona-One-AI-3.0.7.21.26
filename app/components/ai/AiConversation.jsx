@@ -423,15 +423,15 @@ function AnswerActions({ question, answer, locale, degraded = false }) {
 
   return (
     <div className="mt-2 border-t border-white/[0.08] pt-1.5">
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         <button
           type="button"
           onClick={handleCopy}
           aria-label={copied ? shareCopy.copied : shareCopy.copy}
           title={copied ? shareCopy.copied : shareCopy.copy}
-          className="inline-flex h-7 items-center gap-1 rounded-full px-2 text-[11px] text-zinc-400 transition hover:bg-white/[0.06] hover:text-zinc-100"
+          className="inline-flex h-7 items-center gap-1 whitespace-nowrap rounded-full px-2 text-[11px] text-zinc-400 transition hover:bg-white/[0.06] hover:text-zinc-100"
         >
-          <CopyIcon className="h-3.5 w-3.5" />
+          <CopyIcon className="h-3.5 w-3.5 shrink-0" />
           <span>{copied ? shareCopy.copied : shareCopy.copy}</span>
         </button>
         {!degraded && (
@@ -442,13 +442,13 @@ function AnswerActions({ question, answer, locale, degraded = false }) {
             aria-label={ttsState !== 'idle' ? s3.stopAudio : s3.listen}
             title={ttsState !== 'idle' ? s3.stopAudio : s3.listen}
             aria-pressed={ttsState !== 'idle'}
-            className={`inline-flex h-7 items-center gap-1 rounded-full px-2 text-[11px] transition ${
+            className={`inline-flex h-7 items-center gap-1 whitespace-nowrap rounded-full px-2 text-[11px] transition ${
               ttsState !== 'idle'
                 ? 'bg-brand-gold/20 text-brand-gold'
                 : 'text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-100'
             }`}
           >
-            {ttsState !== 'idle' ? <StopSquareIcon className="h-3 w-3" /> : <SpeakerIcon className="h-3.5 w-3.5" />}
+            {ttsState !== 'idle' ? <StopSquareIcon className="h-3 w-3 shrink-0" /> : <SpeakerIcon className="h-3.5 w-3.5 shrink-0" />}
             <span>{ttsState === 'loading' ? s3.loadingAudio : ttsState === 'playing' ? s3.stopAudio : s3.listen}</span>
           </button>
         )}
@@ -814,7 +814,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
             : turnCards;
           const msgLocale = isAssistant && message.replyLocale ? message.replyLocale : locale;
           return (
-            <div key={index} ref={isLatestAssistant ? lastAssistantRef : undefined} className="space-y-2.5">
+            <div key={index} ref={isLatestAssistant ? lastAssistantRef : undefined} className="min-w-0 space-y-2.5">
               <Message
                 role={message.role}
                 content={message.content}
