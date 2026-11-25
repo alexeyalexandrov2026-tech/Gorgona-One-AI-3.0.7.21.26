@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { getTranslation } from '../../lib/i18n';
 import { useLocale } from '../components/LocaleProvider';
 import { useAuth } from '../components/AuthProvider';
+import { SocialAuthButtons } from '../components/SocialAuthButtons';
 import { signIn } from '../../lib/auth';
 import { postLoginPath } from '../../lib/postLoginPath.mjs';
 
@@ -55,7 +56,9 @@ export default function LoginPage() {
         <h1 className="mt-2 text-3xl font-semibold text-white">{msg("Welcome Back")}</h1>
         <p className="mt-3 text-zinc-400">{msg("Sign in to your account")}</p>
 
-        <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-4">
+        <SocialAuthButtons showMagicLink />
+
+        <form onSubmit={handleSubmit} noValidate className="mt-2 space-y-4">
           <input
             type="email"
             autoComplete="username"

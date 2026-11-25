@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../components/AuthProvider';
+import { SocialAuthButtons } from '../components/SocialAuthButtons';
 import { signUp } from '../../lib/auth';
 
 export default function RegisterUserPage() {
@@ -49,7 +50,8 @@ export default function RegisterUserPage() {
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 shadow-premium backdrop-blur-md">
         <h1 className="text-3xl font-semibold text-white">{msg("Create Account")}</h1>
         <p className="mt-2 text-zinc-400">{msg("Join Miami Elio for exclusive access")}</p>
-        
+
+        <SocialAuthButtons showMagicLink={false} />
 
         {pendingConfirmation ? (
           <p role="status" className="mt-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300">

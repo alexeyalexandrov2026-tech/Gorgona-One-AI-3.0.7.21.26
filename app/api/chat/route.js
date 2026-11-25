@@ -341,7 +341,8 @@ async function computeChatPayload(request, body, started, emit = null) {
       pagePath: body.pagePath || '',
       forecastPeriods: pre.forecast,
       savedPrefs: body.savedPrefs || null,
-      guestMemoryLine
+      guestMemoryLine,
+      onReplyDelta: emit ? (chunk) => emit('delta', { text: chunk, live: true }) : null
     }
   );
   if (cloud.ok) {
@@ -402,8 +403,10 @@ export async function POST(request) {
   const stream = new ReadableStream({
     async start(controller) {
       let closed = false;
+      let streamedLive = false;
       const emit = (eventName, data) => {
         if (closed || request.signal?.aborted) return;
+        if (eventName === 'delta' && data?.live) streamedLive = true;
         try {
           controller.enqueue(encoder.encode(`event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`));
         } catch {
@@ -413,11 +416,13 @@ export async function POST(request) {
       try {
         const payload = await computeChatPayload(request, body, started, emit);
         if (!closed && !request.signal?.aborted) {
-          const chunks = splitStreamChunks(payload.reply);
-          for (const chunk of chunks) {
-            emit('delta', { text: chunk });
-            if (chunks.length > 1) {
-              await new Promise((r) => setTimeout(r, 12));
+          if (!streamedLive) {
+            const chunks = splitStreamChunks(payload.reply);
+            for (const chunk of chunks) {
+              emit('delta', { text: chunk });
+              if (chunks.length > 1) {
+                await new Promise((r) => setTimeout(r, 12));
+              }
             }
           }
           emit('done', payload);

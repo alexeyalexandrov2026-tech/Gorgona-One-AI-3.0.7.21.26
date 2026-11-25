@@ -15,7 +15,7 @@ const CONTENT_SECURITY_POLICY = [
   "form-action 'self' https:"
 ].join('; ');
 
-const PRIVATE_PREFIXES = ['/admin', '/partner', '/login', '/register', '/profile', '/account', '/forgot-password', '/pay', '/trip'];
+const PRIVATE_PREFIXES = ['/admin', '/partner', '/login', '/register', '/profile', '/account', '/forgot-password', '/pay', '/trip', '/auth'];
 
 export function middleware(request) {
   const response = NextResponse.next();
@@ -25,7 +25,7 @@ export function middleware(request) {
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   response.headers.set('X-Permitted-Cross-Domain-Policies', 'none');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), geolocation=(), payment=(self "https://yatr.co" "https://checkout.stripe.com"), microphone=(self)');
+  response.headers.set('Permissions-Policy', 'camera=(), geolocation=(self), payment=(self "https://yatr.co" "https://checkout.stripe.com"), microphone=(self)');
   response.headers.set('Content-Security-Policy', CONTENT_SECURITY_POLICY);
 
   const pathname = request.nextUrl?.pathname || '';
