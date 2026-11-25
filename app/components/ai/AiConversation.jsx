@@ -171,30 +171,57 @@ function pickFemaleBrowserVoice(langTag) {
   }
 }
 
+function playElementWithTimeout(el, timeoutMs = 3500) {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        reject(new Error('Audio play timed out'));
+      }
+    }, timeoutMs);
+    Promise.resolve(el.play()).then(
+      () => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timer);
+          resolve();
+        }
+      },
+      (err) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timer);
+          reject(err);
+        }
+      }
+    );
+  });
+}
+
 async function playFemaleVoice({ text, locale, onStateChange }) {
   const cleanText = String(text || '').trim().slice(0, 1200);
   if (!cleanText) return;
   stopActiveVoicePlayback();
   // Synchronously unlock iOS Safari audio BEFORE any async fetch so WebKit
-  // never rejects ElevenLabs playback with NotAllowedError and falls back to
-  // the robotic built-in speechSynthesis voice.
+  // never rejects ElevenLabs playback with NotAllowedError.
   unlockSafariAudio();
   onStateChange?.('loading');
   trackEvent('voice_play', { provider: 'elevenlabs', locale });
   const controller = new AbortController();
+  const fetchTimer = setTimeout(() => controller.abort(), 14000);
   let objectUrl = null;
   let activeBufferSource = null;
   let cancelled = false;
   const cleanup = () => {
     cancelled = true;
+    clearTimeout(fetchTimer);
     controller.abort();
     if (sharedAudioEl) {
       try {
         sharedAudioEl.onended = null;
         sharedAudioEl.onerror = null;
         sharedAudioEl.pause();
-        sharedAudioEl.removeAttribute('src');
-        sharedAudioEl.load();
       } catch {}
     }
     if (activeBufferSource) {
@@ -222,6 +249,7 @@ async function playFemaleVoice({ text, locale, onStateChange }) {
         body: JSON.stringify({ text: cleanText, locale }),
         signal: controller.signal
       });
+      clearTimeout(fetchTimer);
       if (cancelled) return;
       const ct = (response.headers?.get?.('content-type') || '').toLowerCase();
       if (response.ok && ct.includes('audio/')) {
@@ -238,13 +266,17 @@ async function playFemaleVoice({ text, locale, onStateChange }) {
         }
       }
     } catch {
+      clearTimeout(fetchTimer);
       if (cancelled) return;
     }
+  } else {
+    clearTimeout(fetchTimer);
   }
 
-  // Play neural human ElevenLabs audio via unlocked HTMLAudioElement first,
-  // with unlocked Web Audio API (AudioContext) as seamless backup. Once server
-  // audio is received, NEVER fall back to robotic browser speechSynthesis.
+  // Play neural human ElevenLabs audio via unlocked HTMLAudioElement first
+  // (no el.load() reset, bounded 3.5s start timeout), with unlocked Web Audio
+  // API (AudioContext.decodeAudioData) as instant backup. Once ElevenLabs audio
+  // is received, NEVER fall back to robotic browser speechSynthesis.
   if (audioBuffer && !cancelled) {
     try {
       const blob = new Blob([audioBuffer], { type: mimeType });
@@ -254,14 +286,17 @@ async function playFemaleVoice({ text, locale, onStateChange }) {
       el.playsInline = true;
       el.muted = false;
       el.volume = 1;
-      el.src = objectUrl;
       el.onended = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
       el.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
-      el.load();
+      el.src = objectUrl;
+      await playElementWithTimeout(el, 3500);
+      if (cancelled) { try { el.pause(); } catch {} return; }
       onStateChange?.('playing');
-      await el.play();
       return;
     } catch {
+      if (sharedAudioEl) {
+        try { sharedAudioEl.onended = null; sharedAudioEl.onerror = null; sharedAudioEl.pause(); } catch {}
+      }
       if (cancelled) return;
     }
 
@@ -326,9 +361,11 @@ function AnswerActions({ question, answer, locale, degraded = false }) {
   const inFlight = useRef(false);
   const attempt = useRef(null);
 
+  const ttsStateRef = useRef('idle');
+  ttsStateRef.current = ttsState;
   useEffect(() => () => {
-    if (ttsState !== 'idle') stopActiveVoicePlayback();
-  }, [ttsState]);
+    if (ttsStateRef.current !== 'idle') stopActiveVoicePlayback();
+  }, []);
 
   async function send(event) {
     event.preventDefault();
@@ -579,6 +616,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
     const content = String(rawText || '').trim();
     if (!content || isLoading) return;
     stopActiveVoicePlayback();
+    if (voiceMode) unlockSafariAudio();
     voice.stopListening();
     setInput('');
     await send(content);
@@ -964,7 +1002,10 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
             setVoiceMode((prev) => {
               const next = !prev;
               if (!next) stopActiveVoicePlayback();
-              else lastSpokenIndexRef.current = messages.length - 1;
+              else {
+                unlockSafariAudio();
+                lastSpokenIndexRef.current = messages.length - 1;
+              }
               return next;
             });
           }}

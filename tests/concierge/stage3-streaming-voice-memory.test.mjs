@@ -204,11 +204,19 @@ test('ElevenLabs TTS auto-activates from Cloudflare env secret with female Sarah
     const spoken = cleanSpeechText('Привет! 🌴\n• Komodo — Brickell\n• Carbone — South Beach\nhttps://gorgona-one.com');
     assert.equal(spoken, 'Привет! Komodo — Brickell. Carbone — South Beach.');
 
+    // CSP media-src must allow blob: and data: or every browser blocks ElevenLabs Audio(blobUrl)
+    const mw = read('middleware.js');
+    assert.match(mw, /media-src[^"]*blob:/);
+    assert.match(mw, /media-src[^"]*data:/);
+
     // Client player unlocks iOS Safari audio synchronously BEFORE await fetch('/api/tts')
+    // and never self-cancels playback on ttsState transitions (loading -> playing).
     const convo = read('app/components/ai/AiConversation.jsx');
     assert.match(convo, /function unlockSafariAudio\(/);
     assert.match(convo, /SILENT_WAV_DATA_URI/);
     assert.match(convo, /decodeAudioData/);
+    assert.match(convo, /playElementWithTimeout/);
+    assert.doesNotMatch(convo, /if\s*\(ttsState\s*!==\s*'idle'\)\s*stopActiveVoicePlayback\(\);\s*\},\s*\[ttsState\]\)/);
     assert.ok(
       convo.indexOf('unlockSafariAudio()') < convo.indexOf("fetch('/api/tts'"),
       'Safari audio unlock must execute synchronously before awaiting /api/tts'

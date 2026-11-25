@@ -6,7 +6,7 @@ const CONTENT_SECURITY_POLICY = [
   "style-src 'self' 'unsafe-inline' https://www.privatejetfinder.com https://*.privatejetfinder.com https://fonts.googleapis.com",
   "img-src 'self' https: data: blob:",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "media-src 'self' https:",
+  "media-src 'self' https: blob: data:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cloudflareinsights.com https://static.cloudflareinsights.com https://privatejetfinder.com https://*.privatejetfinder.com",
   "frame-src 'self' https://yatr.co https://*.yatr.co https://www.stay22.com https://*.stay22.com https://widgets.bokun.io https://*.viator.com https://*.headout.com https://www.privatejetfinder.com https://*.privatejetfinder.com https://www.google.com https://maps.google.com",
   "frame-ancestors 'self'",
