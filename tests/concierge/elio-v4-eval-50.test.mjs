@@ -347,7 +347,7 @@ test('ELIO+ AI v4 50-Dialogue Eval Suite (16-Lang Search, Pre-FactPack bge-m3, V
   check('V09 AiConversation.jsx cleans browser SpeechSynthesis text, passes fast:true in voiceMode & shows Whisper hint', () => {
     const src = read('app/components/ai/AiConversation.jsx');
     assert.match(src, /function cleanBrowserSpeechText\(/);
-    assert.match(src, /playFemaleVoice\(\{ text: latest\.content, locale: latest\.replyLocale \|\| locale, fast: true \}\)/);
+    assert.match(src, /playFemaleVoice\(\{\s*text:\s*latest\.content,\s*locale:\s*latest\.replyLocale\s*\|\|\s*locale,\s*fast:\s*true/);
     assert.match(src, /voice\.usingWhisper \? s3\.listeningWhisper : s3\.listeningLive/);
     assert.match(src, /voice\.cancelListening\(\)/);
   });
