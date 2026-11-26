@@ -360,6 +360,8 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
     return init;
   });
   const [openForm, setOpenForm] = useState(false);
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [estimatorOpen, setEstimatorOpen] = useState(false);
   const [status, setStatus] = useState('idle'); // idle | sending | sent
   const [error, setError] = useState('');
   const [receipt, setReceipt] = useState(null);
@@ -488,47 +490,7 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
   }
 
   return (
-    <div className="grid min-w-0 gap-4 pt-1" data-ai-plan="true">
-      {timelineStops.length > 0 && (
-        <div data-miami-timeline="true" className="min-w-0 rounded-2xl border border-brand-gold/25 bg-black/35 p-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-brand-gold">{tlCopy.heading}</p>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <button
-                type="button"
-                data-export-ics="true"
-                onClick={handleDownloadIcs}
-                className="rounded-full border border-brand-gold/40 bg-brand-gold/10 px-2.5 py-0.5 text-[10px] font-semibold text-brand-gold transition hover:bg-brand-gold hover:text-black"
-              >
-                {tlCopy.exportIcs}
-              </button>
-              {typeof onQuickPrompt === 'function' && (
-                <button
-                  type="button"
-                  data-rain-plan-b="true"
-                  onClick={() => onQuickPrompt(tlCopy.rainPrompt)}
-                  className="rounded-full border border-white/15 bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-medium text-zinc-200 transition hover:border-brand-gold/60 hover:text-brand-gold"
-                >
-                  {tlCopy.rainPlanB}
-                </button>
-              )}
-            </div>
-          </div>
-          <ol className="mt-2.5 space-y-2 border-l border-brand-gold/30 pl-3">
-            {timelineStops.map((stop) => (
-              <li key={stop.id} className="text-xs">
-                {stop.driveHint && (
-                  <p className="mb-1 text-[10px] text-zinc-400">{stop.driveHint}</p>
-                )}
-                <div className="flex items-baseline gap-2">
-                  <span className="font-mono text-[11px] font-semibold text-brand-gold">{stop.time}</span>
-                  <span className="truncate font-medium text-white">{stop.title}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
+    <div className="grid min-w-0 gap-3 pt-1" data-ai-plan="true">
       {plan.sections.map((section) => (
         <div key={section.href} className="min-w-0">
           <p className="font-mono text-[0.58rem] uppercase tracking-[0.28em] text-brand-gold/80">{section.label}</p>
@@ -570,86 +532,150 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
           data-package-estimator="true"
           className="min-w-0 overflow-hidden rounded-2xl border border-brand-gold/30 bg-gradient-to-br from-brand-gold/[0.11] via-black/45 to-white/[0.03] p-3 text-xs sm:p-3.5"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-gold">{pkgCopy.heading}</p>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <div className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/45 px-2 py-0.5 text-[11px] text-zinc-200">
-                <span className="text-zinc-400">{pkgCopy.daysLabel}</span>
-                <button
-                  type="button"
-                  data-pkg-days-dec="true"
-                  onClick={() => setPkgDays((d) => Math.max(1, d - 1))}
-                  className="px-1 text-brand-gold hover:text-white"
-                  aria-label="-"
-                >−</button>
-                <span data-pkg-days-val="true" className="min-w-[16px] text-center font-semibold text-white">{pkgDays}</span>
-                <button
-                  type="button"
-                  data-pkg-days-inc="true"
-                  onClick={() => setPkgDays((d) => Math.min(14, d + 1))}
-                  className="px-1 text-brand-gold hover:text-white"
-                  aria-label="+"
-                >+</button>
-              </div>
-              <div className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/45 px-2 py-0.5 text-[11px] text-zinc-200">
-                <span className="text-zinc-400">{pkgCopy.splitLabel}</span>
-                <button
-                  type="button"
-                  data-pkg-split-dec="true"
-                  onClick={() => setSplitWays((s) => { const n = Math.max(1, s - 1); if (n < 2) setRequestSplitPay(false); return n; })}
-                  className="px-1 text-brand-gold hover:text-white"
-                  aria-label="-"
-                >−</button>
-                <span data-pkg-split-val="true" className="min-w-[16px] text-center font-semibold text-white">{splitWays}</span>
-                <button
-                  type="button"
-                  data-pkg-split-inc="true"
-                  onClick={() => setSplitWays((s) => { const n = Math.min(12, s + 1); if (n >= 2) setRequestSplitPay(true); return n; })}
-                  className="px-1 text-brand-gold hover:text-white"
-                  aria-label="+"
-                >+</button>
-              </div>
+          <button
+            type="button"
+            data-pkg-toggle="true"
+            aria-expanded={estimatorOpen}
+            onClick={() => setEstimatorOpen((v) => !v)}
+            className="flex w-full items-center justify-between gap-2 text-left"
+          >
+            <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-brand-gold">{pkgCopy.heading}</span>
+              {pkgSummary.verifiedCarTotal > 0 && (
+                <span data-pkg-verified-total="true" className="font-semibold text-white">
+                  {formatUsd(pkgSummary.verifiedCarTotal)}
+                </span>
+              )}
+              {pkgSummary.perPersonVerified && splitWays >= 2 && (
+                <span data-pkg-per-person="true" className="text-[11px] font-semibold text-brand-gold">
+                  · {formatUsd(pkgSummary.perPersonVerified)}/{pkgCopy.guestsUnit}
+                </span>
+              )}
             </div>
-          </div>
+            <span aria-hidden="true" className="shrink-0 text-xs text-brand-gold">
+              {estimatorOpen ? '▴' : '▾'}
+            </span>
+          </button>
 
-          <div className="mt-2.5 grid min-w-0 gap-1.5 border-t border-white/10 pt-2.5">
-            {pkgSummary.verifiedCarTotal > 0 && (
-              <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
-                <span className="text-zinc-300">{`${pkgCopy.verifiedCars} (${pkgSummary.days} ${pkgCopy.daysLabel.toLowerCase()})`}</span>
-                <span data-pkg-verified-total="true" className="shrink-0 font-semibold text-white">{formatUsd(pkgSummary.verifiedCarTotal)}</span>
+          {estimatorOpen && (
+            <div className="mt-2.5 grid min-w-0 gap-2.5 border-t border-white/10 pt-2.5">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <div className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/45 px-2 py-0.5 text-[11px] text-zinc-200">
+                  <span className="text-zinc-400">{pkgCopy.daysLabel}</span>
+                  <button
+                    type="button"
+                    data-pkg-days-dec="true"
+                    onClick={() => setPkgDays((d) => Math.max(1, d - 1))}
+                    className="px-1 text-brand-gold hover:text-white"
+                    aria-label="-"
+                  >−</button>
+                  <span data-pkg-days-val="true" className="min-w-[16px] text-center font-semibold text-white">{pkgDays}</span>
+                  <button
+                    type="button"
+                    data-pkg-days-inc="true"
+                    onClick={() => setPkgDays((d) => Math.min(14, d + 1))}
+                    className="px-1 text-brand-gold hover:text-white"
+                    aria-label="+"
+                  >+</button>
+                </div>
+                <div className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/45 px-2 py-0.5 text-[11px] text-zinc-200">
+                  <span className="text-zinc-400">{pkgCopy.splitLabel}</span>
+                  <button
+                    type="button"
+                    data-pkg-split-dec="true"
+                    onClick={() => setSplitWays((s) => { const n = Math.max(1, s - 1); if (n < 2) setRequestSplitPay(false); return n; })}
+                    className="px-1 text-brand-gold hover:text-white"
+                    aria-label="-"
+                  >−</button>
+                  <span data-pkg-split-val="true" className="min-w-[16px] text-center font-semibold text-white">{splitWays}</span>
+                  <button
+                    type="button"
+                    data-pkg-split-inc="true"
+                    onClick={() => setSplitWays((s) => { const n = Math.min(12, s + 1); if (n >= 2) setRequestSplitPay(true); return n; })}
+                    className="px-1 text-brand-gold hover:text-white"
+                    aria-label="+"
+                  >+</button>
+                </div>
               </div>
-            )}
-            {pkgSummary.perPersonVerified && splitWays >= 2 && (
-              <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
-                <span className="text-brand-gold/90">{pkgCopy.perPerson} (×{splitWays})</span>
-                <span data-pkg-per-person="true" className="shrink-0 font-semibold text-brand-gold">
-                  {formatUsd(pkgSummary.perPersonVerified)} / {pkgCopy.guestsUnit}
-                </span>
-              </div>
-            )}
-            {pkgSummary.partnerQuotedCount > 0 && (
-              <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 text-[11px]">
-                <span className="text-zinc-400">{pkgCopy.partnerItems} ({pkgSummary.partnerQuotedCount})</span>
-                <span className="shrink-0 rounded-full border border-white/15 bg-white/[0.05] px-2 py-0.5 text-[10px] text-zinc-200">
-                  {pkgCopy.partnerQuoteTag}
-                </span>
-              </div>
-            )}
-          </div>
 
-          {splitWays >= 2 && (
-            <label className="mt-2.5 flex cursor-pointer items-start gap-2 text-[11px] leading-snug text-zinc-200">
-              <input
-                type="checkbox"
-                checked={requestSplitPay}
-                onChange={(e) => setRequestSplitPay(e.target.checked)}
-                className="mt-0.5 shrink-0 accent-brand-gold"
-              />
-              <span>{pkgCopy.splitToggle.replace('{n}', String(splitWays))}</span>
-            </label>
+              {pkgSummary.partnerQuotedCount > 0 && (
+                <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-1 text-[11px]">
+                  <span className="text-zinc-400">{pkgCopy.partnerItems} ({pkgSummary.partnerQuotedCount})</span>
+                  <span className="shrink-0 rounded-full border border-white/15 bg-white/[0.05] px-2 py-0.5 text-[10px] text-zinc-200">
+                    {pkgCopy.partnerQuoteTag}
+                  </span>
+                </div>
+              )}
+
+              {splitWays >= 2 && (
+                <label className="flex cursor-pointer items-start gap-2 text-[11px] leading-snug text-zinc-200">
+                  <input
+                    type="checkbox"
+                    checked={requestSplitPay}
+                    onChange={(e) => setRequestSplitPay(e.target.checked)}
+                    className="mt-0.5 shrink-0 accent-brand-gold"
+                  />
+                  <span>{pkgCopy.splitToggle.replace('{n}', String(splitWays))}</span>
+                </label>
+              )}
+              {pkgSummary.hasSecurityDepositNote && (
+                <p className="text-[10px] leading-relaxed text-zinc-400">{pkgCopy.depositNote}</p>
+              )}
+            </div>
           )}
-          {pkgSummary.hasSecurityDepositNote && (
-            <p className="mt-2 text-[10px] leading-relaxed text-zinc-400">{pkgCopy.depositNote}</p>
+        </div>
+      )}
+
+      {timelineStops.length > 0 && (
+        <div data-miami-timeline="true" className="min-w-0 rounded-2xl border border-white/12 bg-black/30 px-3 py-2">
+          <button
+            type="button"
+            data-timeline-toggle="true"
+            aria-expanded={timelineOpen}
+            onClick={() => setTimelineOpen((v) => !v)}
+            className="flex w-full items-center justify-between gap-2 text-left"
+          >
+            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand-gold/90">
+              {tlCopy.heading} ({timelineStops.length})
+            </span>
+            <span aria-hidden="true" className="text-xs text-zinc-400">{timelineOpen ? '▴' : '▾'}</span>
+          </button>
+          {timelineOpen && (
+            <div className="mt-2.5 border-t border-white/10 pt-2.5">
+              <div className="mb-2 flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  data-export-ics="true"
+                  onClick={handleDownloadIcs}
+                  className="rounded-full border border-brand-gold/40 bg-brand-gold/10 px-2.5 py-0.5 text-[10px] font-semibold text-brand-gold transition hover:bg-brand-gold hover:text-black"
+                >
+                  {tlCopy.exportIcs}
+                </button>
+                {typeof onQuickPrompt === 'function' && (
+                  <button
+                    type="button"
+                    data-rain-plan-b="true"
+                    onClick={() => onQuickPrompt(tlCopy.rainPrompt)}
+                    className="rounded-full border border-white/15 bg-white/[0.04] px-2.5 py-0.5 text-[10px] font-medium text-zinc-200 transition hover:border-brand-gold/60 hover:text-brand-gold"
+                  >
+                    {tlCopy.rainPlanB}
+                  </button>
+                )}
+              </div>
+              <ol className="space-y-2 border-l border-brand-gold/30 pl-3">
+                {timelineStops.map((stop) => (
+                  <li key={stop.id} className="text-xs">
+                    {stop.driveHint && (
+                      <p className="mb-1 text-[10px] text-zinc-400">{stop.driveHint}</p>
+                    )}
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-mono text-[11px] font-semibold text-brand-gold">{stop.time}</span>
+                      <span className="truncate font-medium text-white">{stop.title}</span>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
           )}
         </div>
       )}

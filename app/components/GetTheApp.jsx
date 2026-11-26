@@ -30,7 +30,7 @@ function GooglePlayMark({ className = "h-5 w-5" }) {
 // Official-style dark Google Play store badge in the header and footer across
 // all web browsers (desktop, Android, and iPhone/iPad Safari). Hidden only
 // inside the native Android/iOS apps via CSS keyed on data-app-link.
-export function GetTheApp({ variant = 'header' }) {
+export function GetTheApp({ variant = 'header', className = '' }) {
   const msg = useSavedText();
   const label = msg("Get the Miami Elio app on Google Play");
 
@@ -42,7 +42,7 @@ export function GetTheApp({ variant = 'header' }) {
         target="_blank"
         rel="noopener noreferrer"
         aria-label={label}
-        className="mt-6 inline-flex items-center gap-3 rounded-xl border border-g1-rule bg-[#061218]/85 px-4 py-2.5 text-g1-ink backdrop-blur-md transition hover:border-g1-accent/70 hover:bg-[#0a1d26]/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+        className={`mt-6 inline-flex items-center gap-3 rounded-xl border border-g1-rule bg-[#061218]/85 px-4 py-2.5 text-g1-ink backdrop-blur-md transition hover:border-g1-accent/70 hover:bg-[#0a1d26]/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${className}`}
       >
         <GooglePlayMark className="h-7 w-7 shrink-0" />
         <span className="flex flex-col text-left leading-tight">
@@ -61,7 +61,7 @@ export function GetTheApp({ variant = 'header' }) {
       rel="noopener noreferrer"
       aria-label={label}
       title={label}
-      className="tap-44 inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-g1-rule bg-[#061218]/80 px-2 text-g1-ink backdrop-blur-md transition hover:border-g1-accent/70 hover:bg-[#0a1d26]/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:h-10 sm:gap-2 sm:px-3"
+      className={`tap-44 inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl border border-g1-rule bg-[#061218]/80 px-2 text-g1-ink backdrop-blur-md transition hover:border-g1-accent/70 hover:bg-[#0a1d26]/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:h-10 sm:gap-2 sm:px-3 ${className}`}
     >
       <GooglePlayMark className="h-[17px] w-[17px] shrink-0 sm:h-5 sm:w-5" />
       <span className="flex flex-col text-left leading-none">

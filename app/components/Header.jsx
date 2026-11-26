@@ -123,7 +123,7 @@ export function Header() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <GetTheApp />
+          <GetTheApp className="hidden sm:inline-flex" />
           <LanguageSwitcher />
           {auth?.session && (
             <Link
@@ -214,6 +214,7 @@ export function Header() {
                   {t.auth.signInTab}
                 </Link>
               )}
+              <GetTheApp className="inline-flex sm:hidden" />
             </div>
           )}
         </nav>

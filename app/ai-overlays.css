@@ -153,6 +153,7 @@
 .aitg.is-hidden { opacity: 0; pointer-events: none; visibility: hidden; }
 .aitg__icon { width: 20px; height: 20px; }
 @media (min-width: 640px) { .aitg { right: 32px; bottom: 108px; } }
+@media (max-width: 639px) { .aitg, .aiwa { display: none; } }
 @media (prefers-reduced-motion: reduce) { .aitg { transition: none; } }
 
 /* Live manager on WhatsApp (chat-only): sits above .aitg when configured. */

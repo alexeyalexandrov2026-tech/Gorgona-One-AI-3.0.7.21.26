@@ -31,7 +31,7 @@ function AiSphereBase({ size = 60, label = 'Open ELIO+ Guide', className = '' })
       aria-label={label}
       aria-expanded={isOpen}
       data-floating-launcher
-      className={`group fixed bottom-6 right-5 z-50 ${isFullGuideRoute ? 'hidden' : 'flex'} items-center justify-center rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:bottom-8 sm:right-8 ${
+      className={`group fixed bottom-4 right-4 z-50 ${isFullGuideRoute ? 'hidden' : 'flex'} items-center justify-center rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold focus-visible:ring-offset-2 focus-visible:ring-offset-black sm:bottom-8 sm:right-8 ${
         isOpen ? 'pointer-events-none scale-90 opacity-0' : 'hover:scale-105'
       } ${className}`}
       style={{ width: size, height: size }}

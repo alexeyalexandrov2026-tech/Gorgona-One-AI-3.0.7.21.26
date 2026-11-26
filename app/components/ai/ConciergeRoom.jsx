@@ -35,27 +35,32 @@ export function ConciergeRoom() {
   const t = getTranslation(locale);
 
   return (
-    <main className="flex flex-1 flex-col py-10 sm:py-14">
-      <header className="text-center">
-        <p className="font-mono text-[0.62rem] uppercase tracking-[0.3em] text-brand-gold">
+    <main className="flex flex-1 flex-col py-4 sm:py-6">
+      <header className="mx-auto max-w-2xl text-center">
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.28em] text-brand-gold">
           {t.ai?.discoveryRoom || <LocalizedText source={"Discovery Room"} />}
         </p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+        <h1 className="mt-1.5 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
           {t.ai?.conciergeTitle || <LocalizedText source={"ELIO+ Guide"} />}
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-zinc-400">
+        <p className="mx-auto mt-1.5 max-w-xl text-sm leading-relaxed text-zinc-400">
           {t.ai?.conciergeSubtitle ||
             <LocalizedText source={"Ask for anything across the MIAMI ELIO ecosystem — travel, dining, yachts, villas, cars, events and verified offers — and get there in one tap."} />}
         </p>
-        <div className="mx-auto mt-8 h-px w-24 bg-gradient-to-r from-transparent via-brand-gold/50 to-transparent" />
       </header>
 
-      <div className="mx-auto mt-10 grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_440px] lg:items-start xl:grid-cols-[minmax(0,1fr)_490px]">
+      <div
+        className={
+          hasThread
+            ? 'mx-auto mt-5 grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start xl:grid-cols-[minmax(0,1fr)_460px]'
+            : 'mx-auto mt-5 w-full max-w-3xl'
+        }
+      >
         <section
           aria-label={msg("ELIO+ Guide conversation")}
-          className="flex h-[min(640px,74vh)] w-full min-w-0 flex-col rounded-3xl border border-white/10 bg-white/5 p-5 shadow-premium sm:p-7"
+          className="flex h-[min(620px,72dvh)] w-full min-w-0 flex-col rounded-3xl border border-white/10 bg-white/5 p-4 shadow-premium sm:p-6"
         >
-          <div className="mb-3 flex items-center justify-between border-b border-white/5 pb-3">
+          <div className="mb-2.5 flex items-center justify-between border-b border-white/5 pb-2.5">
             <p className="text-sm font-semibold text-white">{msg("ELIO+ Guide")}</p>
             {hasThread && (
               <button
@@ -73,25 +78,27 @@ export function ConciergeRoom() {
           </div>
         </section>
 
-        <MiamiRouteMap
-          messages={messages}
-          plan={latestAssistant?.plan || null}
-          listings={latestAssistant?.listings || []}
-          locale={locale}
-          streaming={Boolean(isLoading)}
-        />
+        {hasThread && (
+          <MiamiRouteMap
+            messages={messages}
+            plan={latestAssistant?.plan || null}
+            listings={latestAssistant?.listings || []}
+            locale={locale}
+            streaming={Boolean(isLoading)}
+          />
+        )}
       </div>
 
-      <nav aria-label={msg("Ecosystem sections")} className="mx-auto mt-10 w-full max-w-5xl">
+      <nav aria-label={msg("Ecosystem sections")} className="mx-auto mt-6 w-full max-w-5xl">
         <p className="text-center font-mono text-[0.6rem] uppercase tracking-[0.28em] text-zinc-500">
           {t.ai?.jumpIn || <LocalizedText source={"Or jump straight in"} />}
         </p>
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          {SECTIONS.map((section) => (
+        <div className="mt-3 flex flex-wrap justify-center gap-2">
+          {SECTIONS.filter((section) => section.href !== '/discovery').map((section) => (
             <Link
               key={section.href}
               href={section.href}
-              className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
+              className="rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-xs text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
             >
               {displayName(section.href,locale)||msg(section.label)}
             </Link>
