@@ -186,11 +186,12 @@ async function computeChatPayload(request, body, started, emit = null) {
   }
 
   // Stage 3 Edge Cache check for popular non-personalized first-turn queries (<150ms).
-  // Dated fleet availability queries bypass Edge Cache so live garage holds are never stale.
+  // Dated fleet availability and live voice turns bypass Edge Cache for fresh spoken/calendar replies.
+  const voiceMode = body?.voiceMode === true;
   const wantsFleetAvailability = Boolean(
     profile?.dateRange?.from && (localSections.includes('/rentals') || String(body.pagePath || '').startsWith('/rentals'))
   );
-  const canCache = !wantsFleetAvailability && isCacheableChatTurn({
+  const canCache = !voiceMode && !wantsFleetAvailability && isCacheableChatTurn({
     messages: modelMessages,
     savedPrefs: body.savedPrefs || null,
     pagePath: body.pagePath || '',
@@ -402,6 +403,7 @@ async function computeChatPayload(request, body, started, emit = null) {
       savedPrefs: body.savedPrefs || null,
       guestMemoryLine,
       availabilityLine: pre.availability?.promptLine || '',
+      voiceMode,
       conversationSummary: body.conversationSummary || '',
       onReplyDelta: emit ? (chunk) => emit('delta', { text: chunk, live: true }) : null,
       onStreamReset: emit ? () => emit('reset', { reason: 'repair' }) : null
