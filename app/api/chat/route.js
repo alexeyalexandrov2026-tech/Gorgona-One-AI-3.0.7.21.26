@@ -20,6 +20,7 @@ import { chatCacheKey, isCacheableChatTurn, readCachedChatReply, writeCachedChat
 import { formatGuestMemoryPromptLine, loadGuestAccountMemory } from '../../../lib/server/guestMemory.mjs';
 import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
 import { semanticRerankWithEmbeddings } from '../../../lib/ai/semanticSearch.mjs';
+import { runBackgroundTask } from '../../../lib/server/trackHandler.mjs';
 
 // ===========================================================================
 // Concierge chat adapter (JSON + optional SSE streaming via Accept header).
@@ -45,7 +46,7 @@ const ENGINE_STATES = new Set(['ok', 'disabled', 'unavailable', 'usage_denied', 
 function fireAndForget(promise) {
   if (!promise) return;
   try {
-    Promise.resolve(promise).catch(() => {});
+    void runBackgroundTask(promise);
   } catch {}
 }
 
@@ -60,6 +61,10 @@ function buildReplyPayload(text, {
   responsePolicy = null,
   plan = null,
   listings = [],
+  followups = null,
+  tripPatch = null,
+  handoffSummary = '',
+  rejectionReason = null,
   handoff = false,
   action = null,
   decidedBy = 'lexicon',
@@ -95,6 +100,7 @@ function buildReplyPayload(text, {
     ...(referrals.length ? { referrals } : {}),
     handoff: Boolean(handoff),
     error: Boolean(error),
+    ...(rejectionReason ? { rejectionReason } : {}),
     ...(cached ? { cached: true } : {}),
     locale: effectiveLocale,
     ...(ENGINE_STATES.has(engine) ? { engine } : {}),
@@ -109,6 +115,9 @@ function buildReplyPayload(text, {
     ...(action ? { action } : {}),
     ...(responsePolicy ? { responsePolicy } : {}),
     ...(plan ? { plan } : {}),
+    ...(Array.isArray(followups) && followups.length ? { followups: followups.slice(0, 3) } : {}),
+    ...(tripPatch && typeof tripPatch === 'object' ? { tripPatch } : {}),
+    ...(handoffSummary ? { handoffSummary } : {}),
     configured: !error,
     ...(source ? { source } : {}),
     ...(cached ? { cached: true } : {}),
@@ -197,6 +206,8 @@ async function computeChatPayload(request, body, started, emit = null) {
         navigation: { cards: cachedHit.cards || [], suggestions: cachedHit.suggestions || [] },
         listings: cachedHit.listings || [],
         plan: cachedHit.plan || null,
+        followups: cachedHit.followups || null,
+        handoffSummary: cachedHit.handoffSummary || '',
         responsePolicy: cachedHit.responsePolicy || CONVERSATION_POLICY,
         action: cachedHit.action || 'recommend',
         decidedBy: 'model',
@@ -236,7 +247,10 @@ async function computeChatPayload(request, body, started, emit = null) {
     const [dyn, initialLiveEvents, resolvedPlan] = await Promise.all([dynamicEntities, liveEventEntities, plan]);
     const liveEvents = !allowLiveUpstream || initialLiveEvents.length || !sections.includes('/events')
       ? initialLiveEvents
-      : await getLiveEventEntities(query, { profile, locale: replyLocale, env: process.env });
+      : await Promise.race([
+          getLiveEventEntities(query, { profile, locale: replyLocale, env: process.env }).catch(() => []),
+          new Promise((resolve) => setTimeout(() => resolve([]), 1200))
+        ]);
     const extraEntities = liveEvents.length ? [...dyn, ...liveEvents] : dyn;
     const viewedEntity = body.pagePath ? resolvePageEntity(body.pagePath, extraEntities) : null;
     const effectiveQuery = viewedEntity && viewedEntity.type !== 'Section' && sections.includes(viewedEntity.section)
@@ -342,7 +356,9 @@ async function computeChatPayload(request, body, started, emit = null) {
       forecastPeriods: pre.forecast,
       savedPrefs: body.savedPrefs || null,
       guestMemoryLine,
-      onReplyDelta: emit ? (chunk) => emit('delta', { text: chunk, live: true }) : null
+      conversationSummary: body.conversationSummary || '',
+      onReplyDelta: emit ? (chunk) => emit('delta', { text: chunk, live: true }) : null,
+      onStreamReset: emit ? () => emit('reset', { reason: 'repair' }) : null
     }
   );
   if (cloud.ok) {
@@ -355,6 +371,9 @@ async function computeChatPayload(request, body, started, emit = null) {
       action: cloud.action,
       decidedBy: cloud.decidedBy,
       stops: cloud.stops,
+      followups: cloud.followups || null,
+      tripPatch: cloud.tripPatch || null,
+      handoffSummary: cloud.handoffSummary || '',
       replyLocale: cloud.replyLocale,
       engine: 'ok'
     });
@@ -368,7 +387,8 @@ async function computeChatPayload(request, body, started, emit = null) {
     navigation: localAnswer.navigation,
     action: localAnswer.action,
     decidedBy: 'lexicon',
-    replyLocale: detectedLocale
+    replyLocale: detectedLocale,
+    rejectionReason: cloud.rejectionReason || null
   };
   return respond(degraded, { ...fallback, engine: cloud.kind });
 }
@@ -404,9 +424,16 @@ export async function POST(request) {
     async start(controller) {
       let closed = false;
       let streamedLive = false;
+      let streamedLiveText = '';
       const emit = (eventName, data) => {
         if (closed || request.signal?.aborted) return;
-        if (eventName === 'delta' && data?.live) streamedLive = true;
+        if (eventName === 'reset') {
+          streamedLive = false;
+          streamedLiveText = '';
+        } else if (eventName === 'delta' && data?.live) {
+          streamedLive = true;
+          if (typeof data.text === 'string') streamedLiveText += data.text;
+        }
         try {
           controller.enqueue(encoder.encode(`event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`));
         } catch {
@@ -416,7 +443,12 @@ export async function POST(request) {
       try {
         const payload = await computeChatPayload(request, body, started, emit);
         if (!closed && !request.signal?.aborted) {
-          if (!streamedLive) {
+          const finalReply = String(payload.reply || '').trim();
+          const diverged = streamedLive && streamedLiveText.trim() !== finalReply;
+          if (diverged) {
+            emit('reset', { reason: 'final' });
+          }
+          if (!streamedLive || diverged) {
             const chunks = splitStreamChunks(payload.reply);
             for (const chunk of chunks) {
               emit('delta', { text: chunk });

@@ -25,7 +25,7 @@ import {useAI} from './AIProvider';
 
 export function ConciergeRoom() {
   const msg = useSavedText();
-  const { messages, reset, pending } = useConciergeChat();
+  const { messages, reset, isLoading } = useConciergeChat();
   const {isOpen:dockOpen}=useAiDock(),{roomOpen}=useAI();
   const hasThread = messages.length > 0;
   const latestAssistant = [...messages].reverse().find((m) => m.role === 'assistant') || null;
@@ -78,7 +78,7 @@ export function ConciergeRoom() {
           plan={latestAssistant?.plan || null}
           listings={latestAssistant?.listings || []}
           locale={locale}
-          streaming={Boolean(pending)}
+          streaming={Boolean(isLoading)}
         />
       </div>
 

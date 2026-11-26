@@ -662,15 +662,17 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         locale: effectiveLocale,
         handoff: lastMessage.handoff === true,
         degraded: lastMessage.degraded === true,
-        profile
+        profile,
+        followups: lastMessage.followups || null
       })
     : [];
   const lastAssistantIndex = [...messages].map((m) => m.role).lastIndexOf('assistant');
+  const latestHandoffSummary = lastAssistantIndex >= 0 ? (messages[lastAssistantIndex]?.handoffSummary || '') : '';
   const smartTelegramHref = managerHref
-    ? buildManagerHandoffUrl({ baseHref: managerHref, profile, pageContext, messages, listings: activeListings, plan: activePlan, locale: effectiveLocale })
+    ? buildManagerHandoffUrl({ baseHref: managerHref, profile, pageContext, messages, listings: activeListings, plan: activePlan, handoffSummary: latestHandoffSummary, locale: effectiveLocale })
     : null;
   const smartWhatsAppHref = managerWhatsAppHref
-    ? buildManagerHandoffUrl({ baseHref: managerWhatsAppHref, textBaseHref: managerWhatsAppHandoffHref, profile, pageContext, messages, listings: activeListings, plan: activePlan, locale: effectiveLocale })
+    ? buildManagerHandoffUrl({ baseHref: managerWhatsAppHref, textBaseHref: managerWhatsAppHandoffHref, profile, pageContext, messages, listings: activeListings, plan: activePlan, handoffSummary: latestHandoffSummary, locale: effectiveLocale })
     : null;
 
   async function handleEmailPlan(event) {
@@ -771,7 +773,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
             type="button"
             data-profile-reset="true"
             disabled={!hydrated || isLoading}
-            onClick={reset}
+            onClick={() => reset({ clearPrefs: true })}
             className="ml-auto rounded-full border border-white/10 px-2 py-0.5 text-[11px] text-zinc-400 transition hover:border-white/30 hover:text-zinc-200"
           >
             {resetLabel}
