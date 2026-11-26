@@ -126,10 +126,20 @@ export function useVoice() {
         }
         setIsTranscribing(true);
         try {
-          const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
+          const recMime = String(recorder.mimeType || '').toLowerCase();
+          const blob = new Blob(chunks, { type: recMime || 'audio/webm' });
+          const ext = recMime.includes('mp4')
+            ? 'mp4'
+            : recMime.includes('ogg')
+              ? 'ogg'
+              : recMime.includes('mpeg') || recMime.includes('mp3')
+                ? 'mp3'
+                : 'webm';
           const form = new FormData();
-          form.append('audio', blob, 'dictation.webm');
-          form.append('locale', localeRef.current || 'en');
+          form.append('audio', blob, `dictation.${ext}`);
+          // Auto-detect spoken language so multilingual guests speaking Russian/Spanish
+          // on an English UI (or vice versa) get accurate Whisper transcription.
+          form.append('locale', 'auto');
           const res = await fetch('/api/concierge/transcribe', {
             method: 'POST',
             body: form,
@@ -256,6 +266,17 @@ export function useVoice() {
     [recognitionSupported, nativeSpeechSupported, whisperFallbackSupported, localeReady, startWhisperRecording]
   );
 
+  const cancelListening = useCallback(() => {
+    const session = sessionRef.current;
+    sessionRef.current = null;
+    if (session && typeof session.cancel === 'function') session.cancel();
+    else stopSession(session);
+    if (activeSession === session) activeSession = null;
+    setError(null);
+    setInterimText('');
+    setIsListening(false);
+  }, []);
+
   const stopListening = useCallback(() => {
     const session = sessionRef.current;
     // For Whisper MediaRecorder, stopping triggers upload & transcription (not cancel).
@@ -264,17 +285,12 @@ export function useVoice() {
       setIsListening(false);
       return;
     }
-    sessionRef.current = null;
-    stopSession(session);
-    if (activeSession === session) activeSession = null;
-    setError(null);
-    setInterimText('');
-    setIsListening(false);
-  }, []);
+    cancelListening();
+  }, [cancelListening]);
 
   useEffect(() => {
-    if (!localeReady) stopListening();
-  }, [localeReady, stopListening]);
+    if (!localeReady) cancelListening();
+  }, [localeReady, cancelListening]);
 
   useEffect(
     () => () => {
@@ -296,6 +312,7 @@ export function useVoice() {
     error,
     startListening,
     stopListening,
+    cancelListening,
     isStandalone,
     speechLang: speechLocale(locale)
   };

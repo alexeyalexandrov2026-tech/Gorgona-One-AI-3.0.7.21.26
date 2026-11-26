@@ -244,7 +244,7 @@ async function computeChatPayload(request, body, started, emit = null) {
       : (options.navigation?.cards || []).map((card) => card.href);
     const query = options.navigation?.query || localNav.query || latestUserMessage;
     const decidedBy = handoff && !options.handoff ? 'lexicon' : options.decidedBy;
-    const [dyn, initialLiveEvents, resolvedPlan] = await Promise.all([dynamicEntities, liveEventEntities, plan]);
+    const [dyn, initialLiveEvents, resolvedPlan, resolvedGuestMemory] = await Promise.all([dynamicEntities, liveEventEntities, plan, guestMemoryPromise]);
     const liveEvents = !allowLiveUpstream || initialLiveEvents.length || !sections.includes('/events')
       ? initialLiveEvents
       : await Promise.race([
@@ -303,6 +303,22 @@ async function computeChatPayload(request, body, started, emit = null) {
           resolvedListings = await semanticRerankWithEmbeddings(latestUserMessage, resolvedListings, cfEnv);
         } catch {}
       }
+    }
+    // Authenticated /pay/[token] & Live Trip Room bridge: when a signed-in guest
+    // asks about their quote, signature, payment, or trip pass, surface verified
+    // direct /pay/<token> card(s) without ever exposing raw tokens to the LLM.
+    const wantsOwnQuote = /\b(?:quote|invoice|esign|e-sign|sign|payment|pay|checkout|trip\s*room|my\s+(?:trip|booking|pass|quote))\b|оплат|сч[её]т|договор|подпис|квот|моя\s+поездк|мой\s+заказ|бронь|cotizaci|pagar|factura|חשבונית|תשלום|دفع|فاتورة|报价|付款|見積|支払|결제/iu.test(latestUserMessage);
+    if (wantsOwnQuote && Array.isArray(resolvedGuestMemory?.openQuotes) && resolvedGuestMemory.openQuotes.length) {
+      const quoteCards = resolvedGuestMemory.openQuotes.slice(0, 2).map((q) => ({
+        href: q.payPath,
+        title: q.title,
+        label: q.status === 'signed' ? 'Ready to Pay' : 'ESIGN & Pay',
+        subtitle: q.status === 'signed' ? 'Signed quote — complete payment' : 'Review & sign quote',
+        ...(Number.isFinite(q.amountCents) && q.amountCents > 0
+          ? { price: `$${Math.round(q.amountCents / 100).toLocaleString('en-US')}` }
+          : {})
+      }));
+      resolvedListings = [...quoteCards, ...resolvedListings].slice(0, Math.max(listingLimit, 4));
     }
     const payload = buildReplyPayload(answer, {
       messages: modelMessages,
