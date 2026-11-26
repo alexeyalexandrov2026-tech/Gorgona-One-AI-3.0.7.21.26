@@ -39,11 +39,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -58,16 +60,19 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -77,6 +82,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.miamielio.app.R
@@ -100,6 +107,8 @@ import com.miamielio.app.ui.oceanBackground
 import com.miamielio.app.ui.painted
 import com.miamielio.app.ui.pressable
 import com.miamielio.app.ui.rememberKeyboardDismissal
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * The AI concierge as a native conversation. It speaks to the same
@@ -113,9 +122,17 @@ internal fun ConciergeScreen(
     onOpen: (String) -> Unit,
     onMenu: () -> Unit,
     modifier: Modifier = Modifier,
+    voicePlayback: VoicePlayback? = null,
 ) {
     val state by model.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val player = voicePlayback ?: remember(context, model.ttsClient, scope) {
+        AndroidVoicePlayer(context, model.ttsClient, scope)
+    }
     val openPage by rememberUpdatedState(onOpen)
+    val latestLiveVoice by rememberUpdatedState(state.liveVoice)
+    val latestSending by rememberUpdatedState(state.isSending)
     val list = rememberLazyListState()
     val focus = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
@@ -126,6 +143,58 @@ internal fun ConciergeScreen(
     }
     val haptics = LocalHapticFeedback.current
     val reduceMotion = LocalReduceMotion.current
+
+    val voice = rememberDictation(
+        draft = state.draft,
+        language = model::speechLanguage,
+        onDraft = model::setDraft,
+        sending = state.isSending,
+        liveVoice = state.liveVoice,
+        onBeforeStart = { player.stop() },
+        onLiveFinal = { spoken -> model.send(spoken, voiceMode = true) },
+        onLiveSilentStop = { model.setLiveVoice(false) },
+        onPermissionDenied = { model.setLiveVoice(false) },
+    )
+
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+        player.stop()
+        model.setLiveVoice(false)
+    }
+    DisposableEffect(player, voicePlayback) {
+        onDispose {
+            if (voicePlayback == null) player.release() else player.stop()
+        }
+    }
+
+    // Track the latest spoken entry so enabling Live Voice never replays older history.
+    var lastSpokenId by remember { mutableStateOf<Long?>(null) }
+    var wasLiveVoice by remember { mutableStateOf(false) }
+    val newestEntry = state.entries.lastOrNull()
+    LaunchedEffect(newestEntry?.id, state.isSending, state.liveVoice) {
+        if (!state.liveVoice) {
+            wasLiveVoice = false
+            return@LaunchedEffect
+        }
+        if (!wasLiveVoice) {
+            wasLiveVoice = true
+            lastSpokenId = newestEntry?.id
+            return@LaunchedEffect
+        }
+        if (state.isSending) return@LaunchedEffect
+        val latest = newestEntry ?: return@LaunchedEffect
+        if (latest.kind == ConciergeEntry.Kind.Concierge && !latest.degraded && latest.id != lastSpokenId) {
+            lastSpokenId = latest.id
+            voice.cancel()
+            player.speak(latest.id, latest.text, latest.replyLocale ?: model.currentLocale()) {
+                scope.launch {
+                    delay(320)
+                    if (latestLiveVoice && !latestSending && player.state == PlaybackState.Idle) {
+                        voice.startListening()
+                    }
+                }
+            }
+        }
+    }
 
     // Brings the newest row into view: the start of a reply that has just
     // arrived (its plan follows below it), or the end while one is coming.
@@ -159,6 +228,9 @@ internal fun ConciergeScreen(
             onMenu = onMenu,
             onReset = {
                 focus.clearFocus()
+                player.stop()
+                voice.cancel()
+                lastSpokenId = null
                 model.reset()
             },
             onManager = { open(LIVE_MANAGER_URL) },
@@ -177,10 +249,20 @@ internal fun ConciergeScreen(
                 item(key = "welcome") { Welcome(onAsk = { model.send(it) }) }
             }
             items(state.entries, key = { it.id }) { entry ->
+                val entryPlayback = if (player.speakingEntryId == entry.id) player.state else PlaybackState.Idle
                 EntryRow(
                     entry = entry,
                     isNewest = entry.id == state.entries.last().id,
                     canReport = model.canReport,
+                    playbackState = entryPlayback,
+                    onToggleListen = {
+                        if (entryPlayback != PlaybackState.Idle) {
+                            player.stop()
+                        } else {
+                            voice.cancel()
+                            player.speak(entry.id, entry.text, entry.replyLocale ?: model.currentLocale())
+                        }
+                    },
                     onOpen = { open(it) },
                     onRetry = model::retry,
                     onReport = { note -> model.report(entry.id, note) },
@@ -205,6 +287,23 @@ internal fun ConciergeScreen(
                 item(key = "typing") { TypingIndicator(Modifier.arrives()) }
             }
         }
+        if (state.liveVoice) {
+            LiveVoiceBar(
+                isListening = voice.isListening,
+                level = voice.level,
+                isSending = state.isSending,
+                playbackState = player.state,
+                onBargeIn = {
+                    player.stop()
+                    voice.startListening()
+                },
+                onStop = {
+                    player.stop()
+                    voice.cancel()
+                    model.setLiveVoice(false)
+                },
+            )
+        }
         Composer(
             suggestions = state.entries.lastOrNull()
                 ?.takeIf { it.kind == ConciergeEntry.Kind.Concierge }
@@ -213,8 +312,24 @@ internal fun ConciergeScreen(
             draft = state.draft,
             canSend = state.canSend,
             onDraft = model::setDraft,
-            onSend = { model.send() },
-            dictationLanguage = model::speechLanguage,
+            onSend = {
+                player.stop()
+                model.send()
+            },
+            voice = voice,
+            liveVoice = state.liveVoice,
+            onToggleLiveVoice = {
+                if (state.liveVoice) {
+                    player.stop()
+                    voice.cancel()
+                    model.setLiveVoice(false)
+                } else {
+                    player.stop()
+                    lastSpokenId = state.entries.lastOrNull()?.id
+                    model.setLiveVoice(true)
+                    voice.requestPermissionAndStart()
+                }
+            },
             readingReply = state.isSending,
         )
     }
@@ -341,6 +456,8 @@ private fun EntryRow(
     entry: ConciergeEntry,
     isNewest: Boolean,
     canReport: Boolean,
+    playbackState: PlaybackState,
+    onToggleListen: () -> Unit,
     onOpen: (String) -> Unit,
     onRetry: () -> Unit,
     onReport: (String) -> Unit,
@@ -348,7 +465,7 @@ private fun EntryRow(
 ) {
     when (entry.kind) {
         ConciergeEntry.Kind.Guest -> GuestRow(entry.text, modifier)
-        ConciergeEntry.Kind.Concierge -> ReplyRow(entry, isNewest, canReport, onOpen, onRetry, onReport, modifier)
+        ConciergeEntry.Kind.Concierge -> ReplyRow(entry, isNewest, canReport, playbackState, onToggleListen, onOpen, onRetry, onReport, modifier)
         ConciergeEntry.Kind.Failed -> FailedRow(onRetry, modifier)
     }
 }
@@ -386,6 +503,8 @@ private fun ReplyRow(
     entry: ConciergeEntry,
     isNewest: Boolean,
     canReport: Boolean,
+    playbackState: PlaybackState,
+    onToggleListen: () -> Unit,
     onOpen: (String) -> Unit,
     onRetry: () -> Unit,
     onReport: (String) -> Unit,
@@ -420,8 +539,51 @@ private fun ReplyRow(
             entry.listings.forEach { listing -> ListingRow(listing) { open(listing.href) } }
             entry.cards.forEach { card -> CardView(card) { open(card.href) } }
             if (isNewest && entry.degraded) RetryAction(onRetry)
-            if (canReport) ReportAction(entry.report, onReport)
+            if (!entry.degraded || canReport) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (!entry.degraded) ListenAction(playbackState, onToggleListen)
+                    if (canReport) ReportAction(entry.report, onReport)
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun ListenAction(state: PlaybackState, onToggle: () -> Unit) {
+    val active = state != PlaybackState.Idle
+    val label = stringResource(
+        when (state) {
+            PlaybackState.Idle -> R.string.voice_listen
+            PlaybackState.Loading -> R.string.voice_loading_audio
+            PlaybackState.Speaking -> R.string.voice_stop_audio
+        },
+    )
+    Row(
+        modifier = Modifier
+            .clip(CircleShape)
+            .background(if (active) Ocean.glassDark else Color.Transparent)
+            .border(1.dp, if (active) Ocean.champagne else SolidColor(Ocean.pearl.copy(alpha = 0.22f)), CircleShape)
+            .pressable(role = Role.Button, onClick = onToggle)
+            .padding(horizontal = 11.dp, vertical = 5.dp)
+            .testTag("concierge.listen"),
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            painter = painterResource(if (active) R.drawable.ic_stop else R.drawable.ic_volume),
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            tint = if (active) Ocean.champagneMid else Ocean.pearl.copy(alpha = 0.78f),
+        )
+        Text(
+            text = label,
+            color = if (active) Ocean.champagneMid else Ocean.pearl.copy(alpha = 0.78f),
+            style = AppFont.detailMedium,
+        )
     }
 }
 
@@ -489,6 +651,35 @@ private fun ListingRow(listing: ConciergeListing, onClick: () -> Unit) {
             listing.label?.let { Eyebrow(it, color = Ocean.aqua) }
             Text(listing.title, color = Ocean.pearl, style = AppFont.rowTitle)
             listing.price?.let { Text(it, style = AppFont.detailMedium.copy(brush = Ocean.champagne)) }
+            listing.availabilityStatus?.let { status ->
+                val available = status == "available"
+                val tint = if (available) Ocean.aqua else Color(0xFFFF9B8A)
+                Text(
+                    text = stringResource(if (available) R.string.concierge_available_dates else R.string.concierge_busy_dates),
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                        .clip(CircleShape)
+                        .background(tint.copy(alpha = 0.14f))
+                        .border(1.dp, tint.copy(alpha = 0.45f), CircleShape)
+                        .padding(horizontal = 9.dp, vertical = 2.dp)
+                        .testTag("concierge.listing.availability"),
+                    color = tint,
+                    style = AppFont.detailMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            val estimate = listOfNotNull(listing.estimatedTotal, listing.perGuest).joinToString(" · ")
+            if (estimate.isNotEmpty()) {
+                Text(
+                    text = estimate,
+                    modifier = Modifier.testTag("concierge.listing.estimate"),
+                    color = Ocean.pearl.copy(alpha = 0.8f),
+                    style = AppFont.detail,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
         Icon(
             painter = painterResource(R.drawable.ic_arrow_forward),
@@ -688,6 +879,74 @@ private fun ReportDialog(status: ReportStatus, onSend: (String) -> Unit, onDismi
 // region Composer
 
 @Composable
+private fun LiveVoiceBar(
+    isListening: Boolean,
+    level: Double,
+    isSending: Boolean,
+    playbackState: PlaybackState,
+    onBargeIn: () -> Unit,
+    onStop: () -> Unit,
+) {
+    val canInterrupt = playbackState == PlaybackState.Speaking || playbackState == PlaybackState.Loading
+    val label = stringResource(
+        when {
+            canInterrupt -> R.string.voice_live_speaking
+            isSending -> R.string.voice_live_thinking
+            isListening -> R.string.voice_live_listening
+            else -> R.string.voice_live_ready
+        },
+    )
+    val orbActivity = when {
+        isSending -> OrbActivity.Thinking
+        isListening -> OrbActivity.Listening
+        else -> OrbActivity.Resting
+    }
+    val shape = RoundedCornerShape(18.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 4.dp)
+            .clip(shape)
+            .background(Ocean.glassField)
+            .border(1.dp, Ocean.champagne, shape)
+            .then(if (canInterrupt) Modifier.pressable(role = Role.Button, onClick = onBargeIn) else Modifier)
+            .padding(horizontal = 14.dp, vertical = 8.dp)
+            .semantics { liveRegion = LiveRegionMode.Polite }
+            .testTag("concierge.liveVoiceBar"),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        ConciergeMark(diameter = 20.dp, activity = orbActivity, level = level, breathes = canInterrupt)
+        Text(
+            text = label,
+            modifier = Modifier.weight(1f),
+            color = Ocean.pearl,
+            style = AppFont.detailMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        val stopLabel = stringResource(R.string.voice_live_off)
+        Box(
+            modifier = Modifier
+                .size(30.dp)
+                .clip(CircleShape)
+                .background(Ocean.glassDark)
+                .pressable(role = Role.Button, onClick = onStop)
+                .semantics { contentDescription = stopLabel }
+                .testTag("concierge.liveVoiceStop"),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_close),
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = Ocean.pearl,
+            )
+        }
+    }
+}
+
+@Composable
 private fun Composer(
     suggestions: List<ConciergeLink>,
     onOpen: (String) -> Unit,
@@ -695,14 +954,15 @@ private fun Composer(
     canSend: Boolean,
     onDraft: (String) -> Unit,
     onSend: () -> Unit,
-    dictationLanguage: () -> String,
+    voice: DictationControl,
+    liveVoice: Boolean,
+    onToggleLiveVoice: () -> Unit,
     readingReply: Boolean,
 ) {
     val placeholder = stringResource(R.string.concierge_placeholder)
     var focused by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(24.dp)
     Column(Modifier.fillMaxWidth()) {
-        val voice = rememberDictation(draft, dictationLanguage, onDraft, readingReply)
         // Where the conversation can go next, from the latest answer.
         if (suggestions.isNotEmpty()) {
             Row(
@@ -720,9 +980,9 @@ private fun Composer(
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             BasicTextField(
                 value = draft,
@@ -752,7 +1012,7 @@ private fun Composer(
                             .clip(shape)
                             .background(Ocean.glassField)
                             .border(1.dp, if (focused) Ocean.champagne else Ocean.glassEdge, shape)
-                            .padding(horizontal = 18.dp, vertical = 12.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         contentAlignment = Alignment.CenterStart,
                     ) {
                         if (draft.isEmpty()) Text(placeholder, color = Ocean.pearl.copy(alpha = 0.55f), style = AppFont.body, maxLines = 1)
@@ -760,12 +1020,36 @@ private fun Composer(
                     }
                 },
             )
+            LiveVoiceButton(active = liveVoice, enabled = liveVoice || !readingReply, onClick = onToggleLiveVoice)
             voice.button(!readingReply)
             SendButton(enabled = canSend) {
                 voice.cancel()
                 onSend()
             }
         }
+    }
+}
+
+@Composable
+private fun LiveVoiceButton(active: Boolean, enabled: Boolean, onClick: () -> Unit) {
+    val label = stringResource(if (active) R.string.voice_live_off else R.string.voice_live_on)
+    Box(
+        Modifier
+            .size(44.dp)
+            .clip(CircleShape)
+            .background(if (active) Ocean.sunset else SolidColor(Ocean.glassDark))
+            .then(if (active) Modifier else Modifier.border(1.dp, Ocean.glassEdge, CircleShape))
+            .pressable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .semantics { contentDescription = label }
+            .testTag("concierge.liveVoice"),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_live_voice),
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = if (active) Color.White else Ocean.pearl.copy(alpha = 0.85f),
+        )
     }
 }
 

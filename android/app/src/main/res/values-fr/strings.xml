@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">OK</string>
     <string name="action_retry" formatted="false">Réessayer</string>
     <string name="action_settings" formatted="false">Paramètres</string>
+    <string name="concierge_available_dates" formatted="false">Disponible à vos dates</string>
+    <string name="concierge_busy_dates" formatted="false">Réservé à ces dates</string>
     <string name="concierge_live_manager" formatted="false">Écrire à un conseiller sur Telegram</string>
     <string name="concierge_manager" formatted="false">Conseiller</string>
     <string name="concierge_new" formatted="false">Nouvelle conversation</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">Rechercher</string>
     <string name="tab_today" formatted="false">Aujourd’hui</string>
     <string name="voice_denied" formatted="false">Pour parler au concierge, autorisez le micro et la reconnaissance vocale dans les Paramètres.</string>
+    <string name="voice_listen" formatted="false">Écouter</string>
     <string name="voice_listening" formatted="false">En écoute</string>
+    <string name="voice_live_listening" formatted="false">Voix en direct · Écoute…</string>
+    <string name="voice_live_off" formatted="false">Terminer la conversation vocale en direct</string>
+    <string name="voice_live_on" formatted="false">Démarrer la conversation vocale en direct</string>
+    <string name="voice_live_ready" formatted="false">Voix en direct active</string>
+    <string name="voice_live_speaking" formatted="false">Parle · Touchez pour interrompre</string>
+    <string name="voice_live_thinking" formatted="false">Voix en direct · Réflexion…</string>
+    <string name="voice_loading_audio" formatted="false">Préparation de la voix…</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio transforme votre demande vocale en texte pour le concierge.</string>
     <string name="voice_speak" formatted="false">Exprimez votre demande</string>
     <string name="voice_stop" formatted="false">Arrêter l\'écoute</string>
+    <string name="voice_stop_audio" formatted="false">Arrêter l’audio</string>
     <string name="voice_unavailable" formatted="false">La saisie vocale n’est pas disponible pour cette langue sur cet appareil.</string>
     <string name="web_back" formatted="false">Retour</string>
     <string name="world_cars" formatted="false">Voitures</string>

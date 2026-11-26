@@ -16,6 +16,7 @@ import com.miamielio.app.core.PlanClient
 import com.miamielio.app.core.RoutePolicy
 import com.miamielio.app.core.SearchClient
 import com.miamielio.app.core.ShowcaseClient
+import com.miamielio.app.core.TtsClient
 import com.miamielio.app.today.ShowcaseModel
 import com.miamielio.app.today.ShowcasePreferences
 import com.miamielio.app.core.SiteLocale
@@ -106,6 +107,7 @@ class AppServices(
                     planClient = PlanClient(config, OkHttpTransport.plan(siteClient)),
                     reporter = AnswerReportClient(config, OkHttpTransport(15_000, siteClient)),
                     locale = { explore.currentSiteLocale() },
+                    ttsClient = TtsClient(config, OkHttpTransport.tts(siteClient)),
                 )
             }
         },

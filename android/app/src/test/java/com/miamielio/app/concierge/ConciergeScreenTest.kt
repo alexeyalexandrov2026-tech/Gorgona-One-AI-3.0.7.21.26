@@ -1,6 +1,9 @@
 package com.miamielio.app.concierge
 
 import android.graphics.Bitmap
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -35,6 +38,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -57,7 +61,7 @@ class ConciergeScreenTest {
     private val opened = mutableListOf<String>()
     private var menus = 0
 
-    private fun show(reporter: AnswerReporter? = null): ConciergeViewModel {
+    private fun show(reporter: AnswerReporter? = null, voicePlayback: VoicePlayback? = null): ConciergeViewModel {
         val model = ConciergeViewModel(
             client = ConciergeClient(transport = chat),
             planClient = PlanClient(transport = plans),
@@ -65,7 +69,17 @@ class ConciergeScreenTest {
             locale = { "en" },
         )
         val favorites = guestFavorites()
-        compose.setContent { MiamiElioTheme { ConciergeScreen(model, favorites, onOpen = { opened += it }, onMenu = { menus++ }) } }
+        compose.setContent {
+            MiamiElioTheme {
+                ConciergeScreen(
+                    model = model,
+                    favorites = favorites,
+                    onOpen = { opened += it },
+                    onMenu = { menus++ },
+                    voicePlayback = voicePlayback,
+                )
+            }
+        }
         return model
     }
 
@@ -281,6 +295,78 @@ class ConciergeScreenTest {
         assertEquals("The restaurant is closed", reports.single().note)
         assertEquals("A doubtful answer", reports.single().answer)
     }
+
+    @Test
+    fun listingsShowLiveAvailabilityAndMultiDayEstimateAndRepliesCanBeSpoken() {
+        val fakePlayer = FakeVoicePlayback()
+        chat.reply(
+            """
+            {
+              "reply": "Rolls-Royce Ghost is ready for your weekend.",
+              "replyLocale": "en",
+              "sessionId": "s-wave2",
+              "listings": [
+                {
+                  "href": "/rentals/rolls-royce-ghost",
+                  "title": "Rolls-Royce Ghost",
+                  "label": "Car",
+                  "price": "${'$'}1,200/day",
+                  "availabilityStatus": "available",
+                  "estimatedTotal": "${'$'}3,600 for 3 days",
+                  "perGuest": "${'$'}900 / guest"
+                }
+              ]
+            }
+            """.trimIndent(),
+        )
+        val model = show(voicePlayback = fakePlayer)
+        compose.onAllNodesWithTag("concierge.starter")[0].performClick()
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("concierge.listing.availability", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("Available on your dates", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("concierge.listing.estimate", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("${'$'}3,600 for 3 days · ${'$'}900 / guest", useUnmergedTree = true).assertExists()
+
+        // Opt-in Listen button plays the reply and toggles to Stop audio.
+        compose.onNodeWithTag("concierge.listen").performClick()
+        compose.waitForIdle()
+        assertEquals(1, fakePlayer.spoken.size)
+        assertEquals("en", fakePlayer.spoken.single().second)
+        compose.onNodeWithText("Stop audio").assertExists()
+
+        // Live Voice bar supports 1-tap barge-in interrupt and clean exit.
+        compose.runOnUiThread { model.setLiveVoice(true) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("concierge.liveVoiceBar").assertExists()
+        compose.onNodeWithTag("concierge.liveVoiceBar").performClick()
+        compose.waitForIdle()
+        assertEquals(PlaybackState.Idle, fakePlayer.state)
+
+        compose.onNodeWithTag("concierge.liveVoiceStop").performClick()
+        compose.waitForIdle()
+        assertFalse(model.state.value.liveVoice)
+        compose.onNodeWithTag("concierge.liveVoiceBar").assertDoesNotExist()
+    }
+}
+
+private class FakeVoicePlayback : VoicePlayback {
+    override var state by mutableStateOf(PlaybackState.Idle)
+    override var speakingEntryId by mutableStateOf<Long?>(null)
+    val spoken = mutableListOf<Pair<String, String>>()
+
+    override fun speak(entryId: Long, text: String, locale: String, onEnded: (() -> Unit)?) {
+        spoken += text to locale
+        speakingEntryId = entryId
+        state = PlaybackState.Speaking
+    }
+
+    override fun stop() {
+        state = PlaybackState.Idle
+        speakingEntryId = null
+    }
+
+    override fun release() = stop()
 }
 
 /** Draws the concierge for real and keeps the pictures in `build/outputs/snapshots`. */

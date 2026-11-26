@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">OK</string>
     <string name="action_retry" formatted="false">Erneut versuchen</string>
     <string name="action_settings" formatted="false">Einstellungen</string>
+    <string name="concierge_available_dates" formatted="false">An Ihren Daten verfügbar</string>
+    <string name="concierge_busy_dates" formatted="false">An diesen Daten belegt</string>
     <string name="concierge_live_manager" formatted="false">Einem Manager auf Telegram schreiben</string>
     <string name="concierge_manager" formatted="false">Manager</string>
     <string name="concierge_new" formatted="false">Neue Unterhaltung</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">Suchen</string>
     <string name="tab_today" formatted="false">Heute</string>
     <string name="voice_denied" formatted="false">Um mit dem Concierge zu sprechen, erlauben Sie Mikrofon und Spracherkennung in den Einstellungen.</string>
+    <string name="voice_listen" formatted="false">Anhören</string>
     <string name="voice_listening" formatted="false">Zuhören</string>
+    <string name="voice_live_listening" formatted="false">Live-Stimme · Hört zu…</string>
+    <string name="voice_live_off" formatted="false">Live-Sprachgespräch beenden</string>
+    <string name="voice_live_on" formatted="false">Live-Sprachgespräch starten</string>
+    <string name="voice_live_ready" formatted="false">Live-Stimme aktiv</string>
+    <string name="voice_live_speaking" formatted="false">Spricht · Tippen zum Unterbrechen</string>
+    <string name="voice_live_thinking" formatted="false">Live-Stimme · Denkt nach…</string>
+    <string name="voice_loading_audio" formatted="false">Stimme wird geladen…</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio wandelt Ihre gesprochene Anfrage in Text für den Concierge um.</string>
     <string name="voice_speak" formatted="false">Sprechen Sie Ihre Anfrage</string>
     <string name="voice_stop" formatted="false">Zuhören beenden</string>
+    <string name="voice_stop_audio" formatted="false">Audio stoppen</string>
     <string name="voice_unavailable" formatted="false">Spracheingabe ist für diese Sprache auf diesem Gerät nicht verfügbar.</string>
     <string name="web_back" formatted="false">Zurück</string>
     <string name="world_cars" formatted="false">Autos</string>

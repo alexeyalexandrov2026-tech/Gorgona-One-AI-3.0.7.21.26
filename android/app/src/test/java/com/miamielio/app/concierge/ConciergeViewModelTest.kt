@@ -397,5 +397,25 @@ class ConciergeViewModelTest {
         assertNotEquals(ReportStatus.Sent, model.state.value.entries.first().report)
     }
 
+    @Test
+    fun liveVoiceIsOffByDefaultSendsVoiceModeAndClearsOnReset() = test {
+        val model = model(locale = "en")
+        assertFalse(model.state.value.liveVoice)
+
+        chat.reply("""{"reply":"Отличный вечер на заливе.","replyLocale":"ru","sessionId":"s-lv"}""")
+        model.setLiveVoice(true)
+        assertTrue(model.state.value.liveVoice)
+
+        model.send("Посоветуй ужин у воды")
+        advanceUntilIdle()
+
+        val sent = chat.requests.single().jsonBody()
+        assertEquals("true", sent["voiceMode"]!!.jsonPrimitive.content)
+        assertEquals("ru", model.state.value.entries.last().replyLocale)
+
+        model.reset()
+        assertFalse(model.state.value.liveVoice)
+    }
+
     // endregion
 }

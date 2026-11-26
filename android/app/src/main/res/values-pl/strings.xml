@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">OK</string>
     <string name="action_retry" formatted="false">Spróbuj ponownie</string>
     <string name="action_settings" formatted="false">Ustawienia</string>
+    <string name="concierge_available_dates" formatted="false">Dostępne w Twoich terminach</string>
+    <string name="concierge_busy_dates" formatted="false">Zajęte w tych terminach</string>
     <string name="concierge_live_manager" formatted="false">Napisz do menedżera na Telegramie</string>
     <string name="concierge_manager" formatted="false">Menedżer</string>
     <string name="concierge_new" formatted="false">Nowa rozmowa</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">Szukaj</string>
     <string name="tab_today" formatted="false">Dziś</string>
     <string name="voice_denied" formatted="false">Aby mówić do konsjerża, zezwól na mikrofon i rozpoznawanie mowy w Ustawieniach.</string>
+    <string name="voice_listen" formatted="false">Odsłuchaj</string>
     <string name="voice_listening" formatted="false">Nasłuchiwanie</string>
+    <string name="voice_live_listening" formatted="false">Głos na żywo · Słucham…</string>
+    <string name="voice_live_off" formatted="false">Zakończ rozmowę głosową na żywo</string>
+    <string name="voice_live_on" formatted="false">Włącz rozmowę głosową na żywo</string>
+    <string name="voice_live_ready" formatted="false">Głos na żywo aktywny</string>
+    <string name="voice_live_speaking" formatted="false">Mówi · Stuknij, aby przerwać</string>
+    <string name="voice_live_thinking" formatted="false">Głos na żywo · Myślę…</string>
+    <string name="voice_loading_audio" formatted="false">Przygotowywanie głosu…</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio zamienia Twoją wypowiedzianą prośbę na tekst dla konsjerża.</string>
     <string name="voice_speak" formatted="false">Wypowiedz swoje żądanie</string>
     <string name="voice_stop" formatted="false">Zatrzymaj nasłuchiwanie</string>
+    <string name="voice_stop_audio" formatted="false">Zatrzymaj dźwięk</string>
     <string name="voice_unavailable" formatted="false">Wprowadzanie głosowe nie jest dostępne dla tego języka na tym urządzeniu.</string>
     <string name="web_back" formatted="false">Wstecz</string>
     <string name="world_cars" formatted="false">Samochody</string>

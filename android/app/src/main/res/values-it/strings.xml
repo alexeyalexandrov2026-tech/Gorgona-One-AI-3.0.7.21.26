@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">OK</string>
     <string name="action_retry" formatted="false">Riprova</string>
     <string name="action_settings" formatted="false">Impostazioni</string>
+    <string name="concierge_available_dates" formatted="false">Disponibile nelle tue date</string>
+    <string name="concierge_busy_dates" formatted="false">Occupato in queste date</string>
     <string name="concierge_live_manager" formatted="false">Scrivi a un manager su Telegram</string>
     <string name="concierge_manager" formatted="false">Manager</string>
     <string name="concierge_new" formatted="false">Nuova conversazione</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">Cerca</string>
     <string name="tab_today" formatted="false">Oggi</string>
     <string name="voice_denied" formatted="false">Per parlare con il concierge, consenti il microfono e il riconoscimento vocale in Impostazioni.</string>
+    <string name="voice_listen" formatted="false">Ascolta</string>
     <string name="voice_listening" formatted="false">In ascolto</string>
+    <string name="voice_live_listening" formatted="false">Voce live · In ascolto…</string>
+    <string name="voice_live_off" formatted="false">Termina conversazione vocale dal vivo</string>
+    <string name="voice_live_on" formatted="false">Avvia conversazione vocale dal vivo</string>
+    <string name="voice_live_ready" formatted="false">Voce live attiva</string>
+    <string name="voice_live_speaking" formatted="false">Sta parlando · Tocca per interrompere</string>
+    <string name="voice_live_thinking" formatted="false">Voce live · Elaborazione…</string>
+    <string name="voice_loading_audio" formatted="false">Preparazione voce…</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio trasforma la tua richiesta vocale in testo per il concierge.</string>
     <string name="voice_speak" formatted="false">Esprimi la tua richiesta</string>
     <string name="voice_stop" formatted="false">Interrompi ascolto</string>
+    <string name="voice_stop_audio" formatted="false">Ferma audio</string>
     <string name="voice_unavailable" formatted="false">L’input vocale non è disponibile per questa lingua su questo dispositivo.</string>
     <string name="web_back" formatted="false">Indietro</string>
     <string name="world_cars" formatted="false">Auto</string>

@@ -42,6 +42,9 @@ data class PlanItem(
     /** Absolute https address once the client has resolved it. */
     val image: String? = null,
     val href: String,
+    val availabilityStatus: String? = null,
+    val estimatedTotal: String? = null,
+    val perGuest: String? = null,
 ) {
     val id: String get() = "$kind:$slug"
     val isRestaurant: Boolean get() = kind == "dining" || kind == "nightlife"
@@ -52,7 +55,19 @@ data class PlanItem(
             val slug = json.text("slug")?.takeIf(PlanRules::isSlug) ?: return null
             val title = json.text("title") ?: return null
             val href = json.text("href") ?: return null
-            return PlanItem(kind, slug, title, json.text("subtitle"), json.text("image"), href)
+            val availability = json.text("availabilityStatus")
+                ?.takeIf { it == "available" || it == "busy" }
+            return PlanItem(
+                kind = kind,
+                slug = slug,
+                title = title,
+                subtitle = json.text("subtitle"),
+                image = json.text("image"),
+                href = href,
+                availabilityStatus = availability,
+                estimatedTotal = json.text("estimatedTotal"),
+                perGuest = json.text("perGuest"),
+            )
         }
     }
 }

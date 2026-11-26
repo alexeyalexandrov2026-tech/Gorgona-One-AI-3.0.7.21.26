@@ -18,6 +18,7 @@ import com.miamielio.app.core.PlanRequest
 import com.miamielio.app.core.PlanReceipt
 import com.miamielio.app.core.PlanSection
 import com.miamielio.app.core.SiteLocale
+import com.miamielio.app.core.TtsClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
@@ -41,6 +42,8 @@ data class ConciergeEntry(
     /** How far a report on this answer got. */
     val report: ReportStatus = ReportStatus.None,
     val degraded: Boolean = false,
+    /** Language code the reply was written in, for matching TTS audio. */
+    val replyLocale: String? = null,
 ) {
     val canRetry: Boolean get() = kind == Kind.Failed || degraded
 
@@ -100,6 +103,8 @@ data class ConciergeState(
     val planProblem: PlanProblem? = null,
     /** What is in the composer. */
     val draft: String = "",
+    /** Hands-free Live Voice conversation mode (strictly opt-in, OFF by default). */
+    val liveVoice: Boolean = false,
 ) {
     val canSend: Boolean get() = !isSending && draft.isNotBlank()
 }
@@ -119,6 +124,7 @@ class ConciergeViewModel(
     private val planClient: PlanClient,
     private val reporter: AnswerReporter?,
     private val locale: () -> String,
+    internal val ttsClient: TtsClient? = null,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ConciergeState())
     val state: StateFlow<ConciergeState> = mutableState.asStateFlow()
@@ -133,9 +139,15 @@ class ConciergeViewModel(
     /** True when a report on an answer can actually be delivered. */
     val canReport: Boolean get() = reporter != null
 
+    internal fun currentLocale(): String = SiteLocale.normalize(locale()) ?: SiteLocale.fallback
+
     internal fun speechLanguage(): String = SiteLocale.speechLocale(locale())
 
     fun setDraft(text: String) = mutableState.update { it.copy(draft = text) }
+
+    fun setLiveVoice(enabled: Boolean) = mutableState.update { it.copy(liveVoice = enabled) }
+
+    fun toggleLiveVoice() = mutableState.update { it.copy(liveVoice = !it.liveVoice) }
 
     /**
      * Puts a request in the composer for the guest to read and send, as
@@ -144,10 +156,11 @@ class ConciergeViewModel(
     fun prepare(text: String) = setDraft(text)
 
     /** Sends the draft, or a ready-made prompt when one is given. */
-    fun send(prompt: String? = null) {
+    fun send(prompt: String? = null, voiceMode: Boolean = false) {
         val current = mutableState.value
         val text = (prompt ?: current.draft).trim()
         if (text.isEmpty() || current.isSending) return
+        val spoken = voiceMode || current.liveVoice
         mutableState.update { state ->
             state.copy(
                 draft = if (prompt == null) "" else state.draft,
@@ -155,7 +168,7 @@ class ConciergeViewModel(
                     entry(ConciergeEntry.Kind.Guest, text),
             )
         }
-        request()
+        request(voiceMode = spoken)
     }
 
     /** Asks again after a failure; the guest's message is still in the thread. */
@@ -163,7 +176,7 @@ class ConciergeViewModel(
         val current = mutableState.value
         if (current.isSending || current.entries.lastOrNull()?.canRetry != true) return
         mutableState.update { it.copy(entries = it.entries.dropLast(1)) }
-        request()
+        request(voiceMode = current.liveVoice)
     }
 
     /** A new conversation. Whatever is in the composer stays there. */
@@ -300,9 +313,10 @@ class ConciergeViewModel(
         cards = reply?.cards.orEmpty(),
         listings = reply?.listings.orEmpty(),
         degraded = reply?.degraded == true,
+        replyLocale = reply?.replyLocale,
     )
 
-    private fun request() {
+    private fun request(voiceMode: Boolean = false) {
         val history = mutableState.value.entries.mapNotNull { entry ->
             when (entry.kind) {
                 ConciergeEntry.Kind.Guest -> ChatMessage(ChatMessage.Role.User, entry.text)
@@ -317,7 +331,7 @@ class ConciergeViewModel(
         val language = locale()
         job = viewModelScope.launch {
             val reply = try {
-                client.send(history, session, language)
+                client.send(history, session, language, voiceMode)
             } catch (e: CancellationException) {
                 // A conversation that was cleared mid-request stays cleared.
                 throw e
