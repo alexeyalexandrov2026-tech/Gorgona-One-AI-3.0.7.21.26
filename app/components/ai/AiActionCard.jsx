@@ -8,8 +8,9 @@ import SaveButton from '../SaveButton';
 import { getTranslation } from '../../../lib/i18nClient';
 import { getDiningHandoffCopy } from '../../../lib/dining/copy.mjs';
 import { PROVIDERS } from '../../../lib/dining/gateway.mjs';
-import { buildStay22ReferralUrl } from '../../../lib/ai/tripProfile.mjs';
+import { buildStay22ReferralUrl, parseDailyPrice } from '../../../lib/ai/tripProfile.mjs';
 import { enrichPartnerBookingUrl, getStage2Copy } from '../../../lib/ai/stage2Core.mjs';
+import { formatActionEstimate, getActionAgentCopy } from '../../../lib/ai/actionAgentCopy.mjs';
 import { buildDayTimeline, buildPlanIcs, getTimelineCopy } from '../../../lib/ai/dayTimeline.mjs';
 import { buildPackagePlanNote, computePackageSummary, formatUsd, getPackageCopy } from '../../../lib/ai/packageCalculator.mjs';
 import { extractTripDays } from '../../../lib/ai/budgetEstimator.mjs';
@@ -98,8 +99,10 @@ export function AiActionCard({ card, onNavigate }) {
 }
 
 function ListingLink({ card, onNavigate, selected = false }) {
+  const agentCopy = getActionAgentCopy(useLocale());
   const name = card.title || card.label;
   const favKind = favoriteKindForCard(card);
+  const estimateLine = [card.estimatedTotal, card.perGuest].filter(Boolean).join(' · ');
   return (
     <div className={`flex min-w-0 items-center gap-2 rounded-2xl border p-3 transition ${
       selected
@@ -119,6 +122,22 @@ function ListingLink({ card, onNavigate, selected = false }) {
           {card.label ? <span className="block font-mono text-[0.58rem] uppercase tracking-[0.28em] text-brand-gold/80">{card.label}</span> : null}
           <span className="mt-1 block truncate text-sm font-semibold text-white">{name}</span>
           {card.price ? <span className="mt-1 block text-xs text-brand-gold">{card.price}</span> : null}
+          {estimateLine ? (
+            <span data-card-estimate="true" className="mt-0.5 block truncate text-[11px] text-zinc-300">
+              {estimateLine}
+            </span>
+          ) : null}
+          {card.availabilityStatus === 'available' ? (
+            <span data-availability="available" className="mt-1 inline-flex items-center gap-1 rounded-full border border-emerald-400/35 bg-emerald-500/12 px-2 py-0.5 text-[10px] font-medium text-emerald-200">
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              {agentCopy.availableDates}
+            </span>
+          ) : card.availabilityStatus === 'busy' ? (
+            <span data-availability="busy" className="mt-1 inline-flex items-center gap-1 rounded-full border border-amber-400/35 bg-amber-500/12 px-2 py-0.5 text-[10px] font-medium text-amber-200">
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+              {agentCopy.busyDates}
+            </span>
+          ) : null}
         </span>
         <span aria-hidden="true" className="shrink-0 text-brand-gold transition-transform duration-200 group-hover:translate-x-0.5">&rarr;</span>
       </Link>
@@ -166,13 +185,17 @@ function InlineCarQuickRequest({ card, profile = null, onNavigate }) {
   const locale = useLocale();
   const auth = useAuth();
   const s2 = getStage2Copy(locale);
+  const agentCopy = getActionAgentCopy(locale);
   const legal = getConsentCopy(locale);
   const slug = carSlugFromHref(card?.href);
+  const splitGuests = Number.isInteger(profile?.guests) && profile.guests >= 2 ? Math.min(12, profile.guests) : null;
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState('idle'); // idle | sending | sent
   const [error, setError] = useState('');
   const [contact, setContact] = useState({ name: '', email: '', phone: '' });
   const [dates, setDates] = useState({ from: '', to: '' });
+  const [delivery, setDelivery] = useState('');
+  const [splitPay, setSplitPay] = useState(Boolean(splitGuests));
   const [accepted, setAccepted] = useState(false);
   const attempt = useRef(null);
 
@@ -183,6 +206,9 @@ function InlineCarQuickRequest({ card, profile = null, onNavigate }) {
       ? profile.dateRange.to
       : isoDayOffset(6);
     setDates((prev) => ({ from: prev.from || defaultFrom, to: prev.to || defaultTo }));
+    if (profile?.airport) {
+      setDelivery((prev) => prev || profile.airport);
+    }
     if (auth?.session) {
       setContact((prev) => ({
         ...prev,
@@ -190,9 +216,24 @@ function InlineCarQuickRequest({ card, profile = null, onNavigate }) {
         email: prev.email || auth.session.email || ''
       }));
     }
-  }, [open, profile?.dateRange?.from, profile?.dateRange?.to, auth?.session?.name, auth?.session?.email]);
+  }, [open, profile?.dateRange?.from, profile?.dateRange?.to, profile?.airport, auth?.session?.name, auth?.session?.email]);
 
   if (!slug) return null;
+
+  const dailyRate = parseDailyPrice(card?.price);
+  const formDays = dates.from && dates.to && dates.to > dates.from
+    ? Math.max(1, Math.min(30, Math.round((Date.parse(`${dates.to}T12:00:00Z`) - Date.parse(`${dates.from}T12:00:00Z`)) / 86_400_000)))
+    : 0;
+  const liveEstimate = dailyRate && formDays >= 1
+    ? formatActionEstimate({
+        days: formDays,
+        estimatedTotalUsd: dailyRate * formDays,
+        perGuestUsd: splitGuests && splitPay ? Math.ceil((dailyRate * formDays) / splitGuests) : null,
+        splitWays: splitGuests && splitPay ? splitGuests : null,
+        locale
+      })
+    : { estimatedTotal: null, perGuest: null };
+  const liveEstimateText = [liveEstimate.estimatedTotal, liveEstimate.perGuest].filter(Boolean).join(' · ');
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -215,16 +256,25 @@ function InlineCarQuickRequest({ card, profile = null, onNavigate }) {
         token = data?.session?.access_token || null;
         if (data?.session?.user?.id) userId = data.session.user.id;
       } catch {}
+      const dateParts = [`${dates.from} → ${dates.to}`];
+      const cleanDelivery = delivery.trim().slice(0, 120);
+      if (cleanDelivery) dateParts.push(`Delivery: ${cleanDelivery}`);
+      if (splitPay && splitGuests) dateParts.push(`Split-Pay (${splitGuests})`);
       const body = {
         name: contact.name.trim(),
         email: contact.email.trim(),
         phone: contact.phone.trim(),
-        dates: `${dates.from} → ${dates.to}`,
+        dates: dateParts.join(' · ').slice(0, 600),
         itemSlug: slug,
         itemTitle: card.title || slug,
         kind: 'car',
         termsAccepted: true,
-        termsVersion: TERMS_VERSION
+        termsVersion: TERMS_VERSION,
+        attribution: {
+          utmSource: 'elio_guide',
+          utmMedium: 'ai_chat',
+          utmCampaign: 'inline_car_request'
+        }
       };
       attempt.current = submissionKey(attempt.current, JSON.stringify([body, userId]));
       const response = await fetch('/api/book', {
@@ -280,11 +330,23 @@ function InlineCarQuickRequest({ card, profile = null, onNavigate }) {
               <input type="date" required min={dates.from || isoDayOffset(0)} value={dates.to} onChange={(e) => setDates({ ...dates, to: e.target.value })} className={compactInputClass} />
             </label>
           </div>
+          {liveEstimateText ? (
+            <p data-inline-estimate="true" className="rounded-lg border border-brand-gold/25 bg-brand-gold/[0.08] px-2.5 py-1 text-[11px] font-medium text-brand-gold">
+              {liveEstimateText}
+            </p>
+          ) : null}
           <input type="text" required maxLength={120} placeholder={s2.namePlaceholder} aria-label={s2.namePlaceholder} value={contact.name} onChange={(e) => setContact({ ...contact, name: e.target.value })} className={compactInputClass} />
           <div className="grid grid-cols-2 gap-2">
             <input type="email" required maxLength={254} placeholder={s2.emailPlaceholder} aria-label={s2.emailPlaceholder} value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} className={compactInputClass} />
             <input type="tel" required maxLength={40} placeholder={s2.phonePlaceholder} aria-label={s2.phonePlaceholder} value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} className={compactInputClass} />
           </div>
+          <input type="text" maxLength={120} placeholder={agentCopy.deliveryPlaceholder} aria-label={agentCopy.deliveryPlaceholder} value={delivery} onChange={(e) => setDelivery(e.target.value)} className={compactInputClass} />
+          {splitGuests ? (
+            <label className="flex cursor-pointer items-center gap-2 text-[11px] text-zinc-200">
+              <input type="checkbox" checked={splitPay} onChange={(e) => setSplitPay(e.target.checked)} className="accent-brand-gold" />
+              <span>{agentCopy.splitPayOption.replace('{n}', String(splitGuests))}</span>
+            </label>
+          ) : null}
           <label className="flex items-start gap-2 text-[11px] leading-snug text-zinc-300">
             <input type="checkbox" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} className="mt-0.5 accent-brand-gold" />
             <span>
@@ -451,7 +513,12 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
         note: buildPackagePlanNote(pkgSummary, { userNote: form.note, requestSplitPay }),
         termsAccepted: true,
         termsVersion: TERMS_VERSION,
-        items: selectedItems.map(({ kind, slug }) => ({ kind, slug }))
+        items: selectedItems.map(({ kind, slug }) => ({ kind, slug })),
+        attribution: {
+          utmSource: 'elio_guide',
+          utmMedium: 'ai_chat',
+          utmCampaign: 'elio_trip_plan'
+        }
       };
       attempt.current = submissionKey(attempt.current, JSON.stringify([payload, userId]));
       const response = await fetch('/api/plan', {

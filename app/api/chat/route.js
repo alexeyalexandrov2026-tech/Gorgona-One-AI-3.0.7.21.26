@@ -19,6 +19,7 @@ import { detectMessageLocale } from '../../../lib/ai/semanticVibes.mjs';
 import { chatCacheKey, isCacheableChatTurn, readCachedChatReply, writeCachedChatReply } from '../../../lib/server/chatEdgeCache.mjs';
 import { formatGuestMemoryPromptLine, loadGuestAccountMemory } from '../../../lib/server/guestMemory.mjs';
 import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
+import { checkPreInferenceFleetAvailability, enrichListingsWithAgentTools, enrichPlanWithAgentTools } from '../../../lib/ai/agentTools.mjs';
 import { runBackgroundTask } from '../../../lib/server/trackHandler.mjs';
 
 // ===========================================================================
@@ -185,7 +186,11 @@ async function computeChatPayload(request, body, started, emit = null) {
   }
 
   // Stage 3 Edge Cache check for popular non-personalized first-turn queries (<150ms).
-  const canCache = isCacheableChatTurn({
+  // Dated fleet availability queries bypass Edge Cache so live garage holds are never stale.
+  const wantsFleetAvailability = Boolean(
+    profile?.dateRange?.from && (localSections.includes('/rentals') || String(body.pagePath || '').startsWith('/rentals'))
+  );
+  const canCache = !wantsFleetAvailability && isCacheableChatTurn({
     messages: modelMessages,
     savedPrefs: body.savedPrefs || null,
     pagePath: body.pagePath || '',
@@ -230,6 +235,15 @@ async function computeChatPayload(request, body, started, emit = null) {
   const guestMemoryPromise = hasAuth
     ? loadGuestAccountMemory(request, process.env)
     : Promise.resolve(null);
+  const availabilityPromise = wantsFleetAvailability
+    ? checkPreInferenceFleetAvailability({
+        query: localQuery,
+        pagePath: body.pagePath || '',
+        profile,
+        localSections,
+        env: process.env
+      }).catch(() => ({ checked: false, statuses: new Map(), promptLine: '' }))
+    : Promise.resolve({ checked: false, statuses: new Map(), promptLine: '' });
 
   const respond = async (text, options = {}) => {
     const replyLocale = options.replyLocale || detectedLocale;
@@ -243,7 +257,13 @@ async function computeChatPayload(request, body, started, emit = null) {
       : (options.navigation?.cards || []).map((card) => card.href);
     const query = options.navigation?.query || localNav.query || latestUserMessage;
     const decidedBy = handoff && !options.handoff ? 'lexicon' : options.decidedBy;
-    const [dyn, initialLiveEvents, resolvedPlan, resolvedGuestMemory] = await Promise.all([dynamicEntities, liveEventEntities, plan, guestMemoryPromise]);
+    const [dyn, initialLiveEvents, resolvedPlan, resolvedGuestMemory, resolvedAvailability] = await Promise.all([
+      dynamicEntities,
+      liveEventEntities,
+      plan,
+      guestMemoryPromise,
+      availabilityPromise
+    ]);
     const liveEvents = !allowLiveUpstream || initialLiveEvents.length || !sections.includes('/events')
       ? initialLiveEvents
       : await Promise.race([
@@ -295,6 +315,23 @@ async function computeChatPayload(request, body, started, emit = null) {
     const alignedPlan = (!handoff && decidedBy === 'model' && resolvedPlan)
       ? alignPlanWithReply(resolvedPlan, text, { extraEntities })
       : resolvedPlan;
+    const [enrichedListings, enrichedPlan] = await Promise.all([
+      enrichListingsWithAgentTools(resolvedListings, {
+        profile,
+        locale: replyLocale,
+        preStatuses: resolvedAvailability?.statuses,
+        env: process.env
+      }).catch(() => resolvedListings),
+      alignedPlan
+        ? enrichPlanWithAgentTools(alignedPlan, {
+            profile,
+            locale: replyLocale,
+            preStatuses: resolvedAvailability?.statuses,
+            env: process.env
+          }).catch(() => alignedPlan)
+        : Promise.resolve(alignedPlan)
+    ]);
+    resolvedListings = enrichedListings;
     // Authenticated /pay/[token] & Live Trip Room bridge: when a signed-in guest
     // asks about their quote, signature, payment, or trip pass, surface verified
     // direct /pay/<token> card(s) without ever exposing raw tokens to the LLM.
@@ -322,7 +359,7 @@ async function computeChatPayload(request, body, started, emit = null) {
       skipTelemetry,
       listings: resolvedListings,
       ...(handoff ? { handoff: true } : {}),
-      plan: alignedPlan
+      plan: enrichedPlan
     });
     if (cacheKey && !payload.error && !payload.handoff && payload.decidedBy === 'model') {
       fireAndForget(writeCachedChatReply(cacheKey, payload));
@@ -330,9 +367,9 @@ async function computeChatPayload(request, body, started, emit = null) {
     return payload;
   };
 
-  // Pre-inference window (<= 1100 ms) for live catalog, events, NOAA forecast & guest account memory.
-  const preWait = Promise.all([dynamicEntities, liveEventEntities, forecastPromise, guestMemoryPromise])
-    .then(([dyn, live, forecast, memory]) => ({ extra: [...dyn, ...live], forecast, memory }));
+  // Pre-inference window (<= 1100 ms) for live catalog, events, NOAA forecast, fleet calendar & guest memory.
+  const preWait = Promise.all([dynamicEntities, liveEventEntities, forecastPromise, guestMemoryPromise, availabilityPromise])
+    .then(([dyn, live, forecast, memory, availability]) => ({ extra: [...dyn, ...live], forecast, memory, availability }));
   let preTimer;
   const pre = await Promise.race([
     preWait,
@@ -343,7 +380,8 @@ async function computeChatPayload(request, body, started, emit = null) {
           ...(wantsEvents ? peekLiveEventEntities(localQuery, { profile, locale: detectedLocale }) : [])
         ],
         forecast: wantsForecast ? peekMiamiForecast() : [],
-        memory: null
+        memory: null,
+        availability: { checked: false, statuses: new Map(), promptLine: '' }
       }), 1100);
     })
   ]).finally(() => clearTimeout(preTimer));
@@ -363,6 +401,7 @@ async function computeChatPayload(request, body, started, emit = null) {
       forecastPeriods: pre.forecast,
       savedPrefs: body.savedPrefs || null,
       guestMemoryLine,
+      availabilityLine: pre.availability?.promptLine || '',
       conversationSummary: body.conversationSummary || '',
       onReplyDelta: emit ? (chunk) => emit('delta', { text: chunk, live: true }) : null,
       onStreamReset: emit ? () => emit('reset', { reason: 'repair' }) : null
