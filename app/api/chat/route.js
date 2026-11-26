@@ -20,6 +20,7 @@ import { chatCacheKey, isCacheableChatTurn, readCachedChatReply, writeCachedChat
 import { formatGuestMemoryPromptLine, loadGuestAccountMemory } from '../../../lib/server/guestMemory.mjs';
 import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
 import { checkPreInferenceFleetAvailability, enrichListingsWithAgentTools, enrichPlanWithAgentTools } from '../../../lib/ai/agentTools.mjs';
+import { buildProactiveCarePromptLine } from '../../../lib/ai/proactiveCare.mjs';
 import { runBackgroundTask } from '../../../lib/server/trackHandler.mjs';
 
 // ===========================================================================
@@ -172,11 +173,14 @@ async function computeChatPayload(request, body, started, emit = null) {
   ];
   const clientIp = request?.headers?.get('cf-connecting-ip');
   const allowLiveUpstream = !globalThis.caches?.default || Boolean(clientIp && /^[a-f0-9:.]{3,64}$/i.test(clientIp));
+  const hasAuth = Boolean(request?.headers?.get('authorization'));
   const wantsEvents = allowLiveUpstream && localSections.includes('/events');
-  const wantsForecast = allowLiveUpstream && shouldFetchForecast(latestUserMessage, profile, localSections);
+  const wantsForecast = allowLiveUpstream && (
+    shouldFetchForecast(latestUserMessage, profile, localSections)
+    || (hasAuth && body.pagePath === '/trip')
+  );
   const bookingText = [...modelMessages].reverse().find((m) => m.role === 'user')?.content || '';
   const bookingTurn = explicitBooking(bookingText);
-  const hasAuth = Boolean(request?.headers?.get('authorization'));
 
   if (emit) {
     emit('status', { stage: 'context', label: wantsForecast ? s3.statusWeather : s3.statusCatalog });
@@ -392,6 +396,12 @@ async function computeChatPayload(request, body, started, emit = null) {
   }
 
   const guestMemoryLine = formatGuestMemoryPromptLine(pre.memory);
+  const proactiveCareLine = buildProactiveCarePromptLine({
+    memory: pre.memory,
+    forecastPeriods: pre.forecast,
+    profile,
+    savedPrefs: body.savedPrefs || null
+  });
   const cloud = await askWorkersBrain(
     { messages, locale, signal: request.signal, request },
     {
@@ -402,6 +412,7 @@ async function computeChatPayload(request, body, started, emit = null) {
       forecastPeriods: pre.forecast,
       savedPrefs: body.savedPrefs || null,
       guestMemoryLine,
+      proactiveCareLine,
       availabilityLine: pre.availability?.promptLine || '',
       voiceMode,
       conversationSummary: body.conversationSummary || '',
