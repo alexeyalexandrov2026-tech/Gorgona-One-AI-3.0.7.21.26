@@ -318,7 +318,6 @@
   "ui.5978b48c945ffcf3": "Name / Company",
   "ui.14736a2eb9f4159f": "Role",
   "ui.c87ade9428c523ec": "Affiliate Disclosure",
-  "ui.0f7664c62a90fb50": "Miami Elio AI Concierge",
   "ui.94fa9b236332e81d": "Stop listening",
   "ui.27a3ea7c6b4e515a": "Speak your request",
   "ui.6aadac2f2b7a6b8e": "Go back",
@@ -465,7 +464,6 @@
   "ui.8d14f6e72de8f18a": "Events",
   "ui.f4bd27aea3b4c4d1": "Critical Error",
   "ui.cbf8d644f610dea2": "A critical system error occurred. We have logged the issue and are working on it.",
-  "ui.6fd6628dffd218e9": "Concierge",
   "ui.fe8de04d7c8124a6": "Please fill out all fields",
   "ui.8864165e8b42303e": "Invalid email",
   "ui.2005290ddda9a56d": "Password must be at least 6 characters",
@@ -884,5 +882,6 @@
   "ui.45928ac91f9b9bbe": "Reported ELIO answers: 12 months.",
   "ui.1b731c78dbf48909": "ELIO+{break}Desk",
   "ui.46fe8ff77f9b437f": "ELIO+ Guide for travel — luxury destinations, curated flights, and stays, wrapped in a single premium experience.",
-  "ui.b7a86a4d0d83e7f8": "Live AI guide"
+  "ui.b7a86a4d0d83e7f8": "Live AI guide",
+  "ui.065324ada0247f7c": "Miami Elio · ELIO+ Guide"
 }

@@ -1,4 +1,3 @@
-// Saved display text. No translation service is called when rendering.
 export default {
   "home.eyebrow": "旅行 · 宿泊 · ヨット · 車 · イベント",
   "home.titleA": "日々の買い物はお得に。",
@@ -319,7 +318,6 @@ export default {
   "ui.5978b48c945ffcf3": "名前 / 会社",
   "ui.14736a2eb9f4159f": "役割",
   "ui.c87ade9428c523ec": "アフィリエイト開示",
-  "ui.0f7664c62a90fb50": "Miami Elio AI コンシェルジュ",
   "ui.94fa9b236332e81d": "リスニングを停止",
   "ui.27a3ea7c6b4e515a": "リクエストを話してください",
   "ui.6aadac2f2b7a6b8e": "戻る",
@@ -466,7 +464,6 @@ export default {
   "ui.8d14f6e72de8f18a": "イベント",
   "ui.f4bd27aea3b4c4d1": "重大なエラー",
   "ui.cbf8d644f610dea2": "重大なシステムエラーが発生しました。問題を記録し、対応を進めています。",
-  "ui.6fd6628dffd218e9": "コンシェルジュ",
   "ui.fe8de04d7c8124a6": "すべての項目を入力してください",
   "ui.8864165e8b42303e": "メールアドレスが無効です",
   "ui.2005290ddda9a56d": "パスワードは6文字以上である必要があります。",
@@ -885,5 +882,6 @@ export default {
   "ui.45928ac91f9b9bbe": "報告された ELIO の回答：12か月。",
   "ui.1b731c78dbf48909": "ELIO+{break}デスク",
   "ui.46fe8ff77f9b437f": "旅のための ELIO+ Guide — ラグジュアリーな目的地、厳選フライト、滞在をひとつの体験に。",
-  "ui.b7a86a4d0d83e7f8": "ライブ AI ガイド"
+  "ui.b7a86a4d0d83e7f8": "ライブ AI ガイド",
+  "ui.065324ada0247f7c": "Miami Elio · ELIO+ ガイド"
 };

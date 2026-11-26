@@ -1,4 +1,3 @@
-// Saved display text. No translation service is called when rendering.
 export default {
   "home.eyebrow": "Viaggi · Soggiorni · Yacht · Auto · Eventi",
   "home.titleA": "Risparmia ogni giorno. ",
@@ -319,7 +318,6 @@ export default {
   "ui.5978b48c945ffcf3": "Nome / Azienda",
   "ui.14736a2eb9f4159f": "Ruolo",
   "ui.c87ade9428c523ec": "Informativa Affiliati",
-  "ui.0f7664c62a90fb50": "Concierge IA Miami Elio",
   "ui.94fa9b236332e81d": "Interrompi ascolto",
   "ui.27a3ea7c6b4e515a": "Esprimi la tua richiesta",
   "ui.6aadac2f2b7a6b8e": "Indietro",
@@ -466,7 +464,6 @@ export default {
   "ui.8d14f6e72de8f18a": "Eventi",
   "ui.f4bd27aea3b4c4d1": "Errore critico",
   "ui.cbf8d644f610dea2": "Si è verificato un errore critico del sistema. Abbiamo registrato il problema e stiamo lavorando per risolverlo.",
-  "ui.6fd6628dffd218e9": "Concierge",
   "ui.fe8de04d7c8124a6": "Compila tutti i campi",
   "ui.8864165e8b42303e": "E-mail non valida",
   "ui.2005290ddda9a56d": "La password deve contenere almeno 6 caratteri.",
@@ -885,5 +882,6 @@ export default {
   "ui.45928ac91f9b9bbe": "Risposte ELIO segnalate: 12 mesi.",
   "ui.1b731c78dbf48909": "ELIO+{break}Desk",
   "ui.46fe8ff77f9b437f": "ELIO+ Guide per viaggiare — destinazioni di lusso, voli selezionati e soggiorni in un’unica esperienza.",
-  "ui.b7a86a4d0d83e7f8": "Guida IA dal vivo"
+  "ui.b7a86a4d0d83e7f8": "Guida IA dal vivo",
+  "ui.065324ada0247f7c": "Miami Elio · Guida ELIO+"
 };

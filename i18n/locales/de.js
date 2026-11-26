@@ -1,4 +1,3 @@
-// Saved display text. No translation service is called when rendering.
 export default {
   "home.eyebrow": "Reisen · Unterkünfte · Yachten · Autos · Events",
   "home.titleA": "Im Alltag sparen. ",
@@ -319,7 +318,6 @@ export default {
   "ui.5978b48c945ffcf3": "Name / Unternehmen",
   "ui.14736a2eb9f4159f": "Rolle",
   "ui.c87ade9428c523ec": "Affiliate-Offenlegung",
-  "ui.0f7664c62a90fb50": "Miami Elio KI-Concierge",
   "ui.94fa9b236332e81d": "Zuhören beenden",
   "ui.27a3ea7c6b4e515a": "Sprechen Sie Ihre Anfrage",
   "ui.6aadac2f2b7a6b8e": "Zurück",
@@ -466,7 +464,6 @@ export default {
   "ui.8d14f6e72de8f18a": "Events",
   "ui.f4bd27aea3b4c4d1": "Kritischer Fehler",
   "ui.cbf8d644f610dea2": "Ein kritischer Systemfehler ist aufgetreten. Wir haben das Problem erfasst und arbeiten an einer Lösung.",
-  "ui.6fd6628dffd218e9": "Concierge",
   "ui.fe8de04d7c8124a6": "Bitte füllen Sie alle Felder aus",
   "ui.8864165e8b42303e": "Ungültige E-Mail-Adresse",
   "ui.2005290ddda9a56d": "Das Passwort muss mindestens 6 Zeichen lang sein.",
@@ -885,5 +882,6 @@ export default {
   "ui.45928ac91f9b9bbe": "Gemeldete ELIO-Antworten: 12 Monate.",
   "ui.1b731c78dbf48909": "ELIO+{break}Desk",
   "ui.46fe8ff77f9b437f": "ELIO+ Guide für Reisen — luxuriöse Ziele, ausgewählte Flüge und Aufenthalte in einem Erlebnis.",
-  "ui.b7a86a4d0d83e7f8": "Live-KI-Guide"
+  "ui.b7a86a4d0d83e7f8": "Live-KI-Guide",
+  "ui.065324ada0247f7c": "Miami Elio · ELIO+ Guide"
 };

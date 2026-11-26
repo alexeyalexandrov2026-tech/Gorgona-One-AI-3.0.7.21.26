@@ -1,4 +1,3 @@
-// Saved display text. No translation service is called when rendering.
 export default {
   "home.eyebrow": "여행 · 숙소 · 요트 · 차량 · 이벤트",
   "home.titleA": "일상에서는 알뜰하게. ",
@@ -319,7 +318,6 @@ export default {
   "ui.5978b48c945ffcf3": "이름 / 회사",
   "ui.14736a2eb9f4159f": "역할",
   "ui.c87ade9428c523ec": "제휴 공개",
-  "ui.0f7664c62a90fb50": "Miami Elio AI 컨시어지",
   "ui.94fa9b236332e81d": "듣기 중지",
   "ui.27a3ea7c6b4e515a": "요청을 말하세요",
   "ui.6aadac2f2b7a6b8e": "뒤로",
@@ -466,7 +464,6 @@ export default {
   "ui.8d14f6e72de8f18a": "이벤트",
   "ui.f4bd27aea3b4c4d1": "심각한 오류",
   "ui.cbf8d644f610dea2": "심각한 시스템 오류가 발생했습니다. 문제를 기록했으며 해결 중입니다.",
-  "ui.6fd6628dffd218e9": "컨시어지",
   "ui.fe8de04d7c8124a6": "모든 항목을 입력해 주세요",
   "ui.8864165e8b42303e": "올바르지 않은 이메일 주소",
   "ui.2005290ddda9a56d": "비밀번호는 6자 이상이어야 합니다.",
@@ -885,5 +882,6 @@ export default {
   "ui.45928ac91f9b9bbe": "신고된 ELIO 답변: 12개월.",
   "ui.1b731c78dbf48909": "ELIO+{break}데스크",
   "ui.46fe8ff77f9b437f": "여행을 위한 ELIO+ Guide — 럭셔리 여행지, 엄선된 항공편, 숙박을 하나의 경험으로.",
-  "ui.b7a86a4d0d83e7f8": "실시간 AI 가이드"
+  "ui.b7a86a4d0d83e7f8": "실시간 AI 가이드",
+  "ui.065324ada0247f7c": "Miami Elio · ELIO+ 가이드"
 };

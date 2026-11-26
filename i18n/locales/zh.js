@@ -1,4 +1,3 @@
-// Saved display text. No translation service is called when rendering.
 export default {
   "home.eyebrow": "旅行 · 住宿 · 游艇 · 汽车 · 活动",
   "home.titleA": "日常消费精打细算。",
@@ -319,7 +318,6 @@ export default {
   "ui.5978b48c945ffcf3": "姓名 / 公司",
   "ui.14736a2eb9f4159f": "角色",
   "ui.c87ade9428c523ec": "联盟披露",
-  "ui.0f7664c62a90fb50": "Miami Elio AI 礼宾",
   "ui.94fa9b236332e81d": "停止倾听",
   "ui.27a3ea7c6b4e515a": "说出您的请求",
   "ui.6aadac2f2b7a6b8e": "返回",
@@ -466,7 +464,6 @@ export default {
   "ui.8d14f6e72de8f18a": "活动",
   "ui.f4bd27aea3b4c4d1": "严重错误",
   "ui.cbf8d644f610dea2": "发生严重系统错误。我们已记录问题，正在处理。",
-  "ui.6fd6628dffd218e9": "礼宾服务",
   "ui.fe8de04d7c8124a6": "请填写所有字段",
   "ui.8864165e8b42303e": "电子邮件地址无效",
   "ui.2005290ddda9a56d": "密码长度至少为6个字符。",
@@ -885,5 +882,6 @@ export default {
   "ui.45928ac91f9b9bbe": "已举报的 ELIO 回复：12 个月。",
   "ui.1b731c78dbf48909": "ELIO+{break}工作台",
   "ui.46fe8ff77f9b437f": "ELIO+ Guide 旅行指南——将奢华目的地、精选航班与度假居所融于一体。",
-  "ui.b7a86a4d0d83e7f8": "实时 AI 指南"
+  "ui.b7a86a4d0d83e7f8": "实时 AI 指南",
+  "ui.065324ada0247f7c": "Miami Elio · ELIO+ 指南"
 };

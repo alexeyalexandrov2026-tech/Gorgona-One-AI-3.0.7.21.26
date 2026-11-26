@@ -103,7 +103,7 @@ function ListingEditor({initial,user,admin,onChanged}){
  const stateLabel=({draft:copy.draft,archived:copy.archived,pending:msg('Pending'),approved:msg('Approved'),rejected:msg('Rejected')})[record.review_state];
  return <div id="listing-editor" className="min-w-0 rounded-2xl border border-villa-obsidian/20 bg-white/40 p-4 sm:p-6">
   <div className="mb-6 flex flex-wrap items-start justify-between gap-3"><h3 className="font-display text-2xl">{initial?.title||copy.newListing}</h3><span className="rounded-full border border-villa-obsidian/20 px-3 py-1 text-sm">{stateLabel} · {record.workflow_version}</span></div>
-  {record.published_version?<p className="mb-4 text-sm">{copy.live}: {record.published_version} · <a className="underline" target="_blank" rel="noreferrer" href={({'car':'/rentals/','yacht':'/yachts/','stay':'/vacation-rentals/'})[record.published_kind||content.kind]+'partner-'+record.id}>{msg('Details')}</a></p>:<p className="mb-4 text-sm text-villa-graphite">{copy.notPublished}</p>}
+  {record.published_version?<p className="mb-4 text-sm">{copy.live}: {record.published_version} · <a className="underline" target="_blank" rel="noopener noreferrer" href={({'car':'/rentals/','yacht':'/yachts/','stay':'/vacation-rentals/'})[record.published_kind||content.kind]+'partner-'+record.id}>{msg('Details')}</a></p>:<p className="mb-4 text-sm text-villa-graphite">{copy.notPublished}</p>}
   {record.published_version&&record.review_state!=='approved'&&<p className="mb-4 text-sm">{copy.pendingChanges}</p>}
   {initial?.created_at&&!initial.content&&<p className="mb-4 text-sm">{copy.legacy}</p>}
   {record.review_note&&<p className="mb-5 rounded-lg border border-villa-obsidian/20 p-3 text-sm"><strong>{copy.reviewNote}: </strong>{record.review_note}</p>}

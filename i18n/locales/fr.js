@@ -1,4 +1,3 @@
-// Saved display text. No translation service is called when rendering.
 export default {
   "home.eyebrow": "Voyages · Séjours · Yachts · Voitures · Événements",
   "home.titleA": "Économisez au quotidien. ",
@@ -319,7 +318,6 @@ export default {
   "ui.5978b48c945ffcf3": "Nom / Entreprise",
   "ui.14736a2eb9f4159f": "Rôle",
   "ui.c87ade9428c523ec": "Divulgation d'affiliation",
-  "ui.0f7664c62a90fb50": "Concierge IA Miami Elio",
   "ui.94fa9b236332e81d": "Arrêter l'écoute",
   "ui.27a3ea7c6b4e515a": "Exprimez votre demande",
   "ui.6aadac2f2b7a6b8e": "Retour",
@@ -466,7 +464,6 @@ export default {
   "ui.8d14f6e72de8f18a": "Événements",
   "ui.f4bd27aea3b4c4d1": "Erreur critique",
   "ui.cbf8d644f610dea2": "Une erreur système critique s’est produite. Nous avons enregistré le problème et travaillons à sa résolution.",
-  "ui.6fd6628dffd218e9": "Concierge",
   "ui.fe8de04d7c8124a6": "Veuillez remplir tous les champs",
   "ui.8864165e8b42303e": "Adresse e-mail invalide",
   "ui.2005290ddda9a56d": "Le mot de passe doit contenir au moins 6 caractères.",
@@ -885,5 +882,6 @@ export default {
   "ui.45928ac91f9b9bbe": "Réponses ELIO signalées : 12 mois.",
   "ui.1b731c78dbf48909": "ELIO+{break}Espace",
   "ui.46fe8ff77f9b437f": "ELIO+ Guide pour voyager — destinations d’exception, vols choisis et séjours dans une seule expérience.",
-  "ui.b7a86a4d0d83e7f8": "Guide IA en direct"
+  "ui.b7a86a4d0d83e7f8": "Guide IA en direct",
+  "ui.065324ada0247f7c": "Miami Elio · Guide ELIO+"
 };

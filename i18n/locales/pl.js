@@ -1,4 +1,3 @@
-// Saved display text. No translation service is called when rendering.
 export default {
   "home.eyebrow": "Podróże · Noclegi · Jachty · Samochody · Wydarzenia",
   "home.titleA": "Oszczędzaj na co dzień. ",
@@ -319,7 +318,6 @@ export default {
   "ui.5978b48c945ffcf3": "Imię / Firma",
   "ui.14736a2eb9f4159f": "Rola",
   "ui.c87ade9428c523ec": "Ujawnienie partnerskie",
-  "ui.0f7664c62a90fb50": "Konsjerż AI Miami Elio",
   "ui.94fa9b236332e81d": "Zatrzymaj nasłuchiwanie",
   "ui.27a3ea7c6b4e515a": "Wypowiedz swoje żądanie",
   "ui.6aadac2f2b7a6b8e": "Wstecz",
@@ -466,7 +464,6 @@ export default {
   "ui.8d14f6e72de8f18a": "Wydarzenia",
   "ui.f4bd27aea3b4c4d1": "Błąd krytyczny",
   "ui.cbf8d644f610dea2": "Wystąpił krytyczny błąd systemu. Zarejestrowaliśmy problem i pracujemy nad jego rozwiązaniem.",
-  "ui.6fd6628dffd218e9": "Konsjerż",
   "ui.fe8de04d7c8124a6": "Wypełnij wszystkie pola",
   "ui.8864165e8b42303e": "Nieprawidłowy adres e-mail",
   "ui.2005290ddda9a56d": "Hasło musi mieć co najmniej 6 znaków.",
@@ -885,5 +882,6 @@ export default {
   "ui.45928ac91f9b9bbe": "Zgłoszone odpowiedzi ELIO: 12 miesięcy.",
   "ui.1b731c78dbf48909": "ELIO+{break}Panel",
   "ui.46fe8ff77f9b437f": "ELIO+ Guide dla podróży — luksusowe kierunki, wyselekcjonowane loty i pobyty w jednym miejscu.",
-  "ui.b7a86a4d0d83e7f8": "Przewodnik AI na żywo"
+  "ui.b7a86a4d0d83e7f8": "Przewodnik AI na żywo",
+  "ui.065324ada0247f7c": "Miami Elio · Przewodnik ELIO+"
 };

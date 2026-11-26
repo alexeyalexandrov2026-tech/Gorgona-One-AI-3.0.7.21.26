@@ -1,4 +1,3 @@
-// Saved display text. No translation service is called when rendering.
 export default {
   "home.eyebrow": "נסיעות · לינה · יאכטות · רכבים · אירועים",
   "home.titleA": "חוסכים ביומיום. ",
@@ -319,7 +318,6 @@ export default {
   "ui.5978b48c945ffcf3": "שם / חברה",
   "ui.14736a2eb9f4159f": "תפקיד",
   "ui.c87ade9428c523ec": "גילוי נאות של שותפים",
-  "ui.0f7664c62a90fb50": "קונסיירז׳ AI של Miami Elio",
   "ui.94fa9b236332e81d": "הפסק להקשיב",
   "ui.27a3ea7c6b4e515a": "אמור את הבקשה שלך",
   "ui.6aadac2f2b7a6b8e": "חזרה",
@@ -466,7 +464,6 @@ export default {
   "ui.8d14f6e72de8f18a": "אירועים",
   "ui.f4bd27aea3b4c4d1": "שגיאה קריטית",
   "ui.cbf8d644f610dea2": "אירעה שגיאת מערכת קריטית. תיעדנו את הבעיה ואנו פועלים לתיקונה.",
-  "ui.6fd6628dffd218e9": "קונסיירז׳",
   "ui.fe8de04d7c8124a6": "יש למלא את כל השדות",
   "ui.8864165e8b42303e": "כתובת דוא״ל לא תקינה",
   "ui.2005290ddda9a56d": "הסיסמה חייבת להכיל לפחות 6 תווים.",
@@ -885,5 +882,6 @@ export default {
   "ui.45928ac91f9b9bbe": "תשובות ELIO שדווחו: 12 חודשים.",
   "ui.1b731c78dbf48909": "ELIO+{break}מרכז",
   "ui.46fe8ff77f9b437f": "ELIO+ Guide לנסיעות — יעדי יוקרה, טיסות נבחרות ושהיות בחוויה אחת מלוטשת.",
-  "ui.b7a86a4d0d83e7f8": "מדריך AI חי"
+  "ui.b7a86a4d0d83e7f8": "מדריך AI חי",
+  "ui.065324ada0247f7c": "Miami Elio · מדריך ELIO+"
 };

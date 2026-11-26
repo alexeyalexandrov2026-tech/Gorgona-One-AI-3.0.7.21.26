@@ -170,7 +170,7 @@ export default function CategoryOrb() {
 
       {/* Concierge core */}
       <div className={`orb-core ${phase === 'listening' ? "is-listening" : ''}`}>
-        <p className="orb-core__eyebrow">{msg("Miami Elio AI Concierge")}</p>
+        <p className="orb-core__eyebrow">{msg("Miami Elio · ELIO+ Guide")}</p>
         <form className="orb-core__bar" onSubmit={onSubmit} role="search">
           <input
             className="orb-core__input"

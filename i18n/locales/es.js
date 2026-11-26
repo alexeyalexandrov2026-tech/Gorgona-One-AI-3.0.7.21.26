@@ -1,4 +1,3 @@
-// Saved display text. No translation service is called when rendering.
 export default {
   "home.eyebrow": "Viajes · Estancias · Yates · Autos · Eventos",
   "home.titleA": "Ahorra en lo cotidiano. ",
@@ -319,7 +318,6 @@ export default {
   "ui.5978b48c945ffcf3": "Nombre / Empresa",
   "ui.14736a2eb9f4159f": "Rol",
   "ui.c87ade9428c523ec": "Divulgación de afiliados",
-  "ui.0f7664c62a90fb50": "Conserje de IA de Miami Elio",
   "ui.94fa9b236332e81d": "Dejar de escuchar",
   "ui.27a3ea7c6b4e515a": "Di tu solicitud",
   "ui.6aadac2f2b7a6b8e": "Volver",
@@ -466,7 +464,6 @@ export default {
   "ui.8d14f6e72de8f18a": "Eventos",
   "ui.f4bd27aea3b4c4d1": "Error crítico",
   "ui.cbf8d644f610dea2": "Se produjo un error crítico del sistema. Hemos registrado el problema y estamos trabajando para solucionarlo.",
-  "ui.6fd6628dffd218e9": "Concierge",
   "ui.fe8de04d7c8124a6": "Completa todos los campos",
   "ui.8864165e8b42303e": "Correo electrónico no válido",
   "ui.2005290ddda9a56d": "La contraseña debe tener al menos 6 caracteres.",
@@ -885,5 +882,6 @@ export default {
   "ui.45928ac91f9b9bbe": "Respuestas de ELIO reportadas: 12 meses.",
   "ui.1b731c78dbf48909": "ELIO+{break}Panel",
   "ui.46fe8ff77f9b437f": "ELIO+ Guide para viajes — destinos de lujo, vuelos seleccionados y estancias en una sola experiencia.",
-  "ui.b7a86a4d0d83e7f8": "Guía de IA en vivo"
+  "ui.b7a86a4d0d83e7f8": "Guía de IA en vivo",
+  "ui.065324ada0247f7c": "Miami Elio · Guía ELIO+"
 };

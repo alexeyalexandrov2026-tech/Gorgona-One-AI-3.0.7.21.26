@@ -1275,10 +1275,6 @@
     "sourceHash": "c87ade9428c523ec24acc466aa12f9e34a091b889a9fc7e7118a552a9ee07052",
     "description": "app/affiliate-disclosure/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
-  "ui.0f7664c62a90fb50": {
-    "sourceHash": "0f7664c62a90fb50b89b4dbc42cc24074acbadc50db392494a65baa67a3c07a1",
-    "description": "app/components/CategoryOrb.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
   "ui.94fa9b236332e81d": {
     "sourceHash": "94fa9b236332e81d750d9e6f65caa45b80bad3bee808ecafe82c61c2da1af85f",
     "description": "app/components/CategoryOrb.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -1862,10 +1858,6 @@
   "ui.cbf8d644f610dea2": {
     "sourceHash": "cbf8d644f610dea2a9c6c240d6cb36ef93fe14c5e18a753bfc6b85304d2cce5b",
     "description": "app/global-error.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
-  },
-  "ui.6fd6628dffd218e9": {
-    "sourceHash": "6fd6628dffd218e9e6629a6147624ab9736c8d005278ba2d11c025312158b0b1",
-    "description": "owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.fe8de04d7c8124a6": {
     "sourceHash": "fe8de04d7c8124a68f221fdd0128fe1649f9abdb73fb620ef6b13bb16dbf7fae",
@@ -3542,5 +3534,13 @@
   "ui.b7a86a4d0d83e7f8": {
     "sourceHash": "b7a86a4d0d83e7f8334862dcc43e81a7944d707d16c91e9f09e6f6e1c5704ecf",
     "description": "owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.065324ada0247f7c": {
+    "kind": "ui",
+    "files": [
+      "app/components/CategoryOrb.jsx"
+    ],
+    "sourceHash": "065324ada0247f7c565ec2e0df45443b621c469d38c664c79fbd2ed629e9c1f8",
+    "verbatimAllowed": true
   }
 }

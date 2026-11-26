@@ -1,4 +1,3 @@
-// Saved display text. No translation service is called when rendering.
 export default {
   "home.eyebrow": "Seyahat · Konaklama · Yatlar · Araçlar · Etkinlikler",
   "home.titleA": "Günlük ihtiyaçlarda tasarruf edin. ",
@@ -319,7 +318,6 @@ export default {
   "ui.5978b48c945ffcf3": "Ad / Şirket",
   "ui.14736a2eb9f4159f": "Rol",
   "ui.c87ade9428c523ec": "Ortaklık Açıklaması",
-  "ui.0f7664c62a90fb50": "Miami Elio AI konsiyerji",
   "ui.94fa9b236332e81d": "Dinlemeyi Durdur",
   "ui.27a3ea7c6b4e515a": "İsteğinizi söyleyin",
   "ui.6aadac2f2b7a6b8e": "Geri dön",
@@ -466,7 +464,6 @@ export default {
   "ui.8d14f6e72de8f18a": "Etkinlikler",
   "ui.f4bd27aea3b4c4d1": "Kritik hata",
   "ui.cbf8d644f610dea2": "Kritik bir sistem hatası oluştu. Sorunu kaydettik ve çözmek için çalışıyoruz.",
-  "ui.6fd6628dffd218e9": "Concierge",
   "ui.fe8de04d7c8124a6": "Lütfen tüm alanları doldurun",
   "ui.8864165e8b42303e": "Geçersiz e-posta adresi",
   "ui.2005290ddda9a56d": "Şifre en az 6 karakter olmalıdır.",
@@ -885,5 +882,6 @@ export default {
   "ui.45928ac91f9b9bbe": "Bildirilen ELIO yanıtları: 12 ay.",
   "ui.1b731c78dbf48909": "ELIO+{break}Masası",
   "ui.46fe8ff77f9b437f": "Seyahat için ELIO+ Guide — lüks destinasyonlar, seçkin uçuşlar ve konaklamalar tek deneyimde.",
-  "ui.b7a86a4d0d83e7f8": "Canlı Yapay Zeka Rehberi"
+  "ui.b7a86a4d0d83e7f8": "Canlı Yapay Zeka Rehberi",
+  "ui.065324ada0247f7c": "Miami Elio · ELIO+ Rehberi"
 };
