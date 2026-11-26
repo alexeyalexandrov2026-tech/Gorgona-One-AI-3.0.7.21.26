@@ -1,0 +1,29 @@
+{
+  "name": "miami-elio",
+  "title": "Miami Elio — Luxury Miami Supply & Trip Engine",
+  "version": "1.0.0",
+  "description": "Verified Miami luxury car rentals (290 vehicles), Michelin & flagship dining, live sports & concert tickets, curated experiences, itinerary planning, and Split-Pay booking requests via ELIO+ Guide.",
+  "protocolVersion": "2025-03-26",
+  "transport": {
+    "type": "streamable-http",
+    "endpoint": "https://gorgona-one.com/api/mcp"
+  },
+  "authentication": {
+    "type": "none"
+  },
+  "website": "https://gorgona-one.com",
+  "documentation": "https://gorgona-one.com/llms.txt",
+  "tools": [
+    "search_luxury_cars",
+    "check_car_availability",
+    "search_miami_dining",
+    "search_miami_events_and_experiences",
+    "build_miami_itinerary",
+    "submit_booking_request"
+  ],
+  "resources": [
+    "miami-elio://catalog/overview",
+    "miami-elio://catalog/brands"
+  ],
+  "languages": ["en", "ru", "es", "he", "zh", "pt", "uk", "ja", "ko", "de", "ar", "tr", "fa", "it", "fr", "pl"]
+}

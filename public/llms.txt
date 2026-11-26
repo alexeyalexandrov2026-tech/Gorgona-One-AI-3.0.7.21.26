@@ -22,6 +22,11 @@ Many listings come from partners. Quotes, bookings and payments for those listin
 - [Exclusive destinations](https://gorgona-one.com/exclusive-destinations): Private yachts, cruises, helicopter flights and hand-picked tours.
 - [Travel and flight deals](https://gorgona-one.com/travel): Business, first-class and Miami flight offers.
 
+## AI Agents & MCP Integration
+
+- [Miami Elio MCP Server (Streamable HTTP)](https://gorgona-one.com/api/mcp): Official Model Context Protocol (JSON-RPC 2.0) endpoint exposing live luxury car search (290 vehicles), garage availability & Split-Pay quotes, verified Miami dining/nightlife, live events & experiences, itinerary builder, and explicit booking request submission.
+- [MCP Discovery Manifest](https://gorgona-one.com/.well-known/mcp.json): Machine-readable MCP server card with tool list and protocol version.
+
 ## Reference
 
 - [Full AI Knowledge Base](https://gorgona-one.com/llms-full.txt): Detailed Miami catalog reference, neighborhoods, driving times, pricing tiers, verified dining directory and ELIO+ Guide capabilities.
