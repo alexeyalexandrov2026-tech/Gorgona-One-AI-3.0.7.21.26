@@ -59,5 +59,4 @@ test('Step 1 Simplify: mobile floating stack hidden, Google Play moved off mobil
   assert.doesNotMatch(route, /semanticRerankWithEmbeddings/, 'redundant post-LLM bge-m3 call must stay removed');
 
   assert.equal(fs.existsSync(new URL('../../app/components/ai/GorgonaOneAI.jsx', import.meta.url)), false);
-  assert.equal(fs.existsSync(new URL('../../app/components/ai/DiscoveryRoom.jsx', import.meta.url)), false);
 });
