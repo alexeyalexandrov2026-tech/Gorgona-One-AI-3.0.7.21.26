@@ -9,7 +9,7 @@ import { WorldHero, ListingCard, Steps, chipClass, btn } from '../components/g1/
 import UsTrustStrip from '../components/g1/UsTrustStrip';
 import SaveButton from '../components/SaveButton';
 import { getSunsetCopy } from '../../lib/sunsetCopy.mjs';
-import { rentalPage, rentalBrands } from '../../lib/sunsetFleet.mjs';
+import { canonicalRentalLocation, rentalPage, rentalBrands, rentalLocations } from '../../lib/sunsetFleet.mjs';
 import JsonLd from '../components/JsonLd';
 import { pageMetadata, sectionJsonLd } from '../../lib/seo.mjs';
 
@@ -33,8 +33,9 @@ export default async function RentalsPage({ searchParams }) {
 
   const types = [...new Set(rentals.map((car) => car.category))];
   const type = types.includes(searchParams?.type) ? searchParams.type : null;
-  const locations = [...new Set(rentals.map((car) => car.location))];
-  const location = locations.includes(searchParams?.location) ? searchParams.location : null;
+  const locations = rentalLocations(rentals);
+  const requestedLoc = canonicalRentalLocation(searchParams?.location);
+  const location = locations.includes(requestedLoc) ? requestedLoc : null;
 
   const allBrands = rentalBrands(rentals);
   const brandNames = new Set(allBrands.map((b) => b.name));
@@ -42,9 +43,9 @@ export default async function RentalsPage({ searchParams }) {
   const q = typeof searchParams?.q === 'string' ? searchParams.q.trim().slice(0, 80) : '';
   const sort = ALLOWED_SORTS.has(searchParams?.sort) ? searchParams.sort : '';
 
-  const scopedForBrands = rentals.filter((car) => (!type || car.category === type) && (!location || car.location === location));
+  const scopedForBrands = rentals.filter((car) => (!type || car.category === type) && (!location || canonicalRentalLocation(car.location) === location));
   const brandList = rentalBrands(scopedForBrands);
-  const featuredBrands = brandList.slice(0, 12);
+  const featuredBrands = brandList.slice(0, 8);
   if (brand && !featuredBrands.some((b) => b.name === brand)) {
     const active = brandList.find((b) => b.name === brand) || { name: brand, count: 0 };
     featuredBrands.push(active);
@@ -128,7 +129,7 @@ export default async function RentalsPage({ searchParams }) {
         <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-2" role="group" aria-label={copy.cars.filterLabel}>
             {[null, ...types].map((value) => {
-              const localCars = location ? rentals.filter((car) => car.location === location) : rentals;
+              const localCars = location ? rentals.filter((car) => canonicalRentalLocation(car.location) === location) : rentals;
               const count = value ? localCars.filter((car) => car.category === value).length : localCars.length;
               return (
                 <Link
