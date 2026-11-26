@@ -1241,7 +1241,7 @@
   },
   "ui.331551b0de4157c9": {
     "sourceHash": "331551b0de4157c9abc7b72b61b96a2a928fd6db3cdf029c1fc44b08ad633aa6",
-    "description": "app/components/dashboard/AppSupport.jsx; app/components/dashboard/ListingWorkspace.jsx; app/components/dashboard/LiveTripRoom.jsx; app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/dashboard/AppSupport.jsx; app/components/dashboard/ListingWorkspace.jsx; app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.0199cddfed3b10eb": {
     "sourceHash": "0199cddfed3b10ebb1723987760205e38be3aadfde0c80560e91e57547a0f237",
@@ -1317,6 +1317,10 @@
   },
   "ui.3fe3d2d2899e1652": {
     "sourceHash": "3fe3d2d2899e16524e3587fecf7747bf5f7a466496d41db56cb696de984d6a99",
+    "description": "app/components/ai/AiDock.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.eb2a19523d639a48": {
+    "sourceHash": "eb2a19523d639a48a66458e7f5a6f1e30db5962afa1923e810ee098561f2c3d7",
     "description": "app/components/ai/AiDock.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.38118013d0c7f614": {
@@ -1501,7 +1505,7 @@
   },
   "ui.df7454957fd6eac2": {
     "sourceHash": "df7454957fd6eac2bcde84d3c94d21d84bccd7fa10ff72f03a55759f8ceded9c",
-    "description": "app/events/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/events/page.js; app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.9bd1d21d8b220246": {
     "sourceHash": "9bd1d21d8b22024697d70ec42e5c2036f665375afe3f1eb7090355521ca828c8",
@@ -1517,7 +1521,7 @@
   },
   "ui.09bf25ef30833633": {
     "sourceHash": "09bf25ef308336338ea33f83d6e4f4a0e5345e5d43d397864a8f5d0e6b9b923c",
-    "description": "app/components/SocialAuthButtons.jsx; app/forgot-password/page.js; app/login/page.js; app/register/page.js; app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/forgot-password/page.js; app/login/page.js; app/register/page.js; app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.e7cf3ef4f17c3999": {
     "sourceHash": "e7cf3ef4f17c3999a94f2c6f612e8a888e5b1026878e4e19398b23bd38ec221a",
@@ -1691,6 +1695,50 @@
     "sourceHash": "282270f3a1114f05dc4e6d9353019c248ff1f149086ff43221bb04bc78a4e6e0",
     "description": "app/travel/ovago/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
+  "ui.c1f41fb9291904b2": {
+    "sourceHash": "c1f41fb9291904b234e057367a160508c0c90ce0f39a8a0fae2f29f6c5cfc6fc",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.a97d2edef5d1731d": {
+    "sourceHash": "a97d2edef5d1731d5d0c2bbcdb7fa5d862bb6df3bacb17d942d69474f9b11ec7",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.f72bae79ab1fed37": {
+    "sourceHash": "f72bae79ab1fed3727736b390f905c373449c25de11228e4bc2b298860f84a7e",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.fbad86f2481c8218": {
+    "sourceHash": "fbad86f2481c821840fc29391d6302d2598de9dc39566a23f2cdb405396715f1",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.b64ac05f17e64d03": {
+    "sourceHash": "b64ac05f17e64d037db81a98f51e2688216e292ae9748f979f04dfbac49fd7fc",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.8ab391c5e0282ecb": {
+    "sourceHash": "8ab391c5e0282ecb631b9bbf28b69c9e0a80483aa2d3cbf16db6aa8c4914d59b",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.aa2eba6085031e2c": {
+    "sourceHash": "aa2eba6085031e2c17b77e65e630436830db9638ac9d8b199d11da52389f1b5d",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.00e099be79d6e9d2": {
+    "sourceHash": "00e099be79d6e9d239f49acda37924db5681f34086cf9fba74951b3a3c61c00c",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.c9848d6fb5e9fe4e": {
+    "sourceHash": "c9848d6fb5e9fe4ede04124d3a1aff995520f2ec72fab1c72b02558cb4daf1e5",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.8fe08e69a3fc3044": {
+    "sourceHash": "8fe08e69a3fc30443ab99606164e09f01879ba9a128e714b85dcc6091b32718d",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.99eddfe533f18e26": {
+    "sourceHash": "99eddfe533f18e26bbbe61470bf10abfb3ae852da842b558bbaadf85762f18bf",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
   "ui.969ccbd3cf6300ec": {
     "sourceHash": "969ccbd3cf6300ecd5c880459d81ae9027df7517563184a1b8b15282db230621",
     "description": "app/admin/page.js; app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -1847,21 +1895,81 @@
     "sourceHash": "fcfeb7aebd6bab9d2a5d236c30041387a88a3ac0966b44702bacb8504d0bd0a7",
     "description": "app/register/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
+  "ui.21a2463f1e5b8750": {
+    "sourceHash": "21a2463f1e5b87507334f3ea8861cc9ecd8172e139a82aab2ca4260f8dd125cb",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.14ff8aaee295caaf": {
+    "sourceHash": "14ff8aaee295caaf6b388798223d91dd9f44d6370b753bef1a73e0600b1f9988",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.72eb63f032e47e34": {
+    "sourceHash": "72eb63f032e47e349e8901353e08ba91cfb9d1f78d08d070c60bae0e9b4e038d",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.1014f0c292a76ed9": {
+    "sourceHash": "1014f0c292a76ed9f4cfa3bbd9cbc16b703f15f8e889b2ddecf6b28d0abd7686",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.93a9627959d260e8": {
+    "sourceHash": "93a9627959d260e84741dc2ce8a867f218677ea91bf6f4c07a4bf5edbebbf71b",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
   "ui.f8f5aa2b57ba8689": {
     "sourceHash": "f8f5aa2b57ba8689fe0b4a9e6dd4a2b5636120556a549d4e5fbcfc6bfc7552f9",
-    "description": "owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/page.js; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.6bd9634b15c0357c": {
+    "sourceHash": "6bd9634b15c0357c07dc7f765492082b1c7ba094562883a302a62fe80a83eacd",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.e2a6163242e4d57e": {
+    "sourceHash": "e2a6163242e4d57efcef7322882b3d10cb0647c4abb424abb1b0fd663153583b",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.9fb889ca7b718a04": {
     "sourceHash": "9fb889ca7b718a042544a62e782cc9518615b5a02f4ea03a6a0a7516e1b69e20",
-    "description": "owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/page.js; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.64585e96ee75aeb9": {
     "sourceHash": "64585e96ee75aeb92ff9dcd1a9880e6dddbb1cea33be699251a158e031c47355",
-    "description": "lib/aiSuggestions.js: owned section navigation label. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/page.js; lib/aiSuggestions.js: owned section navigation label. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.f951cc6ab1729249": {
+    "sourceHash": "f951cc6ab1729249008798bfdb727c98e810f8701d7fdce655ba19fcf5656240",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.f9c9ea03b360ef91": {
+    "sourceHash": "f9c9ea03b360ef913b86e749668ccfc260ad2ab6f4c28ec8d116fc94f3211465",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.5284218965b1ce93": {
     "sourceHash": "5284218965b1ce9364f4346e102112705b232448ee66184158be136063321ccf",
-    "description": "owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/travel/page.js; owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.e747498767535392": {
+    "sourceHash": "e74749876753539205f99b5312e1e0285b50804f2f363f3c402f3fddc2b79577",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.e392e06dcc2a3315": {
+    "sourceHash": "e392e06dcc2a33158a9c5f0471dcc22535985d44e5ceb5cb8b6509a44ed7a6ee",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.a6b48d9a9a3aabd2": {
+    "sourceHash": "a6b48d9a9a3aabd2b7f25963bb97322580aee3fc27ebc967ce8b8323d2faa0ac",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.17051b4295ae359f": {
+    "sourceHash": "17051b4295ae359f76456195b147f9a74ddfc839fbcca4090188058c3ed93ff8",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.7a0787bd3a4c0242": {
+    "sourceHash": "7a0787bd3a4c0242714a346a8444d71a7a638de2665b73b84afaaf8f010ab8e5",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.5e6c52b17d48a095": {
+    "sourceHash": "5e6c52b17d48a0956ec716bc773839fb22733d9161a34e4eed01fe03113965f1",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.0eea8c73fbab800d": {
     "sourceHash": "0eea8c73fbab800d326e4a17a2dc9b2a36463e918cdccfb132801c2c11882d20",
@@ -2299,6 +2407,10 @@
     "sourceHash": "4b909cfeb60b9b19c47d15fa16975721360dfd60d1746ff7a79d2fb7a17dd7dd",
     "description": "app/partner/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
+  "ui.4b9be66676208143": {
+    "sourceHash": "4b9be66676208143c191bf940ac77ccf48e05a5718eb966903d95e558fe2e5e3",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
   "ui.e219439281f24ad1": {
     "sourceHash": "e219439281f24ad1442865ace73b5db3793c067814a7bef6bc5a8670a234ef6a",
     "description": "app/components/Footer.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -2309,6 +2421,10 @@
   },
   "ui.4787eaf7c938045f": {
     "sourceHash": "4787eaf7c938045fd5285fe6a2cd72558caf7bd5faeb93fd1ad490a502e0e37b",
+    "description": "app/components/Footer.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
+  "ui.682579866a580ded": {
+    "sourceHash": "682579866a580ded81673344d50187d956cc01a4801a91f45a530b8e77575aad",
     "description": "app/components/Footer.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.b5c49d2114e5158f": {
@@ -2477,15 +2593,15 @@
   },
   "ui.c39059141ced2ea7": {
     "sourceHash": "c39059141ced2ea71d38d312b6bdaa6da1da299820b4021169382a2e54f57672",
-    "description": "app/components/dashboard/LiveTripRoom.jsx; app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.24ff6b6fd641dbb8": {
     "sourceHash": "24ff6b6fd641dbb8faecfe65f974d404ad2c8b02030653ffe307b3763424db45",
-    "description": "app/components/dashboard/LiveTripRoom.jsx; app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.c21ead0614e7e1b7": {
     "sourceHash": "c21ead0614e7e1b70edb3759e1d19ca1e12e6036980d10bfb73052fb1a018efa",
-    "description": "app/components/dashboard/LiveTripRoom.jsx; app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.8bf5202e1e940fe7": {
     "sourceHash": "8bf5202e1e940fe72ae568c9071acda820a3c474b3286ab9fbb3b0e771aa4d4a",
@@ -2509,7 +2625,7 @@
   },
   "ui.47d2a515ef2f05b8": {
     "sourceHash": "47d2a515ef2f05b87d688656286a61e4f743da4b878684c7654969db17711c40",
-    "description": "app/account/delete/page.js; app/account/setup/page.js; app/admin/page.js; app/components/ai/AiConversation.jsx; app/components/BookingForm.jsx; app/components/dashboard/AppSupport.jsx; app/components/dashboard/ListingWorkspace.jsx; app/components/dashboard/RequestBoard.jsx; app/components/dining/VenueEditor.jsx; app/components/MyMiami.jsx; app/forgot-password/page.js; app/partner/page.js; app/profile/page.js; app/trip/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/account/delete/page.js; app/account/setup/page.js; app/admin/page.js; app/components/ai/AiConversation.jsx; app/components/BookingForm.jsx; app/components/dashboard/AppSupport.jsx; app/components/dashboard/ListingWorkspace.jsx; app/components/dashboard/RequestBoard.jsx; app/components/dining/VenueEditor.jsx; app/components/MyMiami.jsx; app/forgot-password/page.js; app/partner/page.js; app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.ea923f45a415c408": {
     "sourceHash": "ea923f45a415c408812651a3b319fc3fbe19d63fe4261add03667a95d2c7292e",
@@ -2561,11 +2677,11 @@
   },
   "ui.84aebc69a1bf739a": {
     "sourceHash": "84aebc69a1bf739a343be9c66edfd3160f77220ea69789a8147dd4ae261fd188",
-    "description": "app/components/dashboard/AdminQuotePanel.jsx; app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.dd1841d295024256": {
     "sourceHash": "dd1841d295024256e8884cb898d863cb17333ef927fefae59368238e401c6ef0",
-    "description": "app/components/dashboard/AdminQuotePanel.jsx; app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/dashboard/RequestBoard.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.661ff40a07e037bb": {
     "sourceHash": "661ff40a07e037bbd5f7d4ec97a4df1503096ca910e7c9e2d7a4e9abd4e4e1a0",
@@ -3111,6 +3227,10 @@
     "sourceHash": "341b3d56fe9cbc4dc6fab1177baad67714b9431920f1d18e87c9d53f8661ceb1",
     "description": "app/components/GetTheApp.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
+  "ui.0d04bfeb7d64b71c": {
+    "sourceHash": "0d04bfeb7d64b71c74fc925cca93d683154e8cc7e6e5838faced498e34c9984d",
+    "description": "app/components/GetTheApp.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
   "ui.ec54f5e123930357": {
     "sourceHash": "ec54f5e123930357d54436ab0224526365ed975f5beafce681dcb0ddf7aacd75",
     "description": "app/components/InstallPrompt.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
@@ -3353,7 +3473,7 @@
   },
   "ui.bc961c9bc3c4961d": {
     "sourceHash": "bc961c9bc3c4961d782bfd07b493b031abbdefede5ab08a7c28e77c3dc9b92bc",
-    "description": "app/components/ai/AiDock.jsx; app/components/ai/ConciergeRoom.jsx; app/components/Footer.jsx; app/components/home/HomeHero.jsx; owned ecosystem navigation; owned discovery navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "description": "app/components/ai/AiDock.jsx; app/components/ai/ConciergeRoom.jsx; app/components/Footer.jsx; app/components/home/HomeHero.jsx; owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.35a92e0b2a77ec4e": {
     "sourceHash": "35a92e0b2a77ec4e87e52a89d98cc61caf34816fc5d552001028b533f6d95b6b",
@@ -3407,12 +3527,20 @@
     "sourceHash": "1b731c78dbf489091a822d5673478ef74a7763960715885762af2b2fbbd6e5e6",
     "description": "app/profile/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
+  "ui.46fe8ff77f9b437f": {
+    "sourceHash": "46fe8ff77f9b437f7743e1028be3afd9ceff67c3c8b6625e966c8748dce16fb8",
+    "description": "app/travel/page.js. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+  },
   "ui.b7a86a4d0d83e7f8": {
     "sourceHash": "b7a86a4d0d83e7f8334862dcc43e81a7944d707d16c91e9f09e6f6e1c5704ecf",
     "description": "owned ecosystem navigation. Owned display text; retain named slots, brands and URLs. Translate the whole message."
   },
   "ui.065324ada0247f7c": {
+    "kind": "ui",
+    "files": [
+      "app/components/CategoryOrb.jsx"
+    ],
     "sourceHash": "065324ada0247f7c565ec2e0df45443b621c469d38c664c79fbd2ed629e9c1f8",
-    "description": "app/components/CategoryOrb.jsx. Owned display text; retain named slots, brands and URLs. Translate the whole message."
+    "verbatimAllowed": true
   }
 }
