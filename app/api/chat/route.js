@@ -7,7 +7,7 @@ import { answerConciergeFact } from '../../../lib/ai/conciergeFacts.mjs';
 import { CONVERSATION_POLICY } from '../../../lib/ai/conciergeReply.mjs';
 import { conversationPlan } from '../../../lib/server/planCatalog.mjs';
 import { catalogueAnswer, explicitBooking, bookingDisclaimer } from '../../../lib/ai/catalogueAnswer.mjs';
-import { gatedListings, listingCards, namedVenueCards, replyMentionedCards } from '../../../lib/ai/listingCards.mjs';
+import { alignPlanWithReply, gatedListings, listingCards, namedVenueCards, replyMentionedCards } from '../../../lib/ai/listingCards.mjs';
 import { getDynamicEntities, peekDynamicEntities } from '../../../lib/server/conciergeIndex.mjs';
 import { getLiveEventEntities, peekLiveEventEntities } from '../../../lib/server/conciergeEvents.mjs';
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
@@ -19,7 +19,6 @@ import { detectMessageLocale } from '../../../lib/ai/semanticVibes.mjs';
 import { chatCacheKey, isCacheableChatTurn, readCachedChatReply, writeCachedChatReply } from '../../../lib/server/chatEdgeCache.mjs';
 import { formatGuestMemoryPromptLine, loadGuestAccountMemory } from '../../../lib/server/guestMemory.mjs';
 import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
-import { semanticRerankWithEmbeddings } from '../../../lib/ai/semanticSearch.mjs';
 import { runBackgroundTask } from '../../../lib/server/trackHandler.mjs';
 
 // ===========================================================================
@@ -292,18 +291,10 @@ async function computeChatPayload(request, body, started, emit = null) {
           }
         }
       }
-      if (resolvedListings.length >= 2 && allowLiveUpstream) {
-        try {
-          let cfEnv = process.env;
-          try {
-            const { getCloudflareContext } = await import('@opennextjs/cloudflare');
-            const ctxEnv = getCloudflareContext()?.env;
-            if (ctxEnv) cfEnv = { ...process.env, ...ctxEnv };
-          } catch {}
-          resolvedListings = await semanticRerankWithEmbeddings(latestUserMessage, resolvedListings, cfEnv);
-        } catch {}
-      }
     }
+    const alignedPlan = (!handoff && decidedBy === 'model' && resolvedPlan)
+      ? alignPlanWithReply(resolvedPlan, text, { extraEntities })
+      : resolvedPlan;
     // Authenticated /pay/[token] & Live Trip Room bridge: when a signed-in guest
     // asks about their quote, signature, payment, or trip pass, surface verified
     // direct /pay/<token> card(s) without ever exposing raw tokens to the LLM.
@@ -331,7 +322,7 @@ async function computeChatPayload(request, body, started, emit = null) {
       skipTelemetry,
       listings: resolvedListings,
       ...(handoff ? { handoff: true } : {}),
-      plan: resolvedPlan
+      plan: alignedPlan
     });
     if (cacheKey && !payload.error && !payload.handoff && payload.decidedBy === 'model') {
       fireAndForget(writeCachedChatReply(cacheKey, payload));

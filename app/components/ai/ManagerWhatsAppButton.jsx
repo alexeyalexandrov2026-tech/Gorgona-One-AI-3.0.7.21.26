@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from 'next/navigation';
 import { useAI } from './AIProvider';
 import { useAiDock } from './AiDockProvider';
 import { useAITheme } from '../ThemeProvider';
@@ -30,7 +31,9 @@ export default function ManagerWhatsAppButton() {
   if (!href) return null;
   const t = getTranslation(locale);
   const label = t.ai?.liveManagerWhatsApp || 'Message a live manager on WhatsApp';
-  const hidden = isOpen || roomOpen || !(hydrated && themeReady && localeReady);
+  const pathname = usePathname() || '';
+  const isFullGuideRoute = pathname === '/discovery' || pathname === '/concierge' || pathname.startsWith('/pay/');
+  const hidden = isOpen || roomOpen || isFullGuideRoute || !(hydrated && themeReady && localeReady);
   return (
     <a
       href={href}

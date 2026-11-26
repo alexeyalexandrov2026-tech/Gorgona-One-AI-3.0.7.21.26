@@ -586,7 +586,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   const pathname = usePathname() || '';
   const [input, setInput] = useState('');
   const [thinkingStage, setThinkingStage] = useState(0);
-  const [copiedPlan, setCopiedPlan] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
   const [emailStatus, setEmailStatus] = useState('idle'); // idle | sending | sent | error | unavailable
@@ -907,52 +907,53 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
           </div>
         )}
 
-        {/* One-tap Copy / WhatsApp / Telegram / Email share for curated VIP itineraries & recommendations. */}
+        {/* Compact expandable WhatsApp / Telegram / Email share drawer (keeps Copy in AnswerActions without duplicating buttons). */}
         {canSharePlan && (
           <div className="space-y-2 pt-1" data-share-plan="true">
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  try {
-                    navigator.clipboard?.writeText(shareText);
-                    setCopiedPlan(true);
-                    setTimeout(() => setCopiedPlan(false), 2000);
-                  } catch {}
-                }}
-                className="rounded-full border border-white/15 bg-white/[0.03] px-3 py-1 text-[11px] text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
+                data-share-toggle="true"
+                aria-expanded={shareOpen}
+                onClick={() => setShareOpen((v) => !v)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.03] px-3 py-1 text-[11px] text-zinc-300 transition hover:border-brand-gold/50 hover:text-white"
               >
-                {copiedPlan ? shareCopy.copied : shareCopy.copy}
+                <span>{shareCopy.whatsapp} / {shareCopy.telegram} / {s2.emailItinerary}</span>
+                <span aria-hidden="true">{shareOpen ? '▴' : '▾'}</span>
               </button>
-              <a
-                href={buildWhatsAppShareUrl(shareText)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/20"
-              >
-                {shareCopy.whatsapp}
-              </a>
-              <a
-                href={buildTelegramShareUrl(shareText)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1 text-[11px] text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/20"
-              >
-                {shareCopy.telegram}
-              </a>
-              <button
-                type="button"
-                data-email-itinerary-toggle="true"
-                onClick={() => {
-                  setEmailOpen((v) => !v);
-                  if (emailStatus === 'sent' || emailStatus === 'error' || emailStatus === 'invalid') setEmailStatus('idle');
-                }}
-                className="rounded-full border border-brand-gold/35 bg-brand-gold/10 px-3 py-1 text-[11px] text-brand-gold transition hover:border-brand-gold hover:bg-brand-gold/20"
-              >
-                {s2.emailItinerary}
-              </button>
+              {shareOpen && (
+                <>
+                  <a
+                    href={buildWhatsAppShareUrl(shareText)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/20"
+                  >
+                    {shareCopy.whatsapp}
+                  </a>
+                  <a
+                    href={buildTelegramShareUrl(shareText)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1 text-[11px] text-sky-200 transition hover:border-sky-400/60 hover:bg-sky-500/20"
+                  >
+                    {shareCopy.telegram}
+                  </a>
+                  <button
+                    type="button"
+                    data-email-itinerary-toggle="true"
+                    onClick={() => {
+                      setEmailOpen((v) => !v);
+                      if (emailStatus === 'sent' || emailStatus === 'error' || emailStatus === 'invalid') setEmailStatus('idle');
+                    }}
+                    className="rounded-full border border-brand-gold/35 bg-brand-gold/10 px-3 py-1 text-[11px] text-brand-gold transition hover:border-brand-gold hover:bg-brand-gold/20"
+                  >
+                    {s2.emailItinerary}
+                  </button>
+                </>
+              )}
             </div>
-            {emailOpen && (
+            {shareOpen && emailOpen && (
               emailStatus === 'sent' ? (
                 <p role="status" className="text-xs text-emerald-300">{s2.emailSent}</p>
               ) : (
