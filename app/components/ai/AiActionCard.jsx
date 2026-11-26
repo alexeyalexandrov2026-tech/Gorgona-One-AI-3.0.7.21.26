@@ -339,6 +339,7 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
   const auth = useAuth();
   const copy = getDiningHandoffCopy(locale);
   const s2 = getStage2Copy(locale);
+  const legal = getConsentCopy(locale);
   const tlCopy = getTimelineCopy(locale);
   const pkgCopy = getPackageCopy(locale);
   const timelineStops = buildDayTimeline(plan, profile, locale);
@@ -349,6 +350,7 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
   const [pkgDays, setPkgDays] = useState(initialDays);
   const [splitWays, setSplitWays] = useState(initialSplit);
   const [requestSplitPay, setRequestSplitPay] = useState(initialSplit >= 2);
+  const [accepted, setAccepted] = useState(false);
   const [selectedBySection, setSelectedBySection] = useState(() => {
     const init = {};
     for (const section of plan?.sections || []) {
@@ -423,6 +425,10 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
       setError(s2.errorBadDates);
       return;
     }
+    if (!accepted) {
+      setError(s2.errorConsent);
+      return;
+    }
     setStatus('sending');
     try {
       let token = null;
@@ -441,6 +447,8 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
         guests: Math.max(1, Math.min(99, Number(form.guests) || 2)),
         ...(hasDining ? { time: form.time || '20:00' } : {}),
         note: buildPackagePlanNote(pkgSummary, { userNote: form.note, requestSplitPay }),
+        termsAccepted: true,
+        termsVersion: TERMS_VERSION,
         items: selectedItems.map(({ kind, slug }) => ({ kind, slug }))
       };
       attempt.current = submissionKey(attempt.current, JSON.stringify([payload, userId]));
@@ -700,6 +708,16 @@ export function AiPlan({ plan, onNavigate, onQuickPrompt = null, profile = null 
                 <input type="tel" required maxLength={40} placeholder={s2.phonePlaceholder} aria-label={s2.phonePlaceholder} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={compactInputClass} />
               </div>
               <input type="text" maxLength={500} placeholder={s2.notePlaceholder} aria-label={s2.notePlaceholder} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} className={compactInputClass} />
+              <label className="flex items-start gap-2 text-[11px] leading-snug text-zinc-300">
+                <input type="checkbox" checked={accepted} onChange={(e) => setAccepted(e.target.checked)} className="mt-0.5 accent-brand-gold" />
+                <span>
+                  {legal.consentPrefix}{' '}
+                  <Link href="/terms" onClick={onNavigate} className="text-brand-gold underline">{legal.termsLink}</Link>{' '}
+                  {legal.consentAnd}{' '}
+                  <Link href="/privacy" onClick={onNavigate} className="text-brand-gold underline">{legal.privacyLink}</Link>{' '}
+                  {legal.consentSuffix}
+                </span>
+              </label>
               {error && <p role="alert" className="text-[11px] text-rose-300">{error}</p>}
               <div className="flex items-center gap-2">
                 <button type="submit" disabled={status === 'sending'} className="rounded-full bg-brand-gold px-4 py-2 text-xs font-semibold text-black transition hover:brightness-110 disabled:opacity-60">

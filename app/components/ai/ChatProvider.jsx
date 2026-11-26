@@ -5,7 +5,8 @@ import { usePathname } from 'next/navigation';
 import { conversationNavigation } from '../../../lib/ai/conversation.mjs';
 import { chatSnapshot, isDegradedResponse } from '../../../lib/ai/session.mjs';
 import { chatPayload, sanitizeSavedPrefs } from '../../../lib/ai/chatRequest.mjs';
-import { extractDurablePrefs, extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
+import { stripStreamingMarkdown } from '../../../lib/ai/factGuard.mjs';
+import { extractDurablePrefs, extractTripProfile, tripProfilePromptLine } from '../../../lib/ai/tripProfile.mjs';
 import { useLocale, useLocaleReady } from '../LocaleProvider';
 import { unavailableReply } from '../../../lib/ai/locale';
 import { CLIENT_TIMEOUT_MS } from '../../../lib/ai/chatDeadline.mjs';
@@ -16,7 +17,21 @@ const ChatContext = createContext(null);
 
 const STORAGE_KEY = 'gorgona-concierge-thread';
 const PREFS_STORAGE_KEY = 'gorgona-concierge-vip-prefs';
+const THREAD_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_MESSAGES = 40;
+
+function buildConversationSummary(allMessages, savedPrefs) {
+  if (!Array.isArray(allMessages) || allMessages.length <= 10) return '';
+  const dropped = allMessages.slice(0, -10).filter((m) => m?.role === 'user' && typeof m.content === 'string');
+  if (!dropped.length) return '';
+  const profileLine = tripProfilePromptLine(extractTripProfile(allMessages.slice(0, -10), new Date(), savedPrefs));
+  const topics = dropped
+    .slice(-4)
+    .map((m) => m.content.replace(/\s+/g, ' ').trim().slice(0, 72))
+    .filter(Boolean)
+    .join(' | ');
+  return [profileLine, topics ? `Earlier requests: ${topics}` : ''].filter(Boolean).join(' ').slice(0, 380);
+}
 
 const NOOP = {
   messages: [],
@@ -34,7 +49,7 @@ const NOOP = {
   reset() {}
 };
 
-async function readSseChatStream(response, { onStatus, onPreview, onDelta }) {
+async function readSseChatStream(response, { onStatus, onPreview, onDelta, onReset }) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder('utf-8');
   let buffer = '';
@@ -60,6 +75,7 @@ async function readSseChatStream(response, { onStatus, onPreview, onDelta }) {
         try { parsed = JSON.parse(dataLines.join('\n')); } catch { continue; }
         if (eventName === 'status' && typeof parsed?.label === 'string') onStatus?.(parsed.label);
         else if (eventName === 'preview') onPreview?.(parsed);
+        else if (eventName === 'reset') onReset?.();
         else if (eventName === 'delta' && typeof parsed?.text === 'string') onDelta?.(parsed.text);
         else if (eventName === 'done') finalData = parsed;
       }
@@ -97,15 +113,22 @@ export function ChatProvider({ children }) {
 
   useEffect(() => {
     try {
-      const raw = sessionStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const data = chatSnapshot(JSON.parse(raw));
-        setMessages(data.messages);
-        setCards(data.cards);
-        setSuggestions(data.suggestions);
-        setListings(data.listings || []);
-        setPlan(data.plan || null);
-        sessionIdRef.current = data.sessionId;
+        const parsed = JSON.parse(raw);
+        const expired = Number.isFinite(parsed?.savedAt) && Date.now() - parsed.savedAt > THREAD_TTL_MS;
+        if (expired) {
+          localStorage.removeItem(STORAGE_KEY);
+          sessionStorage.removeItem(STORAGE_KEY);
+        } else {
+          const data = chatSnapshot(parsed);
+          setMessages(data.messages);
+          setCards(data.cards);
+          setSuggestions(data.suggestions);
+          setListings(data.listings || []);
+          setPlan(data.plan || null);
+          sessionIdRef.current = data.sessionId;
+        }
       }
       const rawPrefs = localStorage.getItem(PREFS_STORAGE_KEY);
       if (rawPrefs) {
@@ -121,10 +144,17 @@ export function ChatProvider({ children }) {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      sessionStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ messages, cards, suggestions, listings, plan, sessionId: sessionIdRef.current })
-      );
+      const serialized = JSON.stringify({
+        messages,
+        cards,
+        suggestions,
+        listings,
+        plan,
+        sessionId: sessionIdRef.current,
+        savedAt: Date.now()
+      });
+      localStorage.setItem(STORAGE_KEY, serialized);
+      sessionStorage.setItem(STORAGE_KEY, serialized);
       if (messages.length) {
         const durable = extractDurablePrefs(extractTripProfile(messages, new Date(), savedPrefs));
         if (durable) {
@@ -175,6 +205,8 @@ export function ChatProvider({ children }) {
     let nextSuggestions = navigation.suggestions;
     let nextListings = [];
     let nextPlan = null;
+    let nextFollowups = [];
+    let nextHandoffSummary = '';
     let prepared = null;
 
     try {
@@ -184,6 +216,7 @@ export function ChatProvider({ children }) {
         authToken = sessionData?.session?.access_token || null;
       } catch {}
 
+      const conversationSummary = buildConversationSummary(nextMessages, savedPrefs);
       timeout = setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -193,7 +226,7 @@ export function ChatProvider({ children }) {
           ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
           ...(globalThis.crypto?.randomUUID ? { 'Idempotency-Key': crypto.randomUUID() } : {})
         },
-        body: JSON.stringify(chatPayload(nextMessages, { locale, sessionId: sessionIdRef.current, pagePath: pathname, savedPrefs })),
+        body: JSON.stringify(chatPayload(nextMessages, { locale, sessionId: sessionIdRef.current, pagePath: pathname, savedPrefs, conversationSummary })),
         signal: controller.signal
       });
 
@@ -216,6 +249,11 @@ export function ChatProvider({ children }) {
               setSuggestions(snap.suggestions);
             }
           },
+          onReset: () => {
+            if (generation !== generationRef.current) return;
+            streamingRef.current = '';
+            setStreamingText('');
+          },
           onDelta: (chunk) => {
             if (generation !== generationRef.current) return;
             streamingRef.current += chunk;
@@ -232,6 +270,19 @@ export function ChatProvider({ children }) {
         degraded = isDegradedResponse(response.ok, data);
         if (typeof data.replyLocale === 'string' && data.replyLocale.trim()) {
           nextReplyLocale = data.replyLocale.trim();
+        }
+        if (Array.isArray(data.followups) && data.followups.length) {
+          nextFollowups = data.followups.filter((f) => typeof f === 'string' && f.trim()).slice(0, 3);
+        }
+        if (typeof data.handoffSummary === 'string' && data.handoffSummary.trim()) {
+          nextHandoffSummary = data.handoffSummary.trim().slice(0, 260);
+        }
+        if (data.tripPatch && typeof data.tripPatch === 'object') {
+          const mergedPrefs = sanitizeSavedPrefs({ ...(savedPrefs || {}), ...data.tripPatch });
+          if (mergedPrefs && generation === generationRef.current) {
+            setSavedPrefs(mergedPrefs);
+            try { localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(mergedPrefs)); } catch {}
+          }
         }
       }
       const safe = chatSnapshot(data);
@@ -250,7 +301,7 @@ export function ChatProvider({ children }) {
         return;
       }
       const wasStoppedByUser = userStoppedRef.current;
-      const partialText = streamingRef.current.trim();
+      const partialText = stripStreamingMarkdown(streamingRef.current).replace(/\\+$/, '').trim();
       setStreamingText('');
       setStreamStatus('');
       streamingRef.current = '';
@@ -261,6 +312,7 @@ export function ChatProvider({ children }) {
           setMessages((prev) => [...prev, {
             role: 'assistant',
             content: partialText,
+            degraded: true,
             ...(nextCards.length ? { cards: nextCards } : {}),
             ...(nextSuggestions.length ? { suggestions: nextSuggestions } : {})
           }].slice(-MAX_MESSAGES));
@@ -299,7 +351,9 @@ export function ChatProvider({ children }) {
         ...(nextCards.length ? { cards: nextCards } : {}),
         ...(nextSuggestions.length ? { suggestions: nextSuggestions } : {}),
         ...(nextListings.length ? { listings: nextListings } : {}),
-        ...(nextPlan ? { plan: nextPlan } : {})
+        ...(nextPlan ? { plan: nextPlan } : {}),
+        ...(nextFollowups.length ? { followups: nextFollowups } : {}),
+        ...(nextHandoffSummary ? { handoffSummary: nextHandoffSummary } : {})
       }].slice(-MAX_MESSAGES));
       setCards(nextCards);
       setSuggestions(nextSuggestions);
@@ -312,7 +366,8 @@ export function ChatProvider({ children }) {
     return answer;
   }, [messages, locale, hydrated, pathname, savedPrefs]);
 
-  const reset = useCallback(() => {
+  const reset = useCallback((opts = {}) => {
+    const clearPrefs = Boolean(opts && typeof opts === 'object' && opts.clearPrefs === true);
     generationRef.current++;
     operationRef.current?.abort();
     operationRef.current = null;
@@ -326,11 +381,12 @@ export function ChatProvider({ children }) {
     setSuggestions([]);
     setListings([]);
     setPlan(null);
-    setSavedPrefs(null);
+    if (clearPrefs) setSavedPrefs(null);
     sessionIdRef.current = null;
     try {
+      localStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem(STORAGE_KEY);
-      localStorage.removeItem(PREFS_STORAGE_KEY);
+      if (clearPrefs) localStorage.removeItem(PREFS_STORAGE_KEY);
     } catch {
       /* blocked storage - in-memory reset already happened */
     }

@@ -45,12 +45,14 @@ export function AiDock() {
   // it was already localized, so an English header was the odd one out.
   const locale = useLocale();
   const t = getTranslation(locale);
+  const latestAssistant = [...messages].reverse().find((m) => m?.role === 'assistant') || null;
   const handoffPayload = {
     profile: extractTripProfile(messages, new Date(), savedPrefs),
     pageContext: getPageContext(pathname, locale),
     messages,
     listings,
     plan,
+    handoffSummary: latestAssistant?.handoffSummary || '',
     locale
   };
   const smartTelegramHref = managerTelegramHref

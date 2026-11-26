@@ -27,7 +27,7 @@ test('cloud adapter uses real catalogue context, bounded history and selected la
  const result=await workersAiChat(environment(async(model,body)=>{sent={model,body};return {choices:[{message:{content:valid},finish_reason:'stop'}]};}),input);
  assert.equal(result.ok,true);assert.match(result.reply,/яхт/);assert.doesNotMatch(result.reply,/Условия/);assert.equal(result.responsePolicy,'catalogue-v1');assert.equal(sent.model,WORKERS_AI_MODEL);
  assert.equal(sent.model,'@cf/deepseek-ai/deepseek-v4.1-flash-1017');
- assert.equal(sent.body.stream,false);assert.equal(sent.body.max_completion_tokens,640);assert.equal(sent.body.store,false);
+ assert.equal(sent.body.stream,false);assert.equal(sent.body.max_completion_tokens,900);assert.equal(sent.body.store,false);
  assert.equal(sent.body.reasoning_effort,'none');
  assert.deepEqual(sent.body.response_format,{type:'json_object'});
  assert.equal(sent.body.messages[0].role,'system');

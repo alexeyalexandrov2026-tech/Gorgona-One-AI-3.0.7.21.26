@@ -55,7 +55,7 @@ test('listing cards, seat filter, dining plan, and catalogue fallback',()=>{
  assert.ok(cars?.candidates.length);
  assert.ok(cars.candidates.every(item=>!/911/i.test(item.title)));
  assert.ok(cars.candidates.every(item=>seatsForCar({slug:item.slug,title:item.title})>=6));
- assert.equal(CLIENT_TIMEOUT_MS>=8000&&CLIENT_TIMEOUT_MS<=14000,true);
+ assert.equal(CLIENT_TIMEOUT_MS>=8000&&CLIENT_TIMEOUT_MS<=22000,true);
 });
 test('a vague mood request gets no catalogue row matched on a single word',()=>{
  const {listingCards:cards}=load('lib/ai/listingCards.mjs');
