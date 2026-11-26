@@ -323,10 +323,10 @@ class ConciergeScreenTest {
         compose.onAllNodesWithTag("concierge.starter")[0].performClick()
         compose.waitForIdle()
 
-        compose.onNodeWithTag("concierge.listing.availability").assertExists()
-        compose.onNodeWithText("Available on your dates").assertExists()
-        compose.onNodeWithTag("concierge.listing.estimate").assertExists()
-        compose.onNodeWithText("${'$'}3,600 for 3 days · ${'$'}900 / guest").assertExists()
+        compose.onNodeWithTag("concierge.listing.availability", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("Available on your dates", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("concierge.listing.estimate", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("${'$'}3,600 for 3 days · ${'$'}900 / guest", useUnmergedTree = true).assertExists()
 
         // Opt-in Listen button plays the reply and toggles to Stop audio.
         compose.onNodeWithTag("concierge.listen").performClick()
