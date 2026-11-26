@@ -359,8 +359,9 @@ test('PR #143: Header drops framer-motion, /events above-the-fold local hero, fu
   const site = websiteJsonLd();
   assert.equal(site.potentialAction['@type'], 'SearchAction');
   assert.match(site.potentialAction.target.urlTemplate, /\/discovery\?q=\{search_term_string\}/);
-  assert.equal(organizationJsonLd().address.addressLocality, 'Sunny Isles Beach');
+  assert.equal(organizationJsonLd().address.addressLocality, 'Miami');
 
   assert.equal(exists('app/opengraph-image.alt.txt'), false, 'orphaned opengraph-image.alt.txt must be removed');
   assert.doesNotMatch(source('public/sms-alerts.html'), /concierge/i);
+  assert.doesNotMatch(source('public/sms-alerts.html'), /ALEXEY AAA|250 174/i);
 });

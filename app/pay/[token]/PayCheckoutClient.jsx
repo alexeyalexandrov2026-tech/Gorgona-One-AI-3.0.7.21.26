@@ -1063,8 +1063,8 @@ export default function PayCheckoutClient({ token }) {
             </section>
           )}
 
-          {/* Express 30-Sec Online KYC (Stripe Identity — ID / Driver's License + Selfie) */}
-          {!isInactive && (quote.kycRequired || quote.kycStatus !== 'none' || isSigned || isPaid) && (
+          {/* Express 30-Sec Online KYC (Stripe Identity — shown only when required or already initiated) */}
+          {!isInactive && (quote.kycRequired || (quote.kycStatus && quote.kycStatus !== 'none')) && (
             <section
               data-kyc-card="true"
               className="grid gap-4 rounded-[24px] border border-g1-rule bg-g1-card p-6 sm:p-7"
