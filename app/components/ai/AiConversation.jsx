@@ -213,7 +213,7 @@ function cleanBrowserSpeechText(raw) {
     .slice(0, 1200);
 }
 
-async function playFemaleVoice({ text, locale, onStateChange, fast = false }) {
+async function playFemaleVoice({ text, locale, onStateChange, onEnded = null, fast = false }) {
   const cleanText = String(text || '').trim().slice(0, 1200);
   if (!cleanText) return;
   stopActiveVoicePlayback();
@@ -248,6 +248,14 @@ async function playFemaleVoice({ text, locale, onStateChange, fast = false }) {
     }
     try { window.speechSynthesis?.cancel?.(); } catch {}
     onStateChange?.('idle');
+  };
+  const finishNaturally = () => {
+    const wasCancelled = cancelled;
+    if (activeTtsCleanup === cleanup) activeTtsCleanup = null;
+    cleanup();
+    if (!wasCancelled) {
+      try { onEnded?.(); } catch {}
+    }
   };
   activeTtsCleanup = cleanup;
 
@@ -300,7 +308,7 @@ async function playFemaleVoice({ text, locale, onStateChange, fast = false }) {
       el.playsInline = true;
       el.muted = false;
       el.volume = 1;
-      el.onended = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
+      el.onended = () => finishNaturally();
       el.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; cleanup(); };
       el.src = objectUrl;
       await playElementWithTimeout(el, 3500);
@@ -325,8 +333,7 @@ async function playFemaleVoice({ text, locale, onStateChange, fast = false }) {
         activeBufferSource = src;
         src.onended = () => {
           if (activeBufferSource === src) activeBufferSource = null;
-          if (activeTtsCleanup === cleanup) activeTtsCleanup = null;
-          cleanup();
+          finishNaturally();
         };
         onStateChange?.('playing');
         src.start(0);
@@ -351,7 +358,7 @@ async function playFemaleVoice({ text, locale, onStateChange, fast = false }) {
       utter.pitch = 1.02;
       const femaleVoice = pickFemaleBrowserVoice(lang);
       if (femaleVoice) utter.voice = femaleVoice;
-      utter.onend = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; onStateChange?.('idle'); };
+      utter.onend = () => finishNaturally();
       utter.onerror = () => { if (activeTtsCleanup === cleanup) activeTtsCleanup = null; onStateChange?.('idle'); };
       onStateChange?.('playing');
       window.speechSynthesis.cancel();
@@ -590,17 +597,38 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
   const [emailStatus, setEmailStatus] = useState('idle'); // idle | sending | sent | error | unavailable
-  // Opt-in voice reply mode (OFF by default to conserve ElevenLabs credits).
+  // Opt-in Live Voice Dialogue mode (OFF by default to conserve ElevenLabs credits).
   const [voiceMode, setVoiceMode] = useState(false);
+  const [liveTtsState, setLiveTtsState] = useState('idle'); // idle | loading | playing
   const lastSpokenIndexRef = useRef(-1);
+  const voiceModeRef = useRef(false);
+  const activeRef = useRef(active);
+  const isLoadingRef = useRef(isLoading);
+  const noSpeechStreakRef = useRef(0);
+  const rearmTimerRef = useRef(null);
+  voiceModeRef.current = voiceMode;
+  activeRef.current = active;
+  isLoadingRef.current = isLoading;
   const listRef = useRef(null);
   const lastAssistantRef = useRef(null);
   const inputRef = useRef(null);
   const voice = useVoice();
   useEffect(() => {
-    if (!active) stopActiveVoicePlayback();
+    if (!active) {
+      if (rearmTimerRef.current) { clearTimeout(rearmTimerRef.current); rearmTimerRef.current = null; }
+      stopActiveVoicePlayback();
+      setLiveTtsState('idle');
+    }
     if (!active || !messages.length) voice.cancelListening();
   }, [active, messages.length, voice.cancelListening]);
+  useEffect(() => () => {
+    if (rearmTimerRef.current) { clearTimeout(rearmTimerRef.current); rearmTimerRef.current = null; }
+  }, []);
+  useEffect(() => {
+    if (voice.error === 'no-speech') {
+      noSpeechStreakRef.current += 1;
+    }
+  }, [voice.error]);
   useEffect(() => {
     if (!isLoading) {
       setThinkingStage(0);
@@ -650,19 +678,45 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
 
   // send() never throws and never logs - an offline AI backend is an expected
   // state, and the guest still gets a concierge line plus working navigation
-  // cards. The concierge answers in text only; nothing here plays audio.
-  async function submit(rawText) {
+  // cards. Voice audio only plays when the guest explicitly opted into Voice Mode.
+  async function submit(rawText, opts = {}) {
     const content = String(rawText || '').trim();
     if (!content || isLoading) return;
+    if (rearmTimerRef.current) { clearTimeout(rearmTimerRef.current); rearmTimerRef.current = null; }
     stopActiveVoicePlayback();
-    if (voiceMode) unlockSafariAudio();
+    setLiveTtsState('idle');
+    const inVoiceMode = voiceModeRef.current || opts?.fromVoice === true;
+    if (inVoiceMode) unlockSafariAudio();
     voice.cancelListening();
     setInput('');
-    await send(content);
+    await send(content, { voiceMode: inVoiceMode });
   }
 
-  // When the guest explicitly enables Voice Replies mode, automatically speak
-  // each newly completed non-degraded assistant reply in female ElevenLabs voice.
+  function startVoiceCapture(autoSend = false) {
+    if (!voice.recognitionSupported || isLoadingRef.current) return;
+    if (rearmTimerRef.current) { clearTimeout(rearmTimerRef.current); rearmTimerRef.current = null; }
+    // Instant barge-in: stop ELIO speaking mid-sentence when guest taps to speak.
+    stopActiveVoicePlayback();
+    setLiveTtsState('idle');
+    voice.startListening(
+      (finalText) => {
+        noSpeechStreakRef.current = 0;
+        if (autoSend || voiceModeRef.current) {
+          void submit(finalText, { fromVoice: true });
+          return;
+        }
+        setInput(finalText);
+        inputRef.current?.focus();
+      },
+      (interim) => {
+        setInput(interim);
+      }
+    );
+  }
+
+  // When the guest explicitly enables Live Voice Dialogue mode, automatically speak
+  // each newly completed non-degraded assistant reply in female ElevenLabs voice,
+  // then smoothly re-arm listening for hands-free back-and-forth conversation.
   useEffect(() => {
     if (!voiceMode || !active || isLoading) return;
     const idx = messages.length - 1;
@@ -670,8 +724,24 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
     if (!latest || latest.role !== 'assistant' || latest.degraded || !latest.content?.trim()) return;
     if (lastSpokenIndexRef.current === idx) return;
     lastSpokenIndexRef.current = idx;
-    playFemaleVoice({ text: latest.content, locale: latest.replyLocale || locale, fast: true });
-  }, [voiceMode, active, isLoading, messages, locale]);
+    playFemaleVoice({
+      text: latest.content,
+      locale: latest.replyLocale || locale,
+      fast: true,
+      onStateChange: setLiveTtsState,
+      onEnded: () => {
+        if (!voiceModeRef.current || !activeRef.current || isLoadingRef.current) return;
+        if (!voice.recognitionSupported || voice.usingWhisper) return;
+        if (noSpeechStreakRef.current >= 2) return;
+        rearmTimerRef.current = setTimeout(() => {
+          rearmTimerRef.current = null;
+          if (voiceModeRef.current && activeRef.current && !isLoadingRef.current) {
+            startVoiceCapture(true);
+          }
+        }, 320);
+      }
+    });
+  }, [voiceMode, active, isLoading, messages, locale, voice.recognitionSupported, voice.usingWhisper]);
 
   const profile = extractTripProfile(messages, new Date(), savedPrefs);
   const { chips: profileChips, resetLabel } = formatProfileChips(profile, locale);
@@ -747,17 +817,11 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
       voice.stopListening();
       return;
     }
-    // Live interim dictation streams directly into the text input so the guest
-    // sees and verifies their words before pressing Ask (no blind auto-send).
-    voice.startListening(
-      (finalText) => {
-        setInput(finalText);
-        inputRef.current?.focus();
-      },
-      (interim) => {
-        setInput(interim);
-      }
-    );
+    noSpeechStreakRef.current = 0;
+    if (voiceMode) unlockSafariAudio();
+    // When Live Voice mode is ON, auto-send spoken phrases for hands-free dialogue;
+    // when OFF, stream interim dictation into the text input without auto-sending.
+    startVoiceCapture(voiceMode);
   }
 
   const voiceErrorText = voice.error === 'permission'
@@ -1035,7 +1099,45 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
         )}
       </div>
 
-      <div className="mt-2 flex items-center justify-end">
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+        {voiceMode ? (
+          <button
+            type="button"
+            data-live-voice-bar="true"
+            onClick={() => {
+              if (liveTtsState !== 'idle') {
+                noSpeechStreakRef.current = 0;
+                startVoiceCapture(true);
+              } else if (voice.isListening) {
+                voice.stopListening();
+              } else if (!isLoading) {
+                noSpeechStreakRef.current = 0;
+                startVoiceCapture(true);
+              }
+            }}
+            className="inline-flex h-7 max-w-full items-center gap-2 rounded-full border border-brand-gold/40 bg-brand-gold/12 px-3 text-[11px] font-medium text-brand-gold transition hover:border-brand-gold hover:bg-brand-gold/20"
+          >
+            <span
+              aria-hidden="true"
+              className={`h-2 w-2 shrink-0 rounded-full ${
+                voice.isListening
+                  ? 'bg-emerald-400 animate-pulse'
+                  : liveTtsState !== 'idle' || isLoading
+                    ? 'bg-brand-gold animate-pulse'
+                    : 'bg-brand-gold/60'
+              }`}
+            />
+            <span className="truncate">
+              {voice.isListening
+                ? s3.liveVoiceListening
+                : isLoading
+                  ? s3.liveVoiceThinking
+                  : liveTtsState !== 'idle'
+                    ? s3.liveVoiceSpeaking
+                    : s3.liveVoiceReady}
+            </span>
+          </button>
+        ) : <span />}
         <button
           type="button"
           data-voice-mode-toggle="true"
@@ -1043,10 +1145,23 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
           onClick={() => {
             setVoiceMode((prev) => {
               const next = !prev;
-              if (!next) stopActiveVoicePlayback();
-              else {
+              voiceModeRef.current = next;
+              if (!next) {
+                if (rearmTimerRef.current) { clearTimeout(rearmTimerRef.current); rearmTimerRef.current = null; }
+                stopActiveVoicePlayback();
+                setLiveTtsState('idle');
+                voice.cancelListening();
+              } else {
                 unlockSafariAudio();
+                noSpeechStreakRef.current = 0;
                 lastSpokenIndexRef.current = messages.length - 1;
+                if (voice.recognitionSupported && !voice.usingWhisper && !isLoadingRef.current && !voice.isListening) {
+                  setTimeout(() => {
+                    if (voiceModeRef.current && activeRef.current && !isLoadingRef.current) {
+                      startVoiceCapture(true);
+                    }
+                  }, 120);
+                }
               }
               return next;
             });
