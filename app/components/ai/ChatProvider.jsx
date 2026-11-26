@@ -177,8 +177,9 @@ export function ChatProvider({ children }) {
     operationRef.current?.abort();
   }, []);
 
-  const send = useCallback(async (rawText) => {
+  const send = useCallback(async (rawText, options = {}) => {
     const content = String(rawText || '').trim();
+    const voiceMode = options?.voiceMode === true;
     if (!hydrated || !content || content.length > 4000 || inFlightRef.current) return;
 
     inFlightRef.current = true;
@@ -240,7 +241,7 @@ export function ChatProvider({ children }) {
           ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
           ...(globalThis.crypto?.randomUUID ? { 'Idempotency-Key': crypto.randomUUID() } : {})
         },
-        body: JSON.stringify(chatPayload(nextMessages, { locale, sessionId: sessionIdRef.current, pagePath: pathname, savedPrefs, conversationSummary })),
+        body: JSON.stringify(chatPayload(nextMessages, { locale, sessionId: sessionIdRef.current, pagePath: pathname, savedPrefs, conversationSummary, voiceMode })),
         signal: controller.signal
       });
 
