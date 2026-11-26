@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {useAuth} from '../../components/AuthProvider';
 import {useLocale} from '../../components/LocaleProvider';
 import {useSavedText} from '../../components/LocalizedText';
-import {getTranslation} from '../../../lib/i18n';
+import {getTranslation} from '../../../lib/i18nClient';
 import {setPassword} from '../../../lib/auth';
 import {authErrorSource} from '../../../lib/authMessages';
 

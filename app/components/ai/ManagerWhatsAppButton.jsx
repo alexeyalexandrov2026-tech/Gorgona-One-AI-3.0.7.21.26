@@ -5,7 +5,7 @@ import { useAI } from './AIProvider';
 import { useAiDock } from './AiDockProvider';
 import { useAITheme } from '../ThemeProvider';
 import { useLocale, useLocaleReady } from '../LocaleProvider';
-import { getTranslation } from '../../../lib/i18n';
+import { getTranslation } from '../../../lib/i18nClient';
 import { configuredManagerWhatsApp } from '../../../lib/managerContact.mjs';
 
 // Direct chat-only WhatsApp line to a live manager, stacked quietly above the

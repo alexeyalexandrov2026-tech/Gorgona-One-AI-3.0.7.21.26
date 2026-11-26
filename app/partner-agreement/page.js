@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useSavedText } from '../components/LocalizedText';
 import { useLocale } from '../components/LocaleProvider';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation } from '../../lib/i18nClient';
 import { btn, eyebrowClass } from '../components/g1/ui';
 import { getCheckoutCopy } from '../../lib/legal/checkoutCopy.mjs';
 import {

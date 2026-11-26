@@ -4,7 +4,7 @@ import { rentalDescriptions, getContentText } from '../../lib/contentTranslation
 import { getServerTranslation } from '../../lib/serverLocale';
 import { getWorldsCopy, displayValue } from '../../lib/worldsCopy';
 import { fill } from '../../lib/homeCopy';
-import { carThumb } from '../../lib/homeData';
+import { carThumb } from '../../lib/homeSections.mjs';
 import { WorldHero, ListingCard, Steps, chipClass, btn } from '../components/g1/ui';
 import UsTrustStrip from '../components/g1/UsTrustStrip';
 import SaveButton from '../components/SaveButton';

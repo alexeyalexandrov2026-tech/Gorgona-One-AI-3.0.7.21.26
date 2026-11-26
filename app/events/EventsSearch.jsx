@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { getAllEvents, getEventCategories, getProviders } from '../../lib/eventsData';
 import { useLocale } from '../components/LocaleProvider';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation } from '../../lib/i18nClient';
 
 export function EventsSearch() {
   const t = getTranslation(useLocale());

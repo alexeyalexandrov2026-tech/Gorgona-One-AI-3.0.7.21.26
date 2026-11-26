@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { DEFAULT_LANGUAGE, getLanguageDir, isSupportedLanguage } from '../../lib/languages';
 import { canRefreshForLocale } from '../../lib/localePolicy';
 import { loadSavedLocale } from '../../lib/savedCopy';
+import { loadTranslationLocale } from '../../lib/i18nClient';
 import {useHydratedValue} from './useHydratedValue';
 
 const LOCALE_STORAGE_KEY = 'gorgona-locale';
@@ -81,7 +82,7 @@ export function LocaleProvider({ children }) {
     setReady(false);
     // Fetch only the selected, saved language bundle. Concurrent selections
     // resolve in the visitor's order of intent, never network arrival order.
-    try { await loadSavedLocale(next); }
+    try { await Promise.all([loadSavedLocale(next), loadTranslationLocale(next)]); }
     catch { if(request===selection.current)setReady(true);return; }
     if (request !== selection.current) return;
     const changed = next !== currentLocale.current;

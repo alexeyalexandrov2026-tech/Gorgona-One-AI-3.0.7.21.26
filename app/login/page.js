@@ -5,7 +5,7 @@ import { authErrorSource } from '../../lib/authMessages';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation } from '../../lib/i18nClient';
 import { useLocale } from '../components/LocaleProvider';
 import { useAuth } from '../components/AuthProvider';
 import { SocialAuthButtons } from '../components/SocialAuthButtons';

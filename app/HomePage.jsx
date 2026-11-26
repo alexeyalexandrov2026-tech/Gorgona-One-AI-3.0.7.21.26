@@ -2,13 +2,10 @@
 import { useSavedText } from "./components/LocalizedText";
 
 import Link from 'next/link';
-import { getTranslation } from '../lib/i18n';
+import { getTranslation } from '../lib/i18nClient';
 import { useLocale } from './components/LocaleProvider';
 import { getHomeCopy } from '../lib/homeCopy';
-import { getHeadoutCopy } from '../lib/headoutCopy.mjs';
-import { getPrivateJetsCopy } from '../lib/privateJetsCopy.mjs';
-import { HEADOUT_COLLECTIONS } from '../lib/headoutCatalog.mjs';
-import { HOME_SECTIONS } from '../lib/homeData';
+import { HOME_SECTIONS } from '../lib/homeSections.mjs';
 import HomeHero from './components/home/HomeHero';
 import SeasonShelf from './components/home/SeasonShelf';
 import TicketCarousel from './components/home/TicketCarousel';
@@ -17,8 +14,9 @@ import ConciergeBand from './components/home/ConciergeBand';
 import { SectionHead, btn } from './components/g1/ui';
 
 const DIRECTORY_IDS = new Set(['travel', 'stays', 'yachts', 'cars', 'events']);
+const EXPERIENCES_TILE_IMAGE = 'https://cdn-imgix.headout.com/media/images/f5fee038646e6cbc9454ad205147e4cf-5426-miami-zoo-miami-02.jpg';
 const WORLDS = [
-  { id: 'experiences', href: '/experiences', image: HEADOUT_COLLECTIONS[0].image },
+  { id: 'experiences', href: '/experiences', image: EXPERIENCES_TILE_IMAGE },
   ...HOME_SECTIONS.filter((section) => DIRECTORY_IDS.has(section.id)),
   { id: 'dining', href: '/restaurants-nightlife', img: 'deco-street' },
   { id: 'privateJets', href: '/private-jets', img: 'travel-wing' }
@@ -58,9 +56,7 @@ export default function HomePage({ showcase = [] }) {
         <SectionHead title={copy.worlds} sub={copy.worldsSub} />
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {WORLDS.map((world) => {
-            const experienceCopy = getHeadoutCopy(locale);
-            const jetCopy = getPrivateJetsCopy(locale);
-            const [name] = world.id === 'experiences' ? [experienceCopy.nav] : world.id === 'privateJets' ? [jetCopy.nav] : world.id === 'dining' ? [t.restaurantsNightlife.pill] : copy.worldItems[world.id];
+            const [name] = world.id === 'experiences' ? [t.nav.experiences] : world.id === 'privateJets' ? [t.nav.privateJets] : world.id === 'dining' ? [t.restaurantsNightlife.pill] : copy.worldItems[world.id];
             return (
               <li key={world.id}>
                 <Link

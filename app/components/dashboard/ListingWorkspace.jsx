@@ -7,7 +7,7 @@ import {supabase} from '../../../lib/supabase';
 import {draftListing,validateListing,MAX_PHOTOS,MAX_PHOTO_BYTES,CAR_TYPES,PROPERTY_TYPES,CURRENCIES} from '../../../lib/partnerListing.mjs';
 import {getPartnerListingCopy} from '../../../lib/partnerListingCopy.mjs';
 import {getWorldsCopy} from '../../../lib/worldsCopy';
-import {getTranslation} from '../../../lib/i18n';
+import {getTranslation} from '../../../lib/i18nClient';
 import {ListingCard} from '../g1/ui';
 const control='min-h-[44px] w-full min-w-0 rounded-lg border border-villa-obsidian/25 bg-white px-3 py-2 text-base text-villa-obsidian focus-visible:outline focus-visible:outline-2';
 const button='inline-flex min-h-[44px] items-center justify-center rounded-lg border border-villa-obsidian/30 px-4 py-2 text-sm text-villa-obsidian hover:bg-villa-obsidian/5 focus-visible:outline focus-visible:outline-2 disabled:opacity-50';

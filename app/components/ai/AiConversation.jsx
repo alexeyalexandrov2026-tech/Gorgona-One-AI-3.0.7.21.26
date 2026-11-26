@@ -10,14 +10,14 @@ import { useConciergeChat } from './ChatProvider';
 import { useAuth } from '../AuthProvider';
 import { AiActionCards, AiListingCards, AiPlan } from './AiActionCard';
 import { useLocale } from '../LocaleProvider';
-import { getTranslation } from '../../../lib/i18n';
+import { getTranslation } from '../../../lib/i18nClient';
 import { STARTER_PROMPTS } from '../../../lib/ai/conciergePrompts';
 import { extractTripProfile } from '../../../lib/ai/tripProfile.mjs';
 import { formatProfileChips } from '../../../lib/ai/profileChips.mjs';
 import { quickRepliesForTurn } from '../../../lib/ai/quickReplies.mjs';
 import { thinkingStatusForTurn } from '../../../lib/ai/thinkingStatus.mjs';
 import { buildShareablePlanText, buildTelegramShareUrl, buildWhatsAppShareUrl, getShareCopy } from '../../../lib/ai/sharePlan.mjs';
-import { buildManagerHandoffUrl, getPageContext, getStage2Copy } from '../../../lib/ai/stage2Copy.mjs';
+import { buildManagerHandoffUrl, getStage2Copy } from '../../../lib/ai/stage2Core.mjs';
 import { getStage3Copy } from '../../../lib/ai/stage3Copy.mjs';
 import { speechLocale } from '../../../lib/ai/locale';
 import {voiceInputUnavailable} from '../../../lib/ai/voiceInputCopy.mjs';
@@ -618,7 +618,22 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   // is reading and the language the concierge answers in never disagree.
   const locale = useLocale();
   const t = getTranslation(locale);
-  const pageContext = getPageContext(pathname, locale);
+  const [pageContext, setPageContext] = useState(null);
+  useEffect(() => {
+    if (!pathname || pathname === '/' || pathname === '/discovery') {
+      setPageContext(null);
+      return undefined;
+    }
+    let active = true;
+    import('../../../lib/ai/stage2Copy.mjs')
+      .then(({ getPageContext }) => {
+        if (active) setPageContext(getPageContext(pathname, locale));
+      })
+      .catch(() => {
+        if (active) setPageContext(null);
+      });
+    return () => { active = false; };
+  }, [pathname, locale]);
   const starters = pageContext?.prompts?.length ? pageContext.prompts : (STARTER_PROMPTS[locale] || STARTER_PROMPTS.en);
 
   useEffect(() => {
