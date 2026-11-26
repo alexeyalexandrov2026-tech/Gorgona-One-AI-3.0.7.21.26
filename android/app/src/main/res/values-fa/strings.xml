@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">تأیید</string>
     <string name="action_retry" formatted="false">تلاش دوباره</string>
     <string name="action_settings" formatted="false">تنظیمات</string>
+    <string name="concierge_available_dates" formatted="false">در تاریخ‌های شما آزاد است</string>
+    <string name="concierge_busy_dates" formatted="false">در این تاریخ‌ها رزرو شده</string>
     <string name="concierge_live_manager" formatted="false">پیام به مدیر در تلگرام</string>
     <string name="concierge_manager" formatted="false">مدیر</string>
     <string name="concierge_new" formatted="false">گفتگوی جدید</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">جستجو</string>
     <string name="tab_today" formatted="false">امروز</string>
     <string name="voice_denied" formatted="false">برای صحبت با کانسیرژ، دسترسی به میکروفون و تشخیص گفتار را در تنظیمات مجاز کنید.</string>
+    <string name="voice_listen" formatted="false">شنیدن</string>
     <string name="voice_listening" formatted="false">در حال گوش دادن</string>
+    <string name="voice_live_listening" formatted="false">صدای زنده · در حال گوش دادن…</string>
+    <string name="voice_live_off" formatted="false">پایان گفتگوی صوتی زنده</string>
+    <string name="voice_live_on" formatted="false">شروع گفتگوی صوتی زنده</string>
+    <string name="voice_live_ready" formatted="false">صدای زنده فعال است</string>
+    <string name="voice_live_speaking" formatted="false">در حال صحبت · برای قطع ضربه بزنید</string>
+    <string name="voice_live_thinking" formatted="false">صدای زنده · در حال فکر کردن…</string>
+    <string name="voice_loading_audio" formatted="false">در حال آماده‌سازی صدا…</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio درخواست گفتاری شما را برای کانسیرژ به متن تبدیل می‌کند.</string>
     <string name="voice_speak" formatted="false">درخواست خود را بگویید</string>
     <string name="voice_stop" formatted="false">توقف گوش دادن</string>
+    <string name="voice_stop_audio" formatted="false">توقف صدا</string>
     <string name="voice_unavailable" formatted="false">ورودی صوتی برای این زبان در این دستگاه در دسترس نیست.</string>
     <string name="web_back" formatted="false">بازگشت</string>
     <string name="world_cars" formatted="false">ماشین‌ها</string>

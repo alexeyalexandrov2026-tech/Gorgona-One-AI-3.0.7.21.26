@@ -72,6 +72,13 @@ Destinations and your profile now sit over the sea too, with a lighter tab bar.
 New photographs for Travel and Experiences. In Exclusive Destinations, each
 experience opens on its own page with a list of offers to choose from.
 
+**Release notes, 1.4.0 (version code 9), English (United States)**
+
+Upgraded Miami Elio AI with hands-free Live Voice conversation, natural spoken
+replies in 16 languages with one-tap interrupt, and a Listen button under every
+answer. Car recommendations and trip plans now display live calendar availability
+and multi-day price estimates directly inside chat.
+
 ## Graphics
 
 The local handoff is in `app/build/outputs/play-listing/`. The app icon

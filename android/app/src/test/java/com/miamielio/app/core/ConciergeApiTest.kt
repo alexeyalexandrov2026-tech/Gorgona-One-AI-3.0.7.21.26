@@ -278,6 +278,55 @@ class ConciergeApiTest {
     }
 
     @Test
+    fun sendsVoiceModeFlagAndDecodesReplyLocaleAndLiveAvailability() = runTest {
+        val transport = MockTransport(
+            json = """
+            {
+              "reply": "Rolls-Royce Ghost свободен на ваши даты.",
+              "replyLocale": "ru",
+              "listings": [
+                {
+                  "href": "/rentals/rolls-royce-ghost",
+                  "title": "Rolls-Royce Ghost",
+                  "label": "Car",
+                  "price": "${'$'}1,200/day",
+                  "availabilityStatus": "available",
+                  "estimatedTotal": "${'$'}3,600 for 3 days",
+                  "perGuest": "${'$'}900 / guest"
+                },
+                {
+                  "href": "/rentals/bentley-gtc",
+                  "title": "Bentley GTC",
+                  "label": "Car",
+                  "availabilityStatus": "busy"
+                },
+                {
+                  "href": "/rentals/range-rover",
+                  "title": "Range Rover",
+                  "label": "Car",
+                  "availabilityStatus": "unknown-value"
+                }
+              ]
+            }
+            """.trimIndent(),
+        )
+
+        val client = ConciergeClient(transport = transport)
+        val request = client.makeRequest(hello, sessionId = "s-voice", locale = "en", voiceMode = true)
+        assertEquals("true", request.jsonBody().getValue("voiceMode").jsonPrimitive.content)
+        assertFalse(client.makeRequest(hello, sessionId = null, locale = "en").jsonBody().containsKey("voiceMode"))
+
+        val reply = client.send(hello, sessionId = "s-voice", locale = "en", voiceMode = true)
+        assertEquals("ru", reply.replyLocale)
+        assertEquals(3, reply.listings.size)
+        assertEquals("available", reply.listings[0].availabilityStatus)
+        assertEquals("${'$'}3,600 for 3 days", reply.listings[0].estimatedTotal)
+        assertEquals("${'$'}900 / guest", reply.listings[0].perGuest)
+        assertEquals("busy", reply.listings[1].availabilityStatus)
+        assertNull(reply.listings[2].availabilityStatus)
+    }
+
+    @Test
     fun reportsServerAndFormatFailures() = runTest {
         assertEquals(
             ApiError.Status(503),

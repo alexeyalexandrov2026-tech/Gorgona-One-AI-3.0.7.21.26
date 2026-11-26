@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">אישור</string>
     <string name="action_retry" formatted="false">ניסיון נוסף</string>
     <string name="action_settings" formatted="false">הגדרות</string>
+    <string name="concierge_available_dates" formatted="false">פנוי בתאריכים שלך</string>
+    <string name="concierge_busy_dates" formatted="false">תפוס בתאריכים אלה</string>
     <string name="concierge_live_manager" formatted="false">כתבו למנהל אישי בטלגרם</string>
     <string name="concierge_manager" formatted="false">מנהל</string>
     <string name="concierge_new" formatted="false">שיחה חדשה</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">חיפוש</string>
     <string name="tab_today" formatted="false">היום</string>
     <string name="voice_denied" formatted="false">כדי לדבר עם הקונסיירז\', אפשרו גישה למיקרופון ולזיהוי דיבור בהגדרות.</string>
+    <string name="voice_listen" formatted="false">האזנה</string>
     <string name="voice_listening" formatted="false">מקשיב</string>
+    <string name="voice_live_listening" formatted="false">קול חי · מאזין…</string>
+    <string name="voice_live_off" formatted="false">סיים שיחה קולית חיה</string>
+    <string name="voice_live_on" formatted="false">התחל שיחה קולית חיה</string>
+    <string name="voice_live_ready" formatted="false">קול חי פעיל</string>
+    <string name="voice_live_speaking" formatted="false">מדבר · הקש כדי לקטוע</string>
+    <string name="voice_live_thinking" formatted="false">קול חי · חושב…</string>
+    <string name="voice_loading_audio" formatted="false">מכין קול…</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio ממירה את הבקשה הקולית שלכם לטקסט עבור הקונסיירז\'.</string>
     <string name="voice_speak" formatted="false">אמור את הבקשה שלך</string>
     <string name="voice_stop" formatted="false">הפסק להקשיב</string>
+    <string name="voice_stop_audio" formatted="false">עצור שמע</string>
     <string name="voice_unavailable" formatted="false">הקלט הקולי אינו זמין לשפה זו במכשיר זה.</string>
     <string name="web_back" formatted="false">חזרה</string>
     <string name="world_cars" formatted="false">מכוניות</string>

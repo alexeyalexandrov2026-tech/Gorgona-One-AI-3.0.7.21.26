@@ -55,6 +55,12 @@ data class ConciergeListing(
     val image: String? = null,
     val price: String? = null,
     val summary: String? = null,
+    /** Live calendar check ("available" or "busy") when dates were supplied. */
+    val availabilityStatus: String? = null,
+    /** Verified multi-day estimate formatted in the guest's language. */
+    val estimatedTotal: String? = null,
+    /** Optional Split-Pay per-guest figure formatted in the guest's language. */
+    val perGuest: String? = null,
 ) {
     val id: String get() = href
 
@@ -65,6 +71,8 @@ data class ConciergeListing(
         internal fun decode(json: JsonObject): ConciergeListing? {
             val href = json.text("href") ?: return null
             val title = json.text("title") ?: return null
+            val availability = json.text("availabilityStatus")
+                ?.takeIf { it == "available" || it == "busy" }
             return ConciergeListing(
                 href = href,
                 title = title,
@@ -72,6 +80,9 @@ data class ConciergeListing(
                 image = json.text("image"),
                 price = json.text("price"),
                 summary = json.text("summary"),
+                availabilityStatus = availability,
+                estimatedTotal = json.text("estimatedTotal"),
+                perGuest = json.text("perGuest"),
             )
         }
     }
@@ -89,6 +100,8 @@ data class ConciergeReply(
     val degraded: Boolean = false,
     /** Real catalogue items when the guest named two or more sections (`lib/ai/plan.mjs`). */
     val plan: ConciergePlan? = null,
+    /** Language code the model actually answered in, for matching TTS voice. */
+    val replyLocale: String? = null,
 ) {
     companion object {
         internal fun decode(json: JsonObject): ConciergeReply? {
@@ -104,6 +117,7 @@ data class ConciergeReply(
                 degraded = json.bool("error") ?: false,
                 // A malformed plan costs the guest the plan, never the reply.
                 plan = json.obj("plan")?.let(ConciergePlan::decode),
+                replyLocale = json.text("replyLocale")?.let(SiteLocale::normalize),
             )
         }
     }
@@ -115,7 +129,12 @@ class ConciergeClient(
     private val policy: RoutePolicy = RoutePolicy(config),
     private val transport: HttpTransport,
 ) {
-    fun makeRequest(messages: List<ChatMessage>, sessionId: String?, locale: String): HttpRequest {
+    fun makeRequest(
+        messages: List<ChatMessage>,
+        sessionId: String?,
+        locale: String,
+        voiceMode: Boolean = false,
+    ): HttpRequest {
         // The server answers 400 to a blank turn, an over-long one, or a
         // conversation that does not end on the guest's own words.
         val recent = messages.takeLast(historyLimit).mapNotNull { message ->
@@ -128,13 +147,13 @@ class ConciergeClient(
         }
 
         val language = SiteLocale.normalize(locale) ?: SiteLocale.fallback
-        var body = payload(recent, sessionId, language)
+        var body = payload(recent, sessionId, language, voiceMode)
         // A long conversation in a multi-byte script outgrows the body limit
         // before it reaches twelve turns. The oldest turns go first, as in
         // the website's own client (chatPayload in lib/ai/chatRequest.mjs).
         while (body.size > maxBodyBytes && recent.size > 1) {
             recent.removeAt(0)
-            body = payload(recent, sessionId, language)
+            body = payload(recent, sessionId, language, voiceMode)
         }
 
         return HttpRequest(
@@ -149,8 +168,13 @@ class ConciergeClient(
         )
     }
 
-    suspend fun send(messages: List<ChatMessage>, sessionId: String?, locale: String): ConciergeReply {
-        val response = transport.send(makeRequest(messages, sessionId, locale))
+    suspend fun send(
+        messages: List<ChatMessage>,
+        sessionId: String?,
+        locale: String,
+        voiceMode: Boolean = false,
+    ): ConciergeReply {
+        val response = transport.send(makeRequest(messages, sessionId, locale, voiceMode))
         if (response.status != 200) throw ApiError.Status(response.status)
         val decoded = Decode.obj(response.body)?.let(ConciergeReply::decode) ?: throw ApiError.Decoding
         // Only offer destinations the app can actually show, and never a
@@ -168,7 +192,12 @@ class ConciergeClient(
         )
     }
 
-    private fun payload(messages: List<ChatMessage>, sessionId: String?, locale: String): ByteArray =
+    private fun payload(
+        messages: List<ChatMessage>,
+        sessionId: String?,
+        locale: String,
+        voiceMode: Boolean,
+    ): ByteArray =
         buildJsonObject {
             put("messages", buildJsonArray {
                 messages.forEach { message ->
@@ -180,6 +209,7 @@ class ConciergeClient(
             })
             if (sessionId != null) put("sessionId", sessionId)
             put("locale", locale)
+            if (voiceMode) put("voiceMode", true)
         }.toString().toByteArray(Charsets.UTF_8)
 
     companion object {

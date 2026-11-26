@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">OK</string>
     <string name="action_retry" formatted="false">Try again</string>
     <string name="action_settings" formatted="false">Settings</string>
+    <string name="concierge_available_dates" formatted="false">Available on your dates</string>
+    <string name="concierge_busy_dates" formatted="false">Booked on these dates</string>
     <string name="concierge_live_manager" formatted="false">Message a live manager on Telegram</string>
     <string name="concierge_manager" formatted="false">Manager</string>
     <string name="concierge_new" formatted="false">New conversation</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">Search</string>
     <string name="tab_today" formatted="false">Today</string>
     <string name="voice_denied" formatted="false">To speak to the concierge, allow the microphone and speech recognition in Settings.</string>
+    <string name="voice_listen" formatted="false">Listen</string>
     <string name="voice_listening" formatted="false">Listening</string>
+    <string name="voice_live_listening" formatted="false">Live Voice · Listening…</string>
+    <string name="voice_live_off" formatted="false">End live voice conversation</string>
+    <string name="voice_live_on" formatted="false">Start live voice conversation</string>
+    <string name="voice_live_ready" formatted="false">Live Voice active</string>
+    <string name="voice_live_speaking" formatted="false">Speaking · Tap to interrupt</string>
+    <string name="voice_live_thinking" formatted="false">Live Voice · Thinking…</string>
+    <string name="voice_loading_audio" formatted="false">Preparing voice…</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio turns your spoken request into text for the concierge.</string>
     <string name="voice_speak" formatted="false">Speak your request</string>
     <string name="voice_stop" formatted="false">Stop listening</string>
+    <string name="voice_stop_audio" formatted="false">Stop audio</string>
     <string name="voice_unavailable" formatted="false">Voice input isn’t available for this language on this device.</string>
     <string name="web_back" formatted="false">Back</string>
     <string name="world_cars" formatted="false">Cars</string>

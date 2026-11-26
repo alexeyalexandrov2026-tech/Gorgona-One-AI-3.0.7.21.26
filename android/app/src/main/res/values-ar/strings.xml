@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">موافق</string>
     <string name="action_retry" formatted="false">المحاولة مجددًا</string>
     <string name="action_settings" formatted="false">الإعدادات</string>
+    <string name="concierge_available_dates" formatted="false">متاح في تواريخك</string>
+    <string name="concierge_busy_dates" formatted="false">محجوز في هذه التواريخ</string>
     <string name="concierge_live_manager" formatted="false">راسل مديرًا مباشرةً عبر تيليجرام</string>
     <string name="concierge_manager" formatted="false">المدير</string>
     <string name="concierge_new" formatted="false">محادثة جديدة</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">بحث</string>
     <string name="tab_today" formatted="false">اليوم</string>
     <string name="voice_denied" formatted="false">للتحدث إلى الكونسيرج، اسمح باستخدام الميكروفون والتعرّف على الكلام من الإعدادات.</string>
+    <string name="voice_listen" formatted="false">استماع</string>
     <string name="voice_listening" formatted="false">جاري الاستماع</string>
+    <string name="voice_live_listening" formatted="false">صوت مباشر · جاري الاستماع…</string>
+    <string name="voice_live_off" formatted="false">إنهاء المحادثة الصوتية المباشرة</string>
+    <string name="voice_live_on" formatted="false">بدء محادثة صوتية مباشرة</string>
+    <string name="voice_live_ready" formatted="false">الصوت المباشر مفعّل</string>
+    <string name="voice_live_speaking" formatted="false">يتحدث · اضغط للمقاطعة</string>
+    <string name="voice_live_thinking" formatted="false">صوت مباشر · جاري التفكير…</string>
+    <string name="voice_loading_audio" formatted="false">جاري تحضير الصوت…</string>
     <string name="voice_permission_explanation" formatted="false">يحوّل Miami Elio طلبك المنطوق إلى نص للكونسيرج.</string>
     <string name="voice_speak" formatted="false">تحدث بطلبك</string>
     <string name="voice_stop" formatted="false">إيقاف الاستماع</string>
+    <string name="voice_stop_audio" formatted="false">إيقاف الصوت</string>
     <string name="voice_unavailable" formatted="false">الإدخال الصوتي غير متاح لهذه اللغة على هذا الجهاز.</string>
     <string name="web_back" formatted="false">رجوع</string>
     <string name="world_cars" formatted="false">سيارات</string>

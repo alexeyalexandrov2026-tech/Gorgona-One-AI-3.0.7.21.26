@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">ОК</string>
     <string name="action_retry" formatted="false">Спробувати знову</string>
     <string name="action_settings" formatted="false">Налаштування</string>
+    <string name="concierge_available_dates" formatted="false">Вільно на ваші дати</string>
+    <string name="concierge_busy_dates" formatted="false">Зайнято на ці дати</string>
     <string name="concierge_live_manager" formatted="false">Написати живому менеджеру в Telegram</string>
     <string name="concierge_manager" formatted="false">Менеджер</string>
     <string name="concierge_new" formatted="false">Нова розмова</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">Пошук</string>
     <string name="tab_today" formatted="false">Сьогодні</string>
     <string name="voice_denied" formatted="false">Щоб говорити з консьєржем, дозвольте мікрофон і розпізнавання мовлення у Налаштуваннях.</string>
+    <string name="voice_listen" formatted="false">Озвучити</string>
     <string name="voice_listening" formatted="false">Слухаю</string>
+    <string name="voice_live_listening" formatted="false">Живий голос · Слухаю…</string>
+    <string name="voice_live_off" formatted="false">Вимкнути живий голосовий діалог</string>
+    <string name="voice_live_on" formatted="false">Увімкнути живий голосовий діалог</string>
+    <string name="voice_live_ready" formatted="false">Живий голос увімкнено</string>
+    <string name="voice_live_speaking" formatted="false">Говорю · Натисніть, щоб перебити</string>
+    <string name="voice_live_thinking" formatted="false">Живий голос · Думаю…</string>
+    <string name="voice_loading_audio" formatted="false">Готую голос…</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio перетворює ваш голосовий запит на текст для консьєржа.</string>
     <string name="voice_speak" formatted="false">Вимовте ваш запит</string>
     <string name="voice_stop" formatted="false">Зупинити</string>
+    <string name="voice_stop_audio" formatted="false">Зупинити</string>
     <string name="voice_unavailable" formatted="false">На цьому пристрої голосове введення для цієї мови недоступне.</string>
     <string name="web_back" formatted="false">Назад</string>
     <string name="world_cars" formatted="false">Автомобілі</string>

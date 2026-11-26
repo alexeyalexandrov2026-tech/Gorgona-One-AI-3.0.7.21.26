@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">好</string>
     <string name="action_retry" formatted="false">重试</string>
     <string name="action_settings" formatted="false">设置</string>
+    <string name="concierge_available_dates" formatted="false">您所选日期可用</string>
+    <string name="concierge_busy_dates" formatted="false">所选日期已预订</string>
     <string name="concierge_live_manager" formatted="false">通过 Telegram 联系真人经理</string>
     <string name="concierge_manager" formatted="false">经理</string>
     <string name="concierge_new" formatted="false">新对话</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">搜索</string>
     <string name="tab_today" formatted="false">今天</string>
     <string name="voice_denied" formatted="false">如需与礼宾对话，请在“设置”中允许使用麦克风和语音识别。</string>
+    <string name="voice_listen" formatted="false">朗读</string>
     <string name="voice_listening" formatted="false">倾听中</string>
+    <string name="voice_live_listening" formatted="false">实时语音 · 聆听中…</string>
+    <string name="voice_live_off" formatted="false">结束实时语音对话</string>
+    <string name="voice_live_on" formatted="false">开启实时语音对话</string>
+    <string name="voice_live_ready" formatted="false">实时语音已开启</string>
+    <string name="voice_live_speaking" formatted="false">正在播报 · 点击打断</string>
+    <string name="voice_live_thinking" formatted="false">实时语音 · 思考中…</string>
+    <string name="voice_loading_audio" formatted="false">正在准备语音…</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio 会将您的语音需求转换为文字发送给礼宾。</string>
     <string name="voice_speak" formatted="false">说出您的请求</string>
     <string name="voice_stop" formatted="false">停止倾听</string>
+    <string name="voice_stop_audio" formatted="false">停止播放</string>
     <string name="voice_unavailable" formatted="false">此设备不支持该语言的语音输入。</string>
     <string name="web_back" formatted="false">返回</string>
     <string name="world_cars" formatted="false">租车</string>

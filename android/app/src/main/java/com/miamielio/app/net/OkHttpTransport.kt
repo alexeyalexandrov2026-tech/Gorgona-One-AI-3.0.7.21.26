@@ -93,6 +93,7 @@ class OkHttpTransport(
         const val SEARCH_TIMEOUT_MILLIS = 20_000L
         const val CHAT_TIMEOUT_MILLIS = 45_000L
         const val PLAN_TIMEOUT_MILLIS = 30_000L
+        const val TTS_TIMEOUT_MILLIS = 20_000L
 
         private const val CONNECT_TIMEOUT_MILLIS = 15_000L
 
@@ -113,5 +114,6 @@ class OkHttpTransport(
         fun search(base: OkHttpClient = sharedClient) = OkHttpTransport(SEARCH_TIMEOUT_MILLIS, base)
         fun chat(base: OkHttpClient = sharedClient) = OkHttpTransport(CHAT_TIMEOUT_MILLIS, base)
         fun plan(base: OkHttpClient = sharedClient) = OkHttpTransport(PLAN_TIMEOUT_MILLIS, base)
+        fun tts(base: OkHttpClient = sharedClient) = OkHttpTransport(TTS_TIMEOUT_MILLIS, base)
     }
 }

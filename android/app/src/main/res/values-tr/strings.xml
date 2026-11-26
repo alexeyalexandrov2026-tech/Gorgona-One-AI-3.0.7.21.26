@@ -6,6 +6,8 @@
     <string name="action_ok" formatted="false">Tamam</string>
     <string name="action_retry" formatted="false">Tekrar dene</string>
     <string name="action_settings" formatted="false">Ayarlar</string>
+    <string name="concierge_available_dates" formatted="false">Tarihlerinizde müsait</string>
+    <string name="concierge_busy_dates" formatted="false">Bu tarihlerde dolu</string>
     <string name="concierge_live_manager" formatted="false">Telegram\'da canlı yöneticiye yazın</string>
     <string name="concierge_manager" formatted="false">Yönetici</string>
     <string name="concierge_new" formatted="false">Yeni sohbet</string>
@@ -127,10 +129,19 @@
     <string name="tab_search" formatted="false">Ara</string>
     <string name="tab_today" formatted="false">Bugün</string>
     <string name="voice_denied" formatted="false">Konsiyerjle konuşmak için Ayarlar\'da mikrofona ve konuşma tanımaya izin verin.</string>
+    <string name="voice_listen" formatted="false">Dinle</string>
     <string name="voice_listening" formatted="false">Dinliyor</string>
+    <string name="voice_live_listening" formatted="false">Canlı Ses · Dinliyor…</string>
+    <string name="voice_live_off" formatted="false">Canlı sesli sohbeti bitir</string>
+    <string name="voice_live_on" formatted="false">Canlı sesli sohbeti başlat</string>
+    <string name="voice_live_ready" formatted="false">Canlı Ses aktif</string>
+    <string name="voice_live_speaking" formatted="false">Konuşuyor · Bölmek için dokun</string>
+    <string name="voice_live_thinking" formatted="false">Canlı Ses · Düşünüyor…</string>
+    <string name="voice_loading_audio" formatted="false">Ses hazırlanıyor…</string>
     <string name="voice_permission_explanation" formatted="false">Miami Elio, sesli isteğinizi konsiyerj için metne dönüştürür.</string>
     <string name="voice_speak" formatted="false">İsteğinizi söyleyin</string>
     <string name="voice_stop" formatted="false">Dinlemeyi Durdur</string>
+    <string name="voice_stop_audio" formatted="false">Sesi durdur</string>
     <string name="voice_unavailable" formatted="false">Bu cihazda bu dil için sesli giriş kullanılamıyor.</string>
     <string name="web_back" formatted="false">Geri</string>
     <string name="world_cars" formatted="false">Arabalar</string>

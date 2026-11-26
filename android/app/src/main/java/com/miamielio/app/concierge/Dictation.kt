@@ -25,7 +25,12 @@ internal class Dictation(context: Context) {
         private set
     val isActive: Boolean get() = recognizer != null
 
-    fun start(language: String, onText: (String) -> Unit) {
+    fun start(
+        language: String,
+        onText: (String) -> Unit,
+        onFinal: ((String) -> Unit)? = null,
+        onNoSpeech: (() -> Unit)? = null,
+    ) {
         if (isActive) return
         val engine = runCatching {
             if (Build.VERSION.SDK_INT >= 31 && SpeechRecognizer.isOnDeviceRecognitionAvailable(app)) {
@@ -56,19 +61,19 @@ internal class Dictation(context: Context) {
                 }
                 override fun onError(error: Int) {
                     if (recognizer !== engine) return
-                    finish(if (error == SpeechRecognizer.ERROR_NO_MATCH || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                        DictationState.Idle
-                    } else {
-                        DictationState.Unavailable
-                    })
+                    val noSpeech = error == SpeechRecognizer.ERROR_NO_MATCH || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT
+                    finish(if (noSpeech) DictationState.Idle else DictationState.Unavailable)
+                    if (noSpeech) onNoSpeech?.invoke()
                 }
                 override fun onPartialResults(partialResults: Bundle?) {
                     if (recognizer === engine) partialResults.transcript()?.let(onText)
                 }
                 override fun onResults(results: Bundle?) {
                     if (recognizer !== engine) return
-                    results.transcript()?.let(onText)
+                    val spoken = results.transcript()
+                    spoken?.let(onText)
                     finish(DictationState.Idle)
+                    if (spoken != null) onFinal?.invoke(spoken) else onNoSpeech?.invoke()
                 }
             })
             engine.startListening(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {

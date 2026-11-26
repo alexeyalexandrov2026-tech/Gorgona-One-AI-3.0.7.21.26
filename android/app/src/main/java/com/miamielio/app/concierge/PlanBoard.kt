@@ -238,6 +238,31 @@ private fun PlanItemRow(
                         style = AppFont.rowTitle,
                     )
                     item.subtitle?.let { Text(it, color = Theme.soft, style = AppFont.detail) }
+                    item.availabilityStatus?.let { status ->
+                        val available = status == "available"
+                        val tint = if (available) Color(0xFF7FD6D0) else Color(0xFFFF9B8A)
+                        Text(
+                            text = stringResource(if (available) R.string.concierge_available_dates else R.string.concierge_busy_dates),
+                            modifier = Modifier
+                                .padding(top = 2.dp)
+                                .clip(CircleShape)
+                                .background(tint.copy(alpha = 0.14f))
+                                .border(1.dp, tint.copy(alpha = 0.45f), CircleShape)
+                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                                .testTag("plan.item.availability"),
+                            color = tint,
+                            style = AppFont.detailMedium,
+                        )
+                    }
+                    val estimate = listOfNotNull(item.estimatedTotal, item.perGuest).joinToString(" · ")
+                    if (estimate.isNotEmpty()) {
+                        Text(
+                            text = estimate,
+                            modifier = Modifier.testTag("plan.item.estimate"),
+                            color = Theme.goldLight,
+                            style = AppFont.detail,
+                        )
+                    }
                 }
                 if (onFavorite != null) FavoriteHeart(saved, onFavorite)
             }

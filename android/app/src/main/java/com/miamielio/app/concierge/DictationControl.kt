@@ -20,8 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,9 +48,14 @@ import com.miamielio.app.ui.ConciergeMark
 import com.miamielio.app.ui.OrbActivity
 import com.miamielio.app.ui.Theme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 internal class DictationControl(
+    val isListening: Boolean,
+    val level: Double,
     val cancel: () -> Unit,
+    val startListening: () -> Unit,
+    val requestPermissionAndStart: () -> Unit,
     val button: @Composable (enabled: Boolean) -> Unit,
     val feedback: @Composable () -> Unit,
 )
@@ -59,36 +66,91 @@ internal fun rememberDictation(
     language: () -> String,
     onDraft: (String) -> Unit,
     sending: Boolean,
+    liveVoice: Boolean = false,
+    onBeforeStart: () -> Unit = {},
+    onLiveFinal: (String) -> Unit = {},
+    onLiveSilentStop: () -> Unit = {},
+    onPermissionDenied: () -> Unit = {},
 ): DictationControl {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val focus = LocalFocusManager.current
+    val scope = rememberCoroutineScope()
     val dictation = remember(context) { Dictation(context) }
     val latestDraft by rememberUpdatedState(draft)
     val latestLanguage by rememberUpdatedState(language)
     val updateDraft by rememberUpdatedState(onDraft)
     val latestSending by rememberUpdatedState(sending)
+    val latestLiveVoice by rememberUpdatedState(liveVoice)
+    val latestBeforeStart by rememberUpdatedState(onBeforeStart)
+    val latestLiveFinal by rememberUpdatedState(onLiveFinal)
+    val latestLiveSilentStop by rememberUpdatedState(onLiveSilentStop)
+    val latestPermissionDenied by rememberUpdatedState(onPermissionDenied)
     var denied by remember { mutableStateOf(false) }
     var showingPermission by remember { mutableStateOf(false) }
+    var silentTurns by remember { mutableIntStateOf(0) }
 
     fun start() {
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED) || latestSending) return
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) return
         denied = false
         focus.clearFocus()
-        val prefix = latestDraft
+        latestBeforeStart()
+        val prefix = if (latestLiveVoice) "" else latestDraft
         var lastDraft = prefix
-        dictation.start(latestLanguage()) { text ->
-            val current = latestDraft
-            // Preserve edits typed while recognition was in progress.
-            if (current == prefix || current == lastDraft) {
-                lastDraft = Dictation.appendToDraft(prefix, text)
-                updateDraft(lastDraft)
-            }
+        dictation.start(
+            language = latestLanguage(),
+            onText = { text ->
+                if (!latestLiveVoice) {
+                    val current = latestDraft
+                    // Preserve edits typed while recognition was in progress.
+                    if (current == prefix || current == lastDraft) {
+                        lastDraft = Dictation.appendToDraft(prefix, text)
+                        updateDraft(lastDraft)
+                    }
+                }
+            },
+            onFinal = { spoken ->
+                silentTurns = 0
+                if (latestLiveVoice) {
+                    updateDraft("")
+                    latestLiveFinal(spoken)
+                }
+            },
+            onNoSpeech = {
+                if (latestLiveVoice) {
+                    silentTurns += 1
+                    if (silentTurns >= 2) {
+                        silentTurns = 0
+                        latestLiveSilentStop()
+                    } else {
+                        scope.launch {
+                            delay(350)
+                            if (latestLiveVoice && !latestSending && !dictation.isActive) start()
+                        }
+                    }
+                }
+            },
+        )
+    }
+
+    fun requestOrStart() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            silentTurns = 0
+            start()
+        } else {
+            showingPermission = true
         }
     }
+
     val request = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { allowed ->
         denied = !allowed
-        if (allowed) start()
+        if (allowed) {
+            silentTurns = 0
+            start()
+        } else {
+            latestPermissionDenied()
+        }
     }
     LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { dictation.cancel() }
     DisposableEffect(dictation) { onDispose { dictation.cancel() } }
@@ -100,10 +162,14 @@ internal fun rememberDictation(
         }
     }
     LaunchedEffect(sending) { if (sending) dictation.cancel() }
+    LaunchedEffect(liveVoice) { if (!liveVoice) silentTurns = 0 }
 
     if (showingPermission) {
         AlertDialog(
-            onDismissRequest = { showingPermission = false },
+            onDismissRequest = {
+                showingPermission = false
+                if (latestLiveVoice) latestPermissionDenied()
+            },
             title = { Text(stringResource(R.string.voice_speak)) },
             text = { Text(stringResource(R.string.voice_permission_explanation)) },
             confirmButton = {
@@ -113,24 +179,29 @@ internal fun rememberDictation(
                 }) { Text(stringResource(R.string.voice_speak)) }
             },
             dismissButton = {
-                TextButton(onClick = { showingPermission = false }) {
+                TextButton(onClick = {
+                    showingPermission = false
+                    if (latestLiveVoice) latestPermissionDenied()
+                }) {
                     Text(stringResource(R.string.action_cancel))
                 }
             },
         )
     }
     return DictationControl(
+        isListening = active,
+        level = dictation.level,
         cancel = dictation::cancel,
+        startListening = ::start,
+        requestPermissionAndStart = ::requestOrStart,
         button = { enabled ->
             val label = stringResource(if (active) R.string.voice_stop else R.string.voice_speak)
             IconButton(
                 onClick = {
                     if (active) {
                         if (dictation.state == DictationState.Listening) dictation.stop() else dictation.cancel()
-                    } else if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-                        start()
                     } else {
-                        showingPermission = true
+                        requestOrStart()
                     }
                 },
                 modifier = Modifier.size(48.dp).testTag("concierge.voice").semantics { contentDescription = label },
@@ -147,7 +218,7 @@ internal fun rememberDictation(
             val message = when {
                 denied -> R.string.voice_denied
                 dictation.state == DictationState.Unavailable -> R.string.voice_unavailable
-                dictation.state == DictationState.Listening -> R.string.voice_listening
+                !liveVoice && dictation.state == DictationState.Listening -> R.string.voice_listening
                 else -> null
             }
             if (message != null) {
