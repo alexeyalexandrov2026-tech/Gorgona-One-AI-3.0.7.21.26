@@ -2,7 +2,7 @@
 import { useSavedText } from "../components/LocalizedText";
 
 import { useLocale } from '../components/LocaleProvider';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation } from '../../lib/i18nClient';
 
 export default function AffiliateDisclosurePage() {
   const msg = useSavedText();

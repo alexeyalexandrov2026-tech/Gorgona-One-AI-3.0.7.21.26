@@ -4,7 +4,7 @@ import { LocalizedTitle, useSavedText } from "../components/LocalizedText";
 import Link from 'next/link';
 import RequestBoard from '../components/dashboard/RequestBoard';
 import LiveTripRoom from '../components/dashboard/LiveTripRoom';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation } from '../../lib/i18nClient';
 import { getTripRoomCopy } from '../../lib/tripRoomCopy.mjs';
 import { useLocale } from '../components/LocaleProvider';
 import { useAuth } from '../components/AuthProvider';

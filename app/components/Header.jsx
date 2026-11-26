@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { GetTheApp } from './GetTheApp';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation } from '../../lib/i18nClient';
 import { getNavExtraCopy } from '../../lib/navExtraCopy.mjs';
 import { useLocale } from './LocaleProvider';
 import { useAuth } from './AuthProvider';

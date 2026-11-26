@@ -8,7 +8,7 @@ import {getViatorCopy,VIATOR_MIAMI} from '../../lib/viatorCatalogue.mjs';
 import ExperienceCard from './ExperienceCard';
 import ExperienceShowcase from './ExperienceShowcase';
 import {seoHeading} from '../../lib/seo.mjs';
-import {HOME_SECTIONS} from '../../lib/homeData';
+import {HOME_SECTIONS} from '../../lib/homeSections.mjs';
 import {HomeSectionTile} from '../components/home/HomeSectionRail';
 
 // The home page's Exclusive Destinations tile, repeated on /experiences with a

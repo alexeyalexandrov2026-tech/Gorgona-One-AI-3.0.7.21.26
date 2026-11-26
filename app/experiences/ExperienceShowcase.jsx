@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SHOWCASE_INTERVAL_MS } from '../../lib/heroShowcase';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation } from '../../lib/i18nClient';
 
 // The first screen of a listing page: one large photo per section, turning on
 // its own, so a visitor sees the range before scrolling. Each slide jumps to

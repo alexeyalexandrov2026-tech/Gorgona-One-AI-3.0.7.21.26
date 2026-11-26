@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useAI } from './AIProvider';
 import { useAITheme } from '../ThemeProvider';
 import { useLocale, useLocaleReady } from '../LocaleProvider';
-import { getTranslation } from '../../../lib/i18n';
+import { getTranslation } from '../../../lib/i18nClient';
 import { useBodyScrollLock } from '../useBodyScrollLock';
 import {useAiDock} from './AiDockProvider';
 import {useDialogFocus} from './useDialogFocus';

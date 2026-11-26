@@ -4,7 +4,7 @@ import { rentalDescriptions, getContentText } from '../../../lib/contentTranslat
 import { getServerTranslation } from '../../../lib/serverLocale';
 import { getWorldsCopy, displayValue } from '../../../lib/worldsCopy';
 import { fill } from '../../../lib/homeCopy';
-import { carThumb } from '../../../lib/homeData';
+import { carThumb } from '../../../lib/homeSections.mjs';
 import BookingForm from '../../components/BookingForm';
 import SaveButton from '../../components/SaveButton';
 import AskButton from '../../components/g1/AskButton';

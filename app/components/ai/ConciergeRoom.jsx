@@ -3,13 +3,17 @@ import { LocalizedText } from "../LocalizedText";
 
 import { useSavedText } from "../LocalizedText";
 
+import { Suspense, lazy } from 'react';
 import Link from 'next/link';
 import { AiConversation } from './AiConversation';
-import { MiamiRouteMap } from './MiamiRouteMap';
 import { useConciergeChat } from './ChatProvider';
+
+const MiamiRouteMap = lazy(() =>
+  import('./MiamiRouteMap').then((m) => ({ default: m.MiamiRouteMap }))
+);
 import { SECTIONS,displayName } from '../../../lib/aiSuggestions';
 import { useLocale } from '../LocaleProvider';
-import { getTranslation } from '../../../lib/i18n';
+import { getTranslation } from '../../../lib/i18nClient';
 import {useAiDock} from './AiDockProvider';
 import {useAI} from './AIProvider';
 
@@ -78,15 +82,17 @@ export function ConciergeRoom() {
           </div>
         </section>
 
-        {hasThread && (
-          <MiamiRouteMap
-            messages={messages}
-            plan={latestAssistant?.plan || null}
-            listings={latestAssistant?.listings || []}
-            locale={locale}
-            streaming={Boolean(isLoading)}
-          />
-        )}
+        <Suspense fallback={null}>
+          {hasThread && (
+            <MiamiRouteMap
+              messages={messages}
+              plan={latestAssistant?.plan || null}
+              listings={latestAssistant?.listings || []}
+              locale={locale}
+              streaming={Boolean(isLoading)}
+            />
+          )}
+        </Suspense>
       </div>
 
       <nav aria-label={msg("Ecosystem sections")} className="mx-auto mt-6 w-full max-w-5xl">

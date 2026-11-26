@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { HOME_SECTIONS } from '../../../lib/homeData';
+import { HOME_SECTIONS } from '../../../lib/homeSections.mjs';
 import { useLocale } from '../LocaleProvider';
 import { getExperienceCopy } from '../../../lib/experienceCopy.mjs';
 import { AiSphereArtwork } from '../ai/AiSphere';

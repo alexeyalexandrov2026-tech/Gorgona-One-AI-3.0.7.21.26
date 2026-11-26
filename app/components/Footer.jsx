@@ -4,7 +4,7 @@ import { LocalizedText } from "./LocalizedText";
 
 import Link from 'next/link';
 import { useLocale } from './LocaleProvider';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation } from '../../lib/i18nClient';
 import { getNavExtraCopy } from '../../lib/navExtraCopy.mjs';
 import { GetTheApp } from './GetTheApp';
 import PaymentTrustStrip from './PaymentTrustStrip';

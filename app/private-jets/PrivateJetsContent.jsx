@@ -4,7 +4,8 @@ import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from '../components/LocaleProvider';
 import { useAuth } from '../components/AuthProvider';
-import { getPrivateJetsCopy, getPrivateJetsPageCopy } from '../../lib/privateJetsCopy.mjs';
+import { getPrivateJetsCopy } from '../../lib/privateJetsCopy.mjs';
+import { getPrivateJetsPageCopy } from '../../lib/privateJetsPageCopy.mjs';
 import {
   PEREJETS,
   PRIVATE_JETS,

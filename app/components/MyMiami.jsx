@@ -6,7 +6,7 @@ import { useAuth } from './AuthProvider';
 import { useAskConcierge } from './home/shared';
 import { useSavedText } from './LocalizedText';
 import { useLocale } from './LocaleProvider';
-import { getTranslation } from '../../lib/i18n';
+import { getTranslation } from '../../lib/i18nClient';
 import { favouriteKind, planRequest } from '../../lib/myMiami.mjs';
 import { btn } from './g1/ui';
 import SaveButton from './SaveButton';
