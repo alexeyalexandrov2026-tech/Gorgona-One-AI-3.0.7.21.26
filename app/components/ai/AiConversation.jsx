@@ -199,7 +199,21 @@ function playElementWithTimeout(el, timeoutMs = 3500) {
   });
 }
 
-async function playFemaleVoice({ text, locale, onStateChange }) {
+function cleanBrowserSpeechText(raw) {
+  return String(raw || '')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '$1')
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/\r?\n\s*[•*\-]\s+/g, '. ')
+    .replace(/\r?\n+/g, '. ')
+    .replace(/[•·|]+/g, ', ')
+    .replace(/[*#_`~]+/g, ' ')
+    .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u2B50\uFE0F\u200D]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 1200);
+}
+
+async function playFemaleVoice({ text, locale, onStateChange, fast = false }) {
   const cleanText = String(text || '').trim().slice(0, 1200);
   if (!cleanText) return;
   stopActiveVoicePlayback();
@@ -237,7 +251,7 @@ async function playFemaleVoice({ text, locale, onStateChange }) {
   };
   activeTtsCleanup = cleanup;
 
-  const cacheKey = `${locale}|${cleanText}`;
+  const cacheKey = `${locale}|${fast ? 'fast|' : ''}${cleanText}`;
   let audioBuffer = ttsClientCache.get(cacheKey) || null;
   let mimeType = 'audio/mpeg';
 
@@ -246,7 +260,7 @@ async function playFemaleVoice({ text, locale, onStateChange }) {
       const response = await fetch('/api/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'audio/mpeg' },
-        body: JSON.stringify({ text: cleanText, locale }),
+        body: JSON.stringify({ text: cleanText, locale, ...(fast ? { fast: true } : {}) }),
         signal: controller.signal
       });
       clearTimeout(fetchTimer);
@@ -330,7 +344,8 @@ async function playFemaleVoice({ text, locale, onStateChange }) {
   try {
     if (!cancelled && typeof window !== 'undefined' && window.speechSynthesis && typeof SpeechSynthesisUtterance !== 'undefined') {
       const lang = speechLocale(locale);
-      const utter = new SpeechSynthesisUtterance(cleanText);
+      const browserText = cleanBrowserSpeechText(cleanText);
+      const utter = new SpeechSynthesisUtterance(browserText || cleanText);
       utter.lang = lang;
       utter.rate = 0.98;
       utter.pitch = 1.02;
@@ -357,6 +372,7 @@ function AnswerActions({ question, answer, locale, degraded = false }) {
   const [state, setState] = useState('idle');
   const [copied, setCopied] = useState(false);
   const [liked, setLiked] = useState(false);
+  const dislikedRef = useRef(false);
   const [ttsState, setTtsState] = useState('idle'); // idle | loading | playing
   const inFlight = useRef(false);
   const attempt = useRef(null);
@@ -470,10 +486,18 @@ function AnswerActions({ question, answer, locale, degraded = false }) {
             title={msg('Report this answer')}
             aria-expanded={open}
             onClick={() => {
-              setOpen((value) => !value);
+              const opening = !open;
+              setOpen(opening);
+              if (!opening || dislikedRef.current) return;
+              dislikedRef.current = true;
               if (isMiamiElioApp(navigator.userAgent, document.documentElement.dataset.app)) return;
               try {
-                if (!open) fetch('/api/chat?feedback=down', { method: 'GET', keepalive: true }).catch(() => {});
+                fetch('/api/concierge/feedback', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ vote: 'down', locale, question: question.slice(0, 2000), answer: answer.slice(0, 4000) }),
+                  keepalive: true
+                }).catch(() => {});
               } catch {}
             }}
             className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition ${
@@ -575,8 +599,8 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
   const voice = useVoice();
   useEffect(() => {
     if (!active) stopActiveVoicePlayback();
-    if (!active || !messages.length) voice.stopListening();
-  }, [active, messages.length, voice.stopListening]);
+    if (!active || !messages.length) voice.cancelListening();
+  }, [active, messages.length, voice.cancelListening]);
   useEffect(() => {
     if (!isLoading) {
       setThinkingStage(0);
@@ -617,7 +641,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
     if (!content || isLoading) return;
     stopActiveVoicePlayback();
     if (voiceMode) unlockSafariAudio();
-    voice.stopListening();
+    voice.cancelListening();
     setInput('');
     await send(content);
   }
@@ -631,7 +655,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
     if (!latest || latest.role !== 'assistant' || latest.degraded || !latest.content?.trim()) return;
     if (lastSpokenIndexRef.current === idx) return;
     lastSpokenIndexRef.current = idx;
-    playFemaleVoice({ text: latest.content, locale: latest.replyLocale || locale });
+    playFemaleVoice({ text: latest.content, locale: latest.replyLocale || locale, fast: true });
   }, [voiceMode, active, isLoading, messages, locale]);
 
   const profile = extractTripProfile(messages, new Date(), savedPrefs);
@@ -1043,7 +1067,7 @@ export function AiConversation({ variant = 'dock', onNavigate, active=true }) {
             voice.isTranscribing
               ? s3.transcribing
               : voice.isListening
-                ? s3.listeningLive
+                ? (voice.usingWhisper ? s3.listeningWhisper : s3.listeningLive)
                 : (t.ai?.askPlaceholder || 'Ask ELIO anything…')
           }
           className="min-w-0 flex-1 bg-transparent py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none"

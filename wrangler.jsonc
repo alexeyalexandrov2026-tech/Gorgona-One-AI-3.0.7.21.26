@@ -12,6 +12,7 @@
     "APP_ENV": "production",
     "PAYPAL_ENV": "live",
     "CONCIERGE_WORKERS_AI_ENABLED": "true",
+    "SEMANTIC_EMBEDDINGS_ENABLED": "true",
     "MY_MIAMI_ENABLED": "true",
     "PLAN_REQUESTS_ENABLED": "true",
     "DINING_SCHEMA_ENABLED": "true",
