@@ -12,6 +12,7 @@ import TicketCarousel from './components/home/TicketCarousel';
 import A1ALine from './components/home/A1ALine';
 import ConciergeBand from './components/home/ConciergeBand';
 import { SectionHead, btn } from './components/g1/ui';
+import Icon from './components/g1/icons';
 
 const DIRECTORY_IDS = new Set(['travel', 'stays', 'yachts', 'cars', 'events']);
 const EXPERIENCES_TILE_IMAGE = 'https://cdn-imgix.headout.com/media/images/f5fee038646e6cbc9454ad205147e4cf-5426-miami-zoo-miami-02.jpg';
@@ -52,25 +53,20 @@ export default function HomePage({ showcase = [] }) {
         <A1ALine copy={copy} locale={locale} />
       </section>
 
-      <section className={`${rule} py-[clamp(32px,5vw,64px)]`}>
+      <section className={`${rule} py-[clamp(52px,7vw,110px)]`}>
         <SectionHead title={copy.worlds} sub={copy.worldsSub} />
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <ul className="border-b border-g1-rule">
           {WORLDS.map((world) => {
-            const [name] = world.id === 'experiences' ? [t.nav.experiences] : world.id === 'privateJets' ? [t.nav.privateJets] : world.id === 'dining' ? [t.restaurantsNightlife.pill] : copy.worldItems[world.id];
+            const [name, description] = world.id === 'dining'
+              ? [t.restaurantsNightlife.pill, t.restaurantsNightlife.title]
+              : copy.worldItems[world.id];
             return (
-              <li key={world.id}>
-                <Link
-                  href={world.href}
-                  className="group flex items-center gap-3 rounded-2xl border border-g1-rule bg-g1-card/60 p-2.5 transition hover:border-g1-accent/70 hover:bg-g1-card"
-                >
-                  <img
-                    className="h-11 w-14 shrink-0 rounded-xl object-cover"
-                    src={worldImage(world)}
-                    alt=""
-                    aria-hidden="true"
-                    loading="lazy"
-                  />
-                  <span className="truncate text-sm font-medium text-g1-ink group-hover:text-g1-accent">{name}</span>
+              <li key={world.id} className="border-t border-g1-rule">
+                <Link href={world.href} className="g1-dir-row">
+                  <img className="g1-dir-thumb" src={worldImage(world)} alt="" aria-hidden="true" loading="lazy" />
+                  <span className="g1-dir-name">{name}</span>
+                  <span className="g1-dir-desc text-[0.98rem] text-g1-soft">{description}</span>
+                  <span className="g1-dir-arrow"><Icon name="arrow" className="g1-flip h-5 w-5" /></span>
                 </Link>
               </li>
             );
