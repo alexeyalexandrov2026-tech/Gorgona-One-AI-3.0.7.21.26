@@ -83,6 +83,7 @@
     <string name="plan_split_pay" formatted="false">グループで割り勘決済</string>
     <string name="plan_submit" formatted="false">問い合わせを送信</string>
     <string name="plan_title" formatted="false">あなたのプラン</string>
+    <string name="push_channel_trip" formatted="false">旅行・予約の通知</string>
     <string name="rail_pause" formatted="false">一時停止</string>
     <string name="rail_play" formatted="false">再開</string>
     <string name="report_prompt" formatted="false">この回答の問題点を教えてください（任意）</string>

@@ -83,6 +83,7 @@
     <string name="plan_split_pay" formatted="false">Розділити оплату на компанію</string>
     <string name="plan_submit" formatted="false">Надіслати запит</string>
     <string name="plan_title" formatted="false">Ваш план</string>
+    <string name="push_channel_trip" formatted="false">Оновлення поїздок і бронювань</string>
     <string name="rail_pause" formatted="false">Пауза</string>
     <string name="rail_play" formatted="false">Продовжити</string>
     <string name="report_prompt" formatted="false">Що не так із цією відповіддю? (необов’язково)</string>

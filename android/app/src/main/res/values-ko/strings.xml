@@ -83,6 +83,7 @@
     <string name="plan_split_pay" formatted="false">그룹 분할 결제 요청</string>
     <string name="plan_submit" formatted="false">요청 보내기</string>
     <string name="plan_title" formatted="false">나의 플랜</string>
+    <string name="push_channel_trip" formatted="false">여행 및 예약 알림</string>
     <string name="rail_pause" formatted="false">일시정지</string>
     <string name="rail_play" formatted="false">다시 재생</string>
     <string name="report_prompt" formatted="false">이 답변의 어떤 점이 문제인가요? (선택)</string>

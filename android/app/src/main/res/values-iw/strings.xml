@@ -83,6 +83,7 @@
     <string name="plan_split_pay" formatted="false">פיצול תשלום לקבוצה</string>
     <string name="plan_submit" formatted="false">שליחת בקשה</string>
     <string name="plan_title" formatted="false">התוכנית שלך</string>
+    <string name="push_channel_trip" formatted="false">עדכוני טיולים והזמנות</string>
     <string name="rail_pause" formatted="false">השהיה</string>
     <string name="rail_play" formatted="false">המשך</string>
     <string name="report_prompt" formatted="false">מה לא בסדר בתשובה הזו? (לא חובה)</string>

@@ -84,6 +84,7 @@ class WebTabController(
     /** The favourites the page reports ("kind:slug"), with the page they came from. */
     internal var onFavorites: ((BridgeFavorites) -> Unit)? = null
     internal var onFavoritesPageReady: (() -> Unit)? = null
+    internal var onAuthTokenChanged: ((String?) -> Unit)? = null
     private val favoriteReceipts = mutableMapOf<String, CompletableDeferred<Boolean>>()
 
     private val startUrl: String = config.resolve(startPath) ?: config.baseUrl
@@ -265,7 +266,10 @@ class WebTabController(
         val origin = siteOrigin(webView.url) ?: return
         val script = "(function(){if(window.location.origin!==\"$origin\")return '';return (${WebBootstrap.AUTH_TOKEN_PROBE});})()"
         webView.evaluateJavascript(script) { raw ->
-            cachedAuthToken = decodeJsToken(raw)
+            val next = decodeJsToken(raw)
+            val changed = next != cachedAuthToken
+            cachedAuthToken = next
+            if (changed) onAuthTokenChanged?.invoke(next)
         }
     }
 

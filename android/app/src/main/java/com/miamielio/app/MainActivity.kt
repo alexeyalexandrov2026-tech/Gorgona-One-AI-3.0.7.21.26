@@ -14,6 +14,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import com.miamielio.app.app.AppServices
+import com.miamielio.app.core.PushClient
 import com.miamielio.app.ui.AppRoot
 import com.miamielio.app.ui.MiamiElioTheme
 import com.miamielio.app.web.WebHost
@@ -75,10 +76,17 @@ class MainActivity : ComponentActivity(), WebHost {
         super.onDestroy()
     }
 
-    /** `miamielio://open?path=/yachts`, `miamielio://concierge`, `miamielio://search`, `miamielio://account`. */
+    /** Handles `miamielio://...`, verified `https://gorgona-one.com/...` App Links, and FCM notification taps. */
     private fun follow(intent: Intent?) {
-        if (intent?.action != Intent.ACTION_VIEW) return
-        intent.dataString?.let(services.router::handle)
+        if (intent == null) return
+        if (intent.action == Intent.ACTION_VIEW) {
+            intent.dataString?.let(services.router::handle)
+            return
+        }
+        val pushPath = intent.getStringExtra("path")
+        if (!pushPath.isNullOrBlank()) {
+            services.router.open(PushClient.safeNotificationPath(pushPath))
+        }
     }
 
     // --- What a page may ask for ---

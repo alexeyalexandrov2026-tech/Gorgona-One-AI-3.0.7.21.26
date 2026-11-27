@@ -84,6 +84,12 @@ to My Trip, verified gorgona-one.com App Links for smoother sign-in and checkout
 returns, Split-Pay and delivery options in trip plans, and smoother audio focus
 during voice replies.
 
+**Release notes, 1.5.1 (version code 11), English (United States)**
+
+Added real-time push notifications for signed-in guests: get instant alerts when
+our Miami Elio team sends a quote ready to e-sign, confirms payment, or updates
+your booking, opening directly inside the app.
+
 ## Graphics
 
 The local handoff is in `app/build/outputs/play-listing/`. The app icon

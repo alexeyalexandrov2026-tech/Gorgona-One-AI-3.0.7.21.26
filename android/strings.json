@@ -2921,6 +2921,24 @@
       "it": "Indirizzo di consegna (facoltativo)",
       "fr": "Adresse de livraison (facultatif)",
       "pl": "Adres dostawy (opcjonalnie)"
+    },
+    "push_channel_trip": {
+      "en": "Trip & booking updates",
+      "ru": "Обновления поездок и броней",
+      "es": "Actualizaciones de viajes y reservas",
+      "he": "עדכוני טיולים והזמנות",
+      "zh": "行程与预订提醒",
+      "pt": "Atualizações de viagens e reservas",
+      "uk": "Оновлення поїздок і бронювань",
+      "ja": "旅行・予約の通知",
+      "ko": "여행 및 예약 알림",
+      "de": "Reise- & Buchungs-Updates",
+      "ar": "تحديثات الرحلة والحجوزات",
+      "tr": "Seyahat ve rezervasyon bildirimleri",
+      "fa": "به‌روزرسانی سفر و رزروها",
+      "it": "Aggiornamenti viaggi e prenotazioni",
+      "fr": "Suivi des voyages et réservations",
+      "pl": "Powiadomienia o podróżach i rezerwacjach"
     }
   }
 }

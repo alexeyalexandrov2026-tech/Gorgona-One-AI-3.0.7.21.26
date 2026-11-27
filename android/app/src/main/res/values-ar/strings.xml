@@ -83,6 +83,7 @@
     <string name="plan_split_pay" formatted="false">تقسيم الدفع مع المجموعة</string>
     <string name="plan_submit" formatted="false">إرسال الطلب</string>
     <string name="plan_title" formatted="false">خطتك</string>
+    <string name="push_channel_trip" formatted="false">تحديثات الرحلة والحجوزات</string>
     <string name="rail_pause" formatted="false">إيقاف مؤقت</string>
     <string name="rail_play" formatted="false">استئناف</string>
     <string name="report_prompt" formatted="false">ما المشكلة في هذه الإجابة؟ (اختياري)</string>

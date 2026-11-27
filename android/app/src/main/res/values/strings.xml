@@ -83,6 +83,7 @@
     <string name="plan_split_pay" formatted="false">Split payment with group</string>
     <string name="plan_submit" formatted="false">Send request</string>
     <string name="plan_title" formatted="false">Your plan</string>
+    <string name="push_channel_trip" formatted="false">Trip &amp; booking updates</string>
     <string name="rail_pause" formatted="false">Pause</string>
     <string name="rail_play" formatted="false">Play</string>
     <string name="report_prompt" formatted="false">What is wrong with this answer? (optional)</string>

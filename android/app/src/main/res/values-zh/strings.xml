@@ -83,6 +83,7 @@
     <string name="plan_split_pay" formatted="false">与同行伙伴分摊付款</string>
     <string name="plan_submit" formatted="false">发送需求</string>
     <string name="plan_title" formatted="false">您的行程计划</string>
+    <string name="push_channel_trip" formatted="false">行程与预订提醒</string>
     <string name="rail_pause" formatted="false">暂停</string>
     <string name="rail_play" formatted="false">继续</string>
     <string name="report_prompt" formatted="false">这个回答有什么问题？（选填）</string>

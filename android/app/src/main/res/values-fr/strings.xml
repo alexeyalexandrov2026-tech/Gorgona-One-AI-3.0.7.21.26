@@ -83,6 +83,7 @@
     <string name="plan_split_pay" formatted="false">Partager le paiement en groupe</string>
     <string name="plan_submit" formatted="false">Envoyer la demande</string>
     <string name="plan_title" formatted="false">Votre programme</string>
+    <string name="push_channel_trip" formatted="false">Suivi des voyages et réservations</string>
     <string name="rail_pause" formatted="false">Pause</string>
     <string name="rail_play" formatted="false">Reprendre</string>
     <string name="report_prompt" formatted="false">Qu’est-ce qui ne va pas dans cette réponse ? (facultatif)</string>

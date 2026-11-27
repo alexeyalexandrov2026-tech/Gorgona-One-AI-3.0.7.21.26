@@ -83,6 +83,7 @@
     <string name="plan_split_pay" formatted="false">Ödemeyi grupla böl</string>
     <string name="plan_submit" formatted="false">Talep gönder</string>
     <string name="plan_title" formatted="false">Planınız</string>
+    <string name="push_channel_trip" formatted="false">Seyahat ve rezervasyon bildirimleri</string>
     <string name="rail_pause" formatted="false">Duraklat</string>
     <string name="rail_play" formatted="false">Devam et</string>
     <string name="report_prompt" formatted="false">Bu yanıtta sorun nedir? (isteğe bağlı)</string>

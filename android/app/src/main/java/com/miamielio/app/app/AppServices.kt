@@ -14,10 +14,12 @@ import com.miamielio.app.core.AnswerReportClient
 import com.miamielio.app.core.AppConfig
 import com.miamielio.app.core.ConciergeClient
 import com.miamielio.app.core.PlanClient
+import com.miamielio.app.core.PushClient
 import com.miamielio.app.core.RoutePolicy
 import com.miamielio.app.core.SearchClient
 import com.miamielio.app.core.ShowcaseClient
 import com.miamielio.app.core.TtsClient
+import com.miamielio.app.push.PushRegistration
 import com.miamielio.app.today.ShowcaseModel
 import com.miamielio.app.today.ShowcasePreferences
 import com.miamielio.app.core.SiteLocale
@@ -73,10 +75,22 @@ class AppServices(
         listOf(exploreFavorites, accountFavorites, exclusiveFavorites),
     )
 
+    private val push = PushRegistration(
+        context = activity.applicationContext,
+        client = PushClient(config, OkHttpTransport(15_000, siteClient)),
+        scope = favoritesScope,
+        authToken = { account.currentAuthToken() ?: explore.currentAuthToken() ?: exclusive.currentAuthToken() },
+        locale = { explore.currentSiteLocale() },
+    )
+
     init {
         explore.connectFavorites(exploreFavorites)
         account.connectFavorites(accountFavorites)
         exclusive.connectFavorites(exclusiveFavorites)
+        val syncPush: (String?) -> Unit = { token -> if (!token.isNullOrBlank()) push.syncIfSignedIn() }
+        explore.onAuthTokenChanged = syncPush
+        account.onAuthTokenChanged = syncPush
+        exclusive.onAuthTokenChanged = syncPush
     }
 
     /** The cards that float over Today's hero, kept on the device for the next start. */
@@ -142,6 +156,7 @@ class AppServices(
         exclusive.onResume()
         favorites.retry()
         showcase.refresh()
+        push.refreshAndSync()
     }
 
     fun onPause() {

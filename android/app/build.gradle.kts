@@ -5,6 +5,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 // Where each build's content lives. Debug talks to a test deployment over
 // HTTPS, release to the production site. Either can be pointed elsewhere:
 //   ./gradlew assembleDebug -Pmiamielio.debugBaseUrl=https://example.test
@@ -32,8 +36,8 @@ android {
         applicationId = "com.miamielio.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 10
-        versionName = "1.5.0"
+        versionCode = 11
+        versionName = "1.5.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -125,6 +129,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     implementation(libs.okhttp)
+    implementation(libs.firebase.messaging)
+    implementation(libs.androidx.fragment)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
