@@ -8,6 +8,7 @@ import RequestBoard,{NotificationSummary,DiningOverview} from '../components/das
 import ListingWorkspace from '../components/dashboard/ListingWorkspace';
 import AppSupport from '../components/dashboard/AppSupport';
 import ConciergeAnalytics from '../components/dashboard/ConciergeAnalytics';
+import AdminMessengerControl from '../components/dashboard/AdminMessengerControl';
 function AdminWorkspace(){
  const auth=useAuth(),router=useRouter(),msg=useSavedText();
  const [stats,setStats]=useState({users:null,partners:null,pending:null}),[recent,setRecent]=useState([]),[error,setError]=useState(false);
@@ -36,6 +37,7 @@ function AdminWorkspace(){
   <div className="mb-10 grid gap-6 sm:grid-cols-3">{[[msg('Total Users (B2C)'),stats.users],[msg('B2B Partners'),stats.partners],[msg('Pending Listings'),stats.pending]].map(([label,value])=><div key={label} className="border-y border-villa-obsidian/20 py-5"><p className="text-sm">{label}</p><p className="mt-3 font-display text-4xl">{error?'—':value??'—'}</p></div>)}</div>
   <ListingWorkspace scope="admin"/>
   <RequestBoard scope="admin"/>
+  <AdminMessengerControl userId={auth.session.id}/>
   <NotificationSummary/>
   <ConciergeAnalytics userId={auth.session.id}/>
   <AppSupport userId={auth.session.id}/>

@@ -16,7 +16,7 @@ const inputClass =
 const DEFAULT_POLICY =
   'Free cancellation up to 48 hours prior to scheduled service start; weather-related marine cancellations may be rescheduled or refunded in full.';
 
-export default function AdminQuotePanel({ userId, locale, request, api }) {
+export default function AdminQuotePanel({ userId, locale, request, api, copilotDraft = null }) {
   const msg = useSavedText();
   const copy = getCheckoutCopy(locale);
   const osCopy = getBookingOsCopy(locale);
@@ -47,6 +47,19 @@ export default function AdminQuotePanel({ userId, locale, request, api }) {
   useEffect(() => {
     setServiceDates(request?.dates || '');
   }, [request?.id, request?.dates]);
+
+  useEffect(() => {
+    if (!copilotDraft) return;
+    setShowForm(true);
+    if (copilotDraft.supplierName) setSupplierName(String(copilotDraft.supplierName));
+    if (copilotDraft.amountUsd) setAmountUsd(String(copilotDraft.amountUsd));
+    if (copilotDraft.depositUsd) setDepositUsd(String(copilotDraft.depositUsd));
+    if (copilotDraft.splitWays) setSplitWays(String(copilotDraft.splitWays));
+    if (typeof copilotDraft.kycRequired === 'boolean') setKycRequired(copilotDraft.kycRequired);
+    if (typeof copilotDraft.weatherShieldEnabled === 'boolean') setWeatherShieldEnabled(copilotDraft.weatherShieldEnabled);
+    if (Array.isArray(copilotDraft.lineItems)) setLineItems(copilotDraft.lineItems);
+    if (copilotDraft.notes) setNotes(String(copilotDraft.notes));
+  }, [copilotDraft]);
 
   const loadQuotes = useCallback(async () => {
     if (!userId || !request?.id) return;
