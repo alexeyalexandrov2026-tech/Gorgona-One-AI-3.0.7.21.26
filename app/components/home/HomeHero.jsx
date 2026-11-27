@@ -224,6 +224,8 @@ export default function HomeHero({ copy, showcase = [] }) {
           height="2100"
           fetchPriority="high"
         />
+        <h1 className="sr-only">{copy.titleA}{copy.titleEm}{copy.titleB}</h1>
+        <p className="sr-only">{copy.lede}</p>
         <div className="g1-horizon" ref={introRef} aria-hidden="true">
           <div className="g1-horizon-stack">
             <div className="g1-horizon-clip">
@@ -233,14 +235,6 @@ export default function HomeHero({ copy, showcase = [] }) {
         </div>
         <HeroShowcase items={showcase} copy={copy} hold={showcaseHold} />
         <div className="g1-hero-dock">
-          <div className="mx-auto mb-2 max-w-2xl px-2 text-center drop-shadow-[0_2px_14px_rgba(0,0,0,0.65)]">
-            <h1 className="font-g1display text-[clamp(1.65rem,3vw+0.8rem,2.9rem)] font-medium leading-[1.06] tracking-tight text-white [text-wrap:balance]">
-              {copy.titleA}<em className="italic text-g1-accent">{copy.titleEm}</em>{copy.titleB}
-            </h1>
-            <p className="mx-auto mt-1.5 max-w-xl text-xs leading-relaxed text-zinc-100/90 sm:text-sm">
-              {copy.lede}
-            </p>
-          </div>
           <div
             ref={suggRail.railRef}
             className={`g1-hero-sugg${suggRail.looping ? ' is-looping' : ''}${suggSwapping ? ' is-swapping' : ''}`}
