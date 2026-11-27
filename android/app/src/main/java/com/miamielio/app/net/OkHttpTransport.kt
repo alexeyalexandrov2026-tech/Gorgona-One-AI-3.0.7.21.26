@@ -3,9 +3,11 @@ package com.miamielio.app.net
 import com.miamielio.app.core.ApiError
 import com.miamielio.app.core.HttpRequest
 import com.miamielio.app.core.HttpResponse
-import com.miamielio.app.core.HttpTransport
+import com.miamielio.app.core.StreamingHttpTransport
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -18,9 +20,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * The app's JSON calls over OkHttp. Anonymous by design: no cookies, no
- * cache, a hard deadline. The site's JSON endpoints need nothing from the
- * web view's signed-in state, so none of it is shared with them.
+ * The app's JSON and SSE calls over OkHttp. No cookie jar and no disk cache;
+ * authenticated calls carry an explicit Bearer header only to internal hosts.
  *
  * Cancelling the calling coroutine cancels the request on the wire, which is
  * what lets search drop the previous query the moment the guest types on.
@@ -28,7 +29,7 @@ import kotlin.coroutines.resumeWithException
 class OkHttpTransport(
     timeoutMillis: Long,
     base: OkHttpClient = sharedClient,
-) : HttpTransport {
+) : StreamingHttpTransport {
     private val client: OkHttpClient = base.newBuilder()
         .callTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
         .connectTimeout(minOf(timeoutMillis, CONNECT_TIMEOUT_MILLIS), TimeUnit.MILLISECONDS)
@@ -41,6 +42,69 @@ class OkHttpTransport(
         return suspendCancellableCoroutine { continuation ->
             continuation.invokeOnCancellation { call.cancel() }
             call.enqueue(Answer(continuation))
+        }
+    }
+
+    override suspend fun stream(
+        request: HttpRequest,
+        onEvent: (event: String, data: String) -> Unit,
+    ): HttpResponse? = withContext(Dispatchers.IO) {
+        val call = client.newCall(build(request))
+        val response = suspendCancellableCoroutine { continuation ->
+            continuation.invokeOnCancellation { call.cancel() }
+            call.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    continuation.resumeWithException(e)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    if (continuation.isCancelled) {
+                        response.close()
+                        return
+                    }
+                    continuation.resume(response)
+                }
+            })
+        }
+        response.use { answer ->
+            val contentType = answer.header("Content-Type").orEmpty().lowercase()
+            if (answer.code != 200 || !contentType.contains("text/event-stream")) {
+                val source = answer.body.source()
+                if (source.request(MAX_RESPONSE_BYTES + 1)) {
+                    throw IOException("response larger than $MAX_RESPONSE_BYTES bytes")
+                }
+                return@withContext HttpResponse(answer.code, source.readByteArray())
+            }
+            val source = answer.body.source()
+            var bytesRead = 0L
+            var currentEvent = "message"
+            val dataLines = StringBuilder()
+            while (true) {
+                val line = source.readUtf8Line() ?: break
+                bytesRead += line.length + 1
+                if (bytesRead > MAX_RESPONSE_BYTES) {
+                    throw IOException("stream larger than $MAX_RESPONSE_BYTES bytes")
+                }
+                if (line.isEmpty()) {
+                    if (dataLines.isNotEmpty()) {
+                        onEvent(currentEvent, dataLines.toString())
+                        dataLines.setLength(0)
+                    }
+                    currentEvent = "message"
+                    continue
+                }
+                when {
+                    line.startsWith("event:") -> currentEvent = line.substring(6).trim().ifEmpty { "message" }
+                    line.startsWith("data:") -> {
+                        if (dataLines.isNotEmpty()) dataLines.append('\n')
+                        dataLines.append(line.substring(5).trimStart())
+                    }
+                }
+            }
+            if (dataLines.isNotEmpty()) {
+                onEvent(currentEvent, dataLines.toString())
+            }
+            null
         }
     }
 

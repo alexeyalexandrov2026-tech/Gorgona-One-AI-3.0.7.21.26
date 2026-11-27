@@ -8,17 +8,22 @@
     <string name="action_settings" formatted="false">设置</string>
     <string name="concierge_available_dates" formatted="false">您所选日期可用</string>
     <string name="concierge_busy_dates" formatted="false">所选日期已预订</string>
-    <string name="concierge_live_manager" formatted="false">通过 Telegram 联系真人经理</string>
+    <string name="concierge_handoff_more" formatted="false">Telegram / 电话</string>
+    <string name="concierge_handoff_text" formatted="false">我们的迈阿密团队将确认档期并为您全程安排所有细节。</string>
+    <string name="concierge_handoff_title" formatted="false">需要转接专业团队吗？</string>
+    <string name="concierge_handoff_whatsapp" formatted="false">通过 WhatsApp 发送</string>
+    <string name="concierge_live_manager" formatted="false">联系 Miami Elio 团队</string>
     <string name="concierge_manager" formatted="false">经理</string>
     <string name="concierge_new" formatted="false">新对话</string>
     <string name="concierge_open" formatted="false">打开</string>
+    <string name="concierge_partner_book" formatted="false">立即预订</string>
     <string name="concierge_placeholder" formatted="false">询问 Miami Elio AI</string>
     <string name="concierge_report" formatted="false">举报此回答</string>
     <string name="concierge_send" formatted="false">询问</string>
     <string name="concierge_starter_1" formatted="false">计划迈阿密周末之旅</string>
     <string name="concierge_starter_2" formatted="false">寻找可容纳8人的游艇</string>
     <string name="concierge_starter_3" formatted="false">预订晚餐餐厅</string>
-    <string name="concierge_title" formatted="false">您的私人礼宾</string>
+    <string name="concierge_title" formatted="false">您的迈阿密 AI 向导</string>
     <string name="error_generic" formatted="false">出错了</string>
     <string name="favorite_remove" formatted="false">从“我的迈阿密”移除</string>
     <string name="favorite_save" formatted="false">收藏到“我的迈阿密”</string>
@@ -31,7 +36,7 @@
     <string name="home_chip_3" formatted="false">Heat 球赛门票</string>
     <string name="home_chip_4" formatted="false">Miami Beach 别墅</string>
     <string name="home_chip_5" formatted="false">四人餐桌</string>
-    <string name="home_concierge_label" formatted="false">Miami Elio AI 礼宾</string>
+    <string name="home_concierge_label" formatted="false">Miami Elio AI</string>
     <string name="home_next_event" formatted="false">即将到来：{name}</string>
     <string name="home_pick_adventures" formatted="false">冒险</string>
     <string name="home_pick_cars" formatted="false">汽车</string>
@@ -49,6 +54,7 @@
     <string name="menu_open" formatted="false">打开菜单</string>
     <string name="menu_sections" formatted="false">栏目</string>
     <string name="menu_title" formatted="false">菜单</string>
+    <string name="menu_trip" formatted="false">我的行程</string>
     <string name="offline_message" formatted="false">请检查网络连接后重试。</string>
     <string name="offline_title" formatted="false">没有网络连接</string>
     <string name="plan_add_back" formatted="false">重新加入：{section}</string>
@@ -56,6 +62,7 @@
     <string name="plan_bad_dates" formatted="false">最后一天不能早于第一天。</string>
     <string name="plan_charge" formatted="false">现在不会扣款。我们的团队将先与您确认可预订情况和价格。</string>
     <string name="plan_check" formatted="false">请检查日期和联系方式。</string>
+    <string name="plan_delivery" formatted="false">送车地址（选填）</string>
     <string name="plan_dinner_time" formatted="false">晚餐时间</string>
     <string name="plan_email" formatted="false">电子邮箱</string>
     <string name="plan_empty" formatted="false">请至少向计划中添加一项。</string>
@@ -73,6 +80,7 @@
     <string name="plan_sending" formatted="false">发送中…</string>
     <string name="plan_sent" formatted="false">行程计划请求已发送</string>
     <string name="plan_sent_text" formatted="false">请求中的项目数：{count}。我们的团队将尽快联系您。</string>
+    <string name="plan_split_pay" formatted="false">与同行伙伴分摊付款</string>
     <string name="plan_submit" formatted="false">发送需求</string>
     <string name="plan_title" formatted="false">您的行程计划</string>
     <string name="rail_pause" formatted="false">暂停</string>
@@ -94,7 +102,7 @@
     <string name="season_title" formatted="false">迈阿密旺季</string>
     <string name="season_tomorrow" formatted="false">明天</string>
     <string name="section_cars" formatted="false">汽车</string>
-    <string name="section_concierge" formatted="false">AI 礼宾</string>
+    <string name="section_concierge" formatted="false">ELIO AI</string>
     <string name="section_dining" formatted="false">餐饮与夜生活</string>
     <string name="section_events" formatted="false">活动</string>
     <string name="section_exclusive" formatted="false">精选目的地</string>
@@ -117,18 +125,22 @@
     <string name="showcase_tickets" formatted="false">门票</string>
     <string name="showcase_tickets_cta" formatted="false">获取门票</string>
     <string name="showcase_yacht" formatted="false">游艇</string>
-    <string name="state_loading" formatted="false">加载中...</string>
+    <string name="state_loading" formatted="false">加载中…</string>
     <string name="tab_account" formatted="false">我的迈阿密</string>
     <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">目录</string>
-    <string name="tab_concierge" formatted="false">礼宾服务</string>
     <string name="tab_events" formatted="false">活动</string>
     <string name="tab_exclusive" formatted="false">精选</string>
     <string name="tab_home" formatted="false">首页</string>
     <string name="tab_profile" formatted="false">我的</string>
     <string name="tab_search" formatted="false">搜索</string>
     <string name="tab_today" formatted="false">今天</string>
-    <string name="voice_denied" formatted="false">如需与礼宾对话，请在“设置”中允许使用麦克风和语音识别。</string>
+    <string name="team_phone" formatted="false">致电 · +1 786-492-8880</string>
+    <string name="team_subtitle" formatted="false">我们的专业团队全程跟进并处理每一笔预订。</string>
+    <string name="team_telegram" formatted="false">Telegram · @MIAMI_ELIO</string>
+    <string name="team_title" formatted="false">Miami Elio 团队</string>
+    <string name="team_whatsapp" formatted="false">WhatsApp Business</string>
+    <string name="voice_denied" formatted="false">如需与 Miami Elio AI 对话，请在“设置”中允许使用麦克风和语音识别。</string>
     <string name="voice_listen" formatted="false">朗读</string>
     <string name="voice_listening" formatted="false">倾听中</string>
     <string name="voice_live_listening" formatted="false">实时语音 · 聆听中…</string>
@@ -138,7 +150,7 @@
     <string name="voice_live_speaking" formatted="false">正在播报 · 点击打断</string>
     <string name="voice_live_thinking" formatted="false">实时语音 · 思考中…</string>
     <string name="voice_loading_audio" formatted="false">正在准备语音…</string>
-    <string name="voice_permission_explanation" formatted="false">Miami Elio 会将您的语音需求转换为文字发送给礼宾。</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio 会将您的语音需求转换为文字发送给 AI 助手。</string>
     <string name="voice_speak" formatted="false">说出您的请求</string>
     <string name="voice_stop" formatted="false">停止倾听</string>
     <string name="voice_stop_audio" formatted="false">停止播放</string>

@@ -186,4 +186,32 @@ class PlanApiTest {
         assertEquals("2027-02-04", PlanRequest.day(LocalDate.of(2027, 2, 4)))
         assertEquals("08:05", PlanRequest.clock(LocalTime.of(8, 5)))
     }
+
+    @Test
+    fun includesAndroidAttributionSplitPayDeliveryAndBearerToken() {
+        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.plan.signature"
+        val plan = PlanRequest(
+            name = "VIP Guest",
+            email = "vip@example.com",
+            phone = "+13055550123",
+            start = "2027-02-14",
+            end = "2027-02-16",
+            guests = 4,
+            time = null,
+            note = "Prefer white interior",
+            items = listOf(PlanRequest.Item("car", "white-suv")),
+            splitPay = true,
+            deliveryAddress = "Fontainebleau Miami Beach",
+        )
+        val built = PlanClient(transport = MockTransport()).makeRequest(plan, UUID.randomUUID(), authToken = token)
+        assertEquals("Bearer $token", built.headers["Authorization"])
+        val json = built.jsonBody()
+        assertEquals(
+            "Split-Pay requested (4 guests) | Delivery: Fontainebleau Miami Beach | Prefer white interior",
+            json.getValue("note").jsonPrimitive.content,
+        )
+        val attr = json.getValue("attribution").jsonObject
+        assertEquals("elio_android", attr.getValue("utmSource").jsonPrimitive.content)
+        assertEquals("app", attr.getValue("utmMedium").jsonPrimitive.content)
+    }
 }

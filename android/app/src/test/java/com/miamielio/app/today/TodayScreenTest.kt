@@ -18,7 +18,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ApplicationProvider
-import com.miamielio.app.app.LIVE_MANAGER_URL
+import com.miamielio.app.app.ManagerContact
 import com.miamielio.app.concierge.ConciergeViewModel
 import com.miamielio.app.concierge.Replies
 import com.miamielio.app.concierge.ScriptedTransport
@@ -136,7 +136,7 @@ class TodayScreenTest {
     fun todayNeedsNoNetwork() {
         chat.offline()
         show()
-        compose.onNodeWithText("Miami Elio AI Concierge", substring = true, ignoreCase = true).assertExists()
+        compose.onNodeWithText("Miami Elio AI", substring = true, ignoreCase = true).assertExists()
         compose.onAllNodesWithTag("today.chip")[0].assertExists()
         compose.onAllNodesWithTag("today.pick")[0].assertExists()
         compose.onAllNodesWithTag("today.chip")[0].performClick()
@@ -164,10 +164,24 @@ class TodayScreenTest {
     }
 
     @Test
-    fun theManagerOpensTelegram() {
+    fun theManagerOpensTeamContactSheet() {
         show()
         compose.onNodeWithTag("today.manager").performClick()
-        assertEquals(listOf(LIVE_MANAGER_URL), opened)
+        compose.waitForIdle()
+        compose.onNodeWithTag("team.sheet").assertExists()
+        compose.onNodeWithTag("team.whatsapp").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("today.manager").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("team.telegram").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("today.manager").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("team.phone").performClick()
+        assertEquals(
+            listOf(ManagerContact.WHATSAPP_URL, ManagerContact.TELEGRAM_URL, ManagerContact.PHONE_URL),
+            opened,
+        )
     }
 
     @Test

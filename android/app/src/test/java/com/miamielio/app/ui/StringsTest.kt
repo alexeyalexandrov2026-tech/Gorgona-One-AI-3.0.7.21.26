@@ -68,7 +68,7 @@ class StringsTest {
         assertEquals(
             listOf(
                 "Travel", "Exclusive Destinations", "Stays", "Yachts", "Cars", "Events",
-                "Private Jets", "Experiences", "Dining & Nightlife", "AI Concierge",
+                "Private Jets", "Experiences", "Dining & Nightlife", "ELIO AI",
             ),
             HomeSections.all.map { appIn("en-US").getString(it.label) },
         )
@@ -101,6 +101,10 @@ class StringsTest {
 
     @Test
     fun noStringIsEmptyOrNamesAnotherPlatform() {
+        val forbidden = Regex(
+            "concierge|консьерж|консьєрж|conserje|礼宾|コンシェルジュ|컨시어지|קונסיירז|كونسيرج|konsiyerj|کانسیرج|کنسیرژ|konsjerż",
+            RegexOption.IGNORE_CASE,
+        )
         for (code in SiteLocale.supported) {
             val app = appIn(SiteLocale.speechLocale(code))
             for (id in everyString) {
@@ -108,6 +112,7 @@ class StringsTest {
                 val name = app.resources.getResourceEntryName(id)
                 assertTrue("$code/$name is blank", text.isNotBlank())
                 assertFalse("$code/$name: $text", text.contains("iPhone") || text.contains("iOS"))
+                assertFalse("Forbidden concierge copy in $code/$name: $text", forbidden.containsMatchIn(text))
             }
         }
     }

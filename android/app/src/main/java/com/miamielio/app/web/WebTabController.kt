@@ -95,6 +95,8 @@ class WebTabController(
     private var scriptInstalledAtDocumentStart = false
     private var reportedLocale: String? = null
     private var signedInAtLoad: Boolean? = null
+    @Volatile
+    private var cachedAuthToken: String? = null
     private var pendingUrl: String? = null
 
     /** The view a tab shows: the web view inside its pull-to-refresh frame. */
@@ -153,6 +155,9 @@ class WebTabController(
 
     /** The language the site is showing, for native features that must match it. */
     fun currentSiteLocale(): String = reportedLocale ?: deviceLocale
+
+    /** Current Supabase access token for signed-in native API calls (null for guests). */
+    fun currentAuthToken(): String? = cachedAuthToken
 
     /** Runs a script only while a Miami Elio page is showing; reports false anywhere else. */
     fun runOnSite(script: String, completion: (Boolean) -> Unit) {
@@ -253,6 +258,26 @@ class WebTabController(
                 },
             )
         }
+        refreshAuthToken()
+    }
+
+    private fun refreshAuthToken() {
+        val origin = siteOrigin(webView.url) ?: return
+        val script = "(function(){if(window.location.origin!==\"$origin\")return '';return (${WebBootstrap.AUTH_TOKEN_PROBE});})()"
+        webView.evaluateJavascript(script) { raw ->
+            cachedAuthToken = decodeJsToken(raw)
+        }
+    }
+
+    private fun decodeJsToken(raw: String?): String? {
+        if (raw == null || raw == "null" || raw.length < 22) return null
+        val trimmed = raw.trim()
+        val unquoted = if (trimmed.startsWith("\"") && trimmed.endsWith("\"") && trimmed.length >= 2) {
+            trimmed.substring(1, trimmed.length - 1).replace("\\\"", "\"").replace("\\\\", "\\")
+        } else {
+            trimmed
+        }
+        return unquoted.trim().takeIf { it.length >= 20 && !it.any(Char::isWhitespace) }
     }
 
     private fun reloadIfSessionChanged() {

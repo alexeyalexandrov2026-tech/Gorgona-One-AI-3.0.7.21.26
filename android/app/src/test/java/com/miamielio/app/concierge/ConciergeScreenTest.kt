@@ -25,6 +25,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
+import com.miamielio.app.app.ManagerContact
 import com.miamielio.app.core.AnswerReport
 import com.miamielio.app.core.AnswerReporter
 import com.miamielio.app.core.ConciergeClient
@@ -122,7 +123,7 @@ class ConciergeScreenTest {
     fun aReadyMadeRequestGetsAReplyWhoseCardsAndChipsOpenTheSite() {
         chat.reply(Replies.withCardAndSuggestion)
         show()
-        compose.onNodeWithText("Your private concierge").assertExists()
+        compose.onNodeWithText("Your Miami AI guide").assertExists()
         compose.onNodeWithTag("concierge.new").assertIsNotEnabled()
 
         compose.onAllNodesWithTag("concierge.starter")[0].performClick()
@@ -171,11 +172,14 @@ class ConciergeScreenTest {
     }
 
     @Test
-    fun theLiveManagerOpensTelegram() {
+    fun theLiveManagerOpensTeamContactSheet() {
         show()
-        compose.onNodeWithContentDescription("Message a live manager on Telegram").assertExists()
+        compose.onNodeWithContentDescription("Contact the Miami Elio team").assertExists()
         compose.onNodeWithTag("concierge.manager").performClick()
-        assertEquals(listOf("https://t.me/alexeyalexand07"), opened)
+        compose.waitForIdle()
+        compose.onNodeWithTag("team.sheet").assertExists()
+        compose.onNodeWithTag("team.telegram").performClick()
+        assertEquals(listOf(ManagerContact.TELEGRAM_URL), opened)
     }
 
     @Test
@@ -347,6 +351,51 @@ class ConciergeScreenTest {
         compose.waitForIdle()
         assertFalse(model.state.value.liveVoice)
         compose.onNodeWithTag("concierge.liveVoiceBar").assertDoesNotExist()
+    }
+
+    @Test
+    fun rendersFollowupsHandoffCardAndPartnerBookingListing() {
+        chat.reply(
+            """
+            {
+              "reply": "Our team can lock in your sunset cruise and transfer.",
+              "sessionId": "s-handoff",
+              "followups": ["Add Rolls-Royce transfer"],
+              "handoff": true,
+              "handoffSummary": "Sunset cruise + transfer for 6",
+              "listings": [
+                {
+                  "href": "https://www.viator.com/tours/Miami/123",
+                  "title": "Miami Bay Sunset Sail",
+                  "label": "Experience",
+                  "price": "${'$'}95",
+                  "booking": {
+                    "platform": "viator",
+                    "href": "https://www.viator.com/tours/Miami/123?pid=elio",
+                    "label": "Book on Viator"
+                  }
+                }
+              ]
+            }
+            """.trimIndent(),
+        )
+        chat.reply(Replies.text("Added Rolls-Royce options."))
+        show()
+        compose.onAllNodesWithTag("concierge.starter")[0].performClick()
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("concierge.listing.booking", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("concierge.listing").performClick()
+        assertEquals(listOf("https://www.viator.com/tours/Miami/123?pid=elio"), opened)
+
+        scrollTo("concierge.handoff")
+        compose.onNodeWithTag("concierge.handoff.whatsapp").performClick()
+        assertTrue(opened.last().startsWith("https://wa.me/17864928880?text="))
+
+        compose.onNodeWithTag("concierge.followups").assertExists()
+        compose.onNodeWithText("Add Rolls-Royce transfer").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("Added Rolls-Royce options.").assertExists()
     }
 }
 

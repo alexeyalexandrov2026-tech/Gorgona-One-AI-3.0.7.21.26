@@ -33,7 +33,7 @@ object HomeSections {
         HomeSection("exclusive", "/exclusive-destinations", R.string.section_exclusive, "/images/experiences/miami-coast.webp"),
         HomeSection("stays", "/vacation-rentals", R.string.section_stays, "/images/home/worlds/stay-miami-beach.jpg"),
         HomeSection("yachts", "/yachts", R.string.section_yachts, "/images/home/worlds/yacht-princess.jpg"),
-        HomeSection("cars", "/rentals", R.string.section_cars, "/images/rentals/lamborghini-urus-se/cover-s.jpg"),
+        HomeSection("cars", "/rentals", R.string.section_cars, "/images/home/worlds/cars-urus.jpg"),
         HomeSection("events", "/events", R.string.section_events, "/images/home/worlds/events-stage.jpg"),
         HomeSection("privateJets", "/private-jets", R.string.section_private_jets, "/images/home/worlds/travel-wing.jpg"),
         HomeSection("experiences", "/experiences", R.string.section_experiences, "/images/home/experiences-coaster.webp"),

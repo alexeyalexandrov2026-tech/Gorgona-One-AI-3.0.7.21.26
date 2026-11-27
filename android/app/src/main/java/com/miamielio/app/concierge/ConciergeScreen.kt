@@ -87,7 +87,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.miamielio.app.R
-import com.miamielio.app.app.LIVE_MANAGER_URL
+import com.miamielio.app.app.ManagerContact
 import com.miamielio.app.core.AnswerReport
 import com.miamielio.app.core.ConciergeCard
 import com.miamielio.app.core.ConciergeLink
@@ -100,6 +100,7 @@ import com.miamielio.app.ui.LocalReduceMotion
 import com.miamielio.app.ui.MenuButton
 import com.miamielio.app.ui.Ocean
 import com.miamielio.app.ui.OrbActivity
+import com.miamielio.app.ui.TeamContactSheet
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.ui.arrives
@@ -218,6 +219,15 @@ internal fun ConciergeScreen(
         seen = count
     }
 
+    var teamSheetOpen by rememberSaveable { mutableStateOf(false) }
+    var teamSheetPrefill by rememberSaveable { mutableStateOf<String?>(null) }
+    val openTeamSheet: (String?) -> Unit = { prefill ->
+        focus.clearFocus()
+        keyboard?.hide()
+        teamSheetPrefill = prefill
+        teamSheetOpen = true
+    }
+
     Column(
         modifier
             .fillMaxSize()
@@ -233,7 +243,7 @@ internal fun ConciergeScreen(
                 lastSpokenId = null
                 model.reset()
             },
-            onManager = { open(LIVE_MANAGER_URL) },
+            onManager = { openTeamSheet(null) },
         )
         LazyColumn(
             state = list,
@@ -264,6 +274,7 @@ internal fun ConciergeScreen(
                         }
                     },
                     onOpen = { open(it) },
+                    onHandoffMore = { openTeamSheet(entry.handoffSummary) },
                     onRetry = model::retry,
                     onReport = { note -> model.report(entry.id, note) },
                     modifier = Modifier.arrives(),
@@ -284,7 +295,13 @@ internal fun ConciergeScreen(
                 }
             }
             if (state.isSending) {
-                item(key = "typing") { TypingIndicator(Modifier.arrives()) }
+                item(key = "typing") {
+                    if (state.streamingText.isNotEmpty()) {
+                        StreamingRow(text = state.streamingText, modifier = Modifier.arrives())
+                    } else {
+                        TypingIndicator(statusLabel = state.statusLabel, modifier = Modifier.arrives())
+                    }
+                }
             }
         }
         if (state.liveVoice) {
@@ -304,10 +321,14 @@ internal fun ConciergeScreen(
                 },
             )
         }
+        val latestReply = state.entries.lastOrNull()?.takeIf { it.kind == ConciergeEntry.Kind.Concierge }
         Composer(
-            suggestions = state.entries.lastOrNull()
-                ?.takeIf { it.kind == ConciergeEntry.Kind.Concierge }
-                ?.suggestions.orEmpty(),
+            followups = if (state.isSending) emptyList() else latestReply?.followups.orEmpty(),
+            onFollowup = { prompt ->
+                player.stop()
+                model.send(prompt)
+            },
+            suggestions = latestReply?.suggestions.orEmpty(),
             onOpen = { open(it) },
             draft = state.draft,
             canSend = state.canSend,
@@ -333,6 +354,12 @@ internal fun ConciergeScreen(
             readingReply = state.isSending,
         )
     }
+    TeamContactSheet(
+        visible = teamSheetOpen,
+        onDismiss = { teamSheetOpen = false },
+        onOpen = { open(it) },
+        prefill = teamSheetPrefill,
+    )
 }
 
 @Composable
@@ -459,13 +486,25 @@ private fun EntryRow(
     playbackState: PlaybackState,
     onToggleListen: () -> Unit,
     onOpen: (String) -> Unit,
+    onHandoffMore: () -> Unit,
     onRetry: () -> Unit,
     onReport: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     when (entry.kind) {
         ConciergeEntry.Kind.Guest -> GuestRow(entry.text, modifier)
-        ConciergeEntry.Kind.Concierge -> ReplyRow(entry, isNewest, canReport, playbackState, onToggleListen, onOpen, onRetry, onReport, modifier)
+        ConciergeEntry.Kind.Concierge -> ReplyRow(
+            entry = entry,
+            isNewest = isNewest,
+            canReport = canReport,
+            playbackState = playbackState,
+            onToggleListen = onToggleListen,
+            onOpen = onOpen,
+            onHandoffMore = onHandoffMore,
+            onRetry = onRetry,
+            onReport = onReport,
+            modifier = modifier,
+        )
         ConciergeEntry.Kind.Failed -> FailedRow(onRetry, modifier)
     }
 }
@@ -506,6 +545,7 @@ private fun ReplyRow(
     playbackState: PlaybackState,
     onToggleListen: () -> Unit,
     onOpen: (String) -> Unit,
+    onHandoffMore: () -> Unit,
     onRetry: () -> Unit,
     onReport: (String) -> Unit,
     modifier: Modifier,
@@ -535,9 +575,15 @@ private fun ReplyRow(
                     style = AppFont.body,
                 )
             }
-            // Real catalogue rows first, then the sections they belong to.
-            entry.listings.forEach { listing -> ListingRow(listing) { open(listing.href) } }
+            // Real catalogue rows first, then the sections they belong to, then live-team handoff if suggested.
+            entry.listings.forEach { listing -> ListingRow(listing) { open(listing.openHref) } }
             entry.cards.forEach { card -> CardView(card) { open(card.href) } }
+            if (entry.handoff) {
+                HandoffCard(
+                    onWhatsApp = { open(ManagerContact.whatsAppUrl(entry.handoffSummary)) },
+                    onMoreChannels = onHandoffMore,
+                )
+            }
             if (isNewest && entry.degraded) RetryAction(onRetry)
             if (!entry.degraded || canReport) {
                 Row(
@@ -548,6 +594,53 @@ private fun ReplyRow(
                     if (canReport) ReportAction(entry.report, onReport)
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun HandoffCard(onWhatsApp: () -> Unit, onMoreChannels: () -> Unit) {
+    val shape = RoundedCornerShape(18.dp)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Ocean.glassField)
+            .border(1.dp, Ocean.champagne, shape)
+            .padding(16.dp)
+            .testTag("concierge.handoff"),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(stringResource(R.string.concierge_handoff_title), color = Ocean.pearl, style = AppFont.cardTitle)
+        Text(stringResource(R.string.concierge_handoff_text), color = Ocean.pearl.copy(alpha = 0.78f), style = AppFont.detail)
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(
+                Modifier
+                    .clip(CircleShape)
+                    .background(Ocean.sunset)
+                    .pressable(role = Role.Button, onClick = onWhatsApp)
+                    .padding(horizontal = 14.dp, vertical = 9.dp)
+                    .testTag("concierge.handoff.whatsapp"),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(7.dp),
+            ) {
+                Icon(painterResource(R.drawable.ic_whatsapp), null, Modifier.size(16.dp), tint = Color.White)
+                Text(stringResource(R.string.concierge_handoff_whatsapp), color = Color.White, style = AppFont.detailMedium)
+            }
+            Text(
+                text = stringResource(R.string.concierge_handoff_more),
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .border(1.dp, Ocean.champagne, CircleShape)
+                    .pressable(role = Role.Button, onClick = onMoreChannels)
+                    .padding(horizontal = 13.dp, vertical = 9.dp)
+                    .testTag("concierge.handoff.more"),
+                style = AppFont.detailMedium.copy(brush = Ocean.champagne),
+            )
         }
     }
 }
@@ -680,6 +773,17 @@ private fun ListingRow(listing: ConciergeListing, onClick: () -> Unit) {
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+            listing.booking?.let { booking ->
+                Text(
+                    text = booking.label ?: stringResource(R.string.concierge_partner_book),
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                        .testTag("concierge.listing.booking"),
+                    style = AppFont.detailMedium.copy(brush = Ocean.champagne),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
         Icon(
             painter = painterResource(R.drawable.ic_arrow_forward),
@@ -741,17 +845,49 @@ private fun RetryAction(onRetry: () -> Unit) {
     )
 }
 
-/** A reply on its way: the orb turns a light across itself. */
+/** Progressive assistant bubble while SSE text deltas arrive live. */
 @Composable
-private fun TypingIndicator(modifier: Modifier = Modifier) {
-    val loading = stringResource(R.string.state_loading)
-    Box(
-        modifier
+private fun StreamingRow(text: String, modifier: Modifier = Modifier) {
+    val bubble = RoundedCornerShape(topStart = 6.dp, topEnd = 22.dp, bottomEnd = 22.dp, bottomStart = 22.dp)
+    Row(modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        ConciergeMark(diameter = 28.dp, modifier = Modifier.padding(top = 2.dp), activity = OrbActivity.Thinking)
+        Text(
+            text = text,
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .clip(bubble)
+                .background(Ocean.glass)
+                .border(1.dp, Ocean.glassEdge, bubble)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .testTag("concierge.streaming"),
+            color = Ocean.pearl,
+            style = AppFont.body,
+        )
+    }
+}
+
+/** A reply on its way: the orb turns a light across itself, with optional SSE status text. */
+@Composable
+private fun TypingIndicator(statusLabel: String? = null, modifier: Modifier = Modifier) {
+    val loading = statusLabel ?: stringResource(R.string.state_loading)
+    Row(
+        modifier = modifier
             .fillMaxWidth()
             .testTag("concierge.typing")
             .clearAndSetSemantics { contentDescription = loading },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         ConciergeMark(diameter = 28.dp, activity = OrbActivity.Thinking)
+        if (!statusLabel.isNullOrBlank()) {
+            Text(
+                text = statusLabel,
+                color = Ocean.pearl.copy(alpha = 0.72f),
+                style = AppFont.detail,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 
@@ -948,6 +1084,8 @@ private fun LiveVoiceBar(
 
 @Composable
 private fun Composer(
+    followups: List<String>,
+    onFollowup: (String) -> Unit,
     suggestions: List<ConciergeLink>,
     onOpen: (String) -> Unit,
     draft: String,
@@ -963,6 +1101,33 @@ private fun Composer(
     var focused by remember { mutableStateOf(false) }
     val shape = RoundedCornerShape(24.dp)
     Column(Modifier.fillMaxWidth()) {
+        // Smart follow-up prompts generated by the AI for 1-tap continuation.
+        if (followups.isNotEmpty()) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(start = 14.dp, end = 14.dp, top = 8.dp)
+                    .testTag("concierge.followups"),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                followups.forEach { prompt ->
+                    Text(
+                        text = prompt,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(Ocean.glassDark)
+                            .border(1.dp, Ocean.glassEdge, CircleShape)
+                            .pressable(role = Role.Button) { onFollowup(prompt) }
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        color = Ocean.pearl,
+                        style = AppFont.detailMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
         // Where the conversation can go next, from the latest answer.
         if (suggestions.isNotEmpty()) {
             Row(

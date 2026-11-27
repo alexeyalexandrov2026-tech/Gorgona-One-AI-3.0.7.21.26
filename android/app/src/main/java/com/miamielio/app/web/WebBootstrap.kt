@@ -184,6 +184,27 @@ object WebBootstrap {
   return false;
 })()"""
 
+    /**
+     * Reads the signed-in guest's Supabase access token from WebView localStorage
+     * strictly on Miami Elio's own origin, so native `/api/chat` (Wave 2C VIP memory
+     * & proactive trip care) and `/api/plan` work identically to the website.
+     */
+    const val AUTH_TOKEN_PROBE = """(function () {
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (/^sb-.*-auth-token$/.test(key)) {
+        var raw = localStorage.getItem(key);
+        if (!raw) { continue; }
+        var parsed = JSON.parse(raw);
+        var token = parsed && (parsed.access_token || (parsed.currentSession && parsed.currentSession.access_token));
+        if (typeof token === 'string' && token.length >= 20) { return token; }
+      }
+    }
+  } catch (e) {}
+  return '';
+})()"""
+
     /** Asks the page to look at its favourites again; a no-op where the site has none. */
     const val FAVORITES_REFRESH = "window.__miamiFavoritesRefresh && window.__miamiFavoritesRefresh()"
 

@@ -417,5 +417,40 @@ class ConciergeViewModelTest {
         assertFalse(model.state.value.liveVoice)
     }
 
+    @Test
+    fun persistsAndRestoresConversationHistoryAndClearsOnReset() = test {
+        var saved = StoredConversation()
+        val store = object : ConciergeHistoryStore {
+            override fun load(): StoredConversation = saved
+            override fun save(conversation: StoredConversation) { saved = conversation }
+            override fun clear() { saved = StoredConversation() }
+        }
+        chat.reply(Replies.text("Welcome back", session = "s-persist"))
+        val first = ConciergeViewModel(
+            client = ConciergeClient(transport = chat),
+            planClient = PlanClient(transport = plans),
+            reporter = null,
+            locale = { "en" },
+            historyStore = store,
+        )
+        first.send("Check my trip")
+        advanceUntilIdle()
+        assertEquals(2, saved.entries.size)
+        assertEquals("s-persist", saved.sessionId)
+
+        val restored = ConciergeViewModel(
+            client = ConciergeClient(transport = chat),
+            planClient = PlanClient(transport = plans),
+            reporter = null,
+            locale = { "en" },
+            historyStore = store,
+        )
+        assertEquals(listOf("Check my trip", "Welcome back"), restored.state.value.entries.map { it.text })
+
+        restored.reset()
+        assertTrue(saved.entries.isEmpty())
+        assertNull(saved.sessionId)
+    }
+
     // endregion
 }

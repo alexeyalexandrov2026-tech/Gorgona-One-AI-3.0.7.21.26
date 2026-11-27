@@ -57,6 +57,14 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="miamielio" />
             </intent-filter>
+            <!-- Verified Android App Links for gorgona-one.com (OAuth return, /pay/[token], /trip, listings). -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="gorgona-one.com" />
+                <data android:scheme="https" android:host="www.gorgona-one.com" />
+            </intent-filter>
         </activity>
     </application>
 </manifest>

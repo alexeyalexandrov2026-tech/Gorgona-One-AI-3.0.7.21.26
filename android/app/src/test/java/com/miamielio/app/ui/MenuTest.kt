@@ -101,7 +101,7 @@ class MenuTest {
         compose.onNodeWithTag(tag).performScrollTo().performClick()
     }
 
-    private val mainIds = listOf("today", "catalog", "ai", "exclusive", "events", "profile")
+    private val mainIds = listOf("today", "catalog", "ai", "exclusive", "events", "trip", "profile")
     private val sectionIds = listOf(
         "travel", "exclusive", "stays", "yachts", "cars", "events", "privateJets", "experiences", "dining", "concierge",
     )
@@ -114,10 +114,10 @@ class MenuTest {
         compose.onNodeWithText("SECTIONS").assertExists()
 
         val tags = mainIds.map { "menu.item.$it" } + sectionIds.map { "menu.item.section.$it" }
-        val names = listOf("Today", "Catalog", "AI Concierge", "Exclusive Destinations", "Events", "Profile") +
+        val names = listOf("Today", "Catalog", "ELIO AI", "Exclusive Destinations", "Events", "My Trip", "Profile") +
             listOf(
                 "Travel", "Exclusive Destinations", "Stays", "Yachts", "Cars", "Events", "Private Jets",
-                "Experiences", "Dining & Nightlife", "AI Concierge",
+                "Experiences", "Dining & Nightlife", "ELIO AI",
             )
         // Where each one is laid out, on screen or below it in the scroll. The
         // sections stand two to a row, so the order is the reading order: row
@@ -151,14 +151,17 @@ class MenuTest {
         choose("menu.item.events")
         assertTrue(router.eventsOpen.value)
         assertEquals(AppTab.Today, tab)
+        choose("menu.item.trip")
+        assertEquals(listOf("https://gorgona-one.com/trip"), explore.loaded)
+        assertTrue(router.webLayer.value)
         choose("menu.item.profile")
         assertEquals(AppTab.Account, tab)
         assertFalse(router.eventsOpen.value)
+        assertFalse(router.webLayer.value)
 
         assertEquals(mainIds, chosen)
-        // None of them is a page of the site, nor leaves the app.
-        assertEquals(emptyList<String>(), explore.loaded)
-        assertFalse(router.webLayer.value)
+        // Only My Trip opens a live site layer; none of them leaves the app.
+        assertEquals(listOf("https://gorgona-one.com/trip"), explore.loaded)
         assertEquals(emptyList<String>(), outside.opened)
     }
 

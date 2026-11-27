@@ -7,22 +7,18 @@
 | App name | Miami Elio |
 | Default language | English (United States) |
 | Proposed category | Travel & Local |
-| Short description | Plan Miami trips, find yachts and villas, and save your favorites. |
+| Short description | Plan Miami yachts, villas, cars, dining & events with AI + our live team. |
 | Website | https://gorgona-one.com |
 | Privacy policy | https://gorgona-one.com/privacy |
 | Account deletion URL after deployment | https://gorgona-one.com/account/delete |
 
 **Full description**
 
-Plan time in Miami with a private AI concierge. Explore yacht charters, villas,
-car rentals, dining and local experiences. Save places and rentals in My Miami
-so you can revisit them as your plans take shape.
+Plan your Miami trip with Miami Elio — combining instant AI discovery with our dedicated local team handling every booking from start to finish. Explore yacht charters, luxury villas, exotic car rentals, private jets, fine dining, nightlife, and Miami events. Save your favorite places and vehicles in My Miami as your plans take shape.
 
-Ask the concierge for ideas, choose the options that suit your trip and send a
-request to the Miami Elio team. The team confirms availability and details.
+Use Miami Elio AI by text or Live Voice in 16 languages to compare options, check live calendar availability, and build a complete multi-part trip plan. Once you submit a request or reach out directly, our live Miami Elio team personally manages every detail end-to-end — confirming availability, coordinating quotes and contracts, and supporting you throughout your stay via WhatsApp, Telegram, phone, or email.
 
-Keep track of upcoming Miami events with optional reminders. Use dictation to
-draft a question on supported devices, or type it directly.
+Track upcoming Miami season highlights with optional reminders and switch effortlessly between all 16 supported languages.
 
 **Release notes**
 
@@ -78,6 +74,15 @@ Upgraded Miami Elio AI with hands-free Live Voice conversation, natural spoken
 replies in 16 languages with one-tap interrupt, and a Listen button under every
 answer. Car recommendations and trip plans now display live calendar availability
 and multi-day price estimates directly inside chat.
+
+**Release notes, 1.5.0 (version code 10), English (United States)**
+
+Major upgrade for Miami Elio: real-time streaming AI answers, persistent chat
+history, authenticated VIP trip awareness, smart follow-ups, direct one-tap
+contact with our Miami team via WhatsApp, Telegram, or phone, direct menu access
+to My Trip, verified gorgona-one.com App Links for smoother sign-in and checkout
+returns, Split-Pay and delivery options in trip plans, and smoother audio focus
+during voice replies.
 
 ## Graphics
 

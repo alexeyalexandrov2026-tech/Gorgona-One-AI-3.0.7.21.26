@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.miamielio.app.BuildConfig
 import com.miamielio.app.R
+import com.miamielio.app.concierge.ConciergePreferences
 import com.miamielio.app.concierge.ConciergeViewModel
 import com.miamielio.app.core.AnswerReportClient
 import com.miamielio.app.core.AppConfig
@@ -108,6 +109,12 @@ class AppServices(
                     reporter = AnswerReportClient(config, OkHttpTransport(15_000, siteClient)),
                     locale = { explore.currentSiteLocale() },
                     ttsClient = TtsClient(config, OkHttpTransport.tts(siteClient)),
+                    authToken = {
+                        account.currentAuthToken() ?: explore.currentAuthToken() ?: exclusive.currentAuthToken()
+                    },
+                    historyStore = ConciergePreferences(
+                        activity.getSharedPreferences("miami-elio-chat", Context.MODE_PRIVATE),
+                    ),
                 )
             }
         },

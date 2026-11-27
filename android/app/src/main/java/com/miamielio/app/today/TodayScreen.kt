@@ -58,7 +58,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miamielio.app.R
-import com.miamielio.app.app.LIVE_MANAGER_URL
 import com.miamielio.app.concierge.ConciergeViewModel
 import com.miamielio.app.concierge.rememberDictation
 import com.miamielio.app.core.Season
@@ -71,6 +70,7 @@ import com.miamielio.app.core.HomeSection
 import com.miamielio.app.core.ShowcaseFeed
 import com.miamielio.app.ui.MenuButton
 import com.miamielio.app.ui.Ocean
+import com.miamielio.app.ui.TeamContactSheet
 import com.miamielio.app.ui.Theme
 import com.miamielio.app.ui.Wordmark
 import com.miamielio.app.ui.filled
@@ -107,6 +107,7 @@ internal fun TodayScreen(
     val state by model.state.collectAsStateWithLifecycle()
     val busy = state.isSending
     var query by rememberSaveable { mutableStateOf("") }
+    var teamSheetOpen by rememberSaveable { mutableStateOf(false) }
     val asked by rememberUpdatedState(onAsked)
 
     fun ask(text: String) {
@@ -127,7 +128,7 @@ internal fun TodayScreen(
             .verticalScroll(rememberScrollState())
             .testTag("content.Today"),
     ) {
-        Header(onMenu = onMenu, onManager = { onOpen(LIVE_MANAGER_URL) })
+        Header(onMenu = onMenu, onManager = { teamSheetOpen = true })
         SectionRail(onSection = onSection, resolve = resolve, modifier = Modifier.padding(bottom = 12.dp))
         Hero(
             query = query,
@@ -161,6 +162,11 @@ internal fun TodayScreen(
         }
         Spacer(Modifier.height(12.dp))
     }
+    TeamContactSheet(
+        visible = teamSheetOpen,
+        onDismiss = { teamSheetOpen = false },
+        onOpen = onOpen,
+    )
 }
 
 @Composable

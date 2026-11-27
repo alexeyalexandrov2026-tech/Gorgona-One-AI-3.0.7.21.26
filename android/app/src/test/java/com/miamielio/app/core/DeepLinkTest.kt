@@ -32,17 +32,36 @@ class DeepLinkTest {
     }
 
     @Test
+    fun readsVerifiedHttpsAppLinksIncludingOAuthAndPaymentReturn() {
+        assertEquals(DeepLink.Open("/yachts"), DeepLink.parse("https://gorgona-one.com/yachts"))
+        assertEquals(DeepLink.Open("/trip"), DeepLink.parse("https://www.gorgona-one.com/trip"))
+        assertEquals(
+            DeepLink.Open("/pay/tok_abc123?paid=1"),
+            DeepLink.parse("https://gorgona-one.com/pay/tok_abc123?paid=1"),
+        )
+        assertEquals(
+            DeepLink.AuthCallback("/auth/callback?code=pkce-xyz&next=%2Ftrip#access_token=jwt"),
+            DeepLink.parse("https://gorgona-one.com/auth/callback?code=pkce-xyz&next=%2Ftrip#access_token=jwt"),
+        )
+        assertEquals(DeepLink.Concierge, DeepLink.parse("https://gorgona-one.com/discovery"))
+        assertEquals(DeepLink.Account, DeepLink.parse("https://gorgona-one.com/profile"))
+        assertEquals(DeepLink.Search, DeepLink.parse("https://gorgona-one.com/search"))
+    }
+
+    @Test
     fun neverPointsTheAppAtAnotherSite() {
         assertNull(DeepLink.parse("miamielio://open?path=//evil.example.com"))
         assertNull(DeepLink.parse("miamielio://open?path=https://evil.example.com"))
         assertNull(DeepLink.parse("miamielio://open?path=%2F%2Fevil.example.com"))
         assertNull(DeepLink.parse("miamielio://open?path=/%5Cevil.example.com"))
         assertNull(DeepLink.parse("miamielio://open?path=yachts"))
+        assertNull(DeepLink.parse("https://evil.example.com/auth/callback?code=1"))
+        assertNull(DeepLink.parse("http://gorgona-one.com/yachts"))
+        assertNull(DeepLink.parse("https://gorgona-one.com//evil.example.com"))
     }
 
     @Test
-    fun ignoresEverythingThatIsNotItsOwnScheme() {
-        assertNull(DeepLink.parse("https://gorgona-one.com/yachts"))
+    fun ignoresUnknownSchemesAndMalformedLinks() {
         assertNull(DeepLink.parse("intent://concierge#Intent;scheme=miamielio;end"))
         assertNull(DeepLink.parse("not a link"))
         assertNull(DeepLink.parse(""))

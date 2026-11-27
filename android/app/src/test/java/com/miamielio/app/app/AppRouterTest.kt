@@ -168,12 +168,32 @@ class AppRouterTest {
         router.handle("miamielio://search")
         router.handle("miamielio://open?path=//evil.example.com")
         router.handle("miamielio://open?path=https://evil.example.com")
-        router.handle("https://gorgona-one.com/rentals")
+        router.handle("https://evil.example.com/rentals")
         assertEquals(1, explore.loaded.size)
         assertEquals(AppTab.Catalog, tab)
 
         router.handle("miamielio://open?path=/sportsbook")
         assertEquals(1, explore.loaded.size)
+        assertEquals(listOf("https://gorgona-one.com/sportsbook"), outside.system)
+    }
+
+    @Test
+    fun httpsAppLinksReturnOAuthToAccountAndPaymentsToExplore() {
+        router.select(AppTab.Today)
+        router.handle("https://gorgona-one.com/auth/callback?code=pkce-42&next=%2Ftrip")
+        assertEquals(AppTab.Account, tab)
+        assertFalse(router.webLayer.value)
+        assertEquals(
+            listOf("https://gorgona-one.com/auth/callback?code=pkce-42&next=%2Ftrip"),
+            account.loaded,
+        )
+
+        router.handle("https://gorgona-one.com/pay/tok_abc?paid=1")
+        assertTrue(router.webLayer.value)
+        assertEquals(listOf("https://gorgona-one.com/pay/tok_abc?paid=1"), explore.loaded)
+
+        // Restricted paths arriving via App Link still leave the app.
+        router.handle("https://gorgona-one.com/sportsbook")
         assertEquals(listOf("https://gorgona-one.com/sportsbook"), outside.system)
     }
 

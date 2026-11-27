@@ -8,6 +8,7 @@ import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.miamielio.app.core.ConciergeClient
@@ -21,7 +22,7 @@ internal class Dictation(context: Context) {
     private var recognizer: SpeechRecognizer? = null
     var state by mutableStateOf(DictationState.Idle)
         private set
-    var level by mutableStateOf(0.0)
+    var level by mutableDoubleStateOf(0.0)
         private set
     val isActive: Boolean get() = recognizer != null
 

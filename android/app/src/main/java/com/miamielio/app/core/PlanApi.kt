@@ -12,7 +12,7 @@ import java.util.Locale
 import java.util.UUID
 
 /**
- * What a concierge plan may contain. Mirrors `lib/planRules.mjs` on the site:
+ * What a trip plan may contain. Mirrors `lib/planRules.mjs` on the site:
  * experiences and events are booked on partner sites, so they never join.
  */
 object PlanRules {
@@ -140,6 +140,8 @@ class PlanRequest(
     val time: String?,
     note: String,
     val items: List<Item>,
+    val splitPay: Boolean = false,
+    deliveryAddress: String = "",
 ) {
     data class Item(val kind: String, val slug: String)
 
@@ -147,6 +149,15 @@ class PlanRequest(
     val email: String = email.trim()
     val phone: String = phone.trim()
     val note: String = note.trim()
+    val deliveryAddress: String = deliveryAddress.trim()
+
+    /** Combines guest notes with optional delivery address and Split-Pay preference within 1000 chars. */
+    val formattedNote: String
+        get() = buildList {
+            if (splitPay) add("Split-Pay requested ($guests guests)")
+            if (deliveryAddress.isNotEmpty()) add("Delivery: $deliveryAddress")
+            if (note.isNotEmpty()) add(note)
+        }.joinToString(" | ").take(1000)
 
     /**
      * The same checks the server makes first, so the guest hears about a
@@ -156,7 +167,7 @@ class PlanRequest(
         get() {
             if (name.isEmpty() || name.length > 120 || phone.isEmpty() || phone.length > 40) return false
             if (email.length > 254 || !email.contains("@") || !email.contains(".")) return false
-            if (end < start || guests !in 1..99 || note.length > 1000) return false
+            if (end < start || guests !in 1..99 || formattedNote.length > 1000) return false
             if (items.isEmpty() || items.size > PlanRules.maxItems) return false
             val hasRestaurant = items.any { it.kind == "dining" || it.kind == "nightlife" }
             return hasRestaurant == (time != null)
@@ -170,7 +181,7 @@ class PlanRequest(
         put("end", end)
         put("guests", guests)
         if (time != null) put("time", time)
-        put("note", note)
+        put("note", formattedNote)
         put("items", buildJsonArray {
             items.forEach { item ->
                 add(buildJsonObject {
@@ -179,16 +190,22 @@ class PlanRequest(
                 })
             }
         })
+        put("attribution", buildJsonObject {
+            put("utmSource", "elio_android")
+            put("utmMedium", "app")
+            put("utmCampaign", "elio_trip_plan")
+        })
     }.toString().toByteArray(Charsets.UTF_8)
 
     /** Two requests are the same send when every detail is the same. */
     override fun equals(other: Any?): Boolean =
         other is PlanRequest && name == other.name && email == other.email && phone == other.phone &&
             start == other.start && end == other.end && guests == other.guests && time == other.time &&
-            note == other.note && items == other.items
+            note == other.note && splitPay == other.splitPay && deliveryAddress == other.deliveryAddress &&
+            items == other.items
 
     override fun hashCode(): Int =
-        listOf(name, email, phone, start, end, guests, time, note, items).hashCode()
+        listOf(name, email, phone, start, end, guests, time, note, splitPay, deliveryAddress, items).hashCode()
 
     companion object {
         /** `yyyy-MM-dd` for a calendar day as the guest picked it. */
@@ -218,32 +235,37 @@ data class PlanReceipt(val planId: String, val bookingIds: List<String>) {
 }
 
 /**
- * Sends a plan to `app/api/plan/route.js`. Anonymous, like every other JSON
- * call the app makes; the same key is reused when a send is retried, so a
- * lost answer never creates a second request.
+ * Sends a plan to `app/api/plan/route.js`. Links signed-in accounts via Bearer
+ * token when present; the same idempotency key is reused on retries.
  */
 class PlanClient(
     private val config: AppConfig = AppConfig.production,
     private val transport: HttpTransport,
 ) {
-    fun makeRequest(plan: PlanRequest, key: UUID): HttpRequest {
+    fun makeRequest(plan: PlanRequest, key: UUID, authToken: String? = null): HttpRequest {
         val url = config.resolve("/api/plan")
         if (!plan.isComplete || url == null) throw ApiError.InvalidRequest
+        val headers = linkedMapOf(
+            "Content-Type" to "application/json",
+            "Accept" to "application/json",
+            "User-Agent" to config.userAgentToken,
+            "Idempotency-Key" to key.toString().lowercase(),
+        )
+        val token = authToken?.trim()?.takeIf { it.length >= 20 && !it.any(Char::isWhitespace) }
+        val host = WebAddress.parse(url)?.host
+        if (token != null && host != null && host in config.internalHosts && url.startsWith("https://", ignoreCase = true)) {
+            headers["Authorization"] = "Bearer $token"
+        }
         return HttpRequest(
             method = "POST",
             url = url,
-            headers = mapOf(
-                "Content-Type" to "application/json",
-                "Accept" to "application/json",
-                "User-Agent" to config.userAgentToken,
-                "Idempotency-Key" to key.toString().lowercase(),
-            ),
+            headers = headers,
             body = plan.toJson(),
         )
     }
 
-    suspend fun send(plan: PlanRequest, key: UUID): PlanReceipt {
-        val response = transport.send(makeRequest(plan, key))
+    suspend fun send(plan: PlanRequest, key: UUID, authToken: String? = null): PlanReceipt {
+        val response = transport.send(makeRequest(plan, key, authToken))
         if (response.status != 200) throw ApiError.Status(response.status)
         return Decode.obj(response.body)?.let(PlanReceipt::decode) ?: throw ApiError.Decoding
     }

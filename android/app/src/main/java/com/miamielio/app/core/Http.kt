@@ -43,6 +43,22 @@ fun interface HttpTransport {
     suspend fun send(request: HttpRequest): HttpResponse
 }
 
+/**
+ * Optional transport extension supporting Server-Sent Events (`text/event-stream`).
+ * Non-streaming test transports keep implementing [HttpTransport] unchanged.
+ */
+interface StreamingHttpTransport : HttpTransport {
+    /**
+     * Streams SSE events when the server answers `200 text/event-stream`, invoking
+     * [onEvent] for each event block and returning null. Otherwise returns the
+     * buffered [HttpResponse].
+     */
+    suspend fun stream(
+        request: HttpRequest,
+        onEvent: (event: String, data: String) -> Unit,
+    ): HttpResponse?
+}
+
 // --- Tolerant decoding ---
 
 internal object Decode {

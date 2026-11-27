@@ -30,6 +30,8 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -342,6 +344,8 @@ private fun PlanRequestForm(
     var name by rememberSaveable { mutableStateOf("") }
     var phone by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
+    var deliveryAddress by rememberSaveable { mutableStateOf("") }
+    var splitPay by rememberSaveable { mutableStateOf(false) }
     var note by rememberSaveable { mutableStateOf("") }
     var picking by rememberSaveable { mutableStateOf<Picking?>(null) }
 
@@ -418,6 +422,9 @@ private fun PlanRequestForm(
                     KeyboardOptions(keyboardType = KeyboardType.Phone), autofill = ContentType.PhoneNumber)
                 FormField(email, { email = it }, stringResource(R.string.plan_email), "plan.email",
                     KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrectEnabled = false), autofill = ContentType.EmailAddress)
+                FormField(deliveryAddress, { deliveryAddress = it.take(240) }, stringResource(R.string.plan_delivery), "plan.delivery",
+                    KeyboardOptions(capitalization = KeyboardCapitalization.Words, keyboardType = KeyboardType.Text))
+                SplitPayRow(checked = splitPay, onToggle = { splitPay = it })
                 FormField(note, { note = it.take(1000) }, stringResource(R.string.plan_note), "plan.note",
                     KeyboardOptions(capitalization = KeyboardCapitalization.Sentences), singleLine = false)
 
@@ -453,6 +460,8 @@ private fun PlanRequestForm(
                             time = if (draft.hasRestaurant) PlanRequest.clock(LocalTime.of(dinner / 60, dinner % 60)) else null,
                             note = note,
                             items = draft.items.map { PlanRequest.Item(it.kind, it.slug) },
+                            splitPay = splitPay,
+                            deliveryAddress = deliveryAddress,
                         ),
                     )
                 }
@@ -534,6 +543,36 @@ private fun StepButton(symbol: String, description: String, enabled: Boolean, ta
         contentAlignment = Alignment.Center,
     ) {
         Text(symbol, color = Theme.ink, style = AppFont.rowTitle)
+    }
+}
+
+@Composable
+private fun SplitPayRow(checked: Boolean, onToggle: (Boolean) -> Unit) {
+    val label = stringResource(R.string.plan_split_pay)
+    val shape = RoundedCornerShape(14.dp)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Theme.card)
+            .border(1.dp, Theme.rule, shape)
+            .pressable(onClickLabel = label) { onToggle(!checked) }
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .testTag("plan.splitPay"),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(label, Modifier.weight(1f), color = Theme.ink, style = AppFont.body)
+        Switch(
+            checked = checked,
+            onCheckedChange = null,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.Black,
+                checkedTrackColor = Theme.gold,
+                uncheckedThumbColor = Theme.soft,
+                uncheckedTrackColor = Theme.paper,
+            ),
+        )
     }
 }
 

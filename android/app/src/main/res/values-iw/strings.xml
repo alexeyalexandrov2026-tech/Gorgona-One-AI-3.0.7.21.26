@@ -8,17 +8,22 @@
     <string name="action_settings" formatted="false">הגדרות</string>
     <string name="concierge_available_dates" formatted="false">פנוי בתאריכים שלך</string>
     <string name="concierge_busy_dates" formatted="false">תפוס בתאריכים אלה</string>
-    <string name="concierge_live_manager" formatted="false">כתבו למנהל אישי בטלגרם</string>
+    <string name="concierge_handoff_more" formatted="false">Telegram / שיחה</string>
+    <string name="concierge_handoff_text" formatted="false">המומחים שלנו במיאמי יאשרו זמינות ויטפלו בכל פרט בהזמנה.</string>
+    <string name="concierge_handoff_title" formatted="false">להעביר לצוות שלנו?</string>
+    <string name="concierge_handoff_whatsapp" formatted="false">שלחו ב-WhatsApp</string>
+    <string name="concierge_live_manager" formatted="false">צרו קשר עם צוות Miami Elio</string>
     <string name="concierge_manager" formatted="false">מנהל</string>
     <string name="concierge_new" formatted="false">שיחה חדשה</string>
     <string name="concierge_open" formatted="false">פתח</string>
+    <string name="concierge_partner_book" formatted="false">להזמנה</string>
     <string name="concierge_placeholder" formatted="false">שאל את Miami Elio AI</string>
     <string name="concierge_report" formatted="false">דיווח על התשובה</string>
     <string name="concierge_send" formatted="false">שאל</string>
     <string name="concierge_starter_1" formatted="false">תכנן סוף שבוע במיאמי</string>
     <string name="concierge_starter_2" formatted="false">מצא יאכטה ל-8 אורחים</string>
     <string name="concierge_starter_3" formatted="false">הזמן שולחן לארוחת ערב</string>
-    <string name="concierge_title" formatted="false">הקונסיירז׳ הפרטי שלכם</string>
+    <string name="concierge_title" formatted="false">מדריך ה-AI שלכם במיאמי</string>
     <string name="error_generic" formatted="false">משהו השתבש</string>
     <string name="favorite_remove" formatted="false">הסרה מהמיאמי שלי</string>
     <string name="favorite_save" formatted="false">שמירה במיאמי שלי</string>
@@ -31,7 +36,7 @@
     <string name="home_chip_3" formatted="false">כרטיסים ל־Heat</string>
     <string name="home_chip_4" formatted="false">וילה במיאמי ביץ׳</string>
     <string name="home_chip_5" formatted="false">שולחן לארבעה</string>
-    <string name="home_concierge_label" formatted="false">קונסיירז׳ AI של Miami Elio</string>
+    <string name="home_concierge_label" formatted="false">Miami Elio AI</string>
     <string name="home_next_event" formatted="false">הבא: {name}</string>
     <string name="home_pick_adventures" formatted="false">הרפתקאות</string>
     <string name="home_pick_cars" formatted="false">רכבים</string>
@@ -49,6 +54,7 @@
     <string name="menu_open" formatted="false">פתח תפריט</string>
     <string name="menu_sections" formatted="false">קטגוריות</string>
     <string name="menu_title" formatted="false">תפריט</string>
+    <string name="menu_trip" formatted="false">הטיול שלי</string>
     <string name="offline_message" formatted="false">בדקו את החיבור ונסו שוב.</string>
     <string name="offline_title" formatted="false">אין חיבור לאינטרנט</string>
     <string name="plan_add_back" formatted="false">להחזיר: {section}</string>
@@ -56,6 +62,7 @@
     <string name="plan_bad_dates" formatted="false">היום האחרון לא יכול להיות לפני היום הראשון.</string>
     <string name="plan_charge" formatted="false">שום דבר לא מחויב כעת. הצוות שלנו יאשר איתך קודם את הזמינות והמחירים.</string>
     <string name="plan_check" formatted="false">יש לבדוק את התאריכים ואת פרטי הקשר.</string>
+    <string name="plan_delivery" formatted="false">כתובת למסירה (לא חובה)</string>
     <string name="plan_dinner_time" formatted="false">שעת ארוחת ערב</string>
     <string name="plan_email" formatted="false">אימייל</string>
     <string name="plan_empty" formatted="false">יש להוסיף לתוכנית פריט אחד לפחות.</string>
@@ -73,6 +80,7 @@
     <string name="plan_sending" formatted="false">שולחים…</string>
     <string name="plan_sent" formatted="false">הבקשה לתוכנית נשלחה</string>
     <string name="plan_sent_text" formatted="false">פריטים בבקשה: {count}. הצוות שלנו ייצור איתך קשר בקרוב.</string>
+    <string name="plan_split_pay" formatted="false">פיצול תשלום לקבוצה</string>
     <string name="plan_submit" formatted="false">שליחת בקשה</string>
     <string name="plan_title" formatted="false">התוכנית שלך</string>
     <string name="rail_pause" formatted="false">השהיה</string>
@@ -94,7 +102,7 @@
     <string name="season_title" formatted="false">העונה במיאמי</string>
     <string name="season_tomorrow" formatted="false">מחר</string>
     <string name="section_cars" formatted="false">רכבים</string>
-    <string name="section_concierge" formatted="false">קונסיירז׳ AI</string>
+    <string name="section_concierge" formatted="false">ELIO AI</string>
     <string name="section_dining" formatted="false">אוכל וחיי לילה</string>
     <string name="section_events" formatted="false">אירועים</string>
     <string name="section_exclusive" formatted="false">יעדים בלעדיים</string>
@@ -117,18 +125,22 @@
     <string name="showcase_tickets" formatted="false">כרטיסים</string>
     <string name="showcase_tickets_cta" formatted="false">השיגו כרטיסים</string>
     <string name="showcase_yacht" formatted="false">יאכטה</string>
-    <string name="state_loading" formatted="false">טוען...</string>
+    <string name="state_loading" formatted="false">טוען…</string>
     <string name="tab_account" formatted="false">המיאמי שלי</string>
     <string name="tab_ai" formatted="false">AI</string>
     <string name="tab_catalog" formatted="false">קטלוג</string>
-    <string name="tab_concierge" formatted="false">קונסיירז׳</string>
     <string name="tab_events" formatted="false">אירועים</string>
     <string name="tab_exclusive" formatted="false">בלעדי</string>
     <string name="tab_home" formatted="false">בית</string>
     <string name="tab_profile" formatted="false">פרופיל</string>
     <string name="tab_search" formatted="false">חיפוש</string>
     <string name="tab_today" formatted="false">היום</string>
-    <string name="voice_denied" formatted="false">כדי לדבר עם הקונסיירז\', אפשרו גישה למיקרופון ולזיהוי דיבור בהגדרות.</string>
+    <string name="team_phone" formatted="false">התקשרו · +1 786-492-8880</string>
+    <string name="team_subtitle" formatted="false">הצוות שלנו מטפל בכל הזמנה מתחילתה ועד סופה.</string>
+    <string name="team_telegram" formatted="false">Telegram · @MIAMI_ELIO</string>
+    <string name="team_title" formatted="false">צוות Miami Elio</string>
+    <string name="team_whatsapp" formatted="false">WhatsApp Business</string>
+    <string name="voice_denied" formatted="false">כדי לדבר עם Miami Elio AI, אפשרו גישה למיקרופון ולזיהוי דיבור בהגדרות.</string>
     <string name="voice_listen" formatted="false">האזנה</string>
     <string name="voice_listening" formatted="false">מקשיב</string>
     <string name="voice_live_listening" formatted="false">קול חי · מאזין…</string>
@@ -138,7 +150,7 @@
     <string name="voice_live_speaking" formatted="false">מדבר · הקש כדי לקטוע</string>
     <string name="voice_live_thinking" formatted="false">קול חי · חושב…</string>
     <string name="voice_loading_audio" formatted="false">מכין קול…</string>
-    <string name="voice_permission_explanation" formatted="false">Miami Elio ממירה את הבקשה הקולית שלכם לטקסט עבור הקונסיירז\'.</string>
+    <string name="voice_permission_explanation" formatted="false">Miami Elio ממירה את הבקשה הקולית שלכם לטקסט עבור עוזר ה-AI.</string>
     <string name="voice_speak" formatted="false">אמור את הבקשה שלך</string>
     <string name="voice_stop" formatted="false">הפסק להקשיב</string>
     <string name="voice_stop_audio" formatted="false">עצור שמע</string>

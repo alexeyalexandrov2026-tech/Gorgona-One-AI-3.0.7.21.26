@@ -44,6 +44,12 @@ data class ConciergeEntry(
     val degraded: Boolean = false,
     /** Language code the reply was written in, for matching TTS audio. */
     val replyLocale: String? = null,
+    /** Contextual follow-up prompts offered under the latest answer. */
+    val followups: List<String> = emptyList(),
+    /** True when the reply recommends connecting with the live Miami Elio team. */
+    val handoff: Boolean = false,
+    /** Short summary for prefilling WhatsApp handoff to the team. */
+    val handoffSummary: String? = null,
 ) {
     val canRetry: Boolean get() = kind == Kind.Failed || degraded
 
@@ -97,6 +103,10 @@ data class ConciergeState(
     val entries: List<ConciergeEntry> = emptyList(),
     /** A reply is on its way. */
     val isSending: Boolean = false,
+    /** Progressive streamed assistant text while [isSending] is true. */
+    val streamingText: String = "",
+    /** Optional live status label from SSE (e.g. checking calendar or weather). */
+    val statusLabel: String? = null,
     val plan: PlanDraft? = null,
     val isSendingPlan: Boolean = false,
     /** What stopped the last plan request, until the guest tries again. */
@@ -110,21 +120,17 @@ data class ConciergeState(
 }
 
 /**
- * The concierge conversation: what was said, what is being sent, and the
- * handle the server uses to remember the thread. Mirrors the iPhone app's
- * `ConciergeStore`.
- *
- * @param reporter delivers "report this answer"; null while there is
- *   nowhere to deliver it, and then the action is not offered.
- * @param locale the language the guest last chose on the site: the
- *   concierge answers in it.
+ * The AI conversation: what was said, live streaming progress, persisted history,
+ * authenticated VIP context, and multi-section trip plans.
  */
-class ConciergeViewModel(
+class ConciergeViewModel internal constructor(
     private val client: ConciergeClient,
     private val planClient: PlanClient,
     private val reporter: AnswerReporter?,
     private val locale: () -> String,
     internal val ttsClient: TtsClient? = null,
+    private val authToken: () -> String? = { null },
+    private val historyStore: ConciergeHistoryStore? = null,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ConciergeState())
     val state: StateFlow<ConciergeState> = mutableState.asStateFlow()
@@ -135,6 +141,15 @@ class ConciergeViewModel(
     private var sessionId: String? = null
     private var job: Job? = null
     private var nextId = 0L
+
+    init {
+        val restored = historyStore?.load()
+        if (restored != null && restored.entries.isNotEmpty()) {
+            sessionId = restored.sessionId
+            nextId = (restored.entries.maxOfOrNull { it.id } ?: -1L) + 1L
+            mutableState.value = ConciergeState(entries = restored.entries)
+        }
+    }
 
     /** True when a report on an answer can actually be delivered. */
     val canReport: Boolean get() = reporter != null
@@ -168,6 +183,7 @@ class ConciergeViewModel(
                     entry(ConciergeEntry.Kind.Guest, text),
             )
         }
+        persist()
         request(voiceMode = spoken)
     }
 
@@ -176,6 +192,7 @@ class ConciergeViewModel(
         val current = mutableState.value
         if (current.isSending || current.entries.lastOrNull()?.canRetry != true) return
         mutableState.update { it.copy(entries = it.entries.dropLast(1)) }
+        persist()
         request(voiceMode = current.liveVoice)
     }
 
@@ -186,6 +203,7 @@ class ConciergeViewModel(
         sessionId = null
         planAttempt = null
         reportAttempts.clear()
+        historyStore?.clear()
         mutableState.update { ConciergeState(draft = it.draft) }
     }
 
@@ -235,10 +253,11 @@ class ConciergeViewModel(
         planAttempt = request to key
         mutableState.update { it.copy(isSendingPlan = true, planProblem = null) }
 
+        val token = authToken()
         viewModelScope.launch {
             var problem: PlanProblem? = null
             try {
-                val receipt = planClient.send(request, key)
+                val receipt = planClient.send(request, key, authToken = token)
                 planAttempt = null
                 // A new plan that arrived meanwhile is left untouched.
                 mutableState.update { state ->
@@ -314,6 +333,9 @@ class ConciergeViewModel(
         listings = reply?.listings.orEmpty(),
         degraded = reply?.degraded == true,
         replyLocale = reply?.replyLocale,
+        followups = reply?.followups.orEmpty(),
+        handoff = reply?.handoff == true,
+        handoffSummary = reply?.handoffSummary,
     )
 
     private fun request(voiceMode: Boolean = false) {
@@ -326,12 +348,31 @@ class ConciergeViewModel(
         }
         if (history.isEmpty()) return
 
-        mutableState.update { it.copy(isSending = true) }
+        mutableState.update { it.copy(isSending = true, streamingText = "", statusLabel = null) }
         val session = sessionId
         val language = locale()
+        val token = authToken()
+        // When signed in, passing "/trip" enables proactive NOAA weather & trip-care checks automatically.
+        val pagePath = if (!token.isNullOrBlank()) "/trip" else null
         job = viewModelScope.launch {
             val reply = try {
-                client.send(history, session, language, voiceMode)
+                client.sendStreaming(
+                    messages = history,
+                    sessionId = session,
+                    locale = language,
+                    voiceMode = voiceMode,
+                    authToken = token,
+                    pagePath = pagePath,
+                    onStatus = { label ->
+                        mutableState.update { if (it.isSending) it.copy(statusLabel = label) else it }
+                    },
+                    onDelta = { chunk ->
+                        mutableState.update { if (it.isSending) it.copy(streamingText = it.streamingText + chunk, statusLabel = null) else it }
+                    },
+                    onReset = {
+                        mutableState.update { if (it.isSending) it.copy(streamingText = "") else it }
+                    },
+                )
             } catch (e: CancellationException) {
                 // A conversation that was cleared mid-request stays cleared.
                 throw e
@@ -348,7 +389,14 @@ class ConciergeViewModel(
     private fun finish(reply: ConciergeReply?) {
         job = null
         if (reply == null) {
-            mutableState.update { it.copy(isSending = false, entries = it.entries + entry(ConciergeEntry.Kind.Failed, "")) }
+            mutableState.update {
+                it.copy(
+                    isSending = false,
+                    streamingText = "",
+                    statusLabel = null,
+                    entries = it.entries + entry(ConciergeEntry.Kind.Failed, ""),
+                )
+            }
             return
         }
         if (!reply.degraded) reply.sessionId?.let { sessionId = it }
@@ -357,10 +405,17 @@ class ConciergeViewModel(
         mutableState.update { state ->
             state.copy(
                 isSending = false,
+                streamingText = "",
+                statusLabel = null,
                 entries = state.entries + entry(ConciergeEntry.Kind.Concierge, reply.reply, reply),
                 plan = reply.plan?.let(::PlanDraft) ?: state.plan,
                 planProblem = if (reply.plan != null) null else state.planProblem,
             )
         }
+        persist()
+    }
+
+    private fun persist() {
+        historyStore?.save(StoredConversation(entries = mutableState.value.entries, sessionId = sessionId))
     }
 }

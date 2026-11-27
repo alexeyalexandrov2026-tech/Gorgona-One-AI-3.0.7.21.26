@@ -84,13 +84,14 @@ internal class MenuEntry(
     val open: AppRouter.() -> Unit,
 )
 
-/** The app's own places: the five tabs' pages, and Events, which is no tab of the bar. */
+/** The app's own places: the five tabs' pages, Events, and Live Trip Room (`/trip`). */
 internal val MAIN_MENU: List<MenuEntry> = listOf(
     MenuEntry("today", R.string.tab_today, R.drawable.ic_tab_home) { show(AppTab.Today) },
     MenuEntry("catalog", R.string.tab_catalog, R.drawable.ic_tab_search) { show(AppTab.Catalog) },
     MenuEntry("ai", R.string.section_concierge, R.drawable.ic_spark) { show(AppTab.Concierge) },
     MenuEntry("exclusive", R.string.section_exclusive, R.drawable.ic_tab_exclusive) { show(AppTab.Exclusive) },
     MenuEntry("events", R.string.tab_events, R.drawable.ic_tab_events) { showEvents() },
+    MenuEntry("trip", R.string.menu_trip, R.drawable.ic_trip, href = "/trip") { open("/trip") },
     MenuEntry("profile", R.string.tab_profile, R.drawable.ic_tab_account) { show(AppTab.Account) },
 )
 

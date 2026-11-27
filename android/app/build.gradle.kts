@@ -32,8 +32,8 @@ android {
         applicationId = "com.miamielio.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 9
-        versionName = "1.4.0"
+        versionCode = 10
+        versionName = "1.5.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -60,6 +60,9 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
             manifestPlaceholders["appLabel"] = "Miami Elio"
             buildConfigField("String", "BASE_URL", "\"$releaseBaseUrl\"")
             buildConfigField("String", "ADDITIONAL_HOSTS", "\"www.gorgona-one.com\"")

@@ -341,4 +341,78 @@ class ConciergeApiTest {
             failureOf { ConciergeClient(transport = MockTransport(json = "<html>")).send(hello, sessionId = null, locale = "en") },
         )
     }
+
+    @Test
+    fun attachesBearerTokenAndPagePathAndDecodesFollowupsHandoffAndPartnerBookings() = runTest {
+        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.payload.signature"
+        val transport = MockTransport(
+            json = """
+            {
+              "reply": "Here is a boat tour and our team can confirm private transfers.",
+              "followups": ["Add airport pickup", "Show sunset yachts", "Add airport pickup"],
+              "handoff": true,
+              "handoffSummary": "Miami sunset tour + Escalade transfer for 4 guests",
+              "listings": [
+                {
+                  "href": "https://www.viator.com/tours/Miami/123",
+                  "title": "Biscayne Bay Sunset Cruise",
+                  "label": "Experience",
+                  "price": "${'$'}89",
+                  "booking": {
+                    "platform": "viator",
+                    "href": "https://www.viator.com/tours/Miami/123?pid=elio",
+                    "label": "Book on Viator"
+                  }
+                }
+              ]
+            }
+            """.trimIndent(),
+        )
+        val client = ConciergeClient(transport = transport)
+        val request = client.makeRequest(hello, sessionId = "s-vip", locale = "en", authToken = token, pagePath = "/trip", acceptStream = true)
+        assertEquals("Bearer $token", request.headers["Authorization"])
+        assertEquals("text/event-stream", request.headers["Accept"])
+        assertEquals("/trip", request.jsonBody().getValue("pagePath").jsonPrimitive.content)
+
+        val reply = client.send(hello, sessionId = "s-vip", locale = "en", authToken = token, pagePath = "/trip")
+        assertEquals(listOf("Add airport pickup", "Show sunset yachts"), reply.followups)
+        assertTrue(reply.handoff)
+        assertEquals("Miami sunset tour + Escalade transfer for 4 guests", reply.handoffSummary)
+        assertEquals(1, reply.listings.size)
+        assertEquals("https://www.viator.com/tours/Miami/123?pid=elio", reply.listings.single().openHref)
+        assertEquals("Book on Viator", reply.listings.single().booking?.label)
+    }
+
+    @Test
+    fun streamsSseStatusDeltaResetAndDoneEvents() = runTest {
+        val statuses = mutableListOf<String>()
+        val deltas = mutableListOf<String>()
+        var resets = 0
+        val streamingTransport = object : StreamingHttpTransport {
+            override suspend fun send(request: HttpRequest): HttpResponse = error("should use stream")
+            override suspend fun stream(request: HttpRequest, onEvent: (String, String) -> Unit): HttpResponse? {
+                assertEquals("text/event-stream", request.headers["Accept"])
+                onEvent("status", """{"stage":"context","label":"Checking live availability"}""")
+                onEvent("delta", """{"text":"Rolls-Royce "}""")
+                onEvent("reset", """{"reason":"final"}""")
+                onEvent("delta", """{"text":"Urus SE is ready."}""")
+                onEvent("done", """{"reply":"Urus SE is ready.","sessionId":"s-sse","followups":["Reserve for 3 days"]}""")
+                return null
+            }
+        }
+        val reply = ConciergeClient(transport = streamingTransport).sendStreaming(
+            messages = hello,
+            sessionId = null,
+            locale = "en",
+            onStatus = { statuses += it },
+            onDelta = { deltas += it },
+            onReset = { resets++ },
+        )
+        assertEquals(listOf("Checking live availability"), statuses)
+        assertEquals(listOf("Rolls-Royce ", "Urus SE is ready."), deltas)
+        assertEquals(1, resets)
+        assertEquals("Urus SE is ready.", reply.reply)
+        assertEquals("s-sse", reply.sessionId)
+        assertEquals(listOf("Reserve for 3 days"), reply.followups)
+    }
 }

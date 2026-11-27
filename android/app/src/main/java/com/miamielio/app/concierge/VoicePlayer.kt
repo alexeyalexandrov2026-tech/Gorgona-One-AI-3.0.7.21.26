@@ -2,6 +2,8 @@ package com.miamielio.app.concierge
 
 import android.content.Context
 import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Handler
 import android.os.Looper
@@ -25,8 +27,8 @@ internal enum class PlaybackState { Idle, Loading, Speaking }
 
 /**
  * Plays spoken ELIO+ replies (server ElevenLabs MP3 with Android TTS fallback).
- * Kept behind a narrow interface so Compose UI tests can exercise Listen / Stop
- * and Live Voice barge-in without real audio hardware.
+ * Requests transient ducking AudioFocus so background music softens cleanly
+ * while ELIO+ speaks, then releases focus immediately when finished or stopped.
  */
 internal interface VoicePlayback {
     val state: PlaybackState
@@ -43,6 +45,20 @@ internal class AndroidVoicePlayer(
     private val scope: CoroutineScope,
 ) : VoicePlayback {
     private val app = context.applicationContext
+    private val audioManager = app.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+    private val speechAttributes = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_MEDIA)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+        .build()
+    private val focusRequest: AudioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+        .setAudioAttributes(speechAttributes)
+        .setOnAudioFocusChangeListener { change ->
+            if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+                mainHandler.post { stop() }
+            }
+        }
+        .build()
+    private var hasAudioFocus = false
     private val mainHandler = Handler(Looper.getMainLooper())
     private var fetchJob: Job? = null
     private var mediaPlayer: MediaPlayer? = null
@@ -89,6 +105,7 @@ internal class AndroidVoicePlayer(
         fetchJob = null
         releaseMedia()
         runCatching { systemTts?.stop() }
+        abandonAudioFocus()
         state = PlaybackState.Idle
         speakingEntryId = null
     }
@@ -98,6 +115,18 @@ internal class AndroidVoicePlayer(
         runCatching { systemTts?.shutdown() }
         systemTts = null
         systemTtsReady = false
+    }
+
+    private fun requestAudioFocus() {
+        if (hasAudioFocus) return
+        val granted = runCatching { audioManager?.requestAudioFocus(focusRequest) }.getOrNull()
+        hasAudioFocus = granted == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+    }
+
+    private fun abandonAudioFocus() {
+        if (!hasAudioFocus) return
+        hasAudioFocus = false
+        runCatching { audioManager?.abandonAudioFocusRequest(focusRequest) }
     }
 
     private suspend fun playMp3(gen: Int, bytes: ByteArray, onEnded: (() -> Unit)?): Boolean {
@@ -115,12 +144,7 @@ internal class AndroidVoicePlayer(
         tempFile = file
         return try {
             val player = MediaPlayer().apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                        .build(),
-                )
+                setAudioAttributes(speechAttributes)
                 setDataSource(file.absolutePath)
                 setOnPreparedListener { mp ->
                     mainHandler.post {
@@ -129,6 +153,7 @@ internal class AndroidVoicePlayer(
                             runCatching { file.delete() }
                             return@post
                         }
+                        requestAudioFocus()
                         state = PlaybackState.Speaking
                         runCatching { mp.start() }.onFailure { finishPlayback(gen, invokeEnd = false, onEnded = null) }
                     }
@@ -154,6 +179,8 @@ internal class AndroidVoicePlayer(
         val invoke = { tts: TextToSpeech ->
             if (generation == gen) {
                 runCatching {
+                    requestAudioFocus()
+                    tts.setAudioAttributes(speechAttributes)
                     tts.language = Locale.forLanguageTag(SiteLocale.speechLocale(locale))
                     val utteranceId = "elio-$gen"
                     tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -214,6 +241,7 @@ internal class AndroidVoicePlayer(
     private fun finishPlayback(gen: Int, invokeEnd: Boolean, onEnded: (() -> Unit)?) {
         if (generation != gen) return
         releaseMedia()
+        abandonAudioFocus()
         state = PlaybackState.Idle
         speakingEntryId = null
         if (invokeEnd) onEnded?.invoke()

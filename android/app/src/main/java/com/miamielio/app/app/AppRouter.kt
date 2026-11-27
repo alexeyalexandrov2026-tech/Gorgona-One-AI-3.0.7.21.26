@@ -100,9 +100,9 @@ class AppRouter(
         follow(url, policy.decide(url))
     }
 
-    /** `miamielio://open?path=/yachts`, `miamielio://concierge`, `miamielio://search`, `miamielio://account`. */
+    /** `miamielio://...` or verified `https://gorgona-one.com/...` Android App Links. */
     fun handle(deepLink: String) {
-        when (val link = DeepLink.parse(deepLink)) {
+        when (val link = DeepLink.parse(deepLink, config.internalHosts)) {
             DeepLink.Concierge -> show(AppTab.Concierge)
             is DeepLink.SeasonConcierge -> {
                 show(AppTab.Concierge)
@@ -110,9 +110,18 @@ class AppRouter(
             }
             DeepLink.Search -> show(AppTab.Catalog)
             DeepLink.Account -> show(AppTab.Account)
+            is DeepLink.AuthCallback -> openAuthCallback(link.path)
             is DeepLink.Open -> open(link.path)
             null -> Unit
         }
+    }
+
+    /** Loads an OAuth callback directly inside the Account WebView so PKCE session exchange succeeds in-app. */
+    private fun openAuthCallback(path: String) {
+        val url = config.resolve(path) ?: return
+        if (policy.decide(url) != RouteDecision.Web) return
+        show(AppTab.Account)
+        account.load(url)
     }
 
     private fun follow(url: String, decision: RouteDecision) {

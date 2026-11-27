@@ -145,7 +145,7 @@ class RootTabsTest {
         compose.onNodeWithTag("tab.Concierge").performClick()
         compose.mainClock.advanceTimeBy(1_000)
         compose.onNodeWithTag("tab.Concierge").assertIsSelected()
-        compose.onNodeWithText("Your private concierge").assertExists()
+        compose.onNodeWithText("Your Miami AI guide").assertExists()
 
         compose.runOnUiThread { compose.activity.onBackPressedDispatcher.onBackPressed() }
         compose.mainClock.advanceTimeBy(500)
@@ -263,7 +263,7 @@ class RootTabsTest {
         openMenu()
         choose("menu.item.ai")
         compose.onNodeWithTag("tab.Concierge").assertIsSelected()
-        compose.onNodeWithText("Your private concierge").assertExists()
+        compose.onNodeWithText("Your Miami AI guide").assertExists()
 
         openMenu()
         choose("menu.item.today")

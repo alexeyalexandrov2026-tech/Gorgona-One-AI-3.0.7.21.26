@@ -31,7 +31,7 @@ class HomeSectionsTest {
                 "/images/experiences/miami-coast.webp",
                 "/images/home/worlds/stay-miami-beach.jpg",
                 "/images/home/worlds/yacht-princess.jpg",
-                "/images/rentals/lamborghini-urus-se/cover-s.jpg",
+                "/images/home/worlds/cars-urus.jpg",
                 "/images/home/worlds/events-stage.jpg",
                 "/images/home/worlds/travel-wing.jpg",
                 "/images/home/experiences-coaster.webp",
