@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { getTranslation } from '../lib/i18nClient';
 import { useLocale } from './components/LocaleProvider';
 import { getHomeCopy } from '../lib/homeCopy';
-import { getHeadoutCopy } from '../lib/headoutCopy.mjs';
-import { getPrivateJetsCopy } from '../lib/privateJetsCopy.mjs';
 import { HOME_SECTIONS } from '../lib/homeSections.mjs';
 import HomeHero from './components/home/HomeHero';
 import SeasonShelf from './components/home/SeasonShelf';
@@ -59,9 +57,9 @@ export default function HomePage({ showcase = [] }) {
         <SectionHead title={copy.worlds} sub={copy.worldsSub} />
         <ul className="border-b border-g1-rule">
           {WORLDS.map((world) => {
-            const experienceCopy = getHeadoutCopy(locale);
-            const jetCopy = getPrivateJetsCopy(locale);
-            const [name, description] = world.id === 'experiences' ? [experienceCopy.nav, experienceCopy.parks] : world.id === 'privateJets' ? [jetCopy.nav, jetCopy.description] : world.id === 'dining' ? [t.restaurantsNightlife.pill, t.restaurantsNightlife.title] : copy.worldItems[world.id];
+            const [name, description] = world.id === 'dining'
+              ? [t.restaurantsNightlife.pill, t.restaurantsNightlife.title]
+              : copy.worldItems[world.id];
             return (
               <li key={world.id} className="border-t border-g1-rule">
                 <Link href={world.href} className="g1-dir-row">
