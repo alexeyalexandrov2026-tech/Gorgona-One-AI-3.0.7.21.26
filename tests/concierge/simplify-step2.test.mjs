@@ -22,9 +22,9 @@ test('Step 2 Simplify: rental locations deduplicate Miami / Miami, FL and exclud
   assert.equal(rentalPage(sample, { location: 'New York City, NY' }).total, 1);
 });
 
-test('Step 2 Simplify: Homepage exposes visible H1, removes duplicate top section rail & compacts worlds grid, Gallery has prev/next + counter, /trip has guest preview', () => {
+test('Step 2 Simplify: Homepage keeps clean original hero (sr-only SEO H1), removes duplicate top section rail & compacts worlds grid, Gallery has prev/next + counter, /trip has guest preview', () => {
   const hero = read('app/components/home/HomeHero.jsx');
-  assert.doesNotMatch(hero, /<h1 className="sr-only">/);
+  assert.match(hero, /<h1 className="sr-only">/);
   assert.doesNotMatch(hero, /<HomeSectionRail/, 'redundant top marquee strip duplicating Header nav removed from HomeHero');
   assert.match(hero, /<h1[^>]*>[\s\S]*copy\.titleA[\s\S]*copy\.titleEm[\s\S]*copy\.titleB/);
 
