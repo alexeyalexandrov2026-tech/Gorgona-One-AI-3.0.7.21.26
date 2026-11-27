@@ -16,6 +16,7 @@ create table if not exists public.device_push_tokens (
 create index if not exists idx_device_push_tokens_user on public.device_push_tokens (user_id);
 
 alter table public.device_push_tokens enable row level security;
+grant all on public.device_push_tokens to service_role;
 
 drop policy if exists "Users manage own push tokens" on public.device_push_tokens;
 create policy "Users manage own push tokens"
@@ -85,7 +86,7 @@ as $$
      or (
        p_email is not null
        and length(trim(p_email)) > 3
-       and u.email_confirmed_at is not null
+       and (not (to_jsonb(u) ? 'email_confirmed_at') or (to_jsonb(u) ->> 'email_confirmed_at') is not null)
        and lower(u.email) = lower(trim(p_email))
      )
   limit 10;
