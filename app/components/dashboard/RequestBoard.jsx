@@ -3,6 +3,7 @@ import {getDiningCopy} from '../../../lib/dining/copy.mjs';
 import HeadoutPreview from '../dining/HeadoutPreview';
 import VenueEditor from '../dining/VenueEditor';
 import AdminQuotePanel from './AdminQuotePanel';
+import AdminCopilotPanel from './AdminCopilotPanel';
 import {getDiningEditorCopy} from '../../../lib/dining/editorCopy.mjs';
 
 import { useEffect, useRef, useState } from 'react';
@@ -33,6 +34,7 @@ export default function RequestBoard({ scope = 'customer' }) {
   const [page,setPage]=useState({requests:[],nextCursor:null}), [loading,setLoading]=useState(true), [error,setError]=useState(false);
   const [selected,setSelected]=useState(''), [detail,setDetail]=useState(null), [detailError,setDetailError]=useState(false);
   const [reply,setReply]=useState(''), [partner,setPartner]=useState(''), [partners,setPartners]=useState([]);
+  const [copilotQuote,setCopilotQuote]=useState(null);
   const [busy,setBusy]=useState(false), [actionError,setActionError]=useState('');
   const attempt=useRef(null), inFlight=useRef(false), mounted=useRef(true);
   const labels={ pending:msg('Pending'), reviewing:msg('In review'), responded:msg('Response sent'), closed:msg('Closed') };
@@ -127,12 +129,13 @@ export default function RequestBoard({ scope = 'customer' }) {
         {scope!=='customer'&&<div className="my-4 grid gap-2 text-sm [overflow-wrap:anywhere]"><p>{copy.name}: {detail.request.client_name}</p><p>{copy.email}: {detail.request.client_email}</p><p>{copy.phone}: {detail.request.client_phone}</p></div>}
         <h4 className="mb-3 mt-6 font-medium">{msg('History')}</h4>
         <ol className="grid gap-3 border-s border-villa-obsidian/20 ps-4">{detail.events.map(event=><li key={event.id} className="text-sm"><p>{eventLabels[event.event_type]||msg('Unknown')} · {date(event.created_at)}</p>{event.reply&&<p className="mt-1 whitespace-pre-wrap [overflow-wrap:anywhere]">{event.reply}</p>}</li>)}</ol>
+        {scope==='admin'&&detail.request.status!=='closed'&&<AdminCopilotPanel userId={userId} locale={locale} request={detail.request} api={api} onInsertReply={text=>setReply(text)} onApplyQuote={draft=>setCopilotQuote({...draft,_nonce:Date.now()})}/>}
         {scope!=='customer'&&detail.request.status!=='closed'&&<div className="mt-6 grid gap-4 border-t border-villa-obsidian/20 pt-5">
           {scope==='admin'&&<div className="flex min-w-0 flex-wrap gap-2"><select aria-label={msg('Assign partner')} className={`${input} max-w-full flex-1`} value={partner} onChange={event=>setPartner(event.target.value)} disabled={busy}><option value="">{msg('Unassigned')}</option>{partners.map(item=><option key={item.id} value={item.id}>{item.company_name||item.name}</option>)}</select><button type="button" className={button} onClick={()=>command('assign')} disabled={busy||partner===(detail.request.assigned_partner_id||'')}>{msg('Save')}</button></div>}
           <form onSubmit={event=>{event.preventDefault();command('respond');}} className="grid gap-3"><label className="grid gap-2 text-sm">{msg('Response')}<textarea className={`${input} min-h-[110px] w-full resize-y`} required maxLength={2000} value={reply} onChange={event=>setReply(event.target.value)} disabled={busy}/></label><button className={`${button} w-fit`} type="submit" disabled={busy||!reply.trim()}>{msg('Send response')}</button></form>
           {scope==='admin'&&<div className="flex flex-wrap gap-3">{detail.request.status==='pending'&&<button type="button" className={button} onClick={()=>command('review')} disabled={busy}>{msg('Start review')}</button>}<button type="button" className={button} onClick={()=>command('close')} disabled={busy}>{msg('Close request')}</button></div>}
         </div>}
-        {scope==='admin'&&<AdminQuotePanel userId={userId} locale={locale} request={detail.request} api={api}/>}
+        {scope==='admin'&&<AdminQuotePanel userId={userId} locale={locale} request={detail.request} api={api} copilotDraft={copilotQuote}/>}
         {actionError&&<p role="alert" className="mt-4 text-sm">{actionError==='conflict'?msg('Changed by another user. Refresh and try again.'):msg('Unable to load requests.')}</p>}
       </>}
     </div>}
