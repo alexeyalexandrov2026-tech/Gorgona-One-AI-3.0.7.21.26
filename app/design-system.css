@@ -859,7 +859,7 @@ header:not([data-preserve-typography="true"]) ~ main h3.font-g1display {
   .g1-stage { height: min(650px, calc(100svh - 148px)); min-height: 560px; border-radius: 24px; }
   .g1-stage__bg { object-position: 44% 40%; }
   .g1-hero-dock { bottom: 148px; width: calc(100% - 16px); gap: 10px; }
-  .g1-horizon { padding-bottom: 180px; }
+  .g1-horizon { padding-bottom: 400px; }
   .g1-hero-sugg { justify-content: flex-start; }
   .g1-hero-sugg button { flex: none; }
   .g1-hero-glass { padding: 14px 12px 12px 14px; border-radius: 24px; }

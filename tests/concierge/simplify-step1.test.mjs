@@ -35,13 +35,13 @@ test('Step 1 Simplify: alignPlanWithReply aligns AiPlan car candidates to vehicl
   assert.equal(aligned.sections[0].candidates[1].href, '/rentals/mercedes-g63-amg');
 });
 
-test('Step 1 Simplify: mobile floating stack hidden, Google Play moved off mobile bar, calm ELIO & /discovery UX, dead AI files removed', () => {
+test('Step 1 Simplify: mobile header keeps Google Play badge & floating Telegram/WhatsApp, calm ELIO & /discovery UX, dead AI files removed', () => {
   const css = read('app/ai-overlays.css');
-  assert.match(css, /@media\s*\(max-width:\s*639px\)\s*\{\s*\.aitg,\s*\.aiwa\s*\{\s*display:\s*none;\s*\}\s*\}/);
+  assert.doesNotMatch(css, /@media\s*\(max-width:\s*639px\)\s*\{\s*\.aitg,\s*\.aiwa\s*\{\s*display:\s*none;\s*\}\s*\}/);
 
   const header = read('app/components/Header.jsx');
-  assert.match(header, /<GetTheApp className="hidden sm:inline-flex" \/>/);
-  assert.match(header, /<GetTheApp className="inline-flex sm:hidden" \/>/);
+  assert.match(header, /<GetTheApp \/>/);
+  assert.doesNotMatch(header, /<GetTheApp className="hidden sm:inline-flex" \/>/);
 
   const room = read('app/components/ai/ConciergeRoom.jsx');
   assert.match(room, /\{hasThread && \(\s*<MiamiRouteMap/);

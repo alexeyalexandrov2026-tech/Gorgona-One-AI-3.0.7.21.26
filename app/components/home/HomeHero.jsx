@@ -9,6 +9,7 @@ import { useVoice } from '../ai/useVoice';
 import { voiceInputUnavailable } from '../../../lib/ai/voiceInputCopy.mjs';
 import { pickFreshHomeChips } from '../../../lib/homePromptPool.mjs';
 import { AiSphereArtwork } from '../ai/AiSphere';
+import HomeSectionRail from './HomeSectionRail';
 import HeroShowcase from './HeroShowcase';
 import { useAutoDriftRail } from './useAutoDriftRail';
 import Icon from '../g1/icons';
@@ -108,12 +109,12 @@ export default function HomeHero({ copy, showcase = [] }) {
       const timer = window.setTimeout(() => setShowcaseHold(false), 280);
       return () => window.clearTimeout(timer);
     }
-    try { sessionStorage.setItem('elio-horizon', '1'); } catch { /* play anyway; the tab may block storage */ }
     setHorizon(true);
     const done = window.setTimeout(() => {
+      try { sessionStorage.setItem('elio-horizon', '1'); } catch { /* play anyway; the tab may block storage */ }
       setHorizon(false);
       setShowcaseHold(false);
-    }, 1800);
+    }, 3400);
     return () => window.clearTimeout(done);
   }, []);
 
@@ -203,7 +204,8 @@ export default function HomeHero({ copy, showcase = [] }) {
   ];
 
   return (
-    <section className="pb-[clamp(24px,4vw,56px)] pt-[clamp(10px,2vw,20px)]">
+    <section className="pb-[clamp(32px,5vw,76px)] pt-[clamp(16px,3vw,36px)]">
+      <HomeSectionRail copy={copy} />
       <div className="g1-home-app-hero">
         {/* The Android WebView exposes this heading when the web hero is hidden. */}
         <div role="heading" aria-level={1}>
