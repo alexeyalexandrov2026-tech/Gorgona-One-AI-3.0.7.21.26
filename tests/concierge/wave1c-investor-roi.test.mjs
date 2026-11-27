@@ -212,6 +212,72 @@ test('Wave 1C: planHandlers.submit links every plan bookingId in booking_attribu
   assert.equal(telCall.body.action, 'plan');
 });
 
+test('Wave 1C: Android app plan submissions record first-party elio_android ROI attribution while skipping Meta CAPI', async () => {
+  const car = getRentals()[0];
+  const calls = [];
+  const planId = '66666666-6666-4666-8666-666666666666';
+  const b1 = '77777777-7777-4777-8777-777777777777';
+
+  const fetcher = async (url, init) => {
+    const u = String(url);
+    const body = init?.body ? JSON.parse(init.body) : null;
+    calls.push({ url: u, body });
+    if (u.includes('/rest/v1/rpc/dashboard_plan_receipt')) {
+      return new Response(JSON.stringify(null), { status: 200, headers: { 'content-type': 'application/json' } });
+    }
+    if (u.includes('/rest/v1/rpc/dashboard_submit_plan')) {
+      return new Response(JSON.stringify({ success: true, planId, bookingIds: [b1] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+    return new Response(null, { status: 201 });
+  };
+
+  const handlers = planHandlers(
+    { ...makeEnv(), META_PIXEL_ID: '1234567890', META_CAPI_TOKEN: 'EAAG_test_token' },
+    fetcher,
+    async () => ({ title: car.title }),
+    () => new Date('2026-11-26T15:00:00Z')
+  );
+
+  const res = await handlers.submit(new Request('https://gorgona-one.com/api/plan', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'idempotency-key': '88888888-8888-4888-8888-888888888888',
+      'cf-connecting-ip': '203.0.113.12',
+      'user-agent': 'MiamiElioApp/1.0'
+    },
+    body: JSON.stringify({
+      name: 'Android Guest',
+      email: 'android@example.com',
+      phone: '+13055550199',
+      start: '2026-12-10',
+      end: '2026-12-13',
+      guests: 2,
+      note: 'Split-Pay requested',
+      items: [{ kind: 'car', slug: car.slug }]
+    })
+  }));
+
+  assert.equal(res.status, 200);
+  const attrCall = calls.find((c) => c.url.includes('/rest/v1/booking_attributions'));
+  assert.ok(attrCall, 'Android plan must record first-party elio_android attribution');
+  assert.equal(attrCall.body.utm_source, 'elio_android');
+
+  const telCall = calls.find((c) => c.url.includes('/rest/v1/elio_telemetry_events'));
+  assert.ok(telCall, 'Android plan must record ai_booking telemetry');
+  assert.equal(telCall.body.platform, 'elio_android');
+
+  const funnelCall = calls.find((c) => c.url.includes('/rest/v1/funnel_events'));
+  assert.ok(funnelCall, 'Android plan must record first-party funnel event');
+  assert.equal(funnelCall.body.utm_source, 'elio_android');
+  assert.equal(funnelCall.body.provider, 'elio_android_plan');
+
+  assert.equal(calls.some((c) => c.url.includes('graph.facebook.com')), false, 'Android app must never trigger Meta CAPI');
+});
+
 test('Wave 1C: analyticsCopy provides localized Investor ROI labels without forbidden concierge wording', () => {
   const required = [
     'investorTitle', 'investorSubtitle', 'aiLeads30d', 'aiGmv30d', 'totalGmv30d',
