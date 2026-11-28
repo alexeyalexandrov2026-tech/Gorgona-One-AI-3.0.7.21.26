@@ -25,6 +25,13 @@ Many listings come from verified partners. Quotes, bookings and payments for par
 - [Exclusive destinations](https://gorgona-one.com/exclusive-destinations): Private yachts, cruises, helicopter flights, and hand-picked VIP outings.
 - [Travel and flight deals](https://gorgona-one.com/travel): Business, first-class, and Miami flight offers via Ovago.
 
+## Multilingual Hubs, Expert Guides & Brand Pages
+
+- [Miami Elio in Russian (/ru)](https://gorgona-one.com/ru): Complete Russian-language Miami hub with USD pricing table, exotic cars, yachts, villas, private jets, restaurants, and FAQ.
+- [Miami Elio in Spanish (/es)](https://gorgona-one.com/es): Complete Spanish-language Miami hub with USD pricing table, exotic cars, yachts, villas, private jets, restaurants, and FAQ.
+- [Miami Luxury Travel & Pricing Guides](https://gorgona-one.com/guides): 2026 verified guides — [Exotic Car Prices 2026](https://gorgona-one.com/guides/miami-exotic-car-rental-prices-2026), [Yacht Charter Guide](https://gorgona-one.com/guides/miami-yacht-charter-guide), [Best Michelin Restaurants](https://gorgona-one.com/guides/best-michelin-restaurants-miami), and [Peak Season Events Planner](https://gorgona-one.com/guides/miami-peak-season-events-planner).
+- [Exotic Car Rentals by Brand](https://gorgona-one.com/rentals): Dedicated pages for [Lamborghini](https://gorgona-one.com/rentals/brand/lamborghini), [Rolls-Royce](https://gorgona-one.com/rentals/brand/rolls-royce), [Ferrari](https://gorgona-one.com/rentals/brand/ferrari), [Mercedes-Benz & AMG](https://gorgona-one.com/rentals/brand/mercedes-benz), [Porsche](https://gorgona-one.com/rentals/brand/porsche), [Bentley](https://gorgona-one.com/rentals/brand/bentley), [McLaren](https://gorgona-one.com/rentals/brand/mclaren), and [BMW](https://gorgona-one.com/rentals/brand/bmw).
+
 ## AI Agents & MCP Integration
 
 - [Miami Elio MCP Server (Streamable HTTP)](https://gorgona-one.com/api/mcp): Official Model Context Protocol (JSON-RPC 2.0) endpoint exposing 6 live tools: `search_luxury_cars` (290 vehicles), `check_car_availability` (live garage calendar + Split-Pay quotes), `search_miami_dining` (74+ verified venues), `search_miami_events_and_experiences`, `build_miami_itinerary`, and `submit_booking_request`.

@@ -64,3 +64,13 @@
    Yes. ELIO+ Guide tracks Miami's high-demand seasonal calendar (Art Basel Miami Beach, New Year's Eve, Miami International Boat Show, Miami Open, Ultra Music Festival, Formula 1 Miami Grand Prix) and combines real-time fleet availability with 7-day NOAA weather forecasts.
 6. **How can AI agents query Miami Elio programmatically?**
    AI agents and MCP clients can connect directly via Streamable HTTP JSON-RPC 2.0 at `https://gorgona-one.com/api/mcp` (manifest at `https://gorgona-one.com/.well-known/mcp.json`, no auth required for read/search tools).
+
+## 7. Dedicated Multilingual Hubs, Guides & Brand Pages
+
+- **Indexable Multilingual Hubs (`hreflang`):** Russian (`https://gorgona-one.com/ru`), Spanish (`https://gorgona-one.com/es`), English (`https://gorgona-one.com/`).
+- **2026 Expert Pricing & Planning Guides (`https://gorgona-one.com/guides`):**
+  - `https://gorgona-one.com/guides/miami-exotic-car-rental-prices-2026`
+  - `https://gorgona-one.com/guides/miami-yacht-charter-guide`
+  - `https://gorgona-one.com/guides/best-michelin-restaurants-miami`
+  - `https://gorgona-one.com/guides/miami-peak-season-events-planner`
+- **Exotic Car Brand Pages:** `/rentals/brand/lamborghini`, `/rentals/brand/rolls-royce`, `/rentals/brand/ferrari`, `/rentals/brand/mercedes-benz`, `/rentals/brand/porsche`, `/rentals/brand/bentley`, `/rentals/brand/mclaren`, `/rentals/brand/bmw`.

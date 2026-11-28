@@ -4,10 +4,14 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import {
   SITE_URL, DEFAULT_IMAGE, GOOGLE_PLAY_URL, HOME_SEO_HEADING, LEGAL_ROUTES, PRIVATE_ROUTES, SECTION_ROUTES, SEO_HEADINGS, SITEMAP_LASTMOD, SUPPORT_EMAIL,
-  attractionJsonLd, breadcrumbJsonLd, carJsonLd, clip, dailyPriceNumber, eventJsonLd, experienceSearchText, faqJsonLd, homeSeoHeading, itemListJsonLd,
+  articleJsonLd, attractionJsonLd, breadcrumbJsonLd, carJsonLd, clip, dailyPriceNumber, eventJsonLd, experienceSearchText, faqJsonLd, homeSeoHeading, itemListJsonLd,
   mobileAppJsonLd, organizationJsonLd, pageMetadata, rentalSearchText, sectionFaqJsonLd, sectionJsonLd, seoHeading, serializeJsonLd, sitemapEntries,
   vehicleJsonLd, venueJsonLd, venueSearchDescription, websiteJsonLd, withBrand
 } from '../../lib/seo.mjs';
+import { LOCALE_HUBS, HUB_HREFLANG } from '../../lib/geo/localeHubData.mjs';
+import { GEO_GUIDES } from '../../lib/geo/guidesData.mjs';
+import { CAR_BRAND_PAGES } from '../../lib/geo/carBrandsData.mjs';
+import { extractCarBrand } from '../../lib/sunsetFleet.mjs';
 import { HEADOUT_COLLECTIONS } from '../../lib/headoutCatalog.mjs';
 import { getRentals } from '../../lib/rentalsData.js';
 import { getVenueAudit } from '../../lib/restaurantsNightlifeData.js';
@@ -422,4 +426,53 @@ test('P0 GEO / AI Visibility: robots opens /api/mcp for AI bots, rich Organizati
   assert.match(llmsFull, /Group Split-Pay/);
   assert.doesNotMatch(llms, /\bconcierge\b/i);
   assert.doesNotMatch(llmsFull, /\bconcierge\b/i);
+});
+
+test('P1 GEO / AI Visibility: /ru & /es hreflang hubs, 4 expert guides, 8 brand pages, sitemap inclusion, and zero concierge wording', () => {
+  assert.equal(HUB_HREFLANG.ru, `${SITE_URL}/ru`);
+  assert.equal(HUB_HREFLANG.es, `${SITE_URL}/es`);
+  assert.equal(HUB_HREFLANG['x-default'], `${SITE_URL}/`);
+
+  for (const key of ['ru', 'es']) {
+    const hub = LOCALE_HUBS[key];
+    assert.ok(hub.worlds.length === 8, `${key} hub lists all 8 verticals`);
+    assert.ok(hub.pricingRows.length >= 6, `${key} hub has pricing rows`);
+    assert.ok(hub.faqs.length >= 4, `${key} hub has FAQs`);
+    assert.doesNotMatch(JSON.stringify(hub), /\bconcierge\b|консьерж/iu, `${key} hub avoids concierge wording`);
+    assert.ok(exists(`app/${key}/page.js`), `app/${key}/page.js exists`);
+  }
+
+  assert.equal(GEO_GUIDES.length, 4);
+  for (const guide of GEO_GUIDES) {
+    assert.ok(guide.tableRows.length >= 4, guide.slug);
+    assert.ok(guide.faqs.length >= 2, guide.slug);
+    assert.doesNotMatch(JSON.stringify(guide), /\bconcierge\b/i, `${guide.slug} avoids concierge wording`);
+    const art = articleJsonLd({ headline: guide.title, description: guide.metaDescription, path: `/guides/${guide.slug}` });
+    assert.equal(art['@type'], 'Article');
+    assert.equal(art.mainEntityOfPage, `${SITE_URL}/guides/${guide.slug}`);
+  }
+
+  const allCars = getRentals();
+  assert.equal(CAR_BRAND_PAGES.length, 8);
+  for (const b of CAR_BRAND_PAGES) {
+    assert.doesNotMatch(JSON.stringify(b), /\bconcierge\b/i, `${b.slug} avoids concierge wording`);
+    const count = allCars.filter((car) => extractCarBrand(car) === b.brandName).length;
+    assert.ok(count > 0, `Brand page ${b.slug} must match at least 1 real vehicle`);
+  }
+
+  const map = sitemapEntries({
+    localeHubs: ['/ru', '/es', '/guides'],
+    guides: GEO_GUIDES.map((g) => g.slug),
+    carBrands: CAR_BRAND_PAGES.map((b) => b.slug)
+  });
+  const urls = map.map((e) => e.url);
+  for (const expected of [
+    `${SITE_URL}/ru`,
+    `${SITE_URL}/es`,
+    `${SITE_URL}/guides`,
+    `${SITE_URL}/guides/miami-exotic-car-rental-prices-2026`,
+    `${SITE_URL}/rentals/brand/lamborghini`
+  ]) {
+    assert.ok(urls.includes(expected), `sitemap includes ${expected}`);
+  }
 });
