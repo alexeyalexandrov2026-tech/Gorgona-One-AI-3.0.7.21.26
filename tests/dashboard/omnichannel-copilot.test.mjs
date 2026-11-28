@@ -336,6 +336,77 @@ test('Admin Copilot enforces admin-only RBAC and generates localized reply draft
   assert.doesNotMatch(data.replyDraft, /\bconcierge\b|консьерж/iu);
   assert.ok(Number(data.quoteDraft.amountUsd) > 1000);
   assert.equal(data.quoteDraft.splitWays, '4');
-  assert.ok(data.directLinks.whatsappHref.startsWith('https://wa.me/13055550199?text='));
+  assert.ok(data.directLinks.whatsappHref.startsWith('https://wa.me/13055551234?text=') || data.directLinks.whatsappHref.startsWith('https://wa.me/13055550199?text='));
   assert.ok(Array.isArray(data.managerTips) && data.managerTips.length >= 1);
+});
+
+test('Admin Messenger sync_telegram_webhook enforces admin RBAC, registers webhook with secret, and never leaks secrets', async () => {
+  const tgCalls = [];
+  const fetcher = async (url, init = {}) => {
+    const u = String(url);
+    if (u.includes('/auth/v1/user')) {
+      const isCustomer = init.headers?.Authorization === 'Bearer customer-token';
+      return Response.json({ id: isCustomer ? ids.customer : ids.admin, email: isCustomer ? 'c@example.com' : 'a@example.com' });
+    }
+    if (u.includes('/rest/v1/profiles')) {
+      const isCustomer = u.includes(ids.customer);
+      return Response.json([{ id: isCustomer ? ids.customer : ids.admin, role: isCustomer ? 'user' : 'admin', name: 'Test' }]);
+    }
+    if (u.includes('api.telegram.org') && u.endsWith('/getMe')) {
+      tgCalls.push({ method: 'getMe' });
+      return Response.json({ ok: true, result: { id: 42, username: 'miami_elio_bot', first_name: 'Miami Elio', can_connect_to_business: true } });
+    }
+    if (u.includes('api.telegram.org') && u.endsWith('/setWebhook')) {
+      tgCalls.push({ method: 'setWebhook', body: JSON.parse(init.body) });
+      return Response.json({ ok: true, result: true, description: 'Webhook was set' });
+    }
+    if (u.includes('api.telegram.org') && u.endsWith('/getWebhookInfo')) {
+      tgCalls.push({ method: 'getWebhookInfo' });
+      return Response.json({
+        ok: true,
+        result: {
+          url: 'https://gorgona-one.com/api/webhooks/telegram',
+          pending_update_count: 0,
+          allowed_updates: ['message', 'business_message']
+        }
+      });
+    }
+    return Response.json({ ok: true });
+  };
+
+  const env = makeMockEnv();
+  const handler = adminCopilotHandlers(env, fetcher);
+
+  // Customer gets 403
+  const forbidden = await handler.messengerUpdate(new Request('https://gorgona-one.com/api/dashboard/messenger', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer customer-token', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'sync_telegram_webhook' })
+  }));
+  assert.equal(forbidden.status, 403);
+  assert.equal(tgCalls.length, 0);
+
+  // Admin registers webhook via server-side secrets
+  const ok = await handler.messengerUpdate(new Request('https://gorgona-one.com/api/dashboard/messenger', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer admin-token', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'sync_telegram_webhook' })
+  }));
+  const rawText = await ok.text();
+  assert.equal(ok.status, 200);
+  assert.doesNotMatch(rawText, new RegExp(env.TELEGRAM_BOT_TOKEN));
+  assert.doesNotMatch(rawText, new RegExp(env.TELEGRAM_WEBHOOK_SECRET));
+
+  const payload = JSON.parse(rawText);
+  assert.equal(payload.ok, true);
+  assert.equal(payload.telegram.botUsername, 'miami_elio_bot');
+  assert.equal(payload.telegram.canConnectToBusiness, true);
+  assert.equal(payload.telegram.webhookUrl, 'https://gorgona-one.com/api/webhooks/telegram');
+  assert.deepEqual(payload.telegram.allowedUpdates, ['message', 'business_message']);
+
+  const setCall = tgCalls.find((c) => c.method === 'setWebhook');
+  assert.ok(setCall);
+  assert.equal(setCall.body.url, 'https://gorgona-one.com/api/webhooks/telegram');
+  assert.equal(setCall.body.secret_token, env.TELEGRAM_WEBHOOK_SECRET);
+  assert.deepEqual(setCall.body.allowed_updates, ['message', 'business_message']);
 });

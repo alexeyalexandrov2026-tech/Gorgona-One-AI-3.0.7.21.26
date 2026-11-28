@@ -36,6 +36,9 @@ export default function AdminMessengerControl({ userId }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedNotice, setSavedNotice] = useState(false);
+  const [syncingTelegram, setSyncingTelegram] = useState(false);
+  const [telegramSync, setTelegramSync] = useState(null);
+  const [telegramSyncError, setTelegramSyncError] = useState(false);
   const [error, setError] = useState(false);
   const [mode, setMode] = useState('24_7');
   const [takeoverHours, setTakeoverHours] = useState('4');
@@ -85,6 +88,23 @@ export default function AdminMessengerControl({ userId }) {
     }
   }
 
+  async function syncTelegramWebhook() {
+    if (syncingTelegram) return;
+    setSyncingTelegram(true);
+    setTelegramSyncError(false);
+    try {
+      const result = await adminApi(userId, '/api/dashboard/messenger', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'sync_telegram_webhook' })
+      });
+      setTelegramSync(result?.telegram || null);
+    } catch {
+      setTelegramSyncError(true);
+    } finally {
+      setSyncingTelegram(false);
+    }
+  }
+
   async function toggleThreadPause(threadId, isPaused) {
     setSaving(true);
     try {
@@ -125,22 +145,53 @@ export default function AdminMessengerControl({ userId }) {
       </div>
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2">
-        <div className="flex items-center justify-between rounded-xl border border-villa-obsidian/20 bg-white/60 px-4 py-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-villa-ash">{copy.telegramStatus}</p>
-            <p className="mt-0.5 font-mono text-xs text-villa-graphite">{channels.webhookUrls?.telegram || '—'}</p>
+        <div className="rounded-xl border border-villa-obsidian/20 bg-white/60 px-4 py-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-villa-ash">{copy.telegramStatus}</p>
+              <p className="mt-0.5 truncate font-mono text-xs text-villa-graphite">{channels.webhookUrls?.telegram || '—'}</p>
+            </div>
+            <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${channels.telegramConfigured ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900'}`}>
+              {channels.telegramConfigured ? copy.statusReady : copy.statusNeedsKeys}
+            </span>
           </div>
-          <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${channels.telegramConfigured ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900'}`}>
-            {channels.telegramConfigured ? copy.statusReady : copy.statusNeedsKeys}
-          </span>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={syncTelegramWebhook}
+              disabled={!channels.telegramConfigured || syncingTelegram}
+              className={primaryBtnClass}
+              data-sync-telegram-webhook="true"
+            >
+              {syncingTelegram ? copy.syncingTelegramWebhook : copy.syncTelegramWebhook}
+            </button>
+            {telegramSync && (
+              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-900">
+                {copy.telegramSynced}
+                {telegramSync.botUsername ? ` · @${telegramSync.botUsername}` : ''}
+              </span>
+            )}
+          </div>
+
+          {telegramSync && (
+            <p className={`mt-2 text-xs ${telegramSync.canConnectToBusiness ? 'text-emerald-900' : 'text-amber-900'}`}>
+              {telegramSync.canConnectToBusiness ? copy.telegramBusinessReady : copy.telegramBusinessOff}
+            </p>
+          )}
+          {telegramSyncError && (
+            <p role="alert" className="mt-2 text-xs font-medium text-red-700">
+              {copy.telegramSyncError}
+            </p>
+          )}
         </div>
 
-        <div className="flex items-center justify-between rounded-xl border border-villa-obsidian/20 bg-white/60 px-4 py-3">
-          <div>
+        <div className="flex items-start justify-between gap-3 rounded-xl border border-villa-obsidian/20 bg-white/60 px-4 py-3">
+          <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-villa-ash">{copy.whatsappStatus}</p>
-            <p className="mt-0.5 font-mono text-xs text-villa-graphite">{channels.webhookUrls?.whatsapp || '—'}</p>
+            <p className="mt-0.5 truncate font-mono text-xs text-villa-graphite">{channels.webhookUrls?.whatsapp || '—'}</p>
           </div>
-          <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${channels.whatsappConfigured ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900'}`}>
+          <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${channels.whatsappConfigured ? 'bg-emerald-100 text-emerald-900' : 'bg-amber-100 text-amber-900'}`}>
             {channels.whatsappConfigured ? copy.statusReady : copy.statusNeedsKeys}
           </span>
         </div>
