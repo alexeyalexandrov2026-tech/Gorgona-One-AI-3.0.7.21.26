@@ -4,6 +4,8 @@ import { EVENT_CATEGORIES, EVENT_CATEGORY_GROUPS, LEAGUES } from '../lib/mockEve
 import { getAllEvents } from '../lib/eventsData';
 import { getRentals, getVacationRentals } from '../lib/data/listings';
 import { diningCatalogue } from '../lib/server/diningCatalogue.mjs';
+import { GEO_GUIDES } from '../lib/geo/guidesData.mjs';
+import { CAR_BRAND_PAGES } from '../lib/geo/carBrandsData.mjs';
 import { sitemapEntries } from '../lib/seo.mjs';
 
 // A section whose source is briefly unavailable drops out of this build's
@@ -15,6 +17,9 @@ const slugs = async (load) => {
 
 export default async function sitemap() {
   return sitemapEntries({
+    localeHubs: ['/ru', '/es', '/guides'],
+    guides: GEO_GUIDES.map((guide) => guide.slug),
+    carBrands: CAR_BRAND_PAGES.map((brand) => brand.slug),
     experiences: [...HEADOUT_COLLECTIONS.map((item) => item.slug), ...VIATOR_EXPERIENCE_SLUGS.map((slug) => `viator/${slug}`)],
     eventCategories: [...EVENT_CATEGORY_GROUPS, ...EVENT_CATEGORIES].map((category) => category.slug),
     leagues: LEAGUES.map((league) => league.slug),
