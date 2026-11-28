@@ -64,7 +64,7 @@ export default async function RentalDetailPage({ params }) {
           <h1 className="font-g1display text-[clamp(2rem,2.4vw+1rem,3.3rem)] font-medium leading-[1.04] text-g1-ink [text-wrap:balance]">{rental.title}</h1>
           <div className="flex flex-wrap items-center gap-2.5">
             <SaveButton href={`/rentals/${rental.slug}`} kind="car" title={rental.title} subtitle={`${category} · ${displayValue(rental.location, copy)}`} image={carThumb(rental)} />
-            <AskButton variant="ghost" className={btn.sm} prompt={carAsk.prompt}>{carAsk.label}</AskButton>
+            <AskButton variant="ink" className="min-h-[44px] px-5 text-[0.92rem] font-semibold shadow-[0_6px_18px_rgba(0,0,0,0.28)]" prompt={carAsk.prompt}>{carAsk.label}</AskButton>
           </div>
           <p lang={supplier?'en':undefined} className="text-[1.05rem] text-g1-soft">{getContentText(rentalDescriptions, locale, rental.id, rental.description)}</p>
           <Specs
