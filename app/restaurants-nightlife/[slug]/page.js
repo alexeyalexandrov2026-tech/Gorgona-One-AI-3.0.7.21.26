@@ -67,9 +67,9 @@ export default async function VenueDetailPage({params}) {
     <h2 id="booking-options" className="font-g1display text-2xl">{dining.channels}</h2>
     <BookingButton venue={venue} copy={handoff}/>
     <div className="flex flex-wrap gap-2 border-t border-g1-rule pt-5">
-     {telegram&&<a href={telegram} target="_blank" rel="noopener noreferrer" className={`${btn.base} ${btn.ghost} ${btn.sm}`}>{handoff.askTelegram}<span aria-hidden="true">↗</span><span className="sr-only">({handoff.newTab})</span></a>}
-     {whatsapp&&<a href={whatsapp} target="_blank" rel="noopener noreferrer" className={`${btn.base} ${btn.ghost} ${btn.sm}`}>{t.ai?.liveManagerWhatsApp}<span aria-hidden="true">↗</span><span className="sr-only">({handoff.newTab})</span></a>}
-     <AskButton variant="ghost" className={btn.sm} prompt={fill(handoff.askPrompt,{name:venue.name})}>{handoff.askAi}</AskButton>
+     {telegram&&<a href={telegram} target="_blank" rel="noopener noreferrer" className={`${btn.base} ${btn.sm} border border-white/40 bg-white/12 text-white hover:border-white/75 hover:bg-white/20`}>{handoff.askTelegram}<span aria-hidden="true">↗</span><span className="sr-only">({handoff.newTab})</span></a>}
+     {whatsapp&&<a href={whatsapp} target="_blank" rel="noopener noreferrer" className={`${btn.base} ${btn.sm} border border-white/40 bg-white/12 text-white hover:border-white/75 hover:bg-white/20`}>{t.ai?.liveManagerWhatsApp}<span aria-hidden="true">↗</span><span className="sr-only">({handoff.newTab})</span></a>}
+     <AskButton variant="ink" className={`${btn.sm} font-semibold shadow-[0_6px_18px_rgba(0,0,0,0.25)]`} prompt={fill(handoff.askPrompt,{name:venue.name})}>{handoff.askAi}</AskButton>
     </div>
     {requestsEnabled&&<DiningBooking venue={{slug:venue.slug,name:venue.name,category:venue.category,features:venue.features}}/>}
    </section>:<p role="status" className="rounded-[22px] border border-g1-rule p-5">{dining.held}</p>}

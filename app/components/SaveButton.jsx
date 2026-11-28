@@ -45,7 +45,7 @@ export default function SaveButton({ href, kind, title, subtitle, image, overlay
   return (
     <button
       {...common}
-      className={`inline-flex min-h-[44px] w-fit items-center gap-2 rounded-full border border-g1-rule px-4 text-[0.92rem] font-medium text-g1-ink transition hover:border-g1-ink ${className}`}
+      className={`inline-flex min-h-[44px] w-fit items-center gap-2 rounded-full border px-4 text-[0.92rem] font-semibold text-white shadow-[0_6px_18px_rgba(0,0,0,0.28)] backdrop-blur-md transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${saved ? 'border-g1-accent bg-g1-accent/25 hover:bg-g1-accent/35' : 'border-white/45 bg-white/15 hover:border-white/80 hover:bg-white/25'} ${className}`}
     >
       {heart('h-5 w-5')}
       {saved ? msg('Saved to My Miami') : msg('Save to My Miami')}
