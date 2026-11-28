@@ -69,6 +69,8 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="preconnect" href="https://media.gorgona-one.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://media.gorgona-one.com" />
+        <link rel="alternate" type="text/markdown" href="/llms.txt" />
+        <link rel="alternate" type="text/markdown" href="/llms-full.txt" />
       </head>
       <body className="min-h-screen font-sans text-zinc-100 antialiased">
         <LocaleProvider>

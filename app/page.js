@@ -1,7 +1,7 @@
 import HomePage from './HomePage';
 import JsonLd from './components/JsonLd';
 import { buildHeroShowcase } from '../lib/heroShowcaseData.js';
-import { DEFAULT_IMAGE, organizationJsonLd, websiteJsonLd } from '../lib/seo.mjs';
+import { DEFAULT_IMAGE, mobileAppJsonLd, organizationJsonLd, sectionFaqJsonLd, websiteJsonLd } from '../lib/seo.mjs';
 
 export const revalidate = 300;
 
@@ -24,6 +24,7 @@ export default async function Page() {
   return (
     <>
       <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
+      <JsonLd data={[mobileAppJsonLd(), sectionFaqJsonLd('home')]} />
       <HomePage showcase={showcase} />
     </>
   );

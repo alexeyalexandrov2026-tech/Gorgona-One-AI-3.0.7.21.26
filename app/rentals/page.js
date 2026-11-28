@@ -11,7 +11,7 @@ import SaveButton from '../components/SaveButton';
 import { getSunsetCopy } from '../../lib/sunsetCopy.mjs';
 import { canonicalRentalLocation, rentalPage, rentalBrands, rentalLocations } from '../../lib/sunsetFleet.mjs';
 import JsonLd from '../components/JsonLd';
-import { pageMetadata, sectionJsonLd } from '../../lib/seo.mjs';
+import { itemListJsonLd, pageMetadata, sectionFaqJsonLd, sectionJsonLd } from '../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,7 +70,17 @@ export default async function RentalsPage({ searchParams }) {
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
-      <JsonLd data={sectionJsonLd({ name: 'Exotic and luxury car rentals in Miami', description: metadata.description, path: '/rentals' })} />
+      <JsonLd
+        data={[
+          ...sectionJsonLd({ name: 'Exotic and luxury car rentals in Miami', description: metadata.description, path: '/rentals' }),
+          sectionFaqJsonLd('rentals'),
+          itemListJsonLd({
+            name: 'Miami Exotic & Luxury Car Rentals',
+            path: '/rentals',
+            items: shown.slice(0, 12).map((car) => ({ name: car.title, path: `/rentals/${car.slug}` }))
+          })
+        ]}
+      />
       <WorldHero
         eyebrow={`${catalogue.catalogue} · ${rentals.length}`}
         title={catalogue.title}

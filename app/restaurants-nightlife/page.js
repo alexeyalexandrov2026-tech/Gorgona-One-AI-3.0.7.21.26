@@ -1,7 +1,7 @@
 import { getServerTranslation } from '../../lib/serverLocale';
 import VenueDirectory from '../components/g1/VenueDirectory';
 import JsonLd from '../components/JsonLd';
-import { pageMetadata, sectionJsonLd } from '../../lib/seo.mjs';
+import { pageMetadata, sectionFaqJsonLd, sectionJsonLd } from '../../lib/seo.mjs';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +16,7 @@ export default async function RestaurantsNightlifePage({ searchParams }) {
   const { t } = await getServerTranslation();
   return (
     <>
-      <JsonLd data={sectionJsonLd({ name: 'Restaurants and nightlife in Miami', description: metadata.description, path: '/restaurants-nightlife' })} />
+      <JsonLd data={[...sectionJsonLd({ name: 'Restaurants and nightlife in Miami', description: metadata.description, path: '/restaurants-nightlife' }), sectionFaqJsonLd('dining')]} />
       <VenueDirectory
         basePath="/restaurants-nightlife"
         searchParams={searchParams}

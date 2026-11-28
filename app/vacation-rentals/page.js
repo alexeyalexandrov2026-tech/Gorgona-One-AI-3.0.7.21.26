@@ -1,6 +1,6 @@
 import StayContent from './StayContent';
 import JsonLd from '../components/JsonLd';
-import { pageMetadata, sectionJsonLd } from '../../lib/seo.mjs';
+import { pageMetadata, sectionFaqJsonLd, sectionJsonLd } from '../../lib/seo.mjs';
 
 export const metadata = pageMetadata({
   title: 'Villas and vacation rentals in Miami',
@@ -11,7 +11,7 @@ export const metadata = pageMetadata({
 export default function VacationRentalsPage() {
   return (
     <>
-      <JsonLd data={sectionJsonLd({ name: 'Villas and vacation rentals in Miami', description: metadata.description, path: '/vacation-rentals' })} />
+      <JsonLd data={[...sectionJsonLd({ name: 'Villas and vacation rentals in Miami', description: metadata.description, path: '/vacation-rentals' }), sectionFaqJsonLd('villas')]} />
       <StayContent />
     </>
   );

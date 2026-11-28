@@ -14,7 +14,7 @@ import PartnerSpecs from '../../components/g1/PartnerSpecs';
 import SupplierVehicleDetails from '../../components/g1/SupplierVehicleDetails';
 import { getSunsetCopy } from '../../../lib/sunsetCopy.mjs';
 import { askAboutCarCopy } from '../../../lib/ai/stage2Copy.mjs';
-import { rentalSearchText, breadcrumbJsonLd, carJsonLd } from '../../../lib/seo.mjs';
+import { rentalSearchText, breadcrumbJsonLd, carJsonLd, vehicleJsonLd } from '../../../lib/seo.mjs';
 import JsonLd from '../../components/JsonLd';
 import { Crumbs, ListingCard, SectionHead, Specs, btn, eyebrowClass, sectionY } from '../../components/g1/ui';
 
@@ -53,7 +53,7 @@ export default async function RentalDetailPage({ params }) {
 
   return (
     <main className="flex-1 font-g1sans text-g1-ink">
-      <JsonLd data={[breadcrumbJsonLd([{ name: t.nav.cars, path: '/rentals' }, { name: rental.title, path: `/rentals/${rental.slug}` }]), carJsonLd(rental)]} />
+      <JsonLd data={[breadcrumbJsonLd([{ name: t.nav.cars, path: '/rentals' }, { name: rental.title, path: `/rentals/${rental.slug}` }]), carJsonLd(rental) || vehicleJsonLd(rental)]} />
       <Crumbs items={[[t.nav.cars, '/rentals'], [rental.title]]} />
 
       <div className="grid items-start gap-[clamp(24px,4vw,56px)] py-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
