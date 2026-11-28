@@ -67,13 +67,13 @@ try {
   await expect.poll(() => readMetadata(page)).toEqual(expectedMetadata);
   await expect(page.locator('#g1-hero-q')).toBeEnabled();
   await expect(page.locator('h1')).toHaveCount(1);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Save on the everyday. Splurge on the extraordinary.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Miami Elio — Luxury Yacht Charters, Exotic Car Rentals, Villas, Private Jets & Dining in Miami');
   await expect(page.locator('.g1-stage__bg')).toHaveAttribute('alt', '');
   await expect(page.getByRole('img', { name: 'Downtown Miami and Biscayne Bay from the air' })).toHaveCount(1);
   await expect(page.locator('img:not([alt])')).toHaveCount(0);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Save on the everyday. Splurge on the extraordinary.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Miami Elio — Luxury Yacht Charters, Exotic Car Rentals, Villas, Private Jets & Dining in Miami');
   // Match the data attribute supplied by the Android WebView.
   await page.evaluate(() => { document.documentElement.dataset.app = 'android'; });
   await expect(page.locator('h1')).toHaveCount(1);

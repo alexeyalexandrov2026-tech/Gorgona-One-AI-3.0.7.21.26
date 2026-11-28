@@ -3,9 +3,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import {
-  SITE_URL, DEFAULT_IMAGE, LEGAL_ROUTES, PRIVATE_ROUTES, SECTION_ROUTES, SEO_HEADINGS, SITEMAP_LASTMOD, SUPPORT_EMAIL,
-  attractionJsonLd, breadcrumbJsonLd, carJsonLd, clip, dailyPriceNumber, eventJsonLd, experienceSearchText, organizationJsonLd, pageMetadata,
-  rentalSearchText, sectionJsonLd, seoHeading, serializeJsonLd, sitemapEntries, venueJsonLd, venueSearchDescription, websiteJsonLd, withBrand
+  SITE_URL, DEFAULT_IMAGE, GOOGLE_PLAY_URL, HOME_SEO_HEADING, LEGAL_ROUTES, PRIVATE_ROUTES, SECTION_ROUTES, SEO_HEADINGS, SITEMAP_LASTMOD, SUPPORT_EMAIL,
+  attractionJsonLd, breadcrumbJsonLd, carJsonLd, clip, dailyPriceNumber, eventJsonLd, experienceSearchText, faqJsonLd, homeSeoHeading, itemListJsonLd,
+  mobileAppJsonLd, organizationJsonLd, pageMetadata, rentalSearchText, sectionFaqJsonLd, sectionJsonLd, seoHeading, serializeJsonLd, sitemapEntries,
+  vehicleJsonLd, venueJsonLd, venueSearchDescription, websiteJsonLd, withBrand
 } from '../../lib/seo.mjs';
 import { HEADOUT_COLLECTIONS } from '../../lib/headoutCatalog.mjs';
 import { getRentals } from '../../lib/rentalsData.js';
@@ -97,7 +98,7 @@ test('the organization describes the business and lists only contact details tha
   assert.equal(org.contactPoint.email, SUPPORT_EMAIL);
   assert.equal(org.contactPoint.telephone, '+1-786-492-8880');
   assert.equal(org.telephone, '+1-786-492-8880');
-  assert.deepEqual(org.sameAs, ['https://t.me/MIAMI_ELIO', 'https://wa.me/message/VO7GCPZCDKRZO1']);
+  assert.deepEqual(org.sameAs, ['https://t.me/MIAMI_ELIO', 'https://wa.me/message/VO7GCPZCDKRZO1', GOOGLE_PLAY_URL]);
   assert.match(source('app/privacy/page.js'), new RegExp(`CONTACT = '${SUPPORT_EMAIL}'`), 'the privacy page names the same address');
 });
 
@@ -364,4 +365,61 @@ test('PR #143: Header drops framer-motion, /events above-the-fold local hero, fu
   assert.equal(exists('app/opengraph-image.alt.txt'), false, 'orphaned opengraph-image.alt.txt must be removed');
   assert.doesNotMatch(source('public/sms-alerts.html'), /concierge/i);
   assert.doesNotMatch(source('public/sms-alerts.html'), /ALEXEY AAA|250 174/i);
+});
+
+test('P0 GEO / AI Visibility: robots opens /api/mcp for AI bots, rich Organization/MobileApp/FAQ/Car/ItemList schemas, Link headers, and upgraded llms.txt', () => {
+  const robotsSrc = source('app/robots.js');
+  assert.match(robotsSrc, /OAI-SearchBot/);
+  assert.match(robotsSrc, /GPTBot/);
+  assert.match(robotsSrc, /ClaudeBot/);
+  assert.match(robotsSrc, /PerplexityBot/);
+  assert.match(robotsSrc, /Google-Extended/);
+  assert.match(robotsSrc, /allow:\s*\['\/',\s*'\/api\/mcp'\]/);
+
+  const org = organizationJsonLd();
+  assert.deepEqual(org['@type'], ['Organization', 'TravelAgency']);
+  assert.equal(org.legalName, 'ALEXEY AAA LOGISTICS LLC');
+  assert.ok(org.alternateName.includes('Miami Elio') && org.alternateName.includes('Gorgona One'));
+  assert.ok(org.sameAs.includes(GOOGLE_PLAY_URL));
+
+  const app = mobileAppJsonLd();
+  assert.equal(app['@type'], 'MobileApplication');
+  assert.equal(app.url, GOOGLE_PLAY_URL);
+  assert.equal(app.inLanguage.length, 16);
+
+  const faq = sectionFaqJsonLd('home');
+  assert.equal(faq['@type'], 'FAQPage');
+  assert.ok(faq.mainEntity.length >= 3);
+  for (const key of ['home', 'rentals', 'yachts', 'villas', 'privateJets', 'dining']) {
+    const f = sectionFaqJsonLd(key);
+    assert.equal(f['@type'], 'FAQPage', key);
+    assert.doesNotMatch(JSON.stringify(f), /\bconcierge\b/i, `${key} FAQ must not use concierge wording`);
+  }
+  assert.equal(faqJsonLd([]), null);
+
+  const onReqCar = vehicleJsonLd({ slug: 'mercedes-amg-cle-53-cabriolet', title: 'Mercedes-Benz AMG CLE 53 Cabriolet', category: 'Convertibles', image: '/cars/cle.jpg', dailyPrice: 'On request' });
+  assert.equal(onReqCar['@type'], 'Car');
+  assert.equal(onReqCar.brand.name, 'Mercedes-Benz');
+  assert.ok(!('offers' in onReqCar), 'Car schema for On request vehicles does not fabricate a price');
+
+  const list = itemListJsonLd({ name: 'Cars', path: '/rentals', items: [{ name: 'Lamborghini Urus SE', path: '/rentals/lamborghini-urus-se' }] });
+  assert.equal(list['@type'], 'ItemList');
+  assert.equal(list.itemListElement[0].url, `${SITE_URL}/rentals/lamborghini-urus-se`);
+
+  assert.equal(homeSeoHeading('en', 'fallback'), HOME_SEO_HEADING);
+  assert.equal(homeSeoHeading('ru', 'fallback'), 'fallback');
+
+  const layout = source('app/layout.js');
+  assert.match(layout, /rel="alternate" type="text\/markdown".*href="\/llms\.txt"/);
+  const mw = source('middleware.js');
+  assert.match(mw, /<\/llms\.txt>; rel="alternate"; type="text\/markdown"/);
+  assert.match(mw, /X-Robots-Tag/);
+
+  const llms = source('public/llms.txt');
+  const llmsFull = source('public/llms-full.txt');
+  assert.match(llms, /com\.miamielio\.app/);
+  assert.match(llmsFull, /PereJets/);
+  assert.match(llmsFull, /Group Split-Pay/);
+  assert.doesNotMatch(llms, /\bconcierge\b/i);
+  assert.doesNotMatch(llmsFull, /\bconcierge\b/i);
 });

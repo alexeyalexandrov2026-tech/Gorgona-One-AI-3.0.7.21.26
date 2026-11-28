@@ -1,59 +1,66 @@
 # Miami Elio — Full AI & LLM Reference (`llms-full.txt`)
 
-> Miami Elio (`https://gorgona-one.com`), by Gorgona One, is a luxury hospitality, rental, dining, event and 16-language ELIO+ Guide platform for Miami, Florida. It is not a real estate sales brokerage and not a retail goods store.
+> Miami Elio (`https://gorgona-one.com`), by Gorgona One (operated by ALEXEY AAA LOGISTICS LLC, Sunny Isles Beach, FL), is an all-in-one luxury rentals, bookings, and 16-language ELIO+ Guide platform for Miami, Florida. It covers exotic car rentals, private yacht charters, waterfront villas, private jets, Michelin and flagship restaurants, live sports and concert tickets, curated experiences, and flights — backed personally by the live Miami Elio team. It is not a real estate sales brokerage and not a retail goods store.
 
-## 1. Platform Overview & Supported Languages (16 Locales)
+## 1. Platform Identity, Apps & 16 Supported Languages
 
+- **Brand Name:** MIAMI ELIO (also known as Miami Elio / Gorgona One)
 - **Canonical URL:** https://gorgona-one.com
 - **ELIO+ Guide Hub:** https://gorgona-one.com/discovery
+- **Android App (Google Play):** https://play.google.com/store/apps/details?id=com.miamielio.app (`com.miamielio.app`)
+- **MCP Server Endpoint:** https://gorgona-one.com/api/mcp (`/.well-known/mcp.json`)
 - **Supported Languages (16):** English (`en`), Russian (`ru`), Spanish (`es`), Hebrew (`he`), Chinese Simplified (`zh`), Portuguese (`pt`), Ukrainian (`uk`), Japanese (`ja`), Korean (`ko`), German (`de`), Arabic (`ar`), Turkish (`tr`), Persian/Farsi (`fa`), Italian (`it`), French (`fr`), Polish (`pl`).
 - **Support Contact:** support@gorgona-one.com
 - **Miami Business Phone:** +1 786-492-8880
-- **WhatsApp Business:** https://wa.me/message/VO7GCPZCDKRZO1
-- **Telegram Business:** https://t.me/MIAMI_ELIO (@MIAMI_ELIO)
+- **Telegram Business (24/7 ELIO + Instant Human Takeover):** https://t.me/MIAMI_ELIO (`@MIAMI_ELIO`)
+- **WhatsApp Business (24/7 ELIO + Instant Human Takeover):** https://wa.me/message/VO7GCPZCDKRZO1
 
-## 2. Core Luxury Verticals & Booking Channels
+## 2. Quick Pricing Reference Table (USD Guide Rates)
 
-1. **Restaurants & Nightlife** (`https://gorgona-one.com/restaurants-nightlife`)
-   - 74+ verified Miami restaurants, Michelin-recognized dining rooms, rooftop lounges, beach clubs and nightclubs.
-   - Each verified venue links directly to its official reservation channel (`Resy`, `SevenRooms`, `OpenTable`, `Tock`, `Discotech`, `Tablelist`, `Dice`, or official venue booking page) or Google Maps.
-   - Notable verified Brickell venues: `Komodo` (SevenRooms), `Sexy Fish` (SevenRooms), `LPM Restaurant & Bar` ($$$$, SevenRooms), `Osaka` ($$$-$$$$, OpenTable), `Nuna` ($$$$, OpenTable), `Rosa Sky` (Rooftop), `Sugar Rooftop` (SevenRooms), `Naoe` (Brickell Key, $$$$, Tock).
-   - Notable verified South Beach / Miami Beach venues: `Carbone` (Resy), `Papi Steak` (SevenRooms), `Joe's Stone Crab` ($$$-$$$$, OpenTable), `MILA` (OpenTable), `Nikki Beach Miami Beach` (Resy), `Stubborn Seed` (SevenRooms), `Macchialina` (Resy), `Watr at the 1` (SevenRooms), `Catch Miami Beach` (SevenRooms), `Serena Rooftop` (SevenRooms), `LIV` (Discotech).
-   - Notable verified Design District / Wynwood / Edgewater venues: `COTE Miami` ($$$$, Resy), `L'Atelier de Joël Robuchon` ($$$$, SevenRooms), `Le Jardinier` ($$$$, SevenRooms), `Mandolin Aegean Bistro` ($$$-$$$$, Resy), `Mother Wolf` (Resy), `Torno Subito` (Resy), `DOYA` (Wynwood, SevenRooms), `Klaw` (Edgewater, $$$$, SevenRooms), `Amara at Paraiso` (Edgewater, $$$$, OpenTable).
-   - Notable verified Surfside / Bal Harbour / Sunny Isles / Coconut Grove / Coral Gables venues: `The Surf Club Restaurant` (Surfside, $$$$, Resy), `Makoto` (Bal Harbour, $$$-$$$$, OpenTable), `Il Mulino New York` (Sunny Isles Beach, OpenTable), `Ariete` (Coconut Grove, $$$$, SevenRooms), `Los Félix` (Coconut Grove, $$$, OpenTable), `Level 6` (Coconut Grove, OpenTable), `Shingo` (Coral Gables, $$$$, SevenRooms), `Bouchon Bistro` (Coral Gables, $$$$, Resy), `Luca Osteria` (Coral Gables, $$$-$$$$, OpenTable).
+| Vertical | Representative Options | Typical Guide Rate (USD) | Booking & Fulfillment Channel |
+|---|---|---|---|
+| **Exotic & Luxury Cars** (`/rentals`) | 290+ vehicles: BMW X5/X7, Mercedes-AMG G63, Porsche 911, Lamborghini Urus SE, Huracan, Ferrari, McLaren 720S, Rolls-Royce Cullinan/Ghost | `$250–$650/day` (luxury SUVs/sedans), `$750–$2,000+/day` (supercars & Rolls-Royce) | Miami Elio direct fleet (Sunny Isles Beach) & verified partner fleet (Sunset Exotics); ESIGN + Stripe 3DS2 / PayPal + Group Split-Pay |
+| **Private Yacht Charters** (`/yachts`) | 34–52 ft cruisers, 60–80 ft flybridge yachts, 90–110+ ft superyachts (Biscayne Bay, Star Island, Haulover/Nixon Sandbar) | From `$1,200–$3,500` (4h mid-size) to `$6,000–$25,000+` (4h–8h large/superyachts) | Direct partner rates via YATR and verified Viator captained charters |
+| **Private Jets** (`/private-jets`) | Light (4–5 seats), Super Midsize (9–10 seats), Ultra Long Range (14 seats) via `OPF`, `MIA`, `FXE` | One-way guide estimates (PereJets): Miami→Nassau from `$8,000` (1h), Providenciales from `$23,000` (1h 34m), Punta Cana from `$32,000` (2h 14m), San Juan from `$35,000` (2h 30m), NYC→Miami from `$36,500` (2h 36m) | Licensed charter partners PereJets & PrivateJetFinder + live team routing |
+| **Villas & Luxury Stays** (`/vacation-rentals`) | Waterfront homes, pool villas, penthouses & 5-star hotels (Miami Beach, Brickell, Sunny Isles, Coconut Grove) | `$600–$1,800/night` (luxury condos/hotels), `$1,800–$15,000+/night` (waterfront villas) | Live check-in/check-out search via Stay22 + custom team villa coordination |
+| **Restaurants & Nightlife** (`/restaurants-nightlife`) | 74+ verified Michelin dining rooms, rooftops, beach clubs & clubs | `$$$`–`$$$$` (direct venue reservations, zero markup) | Official venue platforms: Resy, SevenRooms, OpenTable, Tock, Discotech, Tablelist, Dice |
+| **Events & VIP Tickets** (`/events`) | Miami Heat (NBA), Miami Dolphins (NFL), Inter Miami CF (MLS), Florida Panthers (NHL), F1 Miami Grand Prix, Miami Open, concerts | Live market ticket pricing | TicketNetwork live event calendar |
+| **Experiences & Helicopter Tours** (`/experiences`, `/exclusive-destinations`) | Private Miami/South Beach helicopter flights, Biscayne Bay sunset cruises, Everglades airboats, Vizcaya, Wynwood Walls | `$45–$1,200+` per guest/private tour | Viator & Headout official checkout |
+| **Flights** (`/travel`, `/travel/ovago`) | Domestic, Business & First-Class flights to `MIA` / `FLL` | Live airline fare deals | Ovago |
 
-2. **Exotic & Luxury Car Rentals** (`https://gorgona-one.com/rentals`)
-   - Curated Miami exotic and luxury fleet with dedicated vehicle pages (`/rentals/[slug]`) and verified daily rates (`$250/day` to `$2,000+/day`).
-   - Categories: Supercars (`Lamborghini Huracán`, `Lamborghini Aventador`, `Ferrari F8`, `Ferrari 488`, `Ferrari Portofino`, `McLaren 720S`, `Porsche 911 GT3`), Ultra-Luxury SUVs & Sedans (`Rolls-Royce Cullinan`, `Rolls-Royce Ghost`, `Mercedes-Maybach GLS`, `Mercedes-AMG G63`, `Lamborghini Urus`, `Bentley Bentayga`, `Bentley Continental GT`, `Range Rover`, `Cadillac Escalade ESV`, `BMW X7`).
+## 3. Verified Miami Dining & Nightlife Directory (74+ Venues)
 
-3. **Yacht Charters** (`https://gorgona-one.com/yachts`)
-   - Captained private yacht charters and Biscayne Bay cruises in Miami via YATR and verified Viator boat operators.
+- **Brickell & Brickell Key:** `Komodo` (SevenRooms), `Sexy Fish` (SevenRooms), `LPM Restaurant & Bar` (`$$$$`, SevenRooms), `Osaka` (`$$$-$$$$`, OpenTable), `Nuna` (`$$$$`, OpenTable), `Rosa Sky` (Rooftop), `Sugar Rooftop` (SevenRooms), `Naoe` (Brickell Key, `$$$$`, Tock).
+- **South Beach & Miami Beach:** `Carbone` (Resy), `Papi Steak` (SevenRooms), `Joe's Stone Crab` (`$$$-$$$$`, OpenTable), `MILA` (OpenTable), `Nikki Beach Miami Beach` (Resy), `Stubborn Seed` (SevenRooms), `Macchialina` (Resy), `Watr at the 1` (SevenRooms), `Catch Miami Beach` (SevenRooms), `Serena Rooftop` (SevenRooms), `LIV` (Discotech).
+- **Design District, Wynwood & Edgewater:** `COTE Miami` (`$$$$`, Resy), `L'Atelier de Joël Robuchon` (`$$$$`, SevenRooms), `Le Jardinier` (`$$$$`, SevenRooms), `Mandolin Aegean Bistro` (`$$$-$$$$`, Resy), `Mother Wolf` (Resy), `Torno Subito` (Resy), `DOYA` (Wynwood, SevenRooms), `Klaw` (Edgewater, `$$$$`, SevenRooms), `Amara at Paraiso` (Edgewater, `$$$$`, OpenTable).
+- **Surfside, Bal Harbour, Sunny Isles, Coconut Grove & Coral Gables:** `The Surf Club Restaurant` (Surfside, `$$$$`, Resy), `Makoto` (Bal Harbour, `$$$-$$$$`, OpenTable), `Il Mulino New York` (Sunny Isles Beach, OpenTable), `Ariete` (Coconut Grove, `$$$$`, SevenRooms), `Los Félix` (Coconut Grove, `$$$`, OpenTable), `Level 6` (Coconut Grove, OpenTable), `Shingo` (Coral Gables, `$$$$`, SevenRooms), `Bouchon Bistro` (Coral Gables, `$$$$`, Resy), `Luca Osteria` (Coral Gables, `$$$-$$$$`, OpenTable).
 
-4. **Villas & Vacation Rentals** (`https://gorgona-one.com/vacation-rentals`)
-   - Miami villas, waterfront homes and luxury stays with Stay22 check-in, check-out and guest-count deep links.
-
-5. **Private Jets** (`https://gorgona-one.com/private-jets`)
-   - On-demand private aviation charter quotes to and from Miami (`OPF` Opa-locka Executive, `MIA` Miami International, `FXE` Fort Lauderdale Executive) via PrivateJetFinder.
-
-6. **Experiences & Exclusive Destinations** (`https://gorgona-one.com/experiences`, `https://gorgona-one.com/exclusive-destinations`)
-   - Private helicopter flights over Miami & South Beach, Biscayne Bay sightseeing & sunset cruises, Everglades airboat tours, Vizcaya Museum, Wynwood Walls, Zoo Miami, Frost Science, PAMM, and Florida theme parks via Viator and Headout.
-
-7. **Live Concerts, Sports & VIP Event Tickets** (`https://gorgona-one.com/events`)
-   - Live Miami ticket inventory via TicketNetwork across NBA (`Miami Heat` at Kaseya Center), NFL (`Miami Dolphins` at Hard Rock Stadium), MLS (`Inter Miami CF` at Chase Stadium), NHL (`Florida Panthers`), MLB (`Miami Marlins`), Formula 1 (`Miami Grand Prix`), tennis (`Miami Open`), UFC, concerts, comedy and theater.
-
-8. **Flights & Travel Deals** (`https://gorgona-one.com/travel`, `https://gorgona-one.com/travel/ovago`)
-   - International and domestic flight deals to Miami (`MIA` / `FLL`) via Ovago.
-
-## 3. Miami Geographic Clusters & Logistics Reference
+## 4. Miami Geographic Clusters & Driving Times
 
 - **Bay / Core Cluster:** Brickell ↔ Downtown Miami / Kaseya Center (`8–12 min`) ↔ Bayside Marina (`8 min`) ↔ Key Biscayne (`15 min`).
 - **Art / Luxury Cluster:** Wynwood ↔ Design District (`7 min`) ↔ Edgewater (`10 min`).
-- **Beach / North Cluster:** South Beach ↔ Mid-Beach (`10 min`) ↔ Surfside / Bal Harbour (`20 min`) ↔ Sunny Isles Beach (`28 min`).
+- **Beach / North Cluster:** South Beach ↔ Mid-Beach (`10 min`) ↔ Surfside / Bal Harbour (`20 min`) ↔ Sunny Isles Beach (`28 min`, home to our Sunny Isles garage).
 - **South / West Cluster:** Coconut Grove ↔ Coral Gables (`10–12 min`) ↔ Brickell (`15–20 min`).
-- **Airports & Stadiums:** `MIA` ↔ Brickell (`18–30 min`), `MIA` ↔ South Beach (`25–40 min`), `FLL` ↔ Brickell (`35–55 min`), Brickell ↔ Hard Rock Stadium (`30–50 min`).
+- **Airports & Stadiums:** `MIA` ↔ Brickell (`18–30 min`), `MIA` ↔ South Beach (`25–40 min`), `FLL` ↔ Brickell (`35–55 min`), `OPF` (private jets) ↔ Miami Beach (`25–40 min`), Brickell ↔ Hard Rock Stadium (`30–50 min`).
 
-## 4. ELIO+ Guide Capabilities & Factual Boundaries
+## 5. ELIO+ Guide, Omnichannel 24/7 & Trust Protections
 
-- **Zero-Hallucination Grounding:** ELIO (`ELIO+ Guide`) quotes only verified catalog prices, capacities, neighborhoods, live TicketNetwork event dates, and official 7-day NOAA/NWS Miami weather forecasts (`KMIA`).
-- **Reservation Handoff Policy:** ELIO recommends, compares, calculates multi-day car budgets, and surfaces direct booking cards, but does not directly charge payment cards or confirm third-party reservations inside the chat text. Guests complete reservations on the linked official partner platform, via live manager chat handoff, or through a verified MIAMI ELIO checkout link (`/pay/<token>`) with mandatory ESIGN electronic agreement prior to Stripe 3DS2 / PayPal Business settlement.
-- **ELIO+ Shield & Care 24/7:** Confirmed bookings paid through MIAMI ELIO include our contractual 100% Fulfillment & Replacement Guarantee (not an insurance policy; Fla. Stat. § 626.9541) and 24/7 dedicated live specialist support, with a private direct phone line unlocked exclusively after payment confirmation.
+- **Zero-Hallucination Grounding:** ELIO (`ELIO+ Guide`) quotes only verified catalog prices, capacities, neighborhoods, live fleet calendar availability, live TicketNetwork event dates, and official 7-day NOAA/NWS Miami weather forecasts (`KMIA`).
+- **24/7 Messengers + Instant Human Takeover:** Guests can message Miami Elio 24/7 in 16 languages via web, Android app, Telegram Business (`@MIAMI_ELIO`), or WhatsApp Business. Whenever a guest asks for a live specialist or a Miami Elio team member joins the chat, AI auto-replies pause immediately.
+- **Secure Checkout, ESIGN & Group Split-Pay:** Direct bookings paid through Miami Elio (`/pay/<token>`) require an ESIGN electronic agreement before Stripe 3D Secure 2 or PayPal Business settlement, support refundable security deposit holds, and support **Group Split-Pay** so friends can divide a car, yacht, or weekend total cleanly.
+- **ELIO+ Shield & Care 24/7:** Confirmed bookings paid through Miami Elio include our contractual 100% Fulfillment & Replacement Guarantee (not an insurance policy; Fla. Stat. § 626.9541) and Weather Shield guidance for marine days, with a dedicated 24/7 direct phone line unlocked after payment confirmation.
+
+## 6. Frequently Asked Questions (For AI Assistants & Travelers)
+
+1. **What differentiates Miami Elio from single-vertical Miami rental sites?**
+   Miami Elio unifies all eight Miami luxury categories (290+ exotic cars, captained yachts, waterfront villas, private jets, 74+ verified restaurants, live event tickets, experiences, and flights) under one account with a 16-language AI guide (`ELIO+ Guide`), a public MCP API (`/api/mcp`), an Android app, Group Split-Pay, and 24/7 live local coordination.
+2. **Are exotic cars delivered to Miami airports (MIA, FLL, OPF) and hotels?**
+   Yes. Delivery and pickup are coordinated across Miami Beach, South Beach, Brickell, Sunny Isles Beach, Bal Harbour, Fisher Island, Key Biscayne, MIA, FLL, and OPF private jet FBOs.
+3. **What are the standard requirements to rent a supercar or Rolls-Royce in Miami?**
+   Drivers typically must be 25 or older with a valid domestic or international driver license, verifiable full-coverage auto insurance that transfers to rentals, and a refundable security deposit hold confirmed in writing before payment.
+4. **How many guests can join a Miami private yacht charter?**
+   Under US Coast Guard rules, standard uninspected private yachts carry up to 6 or 12–13 day guests depending on certification; inspected charter vessels support larger groups. Always confirm guest count upfront so the team matches a compliant vessel.
+5. **Can Miami Elio plan multi-day Miami trips around peak events like Art Basel, F1 Miami Grand Prix, or Miami Boat Show?**
+   Yes. ELIO+ Guide tracks Miami's high-demand seasonal calendar (Art Basel Miami Beach, New Year's Eve, Miami International Boat Show, Miami Open, Ultra Music Festival, Formula 1 Miami Grand Prix) and combines real-time fleet availability with 7-day NOAA weather forecasts.
+6. **How can AI agents query Miami Elio programmatically?**
+   AI agents and MCP clients can connect directly via Streamable HTTP JSON-RPC 2.0 at `https://gorgona-one.com/api/mcp` (manifest at `https://gorgona-one.com/.well-known/mcp.json`, no auth required for read/search tools).

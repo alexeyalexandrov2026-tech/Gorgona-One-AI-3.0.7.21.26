@@ -8,6 +8,7 @@ import { useConciergeChat } from '../ai/ChatProvider';
 import { useVoice } from '../ai/useVoice';
 import { voiceInputUnavailable } from '../../../lib/ai/voiceInputCopy.mjs';
 import { pickFreshHomeChips } from '../../../lib/homePromptPool.mjs';
+import { homeSeoHeading } from '../../../lib/seo.mjs';
 import { AiSphereArtwork } from '../ai/AiSphere';
 import HomeSectionRail from './HomeSectionRail';
 import HeroShowcase from './HeroShowcase';
@@ -226,7 +227,7 @@ export default function HomeHero({ copy, showcase = [] }) {
           height="2100"
           fetchPriority="high"
         />
-        <h1 className="sr-only">{copy.titleA}{copy.titleEm}{copy.titleB}</h1>
+        <h1 className="sr-only">{homeSeoHeading(locale, `${copy.titleA}${copy.titleEm}${copy.titleB}`)}</h1>
         <p className="sr-only">{copy.lede}</p>
         <div className="g1-horizon" ref={introRef} aria-hidden="true">
           <div className="g1-horizon-stack">

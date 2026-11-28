@@ -29,8 +29,18 @@ export function middleware(request) {
   response.headers.set('Content-Security-Policy', CONTENT_SECURITY_POLICY);
 
   const pathname = request.nextUrl?.pathname || '';
-  if (PRIVATE_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix + '/'))) {
+  const isPrivate = PRIVATE_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(prefix + '/'));
+  if (isPrivate) {
     response.headers.set('Cache-Control', 'no-store');
+  } else if (!pathname.startsWith('/api/')) {
+    response.headers.set(
+      'Link',
+      '</llms.txt>; rel="alternate"; type="text/markdown", </.well-known/mcp.json>; rel="describedby"; type="application/json"'
+    );
+    const params = request.nextUrl?.searchParams;
+    if (params && (params.has('probe') || params.has('v'))) {
+      response.headers.set('X-Robots-Tag', 'noindex, follow');
+    }
   }
   return response;
 }

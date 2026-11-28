@@ -1,6 +1,6 @@
 import PrivateJetsContent from './PrivateJetsContent';
 import JsonLd from '../components/JsonLd';
-import { pageMetadata, sectionJsonLd } from '../../lib/seo.mjs';
+import { pageMetadata, sectionFaqJsonLd, sectionJsonLd } from '../../lib/seo.mjs';
 
 const title = 'Private Jet Charter Miami — On-Demand Flights | Miami Elio';
 const description = 'Book private jet charters to and from Miami (OPF, MIA, FXE). Flexible aircraft options, transparent quotes, and 24/7 ELIO+ Guide coordination.';
@@ -16,7 +16,7 @@ export const metadata = pageMetadata({
 export default function PrivateJetsPage() {
   return (
     <>
-      <JsonLd data={sectionJsonLd({ name: 'Private Jet Charter in Miami', description, path: '/private-jets' })} />
+      <JsonLd data={[...sectionJsonLd({ name: 'Private Jet Charter in Miami', description, path: '/private-jets' }), sectionFaqJsonLd('privateJets')]} />
       <PrivateJetsContent />
     </>
   );

@@ -1,36 +1,39 @@
 # Miami Elio
 
-> Miami Elio, by Gorgona One, is a luxury rentals, bookings and ELIO+ Guide platform for Miami. ELIO works in 16 languages. It covers yacht charters, exotic car rentals, villa and hotel bookings, private jet charters, curated experiences, concert, sports and VIP event tickets, and restaurants and nightlife. It is not a real estate sales site and not a retail store.
+> Miami Elio, by Gorgona One (`https://gorgona-one.com`), is a luxury rentals, bookings, and 16-language ELIO+ Guide platform for Miami, Florida. It brings together eight verticals in one account: exotic and luxury car rentals (290+ vehicles), captained yacht charters, waterfront villas and stays, private jet charters, 74+ verified Michelin and flagship restaurants and nightlife venues, live sports and concert tickets, curated Florida experiences, and flights. Every confirmed booking is handled personally by the live Miami Elio team with ESIGN agreement, Stripe 3DS2 / PayPal Business checkout, optional Group Split-Pay, and ELIO+ Shield 100% Fulfillment & Replacement Guarantee. It is not a real estate sales site and not a retail store.
 
 Website: https://gorgona-one.com
+Legal Entity: ALEXEY AAA LOGISTICS LLC (Sunny Isles Beach, FL)
+Android App (Google Play): https://play.google.com/store/apps/details?id=com.miamielio.app
 Phone: +1 786-492-8880
-WhatsApp Business: https://wa.me/message/VO7GCPZCDKRZO1
-Telegram Business: https://t.me/MIAMI_ELIO
+Support Email: support@gorgona-one.com
+Telegram Business (24/7 ELIO + Live Team): https://t.me/MIAMI_ELIO
+WhatsApp Business (24/7 ELIO + Live Team): https://wa.me/message/VO7GCPZCDKRZO1
 
-Many listings come from partners. Quotes, bookings and payments for those listings are handled by the partner named on each page.
+Many listings come from verified partners. Quotes, bookings and payments for partner-hosted listings are handled by the partner named on each page.
 
 ## Main sections
 
-- [ELIO+ Guide — Discovery Room](https://gorgona-one.com/discovery): 16-language AI guide (ELIO) for Miami itineraries, venue comparisons, live NOAA weather planning and direct booking cards.
-- [Yacht charters](https://gorgona-one.com/yachts): Charter yachts in Miami through a partner catalogue.
-- [Exotic and luxury car rentals](https://gorgona-one.com/rentals): Cars available to rent in Miami, with a page for each vehicle.
-- [Villas and vacation rentals](https://gorgona-one.com/vacation-rentals): Villas and stays in Miami.
-- [Private jets](https://gorgona-one.com/private-jets): Request a private jet charter quote through a partner.
-- [Experiences](https://gorgona-one.com/experiences): Tours, attractions and tickets in Miami and across Florida.
-- [Event tickets](https://gorgona-one.com/events): Sports and concert tickets.
-- [Restaurants and nightlife](https://gorgona-one.com/restaurants-nightlife): Restaurants, clubs and rooftops in Miami.
-- [Exclusive destinations](https://gorgona-one.com/exclusive-destinations): Private yachts, cruises, helicopter flights and hand-picked tours.
-- [Travel and flight deals](https://gorgona-one.com/travel): Business, first-class and Miami flight offers.
+- [ELIO+ Guide — Discovery Room](https://gorgona-one.com/discovery): 16-language AI guide (ELIO) for Miami itineraries, venue comparisons, live 7-day NOAA weather planning (`KMIA`), fleet availability checks, and direct booking cards.
+- [Exotic and luxury car rentals](https://gorgona-one.com/rentals): 290+ Miami supercars, luxury SUVs, convertibles, and sedans with dedicated vehicle pages, published daily rates, and airport/hotel delivery across Miami Beach, Brickell, Sunny Isles, MIA, FLL, and OPF.
+- [Yacht charters](https://gorgona-one.com/yachts): Captained private yacht charters and Biscayne Bay cruises in Miami through YATR and verified Viator operators.
+- [Villas and vacation rentals](https://gorgona-one.com/vacation-rentals): Luxury villas, waterfront homes, and stays across Miami Beach, Brickell, Sunny Isles Beach, and Coconut Grove.
+- [Private jets](https://gorgona-one.com/private-jets): On-demand private jet charter quotes to and from Miami (`OPF`, `MIA`, `FXE`) through licensed partners PereJets (with one-way guide prices) and PrivateJetFinder.
+- [Restaurants and nightlife](https://gorgona-one.com/restaurants-nightlife): 74+ verified Miami restaurants, Michelin-starred dining rooms, rooftops, beach clubs, and nightclubs with direct official links (Resy, SevenRooms, OpenTable, Tock, Discotech).
+- [Event tickets](https://gorgona-one.com/events): Live Miami sports and concert tickets (NBA Miami Heat, NFL Miami Dolphins, MLS Inter Miami CF, F1 Miami Grand Prix, Miami Open, concerts) via TicketNetwork.
+- [Experiences](https://gorgona-one.com/experiences): Tours, attractions, Everglades airboats, helicopter flights, and tickets across Miami and Florida via Viator and Headout.
+- [Exclusive destinations](https://gorgona-one.com/exclusive-destinations): Private yachts, cruises, helicopter flights, and hand-picked VIP outings.
+- [Travel and flight deals](https://gorgona-one.com/travel): Business, first-class, and Miami flight offers via Ovago.
 
 ## AI Agents & MCP Integration
 
-- [Miami Elio MCP Server (Streamable HTTP)](https://gorgona-one.com/api/mcp): Official Model Context Protocol (JSON-RPC 2.0) endpoint exposing live luxury car search (290 vehicles), garage availability & Split-Pay quotes, verified Miami dining/nightlife, live events & experiences, itinerary builder, and explicit booking request submission.
-- [MCP Discovery Manifest](https://gorgona-one.com/.well-known/mcp.json): Machine-readable MCP server card with tool list and protocol version.
+- [Miami Elio MCP Server (Streamable HTTP)](https://gorgona-one.com/api/mcp): Official Model Context Protocol (JSON-RPC 2.0) endpoint exposing 6 live tools: `search_luxury_cars` (290 vehicles), `check_car_availability` (live garage calendar + Split-Pay quotes), `search_miami_dining` (74+ verified venues), `search_miami_events_and_experiences`, `build_miami_itinerary`, and `submit_booking_request`.
+- [MCP Discovery Manifest](https://gorgona-one.com/.well-known/mcp.json): Machine-readable MCP server card with tool list, resources, and protocol version `2025-03-26`.
 
 ## Reference
 
-- [Full AI Knowledge Base](https://gorgona-one.com/llms-full.txt): Detailed Miami catalog reference, neighborhoods, driving times, pricing tiers, verified dining directory and ELIO+ Guide capabilities.
-- [Sitemap](https://gorgona-one.com/sitemap.xml): Every public page.
+- [Full AI Knowledge Base](https://gorgona-one.com/llms-full.txt): Complete pricing reference table, neighborhood logistics, verified dining directory, Android app, checkout protections, and FAQ answers for AI assistants.
+- [Sitemap](https://gorgona-one.com/sitemap.xml): All 480+ public pages.
 - [Affiliate disclosure](https://gorgona-one.com/affiliate-disclosure): How partner links work.
 - [Privacy](https://gorgona-one.com/privacy)
 - [Terms](https://gorgona-one.com/terms)
